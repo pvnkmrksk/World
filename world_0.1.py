@@ -16,19 +16,19 @@ loadPrcFileData("", "win-size 2720 768")
 class MyApp(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
-        self.world = self.loader.loadModel("models/world0SS.bam")
+        self.world = self.loader.loadModel("models/world65.bam")
         self.world.reparentTo(self.render)
 
         # relevant for world boundaries
-        self.worldsize = 32
+        self.worldsize = 65
 
         self.player = self.loader.loadModel("models/alliedflanker.egg")
-        self.player.setPos(self.world, 5, 5, 1)
+        self.player.setPos(self.world, 15, 15, 0.01)
         self.player.setH(self.world, 270)
         # self.player.reparentTo(self.render)
         #
         self.tree = self.loader.loadModel("models/treeHighB.egg")
-        self.tree.setPos(self.world, 5, 6, 1)
+        self.tree.setPos(self.world, 5, 6, 0)
         self.tree.reparentTo(self.render)
         self.tree.setScale(.009, .009, .02)
 
