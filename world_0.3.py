@@ -1,5 +1,6 @@
 import sys
 import rospy
+# import servo
 from beginner.msg import MsgFlystate
 from direct.gui.OnscreenText import OnscreenText
 from direct.showbase.ShowBase import ShowBase
@@ -7,7 +8,6 @@ from direct.task import Task
 from panda3d.core import AmbientLight, DirectionalLight, Vec4, Vec3, Fog, LVecBase3f
 from panda3d.core import loadPrcFileData, NodePath
 from pandac.PandaModules import CompassEffect
-
 
 size = 257
 
@@ -23,14 +23,15 @@ class MyApp(ShowBase):
         # Constatns
 
         # booleans
-        self.loadSpheres = True#False
-        self.loadTree = True#False
+        self.loadSpheres = True  # False
+        self.loadTree = True  # False
         self.loadWind = True
 
         # params
         self.worldSize = size  # relevant for world boundaries
-        self.initPos = LVecBase3f(self.worldSize / 2, self.worldSize / 2.5, 1.3)  # z is factored by 2 dunno why?
+        self.initPos = LVecBase3f(self.worldSize / 2, 114, 1.3)  # z is factored by 2 dunno why?
         self.initH = 0
+
 
         self.speed = 0.0
         self.maxspeed = 25.0
@@ -54,33 +55,33 @@ class MyApp(ShowBase):
 
         # sphere
         # load model, set position, set scale, apply texture
-        self.spherePath="models/sphere.egg"
+        self.spherePath = "models/sphere.egg"
 
         if self.loadSpheres:
             # Red sphere
             self.redSphere = self.loader.loadModel("models/sphere.egg")
             self.redSphere.setPos(self.world, self.worldSize / 2 - 10, self.worldSize / 2, 1.8)
-            self.redSphere.setScale(0.25)
+            self.redSphere.setScale(0.4)
             # load redSphere texture
             self.redTex = self.loader.loadTexture("models/red.tga")
             self.redSphere.setTexture(self.redTex)
-            self.redSphere.reparentTo(self.render)
+            # self.redSphere.reparentTo(self.render)
 
             # Green Sphere
             self.greenSphere = self.loader.loadModel("models/sphere.egg")
-            self.greenSphere.setPos(self.redSphere, 10, 0, 0)
-            self.greenSphere.setScale(0.25)
+            self.greenSphere.setPos(self.world, self.worldSize / 2 +10, self.worldSize / 2, 1.8)
+            self.greenSphere.setScale(0.4)
             # load greenSphere texture
             self.greenTex = self.loader.loadTexture("models/green.tga")
             self.greenSphere.setTexture(self.greenTex)
-            # self.greenSphere.reparentTo(self.render)
+            self.greenSphere.reparentTo(self.render)
 
         # Load tree
 
         if self.loadTree:
             self.tree = self.loader.loadModel("models/treeHighB.egg")
-            self.tree.setPos(self.world, self.worldSize / 2 + 10, self.worldSize / 2, 1)
-            self.tree.setScale(0.01)
+            self.tree.setPos(self.world, self.worldSize / 2 - 10, self.worldSize / 2, 1)
+            self.tree.setScale(0.03)
 
             self.treeTex = self.loader.loadTexture("models/BarkBrown.tga")
             self.tree.setTexture(self.treeTex)
@@ -94,23 +95,28 @@ class MyApp(ShowBase):
         self.taskMgr.add(self.updateTask, "update")
         self.keyboardSetup()
         self.createEnvironment()
+        # self.i
 
-    def modelLoader(self,modelName,modelPath,modelPos, modelScale,texName,texPath,modelParent):
-        modelName=self.loader.loadModel(modelPath)
-        modelName.setPos(modelParent,modelPos)
+    def trajectory(self):
+        pass
+
+    def windTunnel(self,windDirection):
+        self.servoAngle=(self.player.getH()%360)-180
+
+    def modelLoader(self, modelName, modelPath, modelPos, modelScale, texName, texPath, modelParent):
+        modelName = self.loader.loadModel(modelPath)
+        modelName.setPos(modelParent, modelPos)
         modelName.setScale(modelScale)
 
-        texName=self.loader.loadTexture(texPath)
+        texName = self.loader.loadTexture(texPath)
         modelName.setTexture(texName)
         modelName.reparentTo(self.render)
-
 
     def callback(self, data):
         """ Returns Wing Beat Amplitude Difference from received data"""
         self.wbad = data.left.angles[0] - data.right.angles[0]
         self.wbas = data.left.angles[0] + data.right.angles[0]
         return self.wbad
-
 
     def listener(self):
         """ Listens to Kinefly Flystate topic"""
@@ -123,7 +129,9 @@ class MyApp(ShowBase):
 
     def keyboardSetup(self):
         self.keyMap = {"left": 0, "right": 0, "climb": 0, "fall": 0, \
-                       "accelerate": 0, "decelerate": 0, "closed": 0, "reverse": 0, "init": 0,"gain-up":0,"gain-down":0}
+                       "accelerate": 0, "decelerate": 0, "reverse": 0,
+                       "closed": 0, "init": 0, "gain-up": 0, "gain-down": 0,
+                       "newInit": 0}
         self.accept("escape", sys.exit)
         self.accept("a", self.setKey, ["climb", 1])
         self.accept("a-up", self.setKey, ["climb", 0])
@@ -143,10 +151,12 @@ class MyApp(ShowBase):
         self.accept("r-up", self.setKey, ["reverse", 0])
         self.accept("i", self.setKey, ["init", 1])
         self.accept("i-up", self.setKey, ["init", 0])
-        self.accept("u",self.setKey,["gain-up",1])
-        self.accept("u-up",self.setKey,["gain-up",0])
-        self.accept("y",self.setKey,["gain-down",1])
-        self.accept("y-up",self.setKey,["gain-down",0])
+        self.accept("u", self.setKey, ["gain-up", 1])
+        self.accept("u-up", self.setKey, ["gain-up", 0])
+        self.accept("y", self.setKey, ["gain-down", 1])
+        self.accept("y-up", self.setKey, ["gain-down", 0])
+        self.accept("]", self.setKey, ["newInit", 1])
+        self.accept("]-up", self.setKey, ["newInit", 0])
 
         base.disableMouse()  # or updateCamera will fail!
 
@@ -190,14 +200,14 @@ class MyApp(ShowBase):
         # by default, panda runs as fast as it can frame to frame
         scalefactor = self.speed * 1 / 250  # (globalClock.getDt()*self.speed)
         climbfactor = (.01) + scalefactor * 1
-        bankfactor = .5#(.4) + scalefactor * 6.5
+        bankfactor = .5  # (.4) + scalefactor * 6.5
         speedfactor = scalefactor * 1
 
         # print self.wbad
 
         # closed loop
         if (self.keyMap["closed"] != 0):
-            self.player.setH(self.player.getH() + self.wbad * self.closedGain)
+            self.player.setH(self.player.getH() - self.wbad * self.closedGain)
 
         # Climb and Fall
         if (self.keyMap["climb"] != 0):  # and self.speed > 0.00):
@@ -254,16 +264,20 @@ class MyApp(ShowBase):
             self.player.setPos(self.world, self.initPos)
             self.player.setH(self.initH)
 
-        #update gain
-        self.gainIncrement=0.005
-        if (self.keyMap["gain-up"]!=0):
-            self.closedGain+=self.gainIncrement
+        if (self.keyMap["newInit"]!=0):
+            self.initPos=self.player.getPos(self.world)
+            self.initH=self.player.getH(self.world)
+            print "new init pos is ", self.initPos
+            print "new init H is ", self.initH
+        # update gain
+        self.gainIncrement = 0.005
+        if (self.keyMap["gain-up"] != 0):
+            self.closedGain += self.gainIncrement
             print "gain is", self.closedGain
-        elif (self.keyMap["gain-down"]!=0):
-            self.closedGain-=self.gainIncrement
+        elif (self.keyMap["gain-down"] != 0):
+            self.closedGain -= self.gainIncrement
 
             print "gain is ", self.closedGain
-
 
     def updateCamera(self):
         # see issue content for how we calculated these:
