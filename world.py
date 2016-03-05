@@ -1,6 +1,5 @@
 import sys
 import time
-
 import rospy
 # import servo
 from beginner.msg import MsgFlystate
@@ -8,6 +7,7 @@ import std_msgs.msg
 from direct.gui.OnscreenText import OnscreenText
 from direct.showbase.ShowBase import ShowBase
 from direct.task import Task
+# from world.msg
 from panda3d.core import AmbientLight, DirectionalLight, Vec4, Vec3, Fog
 from panda3d.core import loadPrcFileData, NodePath, TextNode
 from pandac.PandaModules import CompassEffect
@@ -16,7 +16,6 @@ import subprocess, rostopic
 import matplotlib.pyplot as plt
 from matplotlib.path import Path
 import matplotlib.patches as patches
-
 
 try:
     # Checkif rosmaster is running or not.
@@ -27,6 +26,12 @@ except rostopic.ROSTopicIOException as e:
     time.sleep(1)  # wait a bit to be sure the roscore is really launched
     subprocess.Popen(["roslaunch", "Kinefly", "main.launch"])
 
+import os
+import matplotlib.pyplot as plt
+
+
+
+# \btodo\b.fix funtions order
 
 class MyApp(ShowBase):
     def __init__(self):
@@ -38,34 +43,40 @@ class MyApp(ShowBase):
         # globalClock.setFrameRate(self.fps)
         rospy.init_node('apple')  # init node
 
-
         self.modelsLoad()  # load the models
         self.listener()
         self.keyboardSetup()
         self.createEnvironment()
 
-        self.positionLabel=self.makeStatusLabel(0)
-        self.orientationLabel=self.makeStatusLabel(1)
-        self.speedLabel=self.makeStatusLabel(2)
-        self.gainLabel=self.makeStatusLabel(3)
+        self.positionLabel = self.makeStatusLabel(0)
+        self.orientationLabel = self.makeStatusLabel(1)
+        self.speedLabel = self.makeStatusLabel(2)
+        self.gainLabel = self.makeStatusLabel(3)
 
         self.taskMgr.add(self.updateTask, "update")  # A task to run every frame, some keyboard setup and our speed
 
         self.fig = plt.figure()
         self.initPlot()
 
-    def vec32String(self,vector,a,b,c):
+    def publisher(self,data):
+        data=rospy.Publisher('trajectory',MsgTrajectory)
+
+
+    def vec32String(self, vector, a, b, c):
         """returns a rounded string of vec 3 interspersed with a,b,c as headings"""
-        return a+":"+str(round(vector[0]))+" "+b+":"+str(round(vector[1]))+" "+c+":"+str(round(vector[2]))
+        return a + ":" + str(round(vector[0])) + " " + b + ":" + str(round(vector[1])) + " " + c + ":" + str(
+            round(vector[2]))
 
     def updateLabel(self):
-        self.positionLabel.setText(self.vec32String(self.player.getPos(),"x","y","z"))
-        self.orientationLabel.setText(self.vec32String(self.player.getHpr(),"H","P","R"))
-        self.speedLabel.setText("speed:"+str(self.speed))
+        self.positionLabel.setText(self.vec32String(self.player.getPos(), "x", "y", "z"))
+        self.orientationLabel.setText(self.vec32String(self.player.getHpr(), "H", "P", "R"))
+        self.speedLabel.setText("speed:" + str(self.speed))
         self.gainLabel.setText("gain:" + str(self.gain))
 
     def makeStatusLabel(self, i):
-        return OnscreenText(style=2, fg=(0,0,0, 0.5),bg=(0.4,0.4,0.4,0.8), scale=0.05,pos=(-3.1, 0.92 - (.08 * i)), mayChange=1)
+        return OnscreenText(style=2, fg=(0, 0, 0, 0.5), bg=(0.4, 0.4, 0.4, 0.8), scale=0.05,
+                            pos=(-3.1, 0.92 - (.08 * i)), mayChange=1)
+
 
     def params(self):
         # booleans
@@ -75,7 +86,7 @@ class MyApp(ShowBase):
 
         # params
         self.worldSize = 257  # relevant for world boundaries
-        self.fps=240
+        self.fps = 240
 
         self.playerInitPos = Vec3(self.worldSize / 2, 50, 1.3)
         self.playerPrevPos = (self.playerInitPos[0], self.playerInitPos[1])
@@ -122,9 +133,9 @@ class MyApp(ShowBase):
     def updatePlayer(self):
         # global prevPos, currentPos, ax, fig, treePos, redPos
         # Global Clock by default, panda runs as fast as it can frame to frame
-        scalefactor = self.speed * (globalClock.getDt()*self.speed)
-        climbfactor = 0.1#(.001) * scalefactor
-        bankfactor = 1#.5  * scalefactor
+        scalefactor = self.speed * (globalClock.getDt() * self.speed)
+        climbfactor = 0.1  # (.001) * scalefactor
+        bankfactor = 1  # .5  * scalefactor
         speedfactor = scalefactor
 
         # closed loop
@@ -213,6 +224,53 @@ class MyApp(ShowBase):
         plt.ion()
         plt.show()
 
+
+    def save(self,path, ext='png', close=True, verbose=True):
+        """Save a figure from pyplot.
+        Parameters
+        ----------
+        path : string
+            The path (and filename, without the extension) to save the
+            figure to.
+        ext : string (default='png')
+            The file extension. This must be supported by the active
+            matplotlib backend (see matplotlib.backends module).  Most
+            backends support 'png', 'pdf', 'ps', 'eps', and 'svg'.
+        close : boolean (default=True)
+            Whether to close the figure after saving.  If you want to save
+            the figure multiple times (e.g., to multiple formats), you
+            should NOT close it in between saves or you will have to
+            re-plot it.
+        verbose : boolean (default=True)
+            Whether to print information about when and where the image
+            has been saved.
+        """
+
+        # Extract the directory and filename from the given path
+        directory = os.path.split(path)[0]
+        filename = "%s.%s" % (os.path.split(path)[1], ext)
+        if directory == '':
+            directory = '.'
+
+        # If the directory does not exist, create it
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
+        # The final path to save to
+        savepath = os.path.join(directory, filename)
+
+        if verbose:
+            print("Saving figure to '%s'..." % savepath),
+
+        # Actually save the figure
+        plt.savefig(savepath)
+
+        # Close it
+        if close:
+            plt.close()
+
+        if verbose:
+            print("Done")
     def trajectory(self):
         if (self.frameNum % self.trajectoryUpdateInterval == 1):
             self.playerCurrentPos = (self.player.getX(), self.player.getY())
@@ -230,6 +288,9 @@ class MyApp(ShowBase):
             plt.clf()
             self.initPlot()
 
+        if (self.keyMap["saveFig"]!=0):
+            self.save("trajectory"+str(self.frameNum), ext="png", close=False, verbose=True)
+            self.save("trajectory"+str(self.frameNum), ext="svg", close=False, verbose=True)
         self.frameNum += 1
 
         # # global pos, ori
@@ -270,7 +331,6 @@ class MyApp(ShowBase):
         self.player.setPos(self.world, self.playerInitPos)
         self.player.setH(self.world, self.playerInitH)  # heading angle is 0
 
-
     def windTunnel(self, windDirection):
         self.servoAngle = (self.player.getH() % 360) - 180
 
@@ -295,12 +355,11 @@ class MyApp(ShowBase):
 
         # print self.wbad
 
-
     def keyboardSetup(self):
         self.keyMap = {"left": 0, "right": 0, "climb": 0, "fall": 0,
                        "accelerate": 0, "decelerate": 0, "handBrake": 0, "reverse": 0,
                        "closed": 0, "gain-up": 0, "gain-down": 0,
-                       "init": 0, "newInit": 0, "clf": 0}
+                       "init": 0, "newInit": 0, "clf": 0, "saveFig":0}
 
         self.accept("escape", sys.exit)
         self.accept("a", self.setKey, ["climb", 1])
@@ -331,6 +390,9 @@ class MyApp(ShowBase):
         self.accept("]-up", self.setKey, ["newInit", 0])
         self.accept("q", self.setKey, ["clf", 1])
         self.accept("q-up", self.setKey, ["clf", 0])
+        self.accept("w", self.setKey, ["saveFig", 1])
+        self.accept("w-up", self.setKey, ["saveFig", 0])
+
         base.disableMouse()  # or updateCamera will fail!
 
     def createEnvironment(self):
