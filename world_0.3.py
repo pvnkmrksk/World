@@ -4,16 +4,19 @@ import time
 import rospy
 # import servo
 from beginner.msg import MsgFlystate
+import std_msgs.msg
 from direct.gui.OnscreenText import OnscreenText
 from direct.showbase.ShowBase import ShowBase
 from direct.task import Task
 from panda3d.core import AmbientLight, DirectionalLight, Vec4, Vec3, Fog
-from panda3d.core import loadPrcFileData, NodePath
+from panda3d.core import loadPrcFileData, NodePath, TextNode
 from pandac.PandaModules import CompassEffect
+from pandac.PandaModules import ClockObject
 import subprocess, rostopic
 import matplotlib.pyplot as plt
 from matplotlib.path import Path
 import matplotlib.patches as patches
+
 
 try:
     # Checkif rosmaster is running or not.
@@ -28,18 +31,41 @@ except rostopic.ROSTopicIOException as e:
 class MyApp(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)  # start the app
+        self.params()  # fire up the params
         self.debug = False  # deubbing, prints pos
         loadPrcFileData("", "win-size 2720 768")  # set window size
+        # globalClock.setMode(ClockObject.MLimited)
+        # globalClock.setFrameRate(self.fps)
         rospy.init_node('apple')  # init node
 
-        self.params()  # fire up the params
+
         self.modelsLoad()  # load the models
         self.listener()
         self.keyboardSetup()
         self.createEnvironment()
+
+        self.positionLabel=self.makeStatusLabel(0)
+        self.orientationLabel=self.makeStatusLabel(1)
+        self.speedLabel=self.makeStatusLabel(2)
+        self.gainLabel=self.makeStatusLabel(3)
+
         self.taskMgr.add(self.updateTask, "update")  # A task to run every frame, some keyboard setup and our speed
+
         self.fig = plt.figure()
         self.initPlot()
+
+    def vec32String(self,vector,a,b,c):
+        """returns a rounded string of vec 3 interspersed with a,b,c as headings"""
+        return a+":"+str(round(vector[0]))+" "+b+":"+str(round(vector[1]))+" "+c+":"+str(round(vector[2]))
+
+    def updateLabel(self):
+        self.positionLabel.setText(self.vec32String(self.player.getPos(),"x","y","z"))
+        self.orientationLabel.setText(self.vec32String(self.player.getHpr(),"H","P","R"))
+        self.speedLabel.setText("speed:"+str(self.speed))
+        self.gainLabel.setText("gain:" + str(self.gain))
+
+    def makeStatusLabel(self, i):
+        return OnscreenText(style=2, fg=(0,0,0, 0.5),bg=(0.4,0.4,0.4,0.8), scale=0.05,pos=(-3.1, 0.92 - (.08 * i)), mayChange=1)
 
     def params(self):
         # booleans
@@ -49,14 +75,15 @@ class MyApp(ShowBase):
 
         # params
         self.worldSize = 257  # relevant for world boundaries
+        self.fps=240
 
-        self.playerInitPos = Vec3(self.worldSize / 2, 50, 4)
+        self.playerInitPos = Vec3(self.worldSize / 2, 50, 1.3)
         self.playerPrevPos = (self.playerInitPos[0], self.playerInitPos[1])
         self.playerInitH = 0
         self.speed = 0.0
-        self.maxSpeed = 50.0
-        self.speedIncrement = 0.2
-        self.closedGain = 1  # gain for turning
+        self.maxSpeed = 3.0
+        self.speedIncrement = 0.02
+        self.gain = 1  # gain for turning
         self.gainIncrement = 0.02
 
         self.wbad = self.wbas = 0
@@ -89,20 +116,20 @@ class MyApp(ShowBase):
     def modelsLoad(self):
         self.worldLoad()  # load the player and model
         self.treeLoad()  # load the tree
-        self.redSphereLoad()  # load the red sphere
-        self.greenSphereLoad()  # load the green sphere
+        # self.redSphereLoad()  # load the red sphere
+        # self.greenSphereLoad()  # load the green sphere
 
     def updatePlayer(self):
         # global prevPos, currentPos, ax, fig, treePos, redPos
         # Global Clock by default, panda runs as fast as it can frame to frame
-        scalefactor = self.speed * 1 / 250  # (globalClock.getDt()*self.speed)
-        climbfactor = (.001) + scalefactor * 1
-        bankfactor = .5  # (.4) + scalefactor * 6.5
-        speedfactor = scalefactor * 1
+        scalefactor = self.speed * (globalClock.getDt()*self.speed)
+        climbfactor = 0.1#(.001) * scalefactor
+        bankfactor = 1#.5  * scalefactor
+        speedfactor = scalefactor
 
         # closed loop
         if (self.keyMap["closed"] != 0):
-            self.player.setH(self.player.getH() - self.wbad * self.closedGain)
+            self.player.setH(self.player.getH() - self.wbad * self.gain)
 
         # Climb and Fall
         if (self.keyMap["climb"] != 0):  # and self.speed > 0.00):
@@ -170,11 +197,11 @@ class MyApp(ShowBase):
 
         # update gain
         if (self.keyMap["gain-up"] != 0):
-            self.closedGain += self.gainIncrement
-            print "gain is", self.closedGain
+            self.gain += self.gainIncrement
+            print "gain is", self.gain
         elif (self.keyMap["gain-down"] != 0):
-            self.closedGain -= self.gainIncrement
-            print "gain is ", self.closedGain
+            self.gain -= self.gainIncrement
+            print "gain is ", self.gain
 
     def initPlot(self):
         self.ax = self.fig.add_subplot(111)
@@ -193,7 +220,7 @@ class MyApp(ShowBase):
             self.codes = [Path.MOVETO, Path.LINETO]
             self.path = Path(self.verts, self.codes)
 
-            self.patch = patches.PathPatch(self.path, facecolor='white', lw=2)  # ,color=hex(self.frameNum))
+            self.patch = patches.PathPatch(self.path, facecolor='white', lw=0.5)  # ,color=hex(self.frameNum))
             self.ax.add_patch(self.patch)
             self.fig.canvas.draw()
             self.fig.canvas.flush_events()
@@ -210,6 +237,8 @@ class MyApp(ShowBase):
         # # ori.append(self.player.getHpr(self.world))
         # # # print "pos is ",pos
         # # print "ori is ",ori    def greenSphereLoad(self):
+
+    def greenSphereLoad(self):
         self.greenSphere = self.loader.loadModel(self.spherePath)
         self.greenSphere.setPos(self.world, self.greenSpherePos)
         self.greenSphere.setScale(self.sphereScale)
@@ -241,6 +270,7 @@ class MyApp(ShowBase):
         self.player.setPos(self.world, self.playerInitPos)
         self.player.setH(self.world, self.playerInitH)  # heading angle is 0
 
+
     def windTunnel(self, windDirection):
         self.servoAngle = (self.player.getH() % 360) - 180
 
@@ -265,8 +295,6 @@ class MyApp(ShowBase):
 
         # print self.wbad
 
-    def makeStatusLabel(self, i):
-        return OnscreenText(style=2, fg=(0.5, 1, .5, 1), pos=(-1.3, 0.92 - (.08 * i)), mayChange=1)
 
     def keyboardSetup(self):
         self.keyMap = {"left": 0, "right": 0, "climb": 0, "fall": 0,
@@ -339,6 +367,7 @@ class MyApp(ShowBase):
         self.updatePlayer()
         self.updateCamera()
         self.trajectory()
+        self.updateLabel()
         return Task.cont
 
     def updateCamera(self):
