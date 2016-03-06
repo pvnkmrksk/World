@@ -104,6 +104,10 @@ class MyApp(ShowBase):
         if self.frameRecord:
             self.record(dur=self.recordDur, fps=self.recordFps)
 
+        self.bagPrefix="pavan"
+        self.bagTopics="/usb_cam/image_raw /kinefly/image_output " \
+                       "/kinefly/flystate /trajectory"
+
     def modelsLoad(self):
         self.worldLoad()  # load the player and model
         self.treeLoad()  # load the tree
@@ -200,13 +204,15 @@ class MyApp(ShowBase):
         self.trajectory()
         self.updateLabel()
         self.publisher()
+        self.bagControl()
         return Task.cont
 
     def keyboardSetup(self):
         self.keyMap = {"left": 0, "right": 0, "climb": 0, "fall": 0,
                        "accelerate": 0, "decelerate": 0, "handBrake": 0, "reverse": 0,
                        "closed": 0, "gain-up": 0, "gain-down": 0,
-                       "init": 0, "newInit": 0, "clf": 0, "saveFig": 0}
+                       "init": 0, "newInit": 0, "clf": 0, "saveFig": 0,
+                       "startBag":0,"stopBag":0}
 
         self.accept("escape", sys.exit)
         self.accept("a", self.setKey, ["climb", 1])
@@ -239,6 +245,10 @@ class MyApp(ShowBase):
         self.accept("q-up", self.setKey, ["clf", 0])
         self.accept("w", self.setKey, ["saveFig", 1])
         self.accept("w-up", self.setKey, ["saveFig", 0])
+        self.accept("e", self.setKey, ["startBag", 1])
+        self.accept("e-up", self.setKey, ["startBag", 0])
+        self.accept("d", self.setKey, ["stopBag", 1])
+        self.accept("d-up", self.setKey, ["stopBag", 0])
 
         base.disableMouse()  # or updateCamera will fail!
 
@@ -286,6 +296,7 @@ class MyApp(ShowBase):
         trajectory.publish(data)
 
     def message(self):
+
         mes = MsgTrajectory()
         mes.header.stamp = rospy.Time.now()
         mes.position = self.player.getPos()
@@ -297,6 +308,34 @@ class MyApp(ShowBase):
         mes.closed = self.keyMap["closed"]
         return mes
 
+
+
+    def setKey(self, key, value):
+        self.keyMap[key] = value
+        frame = globalClock.getFrameCount()
+        self.taskMgr.add(self.resetKeys, "resetKeys",
+                    extraArgs = [key, frame],
+                    appendTask = True)
+
+    def resetKeys(self, key, frame, task):
+        if globalClock.getFrameCount() > frame:
+            self.keyMap[key] = 0
+            return Task.done
+        else:
+            return Task.cont
+
+
+    def bagger(self):
+        rospy.loginfo("Starting to record bag")
+        self.bagCommand="rosbag record --output-prefix="+self.bagPrefix+" "+self.bagTopics
+        self.runBagCommand=subprocess.Popen(self.bagCommand,shell=True, stdout=subprocess.PIPE)
+        rospy.loginfo("Bag recording started")
+    def bagControl(self):
+        if (self.keyMap["startBag"]==1):
+            self.bagger()
+        elif (self.keyMap["stopBag"]!=0):
+            self.runBagCommand.send_signal(subprocess.signal.SIGINT) #send signal on stop command
+            rospy.loginfo("Bag recording stopped")
     def worldLoad(self):
         self.world = self.loader.loadModel("models/world" + str(self.worldSize) + ".bam")  # loads the world_size
         self.world.reparentTo(self.render)  # render the world
@@ -382,8 +421,8 @@ class MyApp(ShowBase):
         render.setLight(render.attachNewNode(ambientLight))
         render.setLight(render.attachNewNode(directionalLight))
 
-    def setKey(self, key, value):
-        self.keyMap[key] = value
+    # def setKey(self, key, value):
+    #     self.keyMap[key] = value
 
     def callback(self, data):
         """ Returns Wing Beat Amplitude Difference from received data"""

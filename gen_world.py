@@ -19,4 +19,3 @@ class MyApp(ShowBase):                          # our 'class'
 
 app = MyApp()                                   # our 'object'
 app.run()
-
