@@ -1,16 +1,16 @@
 # system imports
-import sys, time, subprocess, os # ROS imports
+import sys, time, subprocess, os  # ROS imports
 import rospy, rostopic, std_msgs.msg
 from beginner.msg import MsgFlystate, MsgTrajectory
 
-from direct.showbase.ShowBase import ShowBase # Panda imports
+from direct.showbase.ShowBase import ShowBase  # Panda imports
 from direct.task import Task
 from panda3d.core import AmbientLight, DirectionalLight, Vec4, Vec3, Fog
 from panda3d.core import loadPrcFileData, NodePath, TextNode
 from pandac.PandaModules import CompassEffect, ClockObject
 from direct.gui.OnscreenText import OnscreenText
 
-import matplotlib.pyplot as plt # plotting imports
+import matplotlib.pyplot as plt  # plotting imports
 from matplotlib.path import Path
 import matplotlib.patches as patches
 
@@ -36,7 +36,7 @@ class MyApp(ShowBase):
         self.params()  # fire up the params
         self.debug = False  # debugging, prints pos
 
-        rospy.init_node('apple')  # init node
+        rospy.init_node('world')  # init node
 
         self.initPlot()
         self.modelsLoad()  # load the models
@@ -199,6 +199,7 @@ class MyApp(ShowBase):
         self.updateCamera()
         self.trajectory()
         self.updateLabel()
+        self.publisher()
         return Task.cont
 
     def keyboardSetup(self):
@@ -239,7 +240,9 @@ class MyApp(ShowBase):
         self.accept("w", self.setKey, ["saveFig", 1])
         self.accept("w-up", self.setKey, ["saveFig", 0])
 
-        base.disableMouse()  # or updateCamera will fail!    def initPlot(self):
+        base.disableMouse()  # or updateCamera will fail!
+
+    def initPlot(self):
         self.ax = self.fig.add_subplot(111)
         self.ax.set_xlim(0, self.worldSize)
         self.ax.set_ylim(0, self.worldSize)
@@ -277,15 +280,22 @@ class MyApp(ShowBase):
         # # # print "pos is ",pos
         # # print "ori is ",ori    def greenSphereLoad(self):
 
-    def fpsLimit(self, fps):
-        globalClock.setMode(ClockObject.MLimited)
-        globalClock.setFrameRate(fps)
+    def publisher(self):
+        data = self.message()
+        trajectory = rospy.Publisher('trajectory', MsgTrajectory, queue_size=600)
+        trajectory.publish(data)
 
-    def publisher(self, data):
-        data = rospy.Publisher('trajectory', MsgTrajectory)
-
-    def record(self, dur, fps):
-        self.movie('frames/movie', dur, fps=fps, format='jpg', sd=5)
+    def message(self):
+        mes = MsgTrajectory()
+        mes.header.stamp = rospy.Time.now()
+        mes.position = self.player.getPos()
+        mes.orientation = self.player.getHpr()
+        mes.wbad = self.wbad
+        mes.wbas = self.wbas
+        mes.speed = self.speed
+        mes.gain = self.gain
+        mes.closed = self.keyMap["closed"]
+        return mes
 
     def worldLoad(self):
         self.world = self.loader.loadModel("models/world" + str(self.worldSize) + ".bam")  # loads the world_size
@@ -433,6 +443,13 @@ class MyApp(ShowBase):
 
         if verbose:
             print("Done")
+
+    def record(self, dur, fps):
+        self.movie('frames/movie', dur, fps=fps, format='jpg', sd=5)
+
+    def fpsLimit(self, fps):
+        globalClock.setMode(ClockObject.MLimited)
+        globalClock.setFrameRate(fps)
 
     def windTunnel(self, windDirection):
         self.servoAngle = (self.player.getH() % 360) - 180
