@@ -2,11 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3b798c72-0f20-477d-a57e-47e7c7c16df9" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/trajectory2845.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/trajectory2846.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/trajectory2847.png" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/world.py" afterPath="$PROJECT_DIR$/world.py" />
     </list>
     <ignored path="world.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -37,7 +33,7 @@
           <file leaf-file-name="world.py" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/world.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="-0.8271605">
+                <state vertical-scroll-proportion="-0.38734567">
                   <caret line="7" column="26" selection-start-line="7" selection-start-column="26" selection-end-line="7" selection-end-column="26" />
                   <folding>
                     <element signature="e#15501#16359#1" expanded="false" />
@@ -686,7 +682,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/world.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-0.8271605">
+        <state vertical-scroll-proportion="-0.38734567">
           <caret line="7" column="26" selection-start-line="7" selection-start-column="26" selection-end-line="7" selection-end-column="26" />
           <folding>
             <element signature="e#15501#16359#1" expanded="false" />
