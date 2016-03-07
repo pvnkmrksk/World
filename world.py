@@ -85,6 +85,10 @@ class MyApp(ShowBase):
         self.redSpherePos = Vec3(self.posL, self.sphereZ)
         self.greenSpherePos = Vec3(self.posR, self.sphereZ)
 
+        self.treeLoadOn=False
+        self.redSphereLoadOn=False
+        self.greenSphereLoadOn=False
+
         self.maxDistance = 200
         self.camLens.setFar(self.maxDistance)
         self.camLens.setFov(120)
@@ -94,7 +98,7 @@ class MyApp(ShowBase):
         self.trajectoryUpdateInterval = 30  # frames between update
         self.fps = 60
 
-        self.lockFps = True#False
+        self.lockFps = True  # False
         if self.lockFps:
             self.fpsLimit(self.fps)
 
@@ -104,15 +108,18 @@ class MyApp(ShowBase):
         if self.frameRecord:
             self.record(dur=self.recordDur, fps=self.recordFps)
 
-        self.bagPrefix="pavan"
-        self.bagTopics="/usb_cam/image_raw /kinefly/image_output " \
-                       "/kinefly/flystate /trajectory"
+        self.bagPrefix = "pavan"
+        self.bagTopics = "/usb_cam/image_raw /kinefly/image_output " \
+                         "/kinefly/flystate /trajectory"
 
     def modelsLoad(self):
         self.worldLoad()  # load the player and model
-        self.treeLoad()  # load the tree
-        # self.redSphereLoad()  # load the red sphere
-        # self.greenSphereLoad()  # load the green sphere
+        if self.treeLoadOn:
+            self.treeLoad()  # load the tree
+        if self.redSphereLoadOn:
+            self.redSphereLoad()  # load the red sphere
+        if self.greenSphereLoadOn:
+            self.greenSphereLoad()  # load the green sphere
 
     def updatePlayer(self):
         # global prevPos, currentPos, ax, fig, treePos, redPos
@@ -213,7 +220,7 @@ class MyApp(ShowBase):
                        "accelerate": 0, "decelerate": 0, "handBrake": 0, "reverse": 0,
                        "closed": 0, "gain-up": 0, "gain-down": 0,
                        "init": 0, "newInit": 0, "clf": 0, "saveFig": 0,
-                       "startBag":0,"stopBag":0}
+                       "startBag": 0, "stopBag": 0}
 
         self.accept("escape", sys.exit)
         self.accept("a", self.setKey, ["climb", 1])
@@ -309,37 +316,21 @@ class MyApp(ShowBase):
         mes.closed = self.keyMap["closed"]
         return mes
 
-
-
-    def set1Key(self, key, value):
-        self.keyMap[key] = value
-        frame = globalClock.getFrameCount()
-        self.taskMgr.add(self.resetKeys, "resetKeys",
-                    extraArgs = [key, frame],
-                    appendTask = True)
-
-    def resetKeys(self, key, frame, task):
-        if globalClock.getFrameCount() > frame:
-            self.keyMap[key] = 0
-            return Task.done
-        else:
-            return Task.cont
-
-
     def bagger(self):
-        self.bagCommand="rosbag record --lz4 --output-prefix="+self.bagPrefix+" "+self.bagTopics
-        self.runBagCommand=subprocess.Popen(self.bagCommand,shell=True, stdout=subprocess.PIPE)
+        self.bagCommand = "rosbag record --lz4 --output-prefix=" + self.bagPrefix + " " + self.bagTopics
+        self.runBagCommand = subprocess.Popen(self.bagCommand, shell=True, stdout=subprocess.PIPE)
         rospy.loginfo("Bag recording started")
-        time.sleep(0.15)
+        time.sleep(0.15)  # prevent multiple key presss/bounce
+
     def bagControl(self):
-        if (self.keyMap["startBag"]==1):
+        if (self.keyMap["startBag"] == 1):
             self.bagger()
-        elif (self.keyMap["stopBag"]!=0):
+        elif (self.keyMap["stopBag"] != 0):
             # self.runBagCommand.send_signal(subprocess.signal.SIGINT) #send signal on stop command
             self.terminate_ros_node("/record")
             rospy.loginfo("Bag recording stopped")
 
-    def terminate_ros_node(self,s):
+    def terminate_ros_node(self, s):
         list_cmd = subprocess.Popen("rosnode list", shell=True, stdout=subprocess.PIPE)
         list_output = list_cmd.stdout.read()
         retcode = list_cmd.wait()
@@ -347,7 +338,6 @@ class MyApp(ShowBase):
         for str in list_output.split("\n"):
             if (str.startswith(s)):
                 os.system("rosnode kill " + str)
-
 
     def worldLoad(self):
         self.world = self.loader.loadModel("models/world" + str(self.worldSize) + ".bam")  # loads the world_size
