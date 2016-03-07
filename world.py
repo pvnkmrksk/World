@@ -246,10 +246,10 @@ class MyApp(ShowBase):
         self.accept("q-up", self.setKey, ["clf", 0])
         self.accept("w", self.setKey, ["saveFig", 1])
         self.accept("w-up", self.setKey, ["saveFig", 0])
-        self.accept("e", self.set1Key, ["startBag", 1])
-        self.accept("e-up", self.set1Key, ["startBag", 0])
-        self.accept("d", self.set1Key, ["stopBag", 1])
-        self.accept("d-up", self.set1Key, ["stopBag", 0])
+        self.accept("e", self.setKey, ["startBag", 1])
+        self.accept("e-up", self.setKey, ["startBag", 0])
+        self.accept("d", self.setKey, ["stopBag", 1])
+        self.accept("d-up", self.setKey, ["stopBag", 0])
 
         base.disableMouse()  # or updateCamera will fail!
 
@@ -327,17 +327,28 @@ class MyApp(ShowBase):
 
 
     def bagger(self):
-        rospy.loginfo("Starting to record bag")
-        self.bagCommand="rosbag record -lz4 --output-prefix="+self.bagPrefix+" "+self.bagTopics
+        self.bagCommand="rosbag record --lz4 --output-prefix="+self.bagPrefix+" "+self.bagTopics
         self.runBagCommand=subprocess.Popen(self.bagCommand,shell=True, stdout=subprocess.PIPE)
         rospy.loginfo("Bag recording started")
-        time.sleep(0.5)
+        time.sleep(0.15)
     def bagControl(self):
         if (self.keyMap["startBag"]==1):
             self.bagger()
         elif (self.keyMap["stopBag"]!=0):
-            self.runBagCommand.send_signal(subprocess.signal.SIGINT) #send signal on stop command
+            # self.runBagCommand.send_signal(subprocess.signal.SIGINT) #send signal on stop command
+            self.terminate_ros_node("/record")
             rospy.loginfo("Bag recording stopped")
+
+    def terminate_ros_node(self,s):
+        list_cmd = subprocess.Popen("rosnode list", shell=True, stdout=subprocess.PIPE)
+        list_output = list_cmd.stdout.read()
+        retcode = list_cmd.wait()
+        assert retcode == 0, "List command returned %d" % retcode
+        for str in list_output.split("\n"):
+            if (str.startswith(s)):
+                os.system("rosnode kill " + str)
+
+
     def worldLoad(self):
         self.world = self.loader.loadModel("models/world" + str(self.worldSize) + ".bam")  # loads the world_size
         self.world.reparentTo(self.render)  # render the world
