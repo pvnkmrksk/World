@@ -92,9 +92,9 @@ class MyApp(ShowBase):
         self.frameNum = 0
         self.fig = plt.figure()
         self.trajectoryUpdateInterval = 30  # frames between update
-        self.fps = 240
+        self.fps = 60
 
-        self.lockFps = False
+        self.lockFps = True#False
         if self.lockFps:
             self.fpsLimit(self.fps)
 
@@ -199,11 +199,12 @@ class MyApp(ShowBase):
             print "gain is ", self.gain
 
     def updateTask(self, task):
+
         self.updatePlayer()
-        self.updateCamera()
-        self.trajectory()
-        self.updateLabel()
         self.publisher()
+        self.updateCamera()
+        # self.trajectory()
+        # self.updateLabel()
         self.bagControl()
         return Task.cont
 
@@ -245,10 +246,10 @@ class MyApp(ShowBase):
         self.accept("q-up", self.setKey, ["clf", 0])
         self.accept("w", self.setKey, ["saveFig", 1])
         self.accept("w-up", self.setKey, ["saveFig", 0])
-        self.accept("e", self.setKey, ["startBag", 1])
-        self.accept("e-up", self.setKey, ["startBag", 0])
-        self.accept("d", self.setKey, ["stopBag", 1])
-        self.accept("d-up", self.setKey, ["stopBag", 0])
+        self.accept("e", self.set1Key, ["startBag", 1])
+        self.accept("e-up", self.set1Key, ["startBag", 0])
+        self.accept("d", self.set1Key, ["stopBag", 1])
+        self.accept("d-up", self.set1Key, ["stopBag", 0])
 
         base.disableMouse()  # or updateCamera will fail!
 
@@ -310,7 +311,7 @@ class MyApp(ShowBase):
 
 
 
-    def setKey(self, key, value):
+    def set1Key(self, key, value):
         self.keyMap[key] = value
         frame = globalClock.getFrameCount()
         self.taskMgr.add(self.resetKeys, "resetKeys",
@@ -327,9 +328,10 @@ class MyApp(ShowBase):
 
     def bagger(self):
         rospy.loginfo("Starting to record bag")
-        self.bagCommand="rosbag record --output-prefix="+self.bagPrefix+" "+self.bagTopics
+        self.bagCommand="rosbag record -lz4 --output-prefix="+self.bagPrefix+" "+self.bagTopics
         self.runBagCommand=subprocess.Popen(self.bagCommand,shell=True, stdout=subprocess.PIPE)
         rospy.loginfo("Bag recording started")
+        time.sleep(0.5)
     def bagControl(self):
         if (self.keyMap["startBag"]==1):
             self.bagger()
@@ -421,8 +423,8 @@ class MyApp(ShowBase):
         render.setLight(render.attachNewNode(ambientLight))
         render.setLight(render.attachNewNode(directionalLight))
 
-    # def setKey(self, key, value):
-    #     self.keyMap[key] = value
+    def setKey(self, key, value):
+        self.keyMap[key] = value
 
     def callback(self, data):
         """ Returns Wing Beat Amplitude Difference from received data"""
