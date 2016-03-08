@@ -208,6 +208,9 @@ class MyApp(ShowBase):
         self.bagControl()
         return Task.cont
 
+    def winClose(self):
+        self.closeWindow(self.win)
+
     def keyboardSetup(self):
         self.keyMap = {"left": 0, "right": 0, "climb": 0, "fall": 0,
                        "accelerate": 0, "decelerate": 0, "handBrake": 0, "reverse": 0,
@@ -215,7 +218,7 @@ class MyApp(ShowBase):
                        "init": 0, "newInit": 0, "clf": 0, "saveFig": 0,
                        "startBag":0,"stopBag":0}
 
-        self.accept("escape", sys.exit)
+        self.accept("escape", self.winClose)
         self.accept("a", self.setKey, ["climb", 1])
         self.accept("a-up", self.setKey, ["climb", 0])
         self.accept("z", self.setKey, ["fall", 1])
@@ -515,6 +518,9 @@ class MyApp(ShowBase):
         modelName.setTexture(texName)
         modelName.reparentTo(self.render)
 
+print 2+3
 
 app = MyApp()
 app.run()
+print app.__dict__.keys()
+print 2+3
