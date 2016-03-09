@@ -2,9 +2,6 @@ from panda3d.core import Vec3
 
 parameters = {
     # bools
-    # "self.loadRedSphere":True,  # False
-    # "self.loadGreenSphere":False,
-    # "self.loadTree": True,  # False
 
     "self.loadHUD": True,
     "self.loadTrajectory": False,
