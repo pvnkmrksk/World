@@ -2,10 +2,9 @@ from panda3d.core import Vec3
 
 parameters = {
     # bools
-    "self.loadWorld":True,
-    "self.loadRedSphere":True,  # False
-    "self.loadGreenSphere":False,
-    "self.loadTree": True,  # False
+    # "self.loadRedSphere":True,  # False
+    # "self.loadGreenSphere":False,
+    # "self.loadTree": True,  # False
 
     "self.loadHUD": True,
     "self.loadTrajectory": False,
@@ -13,8 +12,15 @@ parameters = {
     "self.frameRecord ": False,
     "self.loadWind": False,
 
+    "self.loadWorld":True,
+    "self.fly":"pavan",
+    "self.leftObjects":"t0",
+    "self.rightObjects":"tr",
+    "self.gain ": 1,
+    "self.maxSpeed ": 10.0,
+    "self.trialNo":1,
 
-    "self.bagPrefix": "pavan",
+
     "self.fps ": 60,
     "self.trajectoryUpdateInterval ": 60,  # frames between update,
 
@@ -24,13 +30,11 @@ parameters = {
 
     "self.objectSpacing ": 20,  # distance from the midpoint,
 
-    "self.gain ": 1,
     "self.sphereZ ": 4,
     "self.treeZ ": 1,
 
     "self.speed ": 0.0,
-    "self.maxSpeed ": 3.0,
-    "self.speedIncrement ": 0.02,
+    "self.speedIncrement ": 0.05,
     "self.gainIncrement ": 0.02,
     "self.wbad ": 0,
     "self.wbas ": 0,
@@ -52,8 +56,10 @@ parameters = {
 }
 
 
-assertions = ["self.posL = (self.worldSize / 2 + self.objectSpacing, self.worldSize/2)",
+assertions = [
+    "self.posL = (self.worldSize / 2 + self.objectSpacing, self.worldSize/2)",
     "self.posR = (self.worldSize / 2 - self.objectSpacing, self.worldSize / 2)",
-    "self.treePos = Vec3(self.posL, self.treeZ)",
-    "self.redSpherePos = Vec3(self.posL, self.sphereZ)",
-    "self.greenSpherePos = Vec3(self.posR, self.sphereZ)"]
+    "self.leftTreePos = Vec3(self.posL, self.treeZ)",
+    "self.rightTreePos = Vec3(self.posR, self.treeZ)",
+    "self.leftSpherePos = Vec3(self.posL, self.sphereZ)",
+    "self.rightSpherePos = Vec3(self.posR, self.sphereZ)"]

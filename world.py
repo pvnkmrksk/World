@@ -1,4 +1,5 @@
 # system imports
+from datetime import datetime
 import sys, time, subprocess, os  # ROS imports
 import rospy, rostopic, std_msgs.msg
 from beginner.msg import MsgFlystate, MsgTrajectory
@@ -38,7 +39,7 @@ class MyApp(ShowBase):
 
         self.initPlot()#load the plot 1st so that the active window is panda
 
-        self.modelsLoad()  # load the models
+        self.modelLoader()  # load the models
         self.listener()  # wba subscriber using ROS
         self.keyboardSetup()  # keyboard input
         self.createEnvironment()#make sky
@@ -59,6 +60,10 @@ class MyApp(ShowBase):
             self.record(dur=self.recordDur, fps=self.recordFps)
         self.fig = plt.figure()
         self.bagRecordingState=False
+        self.loaderDictKeys=("leftTree","leftRedSphere","leftGreenSphere",
+                                      "rightTree","rightRedSphere","rightGreenSphere")
+        self.loaderDict=dict.fromkeys(self.loaderDictKeys,False)
+
 
     def initPlot(self):
         if self.loadTrajectory:
@@ -76,7 +81,7 @@ class MyApp(ShowBase):
     def updatePlayer(self):
         # global prevPos, currentPos, ax, fig, treePos, redPos
         # Global Clock by default, panda runs as fast as it can frame to frame
-        scalefactor = self.speed * (globalClock.getDt() * self.speed)
+        scalefactor = self.speed * (globalClock.getDt() )
         climbfactor = 0.1  # (.001) * scalefactor
         bankfactor = 1  # .5  * scalefactor
         speedfactor = scalefactor
@@ -143,6 +148,7 @@ class MyApp(ShowBase):
             self.player.setPos(self.world, self.playerInitPos)
             self.player.setH(self.playerInitH)
 
+        #update new init position
         if (self.keyMap["newInit"] != 0):
             self.playerInitPos = self.player.getPos(self.world)
             self.playerInitH = self.player.getH(self.world)
@@ -157,11 +163,16 @@ class MyApp(ShowBase):
             self.gain -= self.gainIncrement
             print "gain is ", self.gain
 
+        #update newTopSpeed
+        if (self.keyMap["newTopSpeed"]!=0):
+            self.maxSpeed=self.speed
+            print "new max speed is",self.maxSpeed
+
     def keyboardSetup(self):
         self.keyMap = {"left": 0, "right": 0, "climb": 0, "fall": 0,
                        "accelerate": 0, "decelerate": 0, "handBrake": 0, "reverse": 0,
                        "closed": 0, "gain-up": 0, "gain-down": 0,
-                       "init": 0, "newInit": 0, "clf": 0, "saveFig": 0,
+                       "init": 0, "newInit": 0, "newTopSpeed":0,"clf": 0, "saveFig": 0,
                        "startBag": 0, "stopBag": 0}
 
         self.accept("escape", self.winClose)
@@ -199,6 +210,8 @@ class MyApp(ShowBase):
         self.accept("e-up", self.setKey, ["startBag", 0])
         self.accept("d", self.setKey, ["stopBag", 1])
         self.accept("d-up", self.setKey, ["stopBag", 0])
+        self.accept("t", self.setKey, ["newTopSpeed", 1])
+        self.accept("t-up", self.setKey, ["newTopSpeed", 0])
 
         base.disableMouse()  # or updateCamera will fail!
 
@@ -243,7 +256,13 @@ class MyApp(ShowBase):
         return mes
 
     def bagger(self):
-        self.bagCommand = "rosbag record --lz4 --output-prefix=" + self.bagPrefix + " " + self.bagTopics
+        self.timeNow=str(datetime.now().strftime('%Y-%m-%d__%H:%M:%S'))
+        print self.timeNow
+        self.bagFilename=self.fly+"_"+self.leftObjects+"_"+self.rightObjects+"_gain"+str(self.gain)+"_speed_"\
+                         +str(self.maxSpeed)+"_trial_"+str(self.trialNo)+"_"+self.timeNow
+        print self.bagFilename
+        self.bagCommand = "rosbag record --lz4 --output-name="+ self.bagFilename + " " + self.bagTopics
+        # print self.bagCommand
         self.runBagCommand = subprocess.Popen(self.bagCommand, shell=True, stdout=subprocess.PIPE)
         rospy.loginfo("Bag recording started")
         time.sleep(0.15)
@@ -267,6 +286,9 @@ class MyApp(ShowBase):
             if (str.startswith(s)):
                 os.system("rosnode kill " + str)
 
+
+
+
     def worldLoader(self):
         self.world = self.loader.loadModel("models/world" + str(self.worldSize) + ".bam")  # loads the world_size
         self.world.reparentTo(self.render)  # render the world
@@ -275,30 +297,106 @@ class MyApp(ShowBase):
         self.player.setPos(self.world, self.playerInitPos)
         self.player.setH(self.world, self.playerInitH)  # heading angle is 0
 
-    def treeLoader(self):
-        self.tree = self.loader.loadModel(self.treePath)
-        self.tree.setPos(self.world, self.treePos)
-        self.tree.setScale(self.treeScale)
+    def leftTreeLoader(self):
+        self.leftTree = self.loader.loadModel(self.treePath)
+        self.leftTree.setPos(self.world, self.leftTreePos)
+        self.leftTree.setScale(self.treeScale)
         self.treeTex = self.loader.loadTexture(self.treeTexPath)
-        self.tree.setTexture(self.treeTex)
-        self.tree.reparentTo(self.render)
+        self.leftTree.setTexture(self.treeTex)
+        self.leftTree.reparentTo(self.render)
 
-    def greenSphereLoader(self):
-        self.greenSphere = self.loader.loadModel(self.spherePath)
-        self.greenSphere.setPos(self.world, self.greenSpherePos)
-        self.greenSphere.setScale(self.sphereScale)
+
+    def rightTreeLoader(self):
+        self.rightTree = self.loader.loadModel(self.treePath)
+        self.rightTree.setPos(self.world, self.rightTreePos)
+        self.rightTree.setScale(self.treeScale)
+        self.treeTex = self.loader.loadTexture(self.treeTexPath)
+        self.rightTree.setTexture(self.treeTex)
+        self.rightTree.reparentTo(self.render)
+
+    # 
+    # def treeLoader(self):
+    #     self.tree = self.loader.loadModel(self.treePath)
+    #     self.tree.setPos(self.world, self.treePos)
+    #     self.tree.setScale(self.treeScale)
+    #     self.treeTex = self.loader.loadTexture(self.treeTexPath)
+    #     self.tree.setTexture(self.treeTex)
+    #     self.tree.reparentTo(self.render)
+
+    def leftGreenSphereLoader(self):
+        self.leftGreenSphere = self.loader.loadModel(self.spherePath)
+        self.leftGreenSphere.setPos(self.world, self.leftSpherePos)
+        self.leftGreenSphere.setScale(self.sphereScale)
         self.greenTex = self.loader.loadTexture(self.greenTexPath)
-        self.greenSphere.setTexture(self.greenTex)
-        self.greenSphere.reparentTo(self.render)
+        self.leftGreenSphere.setTexture(self.greenTex)
+        self.leftGreenSphere.reparentTo(self.render)
+        
+    def rightGreenSphereLoader(self):
+        self.rightGreenSphere = self.loader.loadModel(self.spherePath)
+        self.rightGreenSphere.setPos(self.world, self.rightSpherePos)
+        self.rightGreenSphere.setScale(self.sphereScale)
+        self.greenTex = self.loader.loadTexture(self.greenTexPath)
+        self.rightGreenSphere.setTexture(self.greenTex)
+        self.rightGreenSphere.reparentTo(self.render)
 
-    def redSphereLoader(self):
-
-        self.redSphere = self.loader.loadModel(self.spherePath)
-        self.redSphere.setPos(self.world, self.redSpherePos)
-        self.redSphere.setScale(self.sphereScale)
+    def leftRedSphereLoader(self):
+        self.leftRedSphere = self.loader.loadModel(self.spherePath)
+        self.leftRedSphere.setPos(self.world, self.leftSpherePos)
+        self.leftRedSphere.setScale(self.sphereScale)
         self.redTex = self.loader.loadTexture(self.redTexPath)
-        self.redSphere.setTexture(self.redTex)
-        self.redSphere.reparentTo(self.render)
+        self.leftRedSphere.setTexture(self.redTex)
+        self.leftRedSphere.reparentTo(self.render)
+        
+    def rightRedSphereLoader(self):
+        self.rightRedSphere = self.loader.loadModel(self.spherePath)
+        self.rightRedSphere.setPos(self.world, self.rightSpherePos)
+        self.rightRedSphere.setScale(self.sphereScale)
+        self.redTex = self.loader.loadTexture(self.redTexPath)
+        self.rightRedSphere.setTexture(self.redTex)
+        self.rightRedSphere.reparentTo(self.render)
+
+    def loadingStringParser(self,loadingString,side):
+        for i in loadingString:
+            print i
+            if i=="t":
+                self.loaderDict[side+"Tree"]=True
+            elif i=="r":
+                self.loaderDict[side+"RedSphere"]=True
+            elif i=="g":
+                self.loaderDict[side+"GreenSphere"]=True
+
+    def modelLoader(self):
+
+        self.loadingStringParser(self.leftObjects,"left")
+        self.loadingStringParser(self.rightObjects,"right")
+
+        if self.loadWorld:
+            self.worldLoader()
+        if self.loaderDict["leftTree"]:
+            self.leftTreeLoader()
+        if self.loaderDict["leftRedSphere"]:
+            self.leftRedSphereLoader()
+        if self.loaderDict["leftGreenSphere"]:
+            self.leftGreenSphereLoader()
+        if self.loaderDict["rightTree"]:
+            self.rightTreeLoader()
+        if self.loaderDict["rightRedSphere"]:
+            self.rightRedSphereLoader()
+        if self.loaderDict["rightGreenSphere"]:
+            self.rightGreenSphereLoader()
+
+
+
+
+
+    # def redSphereLoader(self):
+    # 
+    #     self.redSphere = self.loader.loadModel(self.spherePath)
+    #     self.redSphere.setPos(self.world, self.redSpherePos)
+    #     self.redSphere.setScale(self.sphereScale)
+    #     self.redTex = self.loader.loadTexture(self.redTexPath)
+    #     self.redSphere.setTexture(self.redTex)
+    #     self.redSphere.reparentTo(self.render)
 
     def updateCamera(self):
         # see issue content for how we calculated these:
@@ -477,14 +575,14 @@ class MyApp(ShowBase):
     def windTunnel(self, windDirection):
         self.servoAngle = (self.player.getH() % 360) - 180
 
-    def modelLoader(self, modelName, modelPath, modelPos, modelScale, texName, texPath, modelParent):
-        modelName = self.loader.loadModel(modelPath)
-        modelName.setPos(modelParent, modelPos)
-        modelName.setScale(modelScale)
-
-        texName = self.loader.loadTexture(texPath)
-        modelName.setTexture(texName)
-        modelName.reparentTo(self.render)
+    # def modelLoader(self, modelName, modelPath, modelPos, modelScale, texName, texPath, modelParent):
+    #     modelName = self.loader.loadModel(modelPath)
+    #     modelName.setPos(modelParent, modelPos)
+    #     modelName.setScale(modelScale)
+    #
+    #     texName = self.loader.loadTexture(texPath)
+    #     modelName.setTexture(texName)
+    #     modelName.reparentTo(self.render)
 
 
 app = MyApp()
