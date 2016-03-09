@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt  # plotting imports
 from matplotlib.path import Path
 import matplotlib.patches as patches
 
+from params import parameters, assertions
 # import servo
 
 try:
@@ -25,95 +26,53 @@ except rostopic.ROSTopicIOException as e:
     time.sleep(1)  # wait a bit to be sure the roscore is really launched
     subprocess.Popen(["roslaunch", "Kinefly", "main.launch"])
 
-
 class MyApp(ShowBase):
     def __init__(self):
 
         ShowBase.__init__(self)  # start the app
+        self.initParams()#run this 1st. Loads all content and params.
+
         # loadPrcFileData("", "win-size 1360 384")  # set window size
         loadPrcFileData("", "win-size 2720 768")  # set window size
-
-        self.params()  # fire up the params
-        self.debug = False  # debugging, prints pos
-
         rospy.init_node('world')  # init node
 
-        self.initPlot()
+        self.initPlot()#load the plot 1st so that the active window is panda
+
         self.modelsLoad()  # load the models
         self.listener()  # wba subscriber using ROS
         self.keyboardSetup()  # keyboard input
-        self.createEnvironment()
+        self.createEnvironment()#make sky
         self.makeLabels()  # overlays setup
-
         self.taskMgr.add(self.updateTask, "update")  # A task to run every frame, some keyboard setup and our speed
 
-    def params(self):
-        # booleans
-        self.loadSpheres = True  # False
-        self.loadTree = True  # False
-        self.loadWind = True
+    # parametric functions constantly modified
+    def initParams(self):
+        self.dict2Var(parameters)
+        self.list2Exec(assertions)
 
-        # params
-        self.worldSize = 257  # relevant for world boundaries
-
-        self.playerInitPos = Vec3(self.worldSize / 2, 50, 1.3)
         self.playerPrevPos = (self.playerInitPos[0], self.playerInitPos[1])
-        self.playerInitH = 0
-        self.speed = 0.0
-        self.maxSpeed = 3.0
-        self.speedIncrement = 0.02
-        self.gain = 1  # gain for turning
-        self.gainIncrement = 0.02
-
-        self.wbad = self.wbas = 0
-
-        self.spacing = 20  # distance from the midpoint
-        self.posL = (self.worldSize / 2 + self.spacing, self.worldSize / 2)
-        self.posR = (self.worldSize / 2 - self.spacing, self.worldSize / 2)
-        self.sphereZ = 4
-        self.treeZ = 1
-        self.sphereScale = 0.4
-        self.treeScale = 0.03
-
-        self.spherePath = "models/sphere.egg"
-        self.greenTexPath = "models/green.tga"
-        self.redTexPath = "models/red.tga"
-        self.treePath = "models/treeHighB.egg"
-        self.treeTexPath = "models/BarkBrown.tga"
-
-        self.treePos = Vec3(self.posL, self.treeZ)
-        self.redSpherePos = Vec3(self.posL, self.sphereZ)
-        self.greenSpherePos = Vec3(self.posR, self.sphereZ)
-
-        self.maxDistance = 200
         self.camLens.setFar(self.maxDistance)
-        self.camLens.setFov(120)
-
-        self.frameNum = 0
-        self.fig = plt.figure()
-        self.trajectoryUpdateInterval = 30  # frames between update
-        self.fps = 60
-
-        self.lockFps = True#False
+        self.camLens.setFov(self.camFOV)
         if self.lockFps:
             self.fpsLimit(self.fps)
-
-        self.recordDur = 10
-        self.recordFps = 30
-        self.frameRecord = False
         if self.frameRecord:
             self.record(dur=self.recordDur, fps=self.recordFps)
+        self.fig = plt.figure()
+        self.bagRecordingState=False
 
-        self.bagPrefix="pavan"
-        self.bagTopics="/usb_cam/image_raw /kinefly/image_output " \
-                       "/kinefly/flystate /trajectory"
+    def initPlot(self):
+        if self.loadTrajectory:
 
-    def modelsLoad(self):
-        self.worldLoad()  # load the player and model
-        self.treeLoad()  # load the tree
-        # self.redSphereLoad()  # load the red sphere
-        # self.greenSphereLoad()  # load the green sphere
+            self.ax = self.fig.add_subplot(111)
+            self.ax.set_xlim(0, self.worldSize)
+            self.ax.set_ylim(0, self.worldSize)
 
+            plt.plot(self.treePos[0], self.treePos[1], 'gs')
+            plt.plot(self.redSpherePos[0], self.redSpherePos[1], 'ro')
+            plt.ion()
+            plt.show()
+
+    # housekeeping functions written in stone
     def updatePlayer(self):
         # global prevPos, currentPos, ax, fig, treePos, redPos
         # Global Clock by default, panda runs as fast as it can frame to frame
@@ -198,25 +157,12 @@ class MyApp(ShowBase):
             self.gain -= self.gainIncrement
             print "gain is ", self.gain
 
-    def updateTask(self, task):
-
-        self.updatePlayer()
-        self.publisher()
-        self.updateCamera()
-        # self.trajectory()
-        # self.updateLabel()
-        self.bagControl()
-        return Task.cont
-
-    def winClose(self):
-        self.closeWindow(self.win)
-
     def keyboardSetup(self):
         self.keyMap = {"left": 0, "right": 0, "climb": 0, "fall": 0,
                        "accelerate": 0, "decelerate": 0, "handBrake": 0, "reverse": 0,
                        "closed": 0, "gain-up": 0, "gain-down": 0,
                        "init": 0, "newInit": 0, "clf": 0, "saveFig": 0,
-                       "startBag":0,"stopBag":0}
+                       "startBag": 0, "stopBag": 0}
 
         self.accept("escape", self.winClose)
         self.accept("a", self.setKey, ["climb", 1])
@@ -256,16 +202,6 @@ class MyApp(ShowBase):
 
         base.disableMouse()  # or updateCamera will fail!
 
-    def initPlot(self):
-        self.ax = self.fig.add_subplot(111)
-        self.ax.set_xlim(0, self.worldSize)
-        self.ax.set_ylim(0, self.worldSize)
-
-        plt.plot(self.treePos[0], self.treePos[1], 'gs')
-        plt.plot(self.redSpherePos[0], self.redSpherePos[1], 'ro')
-        plt.ion()
-        plt.show()
-
     def trajectory(self):
         if (self.frameNum % self.trajectoryUpdateInterval == 1):
             self.playerCurrentPos = (self.player.getX(), self.player.getY())
@@ -288,12 +224,6 @@ class MyApp(ShowBase):
             self.save("trajectory" + str(self.frameNum), ext="svg", close=False, verbose=True)
         self.frameNum += 1
 
-        # # global pos, ori
-        # # pos.append(self.player.getPos(self.world))
-        # # ori.append(self.player.getHpr(self.world))
-        # # # print "pos is ",pos
-        # # print "ori is ",ori    def greenSphereLoad(self):
-
     def publisher(self):
         data = self.message()
         trajectory = rospy.Publisher('trajectory', MsgTrajectory, queue_size=600)
@@ -312,37 +242,23 @@ class MyApp(ShowBase):
         mes.closed = self.keyMap["closed"]
         return mes
 
-
-
-    def set1Key(self, key, value):
-        self.keyMap[key] = value
-        frame = globalClock.getFrameCount()
-        self.taskMgr.add(self.resetKeys, "resetKeys",
-                    extraArgs = [key, frame],
-                    appendTask = True)
-
-    def resetKeys(self, key, frame, task):
-        if globalClock.getFrameCount() > frame:
-            self.keyMap[key] = 0
-            return Task.done
-        else:
-            return Task.cont
-
-
     def bagger(self):
-        self.bagCommand="rosbag record --lz4 --output-prefix="+self.bagPrefix+" "+self.bagTopics
-        self.runBagCommand=subprocess.Popen(self.bagCommand,shell=True, stdout=subprocess.PIPE)
+        self.bagCommand = "rosbag record --lz4 --output-prefix=" + self.bagPrefix + " " + self.bagTopics
+        self.runBagCommand = subprocess.Popen(self.bagCommand, shell=True, stdout=subprocess.PIPE)
         rospy.loginfo("Bag recording started")
         time.sleep(0.15)
+
     def bagControl(self):
-        if (self.keyMap["startBag"]==1):
+        if (self.keyMap["startBag"] == 1):
             self.bagger()
-        elif (self.keyMap["stopBag"]!=0):
+            self.bagRecordingState=True
+        elif (self.keyMap["stopBag"] != 0):
             # self.runBagCommand.send_signal(subprocess.signal.SIGINT) #send signal on stop command
             self.terminate_ros_node("/record")
+            self.bagRecordingState=False
             rospy.loginfo("Bag recording stopped")
 
-    def terminate_ros_node(self,s):
+    def terminate_ros_node(self, s):
         list_cmd = subprocess.Popen("rosnode list", shell=True, stdout=subprocess.PIPE)
         list_output = list_cmd.stdout.read()
         retcode = list_cmd.wait()
@@ -351,8 +267,7 @@ class MyApp(ShowBase):
             if (str.startswith(s)):
                 os.system("rosnode kill " + str)
 
-
-    def worldLoad(self):
+    def worldLoader(self):
         self.world = self.loader.loadModel("models/world" + str(self.worldSize) + ".bam")  # loads the world_size
         self.world.reparentTo(self.render)  # render the world
         # the Player
@@ -360,7 +275,7 @@ class MyApp(ShowBase):
         self.player.setPos(self.world, self.playerInitPos)
         self.player.setH(self.world, self.playerInitH)  # heading angle is 0
 
-    def treeLoad(self):
+    def treeLoader(self):
         self.tree = self.loader.loadModel(self.treePath)
         self.tree.setPos(self.world, self.treePos)
         self.tree.setScale(self.treeScale)
@@ -368,7 +283,7 @@ class MyApp(ShowBase):
         self.tree.setTexture(self.treeTex)
         self.tree.reparentTo(self.render)
 
-    def greenSphereLoad(self):
+    def greenSphereLoader(self):
         self.greenSphere = self.loader.loadModel(self.spherePath)
         self.greenSphere.setPos(self.world, self.greenSpherePos)
         self.greenSphere.setScale(self.sphereScale)
@@ -376,7 +291,8 @@ class MyApp(ShowBase):
         self.greenSphere.setTexture(self.greenTex)
         self.greenSphere.reparentTo(self.render)
 
-    def redSphereLoad(self):
+    def redSphereLoader(self):
+
         self.redSphere = self.loader.loadModel(self.spherePath)
         self.redSphere.setPos(self.world, self.redSpherePos)
         self.redSphere.setScale(self.sphereScale)
@@ -398,13 +314,17 @@ class MyApp(ShowBase):
         self.orientationLabel = self.makeStatusLabel(1)
         self.speedLabel = self.makeStatusLabel(2)
         self.gainLabel = self.makeStatusLabel(3)
+        self.closedLabel=self.makeStatusLabel(4)
+        self.bagRecordingLabel=self.makeStatusLabel(5)
+
 
     def updateLabel(self):
         self.positionLabel.setText(self.vec32String(self.player.getPos(), "x", "y", "z"))
         self.orientationLabel.setText(self.vec32String(self.player.getHpr(), "H", "P", "R"))
-        self.speedLabel.setText("speed:" + str(self.speed))
-        self.gainLabel.setText("gain:" + str(self.gain))
-
+        self.speedLabel.setText("Speed: " + str(self.speed))
+        self.gainLabel.setText("Gain: " + str(self.gain))
+        self.closedLabel.setText("Closed Loop: "+str(bool(self.keyMap["closed"])))
+        self.bagRecordingLabel.setText("Recording Bag: "+ str(bool(self.bagRecordingState)))
     def vec32String(self, vector, a, b, c):
         """returns a rounded string of vec 3 interspersed with a,b,c as headings"""
         return a + ":" + str(round(vector[0])) + " " + b + ":" + str(round(vector[1])) + " " + c + ":" + str(
@@ -499,6 +419,50 @@ class MyApp(ShowBase):
         if verbose:
             print("Done")
 
+    def dict2Var(self, dict):
+        """converts a dict to a variable using exec for assignment
+            use it with caution"""
+        for key, val in dict.items():
+            exec (key + '=val')
+
+    def list2Exec(self, list):
+        """
+        Converts the list items to eval statement
+        """
+        for key in list:
+            exec(key)
+
+    def modelsLoad(self):
+        if self.loadWorld:
+            self.worldLoader()  # load the player and model
+        if self.loadTree:
+            self.treeLoader()  # load the tree
+        if self.loadRedSphere:
+            self.redSphereLoader()  # load the red sphere
+        if self.loadGreenSphere:
+            self.greenSphereLoader()  # load the green sphere
+
+    def winClose(self):
+        self.closeWindow(self.win)
+
+    def updateTask(self, task):
+
+        self.updatePlayer()
+        self.updateCamera()
+        self.bagControl()
+
+        if self.loadTrajectory:
+            self.trajectory()
+        if self.loadHUD:
+            self.updateLabel()
+        self.publisher()
+
+        return Task.cont
+
+
+
+
+    # testing functions not stable
     def record(self, dur, fps):
         self.movie('frames/movie', dur, fps=fps, format='jpg', sd=5)
 
@@ -506,6 +470,10 @@ class MyApp(ShowBase):
         globalClock.setMode(ClockObject.MLimited)
         globalClock.setFrameRate(fps)
 
+
+
+
+    # to be implemented functions fully unstable
     def windTunnel(self, windDirection):
         self.servoAngle = (self.player.getH() % 360) - 180
 
@@ -518,9 +486,8 @@ class MyApp(ShowBase):
         modelName.setTexture(texName)
         modelName.reparentTo(self.render)
 
-print 2+3
 
 app = MyApp()
 app.run()
-print app.__dict__.keys()
-print 2+3
+
+print 2 + 3
