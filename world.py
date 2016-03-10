@@ -78,6 +78,7 @@ class MyApp(ShowBase):
             plt.show()
 
     # housekeeping functions written in stone
+    # frameupdate
     def updatePlayer(self):
         # global prevPos, currentPos, ax, fig, treePos, redPos
         # Global Clock by default, panda runs as fast as it can frame to frame
@@ -168,124 +169,56 @@ class MyApp(ShowBase):
             self.maxSpeed = self.speed
             print "new max speed is", self.maxSpeed
 
-    def keyboardSetup(self):
-        self.keyMap = {"left": 0, "right": 0, "climb": 0, "fall": 0,
-                       "accelerate": 0, "decelerate": 0, "handBrake": 0, "reverse": 0,
-                       "closed": 0, "gain-up": 0, "gain-down": 0,
-                       "init": 0, "newInit": 0, "newTopSpeed": 0, "clf": 0, "saveFig": 0,
-                       "startBag": 0, "stopBag": 0}
+    def updateTask(self, task):
 
-        self.accept("escape", self.winClose)
-        self.accept("a", self.setKey, ["climb", 1])
-        self.accept("a-up", self.setKey, ["climb", 0])
-        self.accept("z", self.setKey, ["fall", 1])
-        self.accept("z-up", self.setKey, ["fall", 0])
-        self.accept("arrow_left", self.setKey, ["left", 1])
-        self.accept("arrow_left-up", self.setKey, ["left", 0])
-        self.accept("arrow_right", self.setKey, ["right", 1])
-        self.accept("arrow_right-up", self.setKey, ["right", 0])
-        self.accept("arrow_down", self.setKey, ["decelerate", 1])
-        self.accept("arrow_down-up", self.setKey, ["decelerate", 0])
-        self.accept("arrow_up", self.setKey, ["accelerate", 1])
-        self.accept("arrow_up-up", self.setKey, ["accelerate", 0])
-        self.accept("o", self.setKey, ["closed", 0])
-        self.accept("p", self.setKey, ["closed", 1])
-        self.accept("r", self.setKey, ["reverse", 1])
-        self.accept("r-up", self.setKey, ["reverse", 0])
-        self.accept("s", self.setKey, ["handBrake", 1])
-        self.accept("s-up", self.setKey, ["handBrake", 0])
-        self.accept("i", self.setKey, ["init", 1])
-        self.accept("i-up", self.setKey, ["init", 0])
-        self.accept("u", self.setKey, ["gain-up", 1])
-        self.accept("u-up", self.setKey, ["gain-up", 0])
-        self.accept("y", self.setKey, ["gain-down", 1])
-        self.accept("y-up", self.setKey, ["gain-down", 0])
-        self.accept("]", self.setKey, ["newInit", 1])
-        self.accept("]-up", self.setKey, ["newInit", 0])
-        self.accept("q", self.setKey, ["clf", 1])
-        self.accept("q-up", self.setKey, ["clf", 0])
-        self.accept("w", self.setKey, ["saveFig", 1])
-        self.accept("w-up", self.setKey, ["saveFig", 0])
-        self.accept("e", self.setKey, ["startBag", 1])
-        self.accept("e-up", self.setKey, ["startBag", 0])
-        self.accept("d", self.setKey, ["stopBag", 1])
-        self.accept("d-up", self.setKey, ["stopBag", 0])
-        self.accept("t", self.setKey, ["newTopSpeed", 1])
-        self.accept("t-up", self.setKey, ["newTopSpeed", 0])
+        self.updatePlayer()
+        self.updateCamera()
+        self.bagControl()
 
-        base.disableMouse()  # or updateCamera will fail!
+        if self.loadTrajectory:
+            self.trajectory()
+        if self.loadHUD:
+            self.updateLabel()
+        self.publisher()
 
-    def trajectory(self):
-        if (self.frameNum % self.trajectoryUpdateInterval == 1):
-            self.playerCurrentPos = (self.player.getX(), self.player.getY())
-            self.verts = [(self.playerPrevPos), (self.playerCurrentPos)]
-            self.codes = [Path.MOVETO, Path.LINETO]
-            self.path = Path(self.verts, self.codes)
+        return Task.cont
 
-            self.patch = patches.PathPatch(self.path, facecolor='white', lw=0.5)  # ,color=hex(self.frameNum))
-            self.ax.add_patch(self.patch)
-            self.fig.canvas.draw()
-            self.fig.canvas.flush_events()
-            self.playerPrevPos = self.playerCurrentPos
+    def updateCamera(self):
+        # see issue content for how we calculated these:
+        self.camera.setPos(self.player, 0, 0, 0)
+        self.camera.setHpr(self.player, 0, 0, 0)
 
-        if (self.keyMap["clf"] != 0):
-            plt.clf()
-            self.initPlot()
 
-        if (self.keyMap["saveFig"] != 0):
-            self.save("trajectory" + str(self.frameNum), ext="png", close=False, verbose=True)
-            self.save("trajectory" + str(self.frameNum), ext="svg", close=False, verbose=True)
-        self.frameNum += 1
+    # models
+    def modelLoader(self):
 
-    def publisher(self):
-        data = self.message()
-        trajectory = rospy.Publisher('trajectory', MsgTrajectory, queue_size=600)
-        trajectory.publish(data)
+        self.loadingStringParser(self.leftObjects, "left")
+        self.loadingStringParser(self.rightObjects, "right")
 
-    def message(self):
+        if self.loadWorld:
+            self.worldLoader()
+        if self.loaderDict["leftTree"]:
+            self.leftTreeLoader()
+        if self.loaderDict["leftRedSphere"]:
+            self.leftRedSphereLoader()
+        if self.loaderDict["leftGreenSphere"]:
+            self.leftGreenSphereLoader()
+        if self.loaderDict["rightTree"]:
+            self.rightTreeLoader()
+        if self.loaderDict["rightRedSphere"]:
+            self.rightRedSphereLoader()
+        if self.loaderDict["rightGreenSphere"]:
+            self.rightGreenSphereLoader()
 
-        mes = MsgTrajectory()
-        mes.header.stamp = rospy.Time.now()
-        mes.position = self.player.getPos()
-        mes.orientation = self.player.getHpr()
-        mes.wbad = self.wbad
-        mes.wbas = self.wbas
-        mes.speed = self.speed
-        mes.gain = self.gain
-        mes.closed = self.keyMap["closed"]
-        return mes
-
-    def bagger(self):
-        self.timeNow = str(datetime.now().strftime('%Y-%m-%d__%H:%M:%S'))
-        print self.timeNow
-        self.bagFilename = self.fly + "_" + self.leftObjects + "_" + self.rightObjects + "_gain" + str(
-            self.gain) + "_speed_" \
-                           + str(self.maxSpeed) + "_trial_" + str(self.trialNo) + "_" + self.timeNow
-        print self.bagFilename
-        self.bagCommand = "rosbag record --lz4 --output-name=" + self.bagFilename + " " + self.bagTopics
-        # print self.bagCommand
-        self.runBagCommand = subprocess.Popen(self.bagCommand, shell=True, stdout=subprocess.PIPE)
-        rospy.loginfo("Bag recording started")
-        time.sleep(0.15)
-
-    def bagControl(self):
-        if (self.keyMap["startBag"] == 1):
-            self.bagger()
-            self.bagRecordingState = True
-        elif (self.keyMap["stopBag"] != 0):
-            # self.runBagCommand.send_signal(subprocess.signal.SIGINT) #send signal on stop command
-            self.terminate_ros_node("/record")
-            self.bagRecordingState = False
-            rospy.loginfo("Bag recording stopped")
-
-    def terminate_ros_node(self, s):
-        list_cmd = subprocess.Popen("rosnode list", shell=True, stdout=subprocess.PIPE)
-        list_output = list_cmd.stdout.read()
-        retcode = list_cmd.wait()
-        assert retcode == 0, "List command returned %d" % retcode
-        for str in list_output.split("\n"):
-            if (str.startswith(s)):
-                os.system("rosnode kill " + str)
+    def loadingStringParser(self, loadingString, side):
+        for i in loadingString:
+            print i
+            if i == "t":
+                self.loaderDict[side + "Tree"] = True
+            elif i == "r":
+                self.loaderDict[side + "RedSphere"] = True
+            elif i == "g":
+                self.loaderDict[side + "GreenSphere"] = True
 
     def worldLoader(self):
         self.world = self.loader.loadModel("models/world" + str(self.worldSize) + ".bam")  # loads the world_size
@@ -343,66 +276,71 @@ class MyApp(ShowBase):
         self.rightRedSphere.setTexture(self.redTex)
         self.rightRedSphere.reparentTo(self.render)
 
-    def loadingStringParser(self, loadingString, side):
-        for i in loadingString:
-            print i
-            if i == "t":
-                self.loaderDict[side + "Tree"] = True
-            elif i == "r":
-                self.loaderDict[side + "RedSphere"] = True
-            elif i == "g":
-                self.loaderDict[side + "GreenSphere"] = True
 
-    def modelLoader(self):
+    # feedback
+    def listener(self):
+        """ Listens to Kinefly Flystate topic"""
+        rospy.Subscriber("/kinefly/flystate", MsgFlystate, self.callback)
 
-        self.loadingStringParser(self.leftObjects, "left")
-        self.loadingStringParser(self.rightObjects, "right")
+    def publisher(self):
+        data = self.message()
+        trajectory = rospy.Publisher('trajectory', MsgTrajectory, queue_size=600)
+        trajectory.publish(data)
+        # print self.wbad
 
-        if self.loadWorld:
-            self.worldLoader()
-        if self.loaderDict["leftTree"]:
-            self.leftTreeLoader()
-        if self.loaderDict["leftRedSphere"]:
-            self.leftRedSphereLoader()
-        if self.loaderDict["leftGreenSphere"]:
-            self.leftGreenSphereLoader()
-        if self.loaderDict["rightTree"]:
-            self.rightTreeLoader()
-        if self.loaderDict["rightRedSphere"]:
-            self.rightRedSphereLoader()
-        if self.loaderDict["rightGreenSphere"]:
-            self.rightGreenSphereLoader()
+    def message(self):
 
-    def updateCamera(self):
-        # see issue content for how we calculated these:
-        self.camera.setPos(self.player, 0, 0, 0)
-        self.camera.setHpr(self.player, 0, 0, 0)
+        mes = MsgTrajectory()
+        mes.header.stamp = rospy.Time.now()
+        mes.position = self.player.getPos()
+        mes.orientation = self.player.getHpr()
+        mes.wbad = self.wbad
+        mes.wbas = self.wbas
+        mes.speed = self.speed
+        mes.gain = self.gain
+        mes.closed = self.keyMap["closed"]
+        return mes
 
-    def makeStatusLabel(self, i):
-        return OnscreenText(style=2, fg=(0, 0, 0, 0.5), bg=(0.4, 0.4, 0.4, 0.8),
-                            scale=0.05, pos=(-3.1, 0.92 - (.08 * i)), mayChange=1)
+    def callback(self, data):
+        """ Returns Wing Beat Amplitude Difference from received data"""
+        self.wbad = data.left.angles[0] - data.right.angles[0]
+        self.wbas = data.left.angles[0] + data.right.angles[0]
+        return self.wbad
 
-    def makeLabels(self):
-        self.positionLabel = self.makeStatusLabel(0)
-        self.orientationLabel = self.makeStatusLabel(1)
-        self.speedLabel = self.makeStatusLabel(2)
-        self.gainLabel = self.makeStatusLabel(3)
-        self.closedLabel = self.makeStatusLabel(4)
-        self.bagRecordingLabel = self.makeStatusLabel(5)
+    def bagger(self):
+        self.timeNow = str(datetime.now().strftime('%Y-%m-%d__%H:%M:%S'))
+        print self.timeNow
+        self.bagFilename = self.fly + "_" + self.leftObjects + "_" + self.rightObjects + "_gain" + str(
+            self.gain) + "_speed_" \
+                           + str(self.maxSpeed) + "_trial_" + str(self.trialNo) + "_" + self.timeNow
+        print self.bagFilename
+        self.bagCommand = "rosbag record --lz4 --output-name=" + self.bagFilename + " " + self.bagTopics
+        # print self.bagCommand
+        self.runBagCommand = subprocess.Popen(self.bagCommand, shell=True, stdout=subprocess.PIPE)
+        rospy.loginfo("Bag recording started")
+        time.sleep(0.15)
 
-    def updateLabel(self):
-        self.positionLabel.setText(self.vec32String(self.player.getPos(), "x", "y", "z"))
-        self.orientationLabel.setText(self.vec32String(self.player.getHpr(), "H", "P", "R"))
-        self.speedLabel.setText("Speed: " + str(self.speed))
-        self.gainLabel.setText("Gain: " + str(self.gain))
-        self.closedLabel.setText("Closed Loop: " + str(bool(self.keyMap["closed"])))
-        self.bagRecordingLabel.setText("Recording Bag: " + str(bool(self.bagRecordingState)))
+    def bagControl(self):
+        if (self.keyMap["startBag"] == 1):
+            self.bagger()
+            self.bagRecordingState = True
+        elif (self.keyMap["stopBag"] != 0):
+            # self.runBagCommand.send_signal(subprocess.signal.SIGINT) #send signal on stop command
+            self.terminate_ros_node("/record")
+            self.bagRecordingState = False
+            rospy.loginfo("Bag recording stopped")
 
-    def vec32String(self, vector, a, b, c):
-        """returns a rounded string of vec 3 interspersed with a,b,c as headings"""
-        return a + ":" + str(round(vector[0])) + " " + b + ":" + str(round(vector[1])) + " " + c + ":" + str(
-            round(vector[2]))
+    def terminate_ros_node(self, s):
+        list_cmd = subprocess.Popen("rosnode list", shell=True, stdout=subprocess.PIPE)
+        list_output = list_cmd.stdout.read()
+        retcode = list_cmd.wait()
+        assert retcode == 0, "List command returned %d" % retcode
+        for str in list_output.split("\n"):
+            if (str.startswith(s)):
+                os.system("rosnode kill " + str)
 
+
+    # environment
     def createEnvironment(self):
         # Fog to hide a performance tweak:
         colour = (0.0, 0.0, 0.0)
@@ -430,20 +368,130 @@ class MyApp(ShowBase):
         render.setLight(render.attachNewNode(ambientLight))
         render.setLight(render.attachNewNode(directionalLight))
 
+    # Key control
+    def keyboardSetup(self):
+        self.keyMap = {"left": 0, "right": 0, "climb": 0, "fall": 0,
+                       "accelerate": 0, "decelerate": 0, "handBrake": 0, "reverse": 0,
+                       "closed": 0, "gain-up": 0, "gain-down": 0,
+                       "init": 0, "newInit": 0, "newTopSpeed": 0, "clf": 0, "saveFig": 0,
+                       "startBag": 0, "stopBag": 0}
+
+        self.accept("escape", self.winClose)
+        self.accept("a", self.setKey, ["climb", 1])
+        self.accept("a-up", self.setKey, ["climb", 0])
+        self.accept("z", self.setKey, ["fall", 1])
+        self.accept("z-up", self.setKey, ["fall", 0])
+        self.accept("arrow_left", self.setKey, ["left", 1])
+        self.accept("arrow_left-up", self.setKey, ["left", 0])
+        self.accept("arrow_right", self.setKey, ["right", 1])
+        self.accept("arrow_right-up", self.setKey, ["right", 0])
+        self.accept("arrow_down", self.setKey, ["decelerate", 1])
+        self.accept("arrow_down-up", self.setKey, ["decelerate", 0])
+        self.accept("arrow_up", self.setKey, ["accelerate", 1])
+        self.accept("arrow_up-up", self.setKey, ["accelerate", 0])
+        self.accept("o", self.setKey, ["closed", 0])
+        self.accept("p", self.setKey, ["closed", 1])
+        self.accept("r", self.setKey, ["reverse", 1])
+        self.accept("r-up", self.setKey, ["reverse", 0])
+        self.accept("s", self.setKey, ["handBrake", 1])
+        self.accept("s-up", self.setKey, ["handBrake", 0])
+        self.accept("i", self.setKey, ["init", 1])
+        self.accept("i-up", self.setKey, ["init", 0])
+        self.accept("u", self.setKey, ["gain-up", 1])
+        self.accept("u-up", self.setKey, ["gain-up", 0])
+        self.accept("y", self.setKey, ["gain-down", 1])
+        self.accept("y-up", self.setKey, ["gain-down", 0])
+        self.accept("]", self.setKey, ["newInit", 1])
+        self.accept("]-up", self.setKey, ["newInit", 0])
+        self.accept("q", self.setKey, ["clf", 1])
+        self.accept("q-up", self.setKey, ["clf", 0])
+        self.accept("w", self.setKey, ["saveFig", 1])
+        self.accept("w-up", self.setKey, ["saveFig", 0])
+        self.accept("e", self.setKey, ["startBag", 1])
+        self.accept("e-up", self.setKey, ["startBag", 0])
+        self.accept("d", self.setKey, ["stopBag", 1])
+        self.accept("d-up", self.setKey, ["stopBag", 0])
+        self.accept("t", self.setKey, ["newTopSpeed", 1])
+        self.accept("t-up", self.setKey, ["newTopSpeed", 0])
+
+        base.disableMouse()  # or updateCamera will fail!
+
     def setKey(self, key, value):
         self.keyMap[key] = value
 
-    def callback(self, data):
-        """ Returns Wing Beat Amplitude Difference from received data"""
-        self.wbad = data.left.angles[0] - data.right.angles[0]
-        self.wbas = data.left.angles[0] + data.right.angles[0]
-        return self.wbad
+    def winClose(self):
+        self.closeWindow(self.win)
 
-    def listener(self):
-        """ Listens to Kinefly Flystate topic"""
-        rospy.Subscriber("/kinefly/flystate", MsgFlystate, self.callback)
+    # labels
 
-        # print self.wbad
+
+
+
+
+
+    def makeStatusLabel(self, i):
+        return OnscreenText(style=2, fg=(0, 0, 0, 0.5), bg=(0.4, 0.4, 0.4, 0.8),
+                            scale=0.05, pos=(-3.1, 0.92 - (.08 * i)), mayChange=1)
+
+    def makeLabels(self):
+        self.positionLabel = self.makeStatusLabel(0)
+        self.orientationLabel = self.makeStatusLabel(1)
+        self.speedLabel = self.makeStatusLabel(2)
+        self.gainLabel = self.makeStatusLabel(3)
+        self.closedLabel = self.makeStatusLabel(4)
+        self.bagRecordingLabel = self.makeStatusLabel(5)
+
+    def updateLabel(self):
+        self.positionLabel.setText(self.vec32String(self.player.getPos(), "x", "y", "z"))
+        self.orientationLabel.setText(self.vec32String(self.player.getHpr(), "H", "P", "R"))
+        self.speedLabel.setText("Speed: " + str(self.speed))
+        self.gainLabel.setText("Gain: " + str(self.gain))
+        self.closedLabel.setText("Closed Loop: " + str(bool(self.keyMap["closed"])))
+        self.bagRecordingLabel.setText("Recording Bag: " + str(bool(self.bagRecordingState)))
+
+    # content handlers
+    def vec32String(self, vector, a, b, c):
+        """returns a rounded string of vec 3 interspersed with a,b,c as headings"""
+        return a + ":" + str(round(vector[0])) + " " + b + ":" + str(round(vector[1])) + " " + c + ":" + str(
+            round(vector[2]))
+
+    def dict2Var(self, dict):
+        """converts a dict to a variable using exec for assignment
+            use it with caution"""
+        for key, val in dict.items():
+            exec (key + '=val')
+
+    def list2Exec(self, list):
+        """
+        Converts the list items to eval statement
+        """
+        for key in list:
+            exec (key)
+
+    # trajectory
+
+
+    def trajectory(self):
+        if (self.frameNum % self.trajectoryUpdateInterval == 1):
+            self.playerCurrentPos = (self.player.getX(), self.player.getY())
+            self.verts = [(self.playerPrevPos), (self.playerCurrentPos)]
+            self.codes = [Path.MOVETO, Path.LINETO]
+            self.path = Path(self.verts, self.codes)
+
+            self.patch = patches.PathPatch(self.path, facecolor='white', lw=0.5)  # ,color=hex(self.frameNum))
+            self.ax.add_patch(self.patch)
+            self.fig.canvas.draw()
+            self.fig.canvas.flush_events()
+            self.playerPrevPos = self.playerCurrentPos
+
+        if (self.keyMap["clf"] != 0):
+            plt.clf()
+            self.initPlot()
+
+        if (self.keyMap["saveFig"] != 0):
+            self.save("trajectory" + str(self.frameNum), ext="png", close=False, verbose=True)
+            self.save("trajectory" + str(self.frameNum), ext="svg", close=False, verbose=True)
+        self.frameNum += 1
 
     def save(self, path, ext='png', close=True, verbose=True):
         """Save a figure from pyplot.
@@ -492,37 +540,10 @@ class MyApp(ShowBase):
         if verbose:
             print("Done")
 
-    def dict2Var(self, dict):
-        """converts a dict to a variable using exec for assignment
-            use it with caution"""
-        for key, val in dict.items():
-            exec (key + '=val')
-
-    def list2Exec(self, list):
-        """
-        Converts the list items to eval statement
-        """
-        for key in list:
-            exec (key)
-
-    def winClose(self):
-        self.closeWindow(self.win)
-
-    def updateTask(self, task):
-
-        self.updatePlayer()
-        self.updateCamera()
-        self.bagControl()
-
-        if self.loadTrajectory:
-            self.trajectory()
-        if self.loadHUD:
-            self.updateLabel()
-        self.publisher()
-
-        return Task.cont
-
     # testing functions not stable
+
+    # screen capture
+
     def record(self, dur, fps):
         self.movie('frames/movie', dur, fps=fps, format='jpg', sd=5)
 
