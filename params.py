@@ -4,18 +4,18 @@ parameters = {
     # bools
 
     "self.loadHUD": True,
-    "self.loadTrajectory": False,
+    "self.loadTrajectory": True,
     "self.lockFps ": True,  # False,
     "self.frameRecord ": False,
     "self.loadWind": False,
 
     "self.loadWorld":True,
-    "self.fly":"pavan",
-    "self.leftObjects":"t0",
-    "self.rightObjects":"tr",
-    "self.gain ": 1,
-    "self.maxSpeed ": 10.0,
-    "self.trialNo":1,
+    "self.fly":"fly1",
+    "self.leftObjects":"00",
+    "self.rightObjects":"t0",
+    "self.gain ": 2.5,
+    "self.maxSpeed ": 2.5,
+    "self.trialNo":2,
 
 
     "self.fps ": 60,

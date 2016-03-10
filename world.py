@@ -1,4 +1,5 @@
 # system imports
+
 from datetime import datetime
 import sys, time, subprocess, os  # ROS imports
 import rospy, rostopic, std_msgs.msg
@@ -14,7 +15,7 @@ from direct.gui.OnscreenText import OnscreenText
 import matplotlib.pyplot as plt  # plotting imports
 from matplotlib.path import Path
 import matplotlib.patches as patches
-
+import cPickle as pickle
 from params import parameters, assertions
 
 # import servo
@@ -72,8 +73,8 @@ class MyApp(ShowBase):
             self.ax.set_xlim(0, self.worldSize)
             self.ax.set_ylim(0, self.worldSize)
 
-            plt.plot(self.treePos[0], self.treePos[1], 'gs')
-            plt.plot(self.redSpherePos[0], self.redSpherePos[1], 'ro')
+            plt.plot(self.posL[0], self.posL[1], 'gs')
+            # plt.plot(self.posR[0], self.posR[1], 'ro')
             plt.ion()
             plt.show()
 
@@ -324,6 +325,7 @@ class MyApp(ShowBase):
         if (self.keyMap["startBag"] == 1):
             self.bagger()
             self.bagRecordingState = True
+            self.pickler(parameters,self.bagFilename)
         elif (self.keyMap["stopBag"] != 0):
             # self.runBagCommand.send_signal(subprocess.signal.SIGINT) #send signal on stop command
             self.terminate_ros_node("/record")
@@ -423,12 +425,6 @@ class MyApp(ShowBase):
         self.closeWindow(self.win)
 
     # labels
-
-
-
-
-
-
     def makeStatusLabel(self, i):
         return OnscreenText(style=2, fg=(0, 0, 0, 0.5), bg=(0.4, 0.4, 0.4, 0.8),
                             scale=0.05, pos=(-3.1, 0.92 - (.08 * i)), mayChange=1)
@@ -469,8 +465,6 @@ class MyApp(ShowBase):
             exec (key)
 
     # trajectory
-
-
     def trajectory(self):
         if (self.frameNum % self.trajectoryUpdateInterval == 1):
             self.playerCurrentPos = (self.player.getX(), self.player.getY())
@@ -540,10 +534,24 @@ class MyApp(ShowBase):
         if verbose:
             print("Done")
 
+    def pickler(self,obj, path):
+        """
+        Pickle a Python object
+        """
+        with open(path, "wb") as pfile:
+            pickle.dump(obj, pfile)
+
+#----------------------------------------------------------------------
+    def depickler(self,path):
+        """
+        Extracts a pickled Python object and returns it
+        """
+        with open(path, "rb") as pfile:
+            data = pickle.load(pfile)
+        return data
+
     # testing functions not stable
-
     # screen capture
-
     def record(self, dur, fps):
         self.movie('frames/movie', dur, fps=fps, format='jpg', sd=5)
 
