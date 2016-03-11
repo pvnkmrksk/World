@@ -18,7 +18,7 @@ import matplotlib.patches as patches
 import cPickle as pickle
 from params import parameters, assertions
 
-# import servo
+import servo
 
 try:
     # Checkif rosmaster is running or not.
@@ -73,8 +73,8 @@ class MyApp(ShowBase):
             self.ax.set_xlim(0, self.worldSize)
             self.ax.set_ylim(0, self.worldSize)
 
-            plt.plot(self.posL[0], self.posL[1], 'gs')
-            # plt.plot(self.posR[0], self.posR[1], 'ro')
+            # plt.plot(self.posR[0], self.posR[1], 'gs')
+            # plt.plot(self.posL[0], self.posL[1], 'gs')
             plt.ion()
             plt.show()
 
@@ -85,7 +85,7 @@ class MyApp(ShowBase):
         # Global Clock by default, panda runs as fast as it can frame to frame
         scalefactor = self.speed * (globalClock.getDt())
         climbfactor = 0.1  # (.001) * scalefactor
-        bankfactor = 1  # .5  * scalefactor
+        bankfactor = 2  # .5  * scalefactor
         speedfactor = scalefactor
 
         # closed loop
@@ -180,6 +180,9 @@ class MyApp(ShowBase):
             self.trajectory()
         if self.loadHUD:
             self.updateLabel()
+
+        if self.loadWind:
+            self.windTunnel(0)
         self.publisher()
 
         return Task.cont
@@ -187,7 +190,7 @@ class MyApp(ShowBase):
     def updateCamera(self):
         # see issue content for how we calculated these:
         self.camera.setPos(self.player, 0, 0, 0)
-        self.camera.setHpr(self.player, 0, 0, 0)
+        self.camera.setHpr(self.player, self.camHpr)
 
 
     # models
@@ -213,7 +216,6 @@ class MyApp(ShowBase):
 
     def loadingStringParser(self, loadingString, side):
         for i in loadingString:
-            print i
             if i == "t":
                 self.loaderDict[side + "Tree"] = True
             elif i == "r":
@@ -308,13 +310,15 @@ class MyApp(ShowBase):
         self.wbas = data.left.angles[0] + data.right.angles[0]
         return self.wbad
 
-    def bagger(self):
+    def bagFilenameGen(self):
         self.timeNow = str(datetime.now().strftime('%Y-%m-%d__%H:%M:%S'))
-        print self.timeNow
-        self.bagFilename = self.fly + "_" + self.leftObjects + "_" + self.rightObjects + "_gain" + str(
-            self.gain) + "_speed_" \
-                           + str(self.maxSpeed) + "_trial_" + str(self.trialNo) + "_" + self.timeNow
+        self.bagFilename = "bags/"+self.fly + "_" + self.leftObjects + "_" + self.rightObjects + "_gain" + str(
+                            self.gain) + "_speed_" + str(self.maxSpeed) + "_trial_" \
+                           + str(self.trialNo) + "_" + self.timeNow
         print self.bagFilename
+
+    def bagger(self):
+        self.bagFilenameGen()
         self.bagCommand = "rosbag record --lz4 --output-name=" + self.bagFilename + " " + self.bagTopics
         # print self.bagCommand
         self.runBagCommand = subprocess.Popen(self.bagCommand, shell=True, stdout=subprocess.PIPE)
@@ -483,8 +487,10 @@ class MyApp(ShowBase):
             self.initPlot()
 
         if (self.keyMap["saveFig"] != 0):
-            self.save("trajectory" + str(self.frameNum), ext="png", close=False, verbose=True)
-            self.save("trajectory" + str(self.frameNum), ext="svg", close=False, verbose=True)
+            self.bagFilenameGen()
+            self.save("trajectory" + self.bagFilename, ext="png", close=False, verbose=True)
+            self.save("trajectory" + self.bagFilename, ext="svg", close=False, verbose=True)
+            # pickle.dump(self.fig,file(self.bagFilename+"fig",'w'))
         self.frameNum += 1
 
     def save(self, path, ext='png', close=True, verbose=True):
@@ -561,7 +567,9 @@ class MyApp(ShowBase):
 
     # to be implemented functions fully unstable
     def windTunnel(self, windDirection):
-        self.servoAngle = (self.player.getH() % 360) - 180
+        self.servoAngle = (int(self.player.getH()) -90)% 360 -180
+        print self.servoAngle
+        servo.move(1,self.servoAngle)
 
         # def modelLoader(self, modelName, modelPath, modelPos, modelScale, texName, texPath, modelParent):
         #     modelName = self.loader.loadModel(modelPath)
