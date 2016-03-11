@@ -8,22 +8,27 @@ parameters = {
     "self.lockFps ": True,  # False,
     "self.frameRecord ": False,
     "self.loadWind": False,
-
+    "self.disabledFly":True,
     "self.loadWorld":True,
-    "self.fly":"fly2",
+    "self.fly":"fly2_handicap",
+
     "self.leftObjects":"t",
-    "self.rightObjects":"0",
+    "self.rightObjects":"t",
+
     "self.gain ": 5.3,
     "self.maxSpeed ": 7.5,
-    "self.trialNo":5,
+    "self.trialNo":1,
 
     "self.objectSpacing ": 45,  # distance from the midpoint,
+
+
+    "self.lrGain":1.4,
 
     "self.fps ": 60,
     "self.trajectoryUpdateInterval ": 60,  # frames between update,
 
     "self.worldSize ": 257,  # relevant for world boundaries
-    "self.playerInitPos ": Vec3(257 / 2, 55, 3),
+    "self.playerInitPos ": Vec3(257 / 2, 75, 3),
     "self.playerInitH ": 0,
 
 

@@ -18,7 +18,7 @@ import matplotlib.patches as patches
 import cPickle as pickle
 from params import parameters, assertions
 
-import servo
+# import servo
 
 try:
     # Checkif rosmaster is running or not.
@@ -73,8 +73,8 @@ class MyApp(ShowBase):
             self.ax.set_xlim(0, self.worldSize)
             self.ax.set_ylim(0, self.worldSize)
 
-            # plt.plot(self.posR[0], self.posR[1], 'gs')
-            # plt.plot(self.posL[0], self.posL[1], 'gs')
+            plt.plot(self.posR[0], self.posR[1], 'gs')
+            plt.plot(self.posL[0], self.posL[1], 'gs')
             plt.ion()
             plt.show()
 
@@ -87,6 +87,7 @@ class MyApp(ShowBase):
         climbfactor = 0.1  # (.001) * scalefactor
         bankfactor = 2  # .5  * scalefactor
         speedfactor = scalefactor
+
 
         # closed loop
         if (self.keyMap["closed"] != 0):
@@ -169,6 +170,15 @@ class MyApp(ShowBase):
         if (self.keyMap["newTopSpeed"] != 0):
             self.maxSpeed = self.speed
             print "new max speed is", self.maxSpeed
+
+        #update left by right gain for diabled flies
+        if (self.keyMap["lrGain-up"]!=0):
+            self.lrGain+=self.gainIncrement
+            print "lrGain is ",self.lrGain
+
+        if (self.keyMap["lrGain-down"]!=0):
+            self.lrGain-=self.gainIncrement
+            print "lrGain is ",self.lrGain
 
     def updateTask(self, task):
 
@@ -308,6 +318,9 @@ class MyApp(ShowBase):
         """ Returns Wing Beat Amplitude Difference from received data"""
         self.wbad = data.left.angles[0] - data.right.angles[0]
         self.wbas = data.left.angles[0] + data.right.angles[0]
+        self.scaledWbad=self.lrGain*data.left.angles[0] - data.right.angles[0]
+        if self.disabledFly:
+            self.wbad=self.scaledWbad
         return self.wbad
 
     def bagFilenameGen(self):
@@ -378,7 +391,8 @@ class MyApp(ShowBase):
     def keyboardSetup(self):
         self.keyMap = {"left": 0, "right": 0, "climb": 0, "fall": 0,
                        "accelerate": 0, "decelerate": 0, "handBrake": 0, "reverse": 0,
-                       "closed": 0, "gain-up": 0, "gain-down": 0,
+                       "closed": 0, "gain-up": 0, "gain-down": 0,"lrGain-up":0,
+                       "lrGain-down":0,
                        "init": 0, "newInit": 0, "newTopSpeed": 0, "clf": 0, "saveFig": 0,
                        "startBag": 0, "stopBag": 0}
 
@@ -419,6 +433,10 @@ class MyApp(ShowBase):
         self.accept("d-up", self.setKey, ["stopBag", 0])
         self.accept("t", self.setKey, ["newTopSpeed", 1])
         self.accept("t-up", self.setKey, ["newTopSpeed", 0])
+        self.accept("v", self.setKey, ["lrGain-down", 1])
+        self.accept("v-up", self.setKey, ["lrGain-down", 0])
+        self.accept("b", self.setKey, ["lrGain-up", 1])
+        self.accept("b-up", self.setKey, ["lrGain-up", 0])
 
         base.disableMouse()  # or updateCamera will fail!
 
