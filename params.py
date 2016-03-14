@@ -12,8 +12,8 @@ parameters = {
     "self.loadWorld":True,
     "self.fly":"fly2_handicap",
 
-    "self.leftObjects":"t",
-    "self.rightObjects":"t",
+    "self.leftObjects":"0",
+    "self.rightObjects":"0",
 
     "self.gain ": 5.3,
     "self.maxSpeed ": 7.5,
@@ -22,7 +22,7 @@ parameters = {
     "self.objectSpacing ": 45,  # distance from the midpoint,
 
 
-    "self.lrGain":1.4,
+    "self.lrGain":1.0,
 
     "self.fps ": 60,
     "self.trajectoryUpdateInterval ": 60,  # frames between update,
