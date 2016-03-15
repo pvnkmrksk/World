@@ -3,62 +3,122 @@ from panda3d.core import Vec3
 parameters = {
     # bools
 
-    "self.loadHUD": True,
-    "self.loadTrajectory": True,
-    "self.lockFps ": True,  # False,
-    "self.frameRecord ": False,
-    "self.loadWind": False,
-    "self.disabledFly":True,
-    "self.loadWorld":True,
-    "self.fly":"fly2_handicap",
+    "loadHUD": True,
+    "loadTrajectory": True,
+    "lockFps": True,  # False,
+    "frameRecord": False,
+    "loadWind": False,
+    "disabledFly":True,
+    "loadWorld":True,
 
-    "self.leftObjects":"0",
-    "self.rightObjects":"0",
+    "leftObjects":"0",
+    "rightObjects":"0",
+    "fly":"test",
 
-    "self.gain ": 5.3,
-    "self.maxSpeed ": 7.5,
-    "self.trialNo":1,
+    "gain": 5.3,
+    "maxSpeed": 7.5,
+    "trialNo":1,
 
-    "self.objectSpacing ": 45,  # distance from the midpoint,
-
-
-    "self.lrGain":1.0,
-
-    "self.fps ": 60,
-    "self.trajectoryUpdateInterval ": 60,  # frames between update,
-
-    "self.worldSize ": 257,  # relevant for world boundaries
-    "self.playerInitPos ": Vec3(257 / 2, 75, 3),
-    "self.playerInitH ": 0,
+    "objectSpacing": 45,  # distance from the midpoint,
 
 
-    "self.sphereZ ": 3,
-    "self.treeZ ": 1,
+    "lrGain":1.0,
 
-    "self.speed ": 0.0,
-    "self.speedIncrement ": 0.05,
-    "self.gainIncrement ": 0.02,
+    "fps": 60,
+    "trajectoryUpdateInterval": 60,  # frames between update,
+
+    "worldSize": 257,  # relevant for world boundaries
+    "playerInitPos": Vec3(257 / 2, 75, 3),
+    "playerInitH": 0,
 
 
-    "self.wbad ": 0,
-    "self.wbas ": 0,
-    "self.sphereScale ": 0.8,
-    "self.treeScale ": 0.08,
-    "self.maxDistance ": 350,
-    "self.camFOV": 120,
-    "self.camHpr":Vec3(0,3,0),
-    "self.frameNum ": 0,
-    "self.recordDur ": 10,
-    "self.recordFps ": 30,
+    "sphereZ": 3,
+    "treeZ": 1,
 
-    "self.spherePath ": "models/sphere.egg",
-    "self.greenTexPath ": "models/green.tga",
-    "self.redTexPath ": "models/red.tga",
-    "self.treePath ": "models/treeHighB.egg",
-    "self.treeTexPath ": "models/BarkBrown.tga",
-    "self.bagTopics": "/usb_cam/image_raw /kinefly/image_output /kinefly/flystate /trajectory",
+    "speed": 0.0,
+    "speedIncrement": 0.05,
+    "gainIncrement": 0.02,
+
+
+    "wbad": 0,
+    "wbas": 0,
+    "sphereScale": 0.8,
+    "treeScale": 0.08,
+    "maxDistance": 350,
+    "camFOV": 120,
+    "camHpr":Vec3(0,3,0),
+    "frameNum": 0,
+    "recordDur": 10,
+    "recordFps": 30,
+
+    "spherePath": "models/sphere.egg",
+    "greenTexPath": "models/green.tga",
+    "redTexPath": "models/red.tga",
+    "treePath": "models/treeHighB.egg",
+    "treeTexPath": "models/BarkBrown.tga",
+    "bagTopics": "/usb_cam/image_raw /kinefly/image_output /kinefly/flystate /trajectory",
 
 }
+
+# parameters = {
+#     # bools
+# 
+#     "self.loadHUD": True,
+#     "self.loadTrajectory": True,
+#     "self.lockFps": True,  # False,
+#     "self.frameRecord": False,
+#     "self.loadWind": False,
+#     "self.disabledFly":True,
+#     "self.loadWorld":True,
+#     "self.fly":"fly2_handicap",
+# 
+#     "self.leftObjects":"0",
+#     "self.rightObjects":"0",
+# 
+#     "self.gain": 5.3,
+#     "self.maxSpeed": 7.5,
+#     "self.trialNo":1,
+# 
+#     "self.objectSpacing": 45,  # distance from the midpoint,
+# 
+# 
+#     "self.lrGain":1.0,
+# 
+#     "self.fps": 60,
+#     "self.trajectoryUpdateInterval": 60,  # frames between update,
+# 
+#     "self.worldSize": 257,  # relevant for world boundaries
+#     "self.playerInitPos": Vec3(257 / 2, 75, 3),
+#     "self.playerInitH": 0,
+# 
+# 
+#     "self.sphereZ": 3,
+#     "self.treeZ": 1,
+# 
+#     "self.speed": 0.0,
+#     "self.speedIncrement": 0.05,
+#     "self.gainIncrement": 0.02,
+# 
+# 
+#     "self.wbad": 0,
+#     "self.wbas": 0,
+#     "self.sphereScale": 0.8,
+#     "self.treeScale": 0.08,
+#     "self.maxDistance": 350,
+#     "self.camFOV": 120,
+#     "self.camHpr":Vec3(0,3,0),
+#     "self.frameNum": 0,
+#     "self.recordDur": 10,
+#     "self.recordFps": 30,
+# 
+#     "self.spherePath": "models/sphere.egg",
+#     "self.greenTexPath": "models/green.tga",
+#     "self.redTexPath": "models/red.tga",
+#     "self.treePath": "models/treeHighB.egg",
+#     "self.treeTexPath": "models/BarkBrown.tga",
+#     "self.bagTopics": "/usb_cam/image_raw /kinefly/image_output /kinefly/flystate /trajectory",
+# 
+# }
 
 
 assertions = [
@@ -68,3 +128,6 @@ assertions = [
     "self.rightTreePos = Vec3(self.posR, self.treeZ)",
     "self.leftSpherePos = Vec3(self.posL, self.sphereZ)",
     "self.rightSpherePos = Vec3(self.posR, self.sphereZ)"]
+
+# for key, val in parameters.items():
+#     print key+"="+"parameters[\""+key.replace('self.','').strip(" ")+"\"]"
