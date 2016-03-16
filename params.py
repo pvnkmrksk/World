@@ -28,7 +28,7 @@ parameters = {
     "trajectoryUpdateInterval": 60,  # frames between update,
 
     "worldSize": 257,  # relevant for world boundaries
-    "playerInitPos": Vec3(257 / 2, 75, 3),
+    "playerInitPos": (257 / 2, 75, 3),
     "playerInitH": 0,
 
 
@@ -46,7 +46,7 @@ parameters = {
     "treeScale": 0.08,
     "maxDistance": 350,
     "camFOV": 120,
-    "camHpr":Vec3(0,3,0),
+    "camHpr":(0,3,0),
     "frameNum": 0,
     "recordDur": 10,
     "recordFps": 30,

@@ -1,8 +1,8 @@
 # system imports
 
 from datetime import datetime
-import sys, time, subprocess, os  # ROS imports
-import rospy, rostopic, std_msgs.msg, rosbag
+import sys, time, subprocess, os ,json # ROS imports
+import rospy, rostopic, roslib,std_msgs.msg, rosbag
 from beginner.msg import MsgFlystate, MsgTrajectory
 from std_msgs.msg import String
 from rospy_message_converter import message_converter
@@ -554,20 +554,22 @@ class MyApp(ShowBase):
     def addMetadata(self):
         print "allo " + self.bagFilename
         a=self.bagFilename+".bag"
-        time.sleep(5)
-        print 'yay',parameters
-        print(type(parameters))
-        metadata=message_converter.convert_dictionary_to_ros_message("std_msgs/String",parameters)
+        time.sleep(5)#so that bag file can be transfereed from memory
+
+        metadata=String(json.dumps(parameters))
         print metadata
 
         with rosbag.Bag(a,'a') as bag:
+            i=0
             for _,_,t in bag.read_messages():
+                if i==0:
+                    tstamp=t
+                i+=1
                 break
-            bag.write('/metadata',metadata,t-roslib.rostime.Duration(0,1))
+            bag.write('/metadata',metadata,tstamp)
 
 
         # datasave
-
     def pickler(self, obj, path):
         """
         Pickle a Python object
