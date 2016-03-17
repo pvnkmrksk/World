@@ -27,11 +27,11 @@ parameters = {
 
 
 
-    "loadingString":"rg",
-    "heightObjects":10,
-    "widthObjects":10,
+    "loadingString":"tt",
+    "heightObjects":25,
+    "widthObjects":25,
     "lattice":20,
-    "origin":Vec3(0,0,0),
+    "origin":Vec3(50,50,0),
 
     "lrGain":1.0,
 
@@ -53,11 +53,11 @@ parameters = {
 
     "wbad": 0,
     "wbas": 0,
-    "sphereScale": 0.8,
+    "sphereScale": 0.3,
     "treeScale": 0.02,
-    "maxDistance": 350,
+    "maxDistance": 30,
     "camFOV": 120,
-    "camHpr":(0,3,0),
+    "camHpr":(0,1,0),
     "frameNum": 0,
     "recordDur": 10,
     "recordFps": 30,

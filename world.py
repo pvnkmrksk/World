@@ -157,17 +157,19 @@ class MyApp(ShowBase):
             self.worldLoader()
 
 
-    def loadingStringParser(self, loadingString, side):
-        for i in loadingString:
-            if i == "t":
-                self.loaderDict[side + "Tree"] = True
-            elif i == "r":
-                self.loaderDict[side + "RedSphere"] = True
-            elif i == "g":
-                self.loaderDict[side + "GreenSphere"] = True
-
     def worldLoader(self):
-        self.world = self.loader.loadModel("models/world" + str(parameters["worldSize"]) + ".bam")  # loads the world_size
+        self.worldFilename = "models/world_" + "size:" + parameters["modelSizeSuffix"] + "_obj:" \
+                             + parameters["loadingString"] + "_num:" + str(parameters["widthObjects"]) \
+                             + "x" + str(parameters["heightObjects"]) + ".bam"
+        print self.worldFilename
+        print "/home/behaviour/catkin/src/beginner/scripts/panda/world/models/world_size:257_obj:rg_num:10x10.bam"
+
+        print os.path.isfile(self.worldFilename)
+        if not os.path.isfile(self.worldFilename):
+            subprocess.Popen("python hcpWorldGen.py",shell=True, stdout=subprocess.PIPE)
+            time.sleep(5)
+
+        self.world = self.loader.loadModel(self.worldFilename)  # loads the world_size
         self.world.reparentTo(self.render)  # render the world
         # the Player
         self.player = NodePath("player")
@@ -188,8 +190,8 @@ class MyApp(ShowBase):
         # Our sky
         skysphere = loader.loadModel('models/sky.egg')
         skysphere.setEffect(CompassEffect.make(self.render))
-        skysphere.setScale(parameters["maxDistance"] / 2)  # bit less than "far"
-        skysphere.setZ(-5)
+        skysphere.setScale(parameters["maxDistance"] / 1.2)  # bit less than "far"
+        skysphere.setZ(-3)
         # NOT render - you'll fly through the sky!:
         skysphere.reparentTo(self.camera)
 

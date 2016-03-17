@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from params import parameters
 
 
-class MyApp(ShowBase):  # our 'class'
+class WorldGen(ShowBase):  # our 'class'
     def __init__(self):
         ShowBase.__init__(self)  # initialise
         terrain = GeoMipTerrain("worldTerrain")  # create a terrain
@@ -20,7 +20,7 @@ class MyApp(ShowBase):  # our 'class'
         terrain.generate()  # generate
 
         self.evenObj = self.oddObj = self.evenScale = self.oddScale = \
-            self.evenTex = self.oddTex = self.evenLoad = self.oddLoad = None
+            self.evenTex = self.oddTex = self.evenLoad = self.oddLoad =self.evenZ=self.oddZ= None
 
         self.odd, self.even = self.positionListGenerator(heightObjects=parameters["heightObjects"],
                                                          widthObjects=parameters["widthObjects"],
@@ -37,11 +37,15 @@ class MyApp(ShowBase):  # our 'class'
         self.loadingStringParser(parameters["loadingString"])
 
         if self.evenLoad:
-            self.evenInstance(self.evenObj, scale=self.evenScale, tex=self.evenTex)
+            self.evenInstance(self.evenObj, scale=self.evenScale, tex=self.evenTex,z=self.evenZ)
         if self.oddLoad:
-            self.oddInstance(self.oddObj, scale=self.oddScale, tex=self.oddTex)
+            self.oddInstance(self.oddObj, scale=self.oddScale, tex=self.oddTex,z=self.oddZ)
 
         self.generate()
+
+        import sys,time
+        time.sleep(3)
+        sys.exit()
 
     def loadingStringParser(self, loadingString):
         """
@@ -68,54 +72,60 @@ class MyApp(ShowBase):  # our 'class'
                 obj = self.tree
                 tex = self.treeTex
                 scale = parameters["treeScale"]
+                z=parameters["treeZ"]
                 load = True
 
             elif i == "r":
                 obj = self.redSphere
                 tex = self.redTex
                 scale = parameters["sphereScale"]
+                z=parameters["sphereZ"]
                 load = True
             elif i == "g":
                 obj = self.greenSphere
                 tex = self.greenTex
                 scale = parameters["sphereScale"]
+                z=parameters["sphereZ"]
                 load = True
             else:
                 obj = None
                 tex = None
                 scale = None
+                z=None
                 load = False
 
             if j == 0:
                 self.evenObj = obj
                 self.evenTex = tex
                 self.evenScale = scale
+                self.evenZ=z
                 self.evenLoad = load
             else:
                 self.oddObj = obj
                 self.oddTex = tex
                 self.oddScale = scale
+                self.oddZ=z
                 self.oddLoad = load
             j += 1
 
-    def oddInstance(self, dummy, scale, tex):
+    def oddInstance(self, dummy, scale, tex,z):
         dummy.setPos(parameters["origin"])
         dummy.setScale(scale)
         dummy.setTexture(tex)
 
         for i in range(self.odd.shape[0]):
             self.oddPlaceholder = self.render.attach_new_node("odd Holder")
-            self.oddPlaceholder.setPos(self.odd[i][0], self.odd[i][1], 1)
+            self.oddPlaceholder.setPos(self.odd[i][0], self.odd[i][1], z)
             dummy.instanceTo(self.oddPlaceholder)
 
-    def evenInstance(self, dummy, scale, tex):
+    def evenInstance(self, dummy, scale, tex,z):
         dummy.setPos(parameters["origin"])
         dummy.setScale(scale)
         dummy.setTexture(tex)
 
         for i in range(self.even.shape[0]):
             evenPlaceholder = self.render.attach_new_node("even Holder")
-            evenPlaceholder.setPos(self.even[i][0], self.even[i][1], 1)
+            evenPlaceholder.setPos(self.even[i][0], self.even[i][1], z)
             dummy.instanceTo(evenPlaceholder)
 
     def positionListGenerator(self, heightObjects, widthObjects, lattice):
@@ -152,10 +162,10 @@ class MyApp(ShowBase):  # our 'class'
 
         if parameters["generateWorld"]:
             self.worldNameGen()
-            self.root.writeBamFile(self.worldFilename)
+            self.render.writeBamFile(self.worldFilename)
             # create 3D model
 
 
 if __name__ == '__main__':
-    app = MyApp()  # our 'object'
+    app = WorldGen()  # our 'object'
     app.run()
