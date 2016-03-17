@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt  # plotting imports
 from matplotlib.path import Path
 import matplotlib.patches as patches
 import cPickle as pickle
-from params import parameters, assertions
+from params import parameters
 
 # import servo
 
@@ -43,66 +43,15 @@ class MyApp(ShowBase):
 
 
     def initParams(self):
-        #
-        # parameter["fps"] =parameters["fps"]
-        # parameters["trajectoryUpdateInterval"] =parameters["trajectoryUpdateInterval"]
-        # parameters["disabledFly"]=parameters["disabledFly"]
-        # parameters["speed"] =parameters["speed"]
-        # parameters["spherePath"] =parameters["spherePath"]
-        # parameters["rightObjects"]=parameters["rightObjects"]
-        # parameters["bagTopics"]=parameters["bagTopics"]
-        # parameters["wbad"] =parameters["wbad"]
-        # parameters["loadHUD"]=parameters["loadHUD"]
-        # parameters["camFOV"]=parameters["camFOV"]
-        # parameters["leftObjects"]=parameters["leftObjects"]
-        # parameters["loadWorld"]=parameters["loadWorld"]
-        # parameters["maxSpeed"] =parameters["maxSpeed"]
-        # parameters["gain"] =parameters["gain"]
-        # parameters["gainIncrement"] =parameters["gainIncrement"]
-        # parameters["redTexPath"] =parameters["redTexPath"]
-        # parameters["speedIncrement"] =parameters["speedIncrement"]
-        # parameters["treeScale"] =parameters["treeScale"]
-        # parameters["playerInitPos"] =parameters["playerInitPos"]
-        # parameters["treePath"] =parameters["treePath"]
-        # parameters["recordDur"] =parameters["recordDur"]
-        # parameters["treeTexPath"] =parameters["treeTexPath"]
-        # parameters["maxDistance"] =parameters["maxDistance"]
-        # parameters["camHpr"]=parameters["camHpr"]
-        # parameters["recordFps"] =parameters["recordFps"]
-        # parameters["playerInitH"] =parameters["playerInitH"]
-        # parameters["lockFps"] =parameters["lockFps"]
-        # parameters["frameRecord"] =parameters["frameRecord"]
-        # parameters["fly"]=parameters["fly"]
-        # parameters["sphereZ"] =parameters["sphereZ"]
-        # parameters["loadTrajectory"]=parameters["loadTrajectory"]
-        # parameters["frameNum"] =parameters["frameNum"]
-        # parameters["objectSpacing"] =parameters["objectSpacing"]
-        # parameters["sphereScale"] =parameters["sphereScale"]
-        # parameters["greenTexPath"] =parameters["greenTexPath"]
-        # parameters["worldSize"] =parameters["worldSize"]
-        # parameters["loadWind"]=parameters["loadWind"]
-        # parameters["lrGain"]=parameters["lrGain"]
-        # parameters["trialNo"]=parameters["trialNo"]
-        # parameters["wbad"] =parameters["wbas"]
-        # parameters["treeZ"] =parameters["treeZ"]
 
-
-        self.posL = (parameters["worldSize"] / 2 - parameters["objectSpacing"], parameters["worldSize"]/2)
-        self.posR = (parameters["worldSize"] / 2 + parameters["objectSpacing"], parameters["worldSize"] / 2)
-        self.leftTreePos = Vec3(self.posL, parameters["treeZ"])
-        self.rightTreePos = Vec3(self.posR, parameters["treeZ"])
-        self.leftSpherePos = Vec3(self.posL, parameters["sphereZ"])
-        self.rightSpherePos = Vec3(self.posR, parameters["sphereZ"])
-        # self.dict2Var(parameters)
-        # self.list2Exec(assertions)
-
-        self.playerPrevPos = (parameters["playerInitPos"][0], parameters["playerInitPos"][1])
         self.camLens.setFar(parameters["maxDistance"])
         self.camLens.setFov(parameters["camFOV"])
+
         if parameters["lockFps"]:
             pass#parameter["fps"]=Limit(parameter["fps"])
         if parameters["frameRecord"]:
             self.record(dur=parameters["recordDur"], fps=parameters["recordFps"])
+
         self.fig = plt.figure()
         self.bagRecordingState = False
         self.loaderDictKeys = ("leftTree", "leftRedSphere", "leftGreenSphere",
@@ -113,9 +62,8 @@ class MyApp(ShowBase):
         self.keyboardSetup()
 
     def initOutput(self):
-        # loadPrcFileData("", "win-size 1360 384")  # set window size
-        self.initPlot()  # load the plot 1st so that the active window is panda
-        loadPrcFileData("", "win-size 2720 768")  # set window size
+        # self.initPlot()  # load the plot 1st so that the active window is panda
+        loadPrcFileData("", "win-size "+str(parameters["windowWidth"])+" "+str(parameters["windowHeight"]))  # set window size
         self.modelLoader()
         self.createEnvironment()
         self.makeLabels()
@@ -185,10 +133,8 @@ class MyApp(ShowBase):
         self.keyMap[key] = value
 
     def winClose(self):
-        self.closeWindow(self.win)
-
-
-
+        # self.closeWindow(self.win)
+        sys.exit()
 
 
     # output functions
@@ -207,24 +153,9 @@ class MyApp(ShowBase):
 
     # models
     def modelLoader(self):
-
-        self.loadingStringParser(parameters["leftObjects"], "left")
-        self.loadingStringParser(parameters["rightObjects"], "right")
-
         if parameters["loadWorld"]:
             self.worldLoader()
-        if self.loaderDict["leftTree"]:
-            self.leftTreeLoader()
-        if self.loaderDict["leftRedSphere"]:
-            self.leftRedSphereLoader()
-        if self.loaderDict["leftGreenSphere"]:
-            self.leftGreenSphereLoader()
-        if self.loaderDict["rightTree"]:
-            self.rightTreeLoader()
-        if self.loaderDict["rightRedSphere"]:
-            self.rightRedSphereLoader()
-        if self.loaderDict["rightGreenSphere"]:
-            self.rightGreenSphereLoader()
+
 
     def loadingStringParser(self, loadingString, side):
         for i in loadingString:
@@ -243,55 +174,6 @@ class MyApp(ShowBase):
         self.player.setPos(self.world, parameters["playerInitPos"])
         self.player.setH(self.world, parameters["playerInitH"])  # heading angle is 0
 
-    def leftTreeLoader(self):
-        self.leftTree = self.loader.loadModel(parameters["treePath"])
-        self.leftTree.setPos(self.world, self.leftTreePos)
-        self.leftTree.setScale(parameters["treeScale"])
-        self.treeTex = self.loader.loadTexture(parameters["treeTexPath"])
-        self.leftTree.setTexture(self.treeTex)
-        self.leftTree.reparentTo(self.render)
-
-    def rightTreeLoader(self):
-        self.rightTree = self.loader.loadModel(parameters["treePath"])
-        self.rightTree.setPos(self.world, self.rightTreePos)
-        self.rightTree.setScale(parameters["treeScale"])
-        self.treeTex = self.loader.loadTexture(parameters["treeTexPath"])
-        self.rightTree.setTexture(self.treeTex)
-        self.rightTree.reparentTo(self.render)
-
-    def leftGreenSphereLoader(self):
-        self.leftGreenSphere = self.loader.loadModel(parameters["spherePath"])
-        self.leftGreenSphere.setPos(self.world, self.leftSpherePos)
-        self.leftGreenSphere.setScale(parameters["sphereScale"])
-        self.greenTex = self.loader.loadTexture(parameters["greenTexPath"])
-        self.leftGreenSphere.setTexture(self.greenTex)
-        self.leftGreenSphere.reparentTo(self.render)
-
-    def rightGreenSphereLoader(self):
-        self.rightGreenSphere = self.loader.loadModel(parameters["spherePath"])
-        self.rightGreenSphere.setPos(self.world, self.rightSpherePos)
-        self.rightGreenSphere.setScale(parameters["sphereScale"])
-        self.greenTex = self.loader.loadTexture(parameters["greenTexPath"])
-        self.rightGreenSphere.setTexture(self.greenTex)
-        self.rightGreenSphere.reparentTo(self.render)
-
-    def leftRedSphereLoader(self):
-        self.leftRedSphere = self.loader.loadModel(parameters["spherePath"])
-        self.leftRedSphere.setPos(self.world, self.leftSpherePos)
-        self.leftRedSphere.setScale(parameters["sphereScale"])
-        self.redTex = self.loader.loadTexture(parameters["redTexPath"])
-        self.leftRedSphere.setTexture(self.redTex)
-        self.leftRedSphere.reparentTo(self.render)
-
-    def rightRedSphereLoader(self):
-        self.rightRedSphere = self.loader.loadModel(parameters["spherePath"])
-        self.rightRedSphere.setPos(self.world, self.rightSpherePos)
-        self.rightRedSphere.setScale(parameters["sphereScale"])
-        self.redTex = self.loader.loadTexture(parameters["redTexPath"])
-        self.rightRedSphere.setTexture(self.redTex)
-        self.rightRedSphere.reparentTo(self.render)
-
-        # environment
 
     # sky load
     def createEnvironment(self):
@@ -570,6 +452,7 @@ class MyApp(ShowBase):
 
 
         # datasave
+
     def pickler(self, obj, path):
         """
         Pickle a Python object
