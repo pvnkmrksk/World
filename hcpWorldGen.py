@@ -7,25 +7,46 @@ import matplotlib.pyplot as plt
 from params import parameters
 
 
+
 class WorldGen(ShowBase):  # our 'class'
     def __init__(self):
-        ShowBase.__init__(self)  # initialise
-        terrain = GeoMipTerrain("worldTerrain")  # create a terrain
-        terrain.setHeightfield(parameters["modelHeightMap"])  # set the height map
-        terrain.setColorMap(parameters["modelTextureMap"])  # set the colour map
-        terrain.setBruteforce(True)  # level of detail
-        self.root = terrain.getRoot()  # capture root
+
+
+        if __name__ =='__main__':
+            print "I am main"
+
+            ShowBase.__init__(self)  # initialise
+
+            self.initTerrain()
+            self.initModels()
+            self.initPositions()
+            self.loadingStringParser(parameters["loadingString"])
+
+            # self.plotPosition()
+            if self.evenLoad:
+                self.evenInstance(self.evenObj, scale=self.evenScale, tex=self.evenTex,z=self.evenZ)
+            if self.oddLoad:
+                self.oddInstance(self.oddObj, scale=self.oddScale, tex=self.oddTex,z=self.oddZ)
+
+            self.generate()
+
+        #
+        # if __name__ == '__main__':
+        #     import sys,time
+        #     time.sleep(1)
+        #     sys.exit()
+
+    def initTerrain(self):
+        self.terrain = GeoMipTerrain("worldTerrain")  # create a self.terrain
+        self.terrain.setHeightfield(parameters["modelHeightMap"])  # set the height map
+        self.terrain.setColorMap(parameters["modelTextureMap"])  # set the colour map
+        self.terrain.setBruteforce(True)  # level of detail
+        self.root = self.terrain.getRoot()  # capture root
         self.root.reparentTo(self.render)  # render from root
         self.root.setSz(0)  # maximum height
-        terrain.generate()  # generate
+        self.terrain.generate()  # generate
 
-        self.evenObj = self.oddObj = self.evenScale = self.oddScale = \
-            self.evenTex = self.oddTex = self.evenLoad = self.oddLoad =self.evenZ=self.oddZ= None
-
-        self.odd, self.even = self.positionListGenerator(heightObjects=parameters["heightObjects"],
-                                                         widthObjects=parameters["widthObjects"],
-                                                         lattice=parameters["lattice"])
-
+    def initModels(self):
         self.tree = self.loader.loadModel(parameters["treePath"])
         self.greenSphere = self.loader.loadModel(parameters["spherePath"])
         self.redSphere = self.loader.loadModel(parameters["spherePath"])
@@ -34,18 +55,30 @@ class WorldGen(ShowBase):  # our 'class'
         self.greenTex = self.loader.loadTexture(parameters["greenTexPath"])
         self.redTex = self.loader.loadTexture(parameters["redTexPath"])
 
+
+
+    def plotPositions(self):
+        self.tree=self.greenSphere=self.redSphere=self.treeTex=self.greenTex=self.redTex=None
         self.loadingStringParser(parameters["loadingString"])
+        plt.scatter(self.odd[:,0],self.odd[:,1],color=self.oddPlotColor,marker=self.oddPlotMarker)
+        plt.scatter(self.even[:,0],self.even[:,1],color=self.evenPlotColor,marker=self.evenPlotMarker)#,marker='|',color='g')
+        # plt.show()
 
-        if self.evenLoad:
-            self.evenInstance(self.evenObj, scale=self.evenScale, tex=self.evenTex,z=self.evenZ)
-        if self.oddLoad:
-            self.oddInstance(self.oddObj, scale=self.oddScale, tex=self.oddTex,z=self.oddZ)
 
-        self.generate()
+    def initPositions(self):
 
-        import sys,time
-        time.sleep(3)
-        sys.exit()
+        self.evenObj = self.oddObj = self.evenScale = self.oddScale = \
+            self.evenTex = self.oddTex = self.evenLoad = self.oddLoad =self.evenZ=self.oddZ= \
+            self.evenPlotColor=self.oddPlotColor=self.evenPlotMarker=self.oddPlotMarker=None
+
+        self.odd, self.even = self.positionListGenerator(heightObjects=parameters["heightObjects"],
+                                                         widthObjects=parameters["widthObjects"],
+                                                         lattice=parameters["lattice"])
+
+        self.odd=np.array([])
+        print "odd is",self.odd
+        print "even is ", self.even
+
 
     def loadingStringParser(self, loadingString):
         """
@@ -73,6 +106,9 @@ class WorldGen(ShowBase):  # our 'class'
                 tex = self.treeTex
                 scale = parameters["treeScale"]
                 z=parameters["treeZ"]
+
+                plotColor="k"
+                plotMarker="s"
                 load = True
 
             elif i == "r":
@@ -80,18 +116,27 @@ class WorldGen(ShowBase):  # our 'class'
                 tex = self.redTex
                 scale = parameters["sphereScale"]
                 z=parameters["sphereZ"]
+
+                plotColor="r"
+                plotMarker="o"
                 load = True
             elif i == "g":
                 obj = self.greenSphere
                 tex = self.greenTex
                 scale = parameters["sphereScale"]
                 z=parameters["sphereZ"]
+
+                plotColor="g"
+                plotMarker="o"
                 load = True
             else:
                 obj = None
                 tex = None
                 scale = None
                 z=None
+
+                plotColor=None
+                plotMarker=None
                 load = False
 
             if j == 0:
@@ -99,12 +144,18 @@ class WorldGen(ShowBase):  # our 'class'
                 self.evenTex = tex
                 self.evenScale = scale
                 self.evenZ=z
+
+                self.evenPlotColor=plotColor
+                self.evenPlotMarker=plotMarker
                 self.evenLoad = load
             else:
                 self.oddObj = obj
                 self.oddTex = tex
                 self.oddScale = scale
                 self.oddZ=z
+
+                self.oddPlotColor=plotColor
+                self.oddPlotMarker=plotMarker
                 self.oddLoad = load
             j += 1
 
@@ -152,17 +203,17 @@ class WorldGen(ShowBase):  # our 'class'
         return self.oddPosList, self.evenPosList
 
     def worldNameGen(self):
-        self.worldFilename = "models/world_" + "size:" + parameters["modelSizeSuffix"] + "_obj:" \
-                             + parameters["loadingString"] + "_num:" + str(parameters["widthObjects"]) \
-                             + "x" + str(parameters["heightObjects"]) + ".bam"
-
+        self.worldFilename = "models/world_" + "size:" + parameters["modelSizeSuffix"] \
+                             + "_obj:"   + parameters["loadingString"] + "_num:" \
+                             + str(parameters["widthObjects"])      + "x" \
+                             + str(parameters["heightObjects"])+"_lattice:"\
+                             +str(parameters["lattice"]) + ".bam"
         print self.worldFilename
 
     def generate(self):
 
-        if parameters["generateWorld"]:
-            self.worldNameGen()
-            self.render.writeBamFile(self.worldFilename)
+        self.worldNameGen()
+        self.render.writeBamFile(self.worldFilename)
             # create 3D model
 
 

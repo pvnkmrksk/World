@@ -160,14 +160,17 @@ class MyApp(ShowBase):
     def worldLoader(self):
         self.worldFilename = "models/world_" + "size:" + parameters["modelSizeSuffix"] + "_obj:" \
                              + parameters["loadingString"] + "_num:" + str(parameters["widthObjects"]) \
-                             + "x" + str(parameters["heightObjects"]) + ".bam"
-        print self.worldFilename
-        print "/home/behaviour/catkin/src/beginner/scripts/panda/world/models/world_size:257_obj:rg_num:10x10.bam"
+                             + "x" + str(parameters["heightObjects"])+"_lattice:"\
+                             +str(parameters["lattice"]) + ".bam"
 
-        print os.path.isfile(self.worldFilename)
-        if not os.path.isfile(self.worldFilename):
+        print "file exists:",os.path.isfile(self.worldFilename)
+
+        print (not os.path.isfile(self.worldFilename)) or parameters["generateWorld"]
+        if ((not os.path.isfile(self.worldFilename)) or parameters["generateWorld"]):
             subprocess.Popen("python hcpWorldGen.py",shell=True, stdout=subprocess.PIPE)
-            time.sleep(5)
+            time.sleep(8)
+        print os.path.isfile(self.worldFilename)
+
 
         self.world = self.loader.loadModel(self.worldFilename)  # loads the world_size
         self.world.reparentTo(self.render)  # render the world
@@ -296,7 +299,7 @@ class MyApp(ShowBase):
         # global prevPos, currentPos, ax, fig, treePos, redPos
         # Global Clock by default, panda runs as fast as it can frame to frame
         scalefactor = parameters["speed"] * (globalClock.getDt())
-        climbfactor = 0.1  # (.001) * scalefactor
+        climbfactor = 0.001  # (.001) * scalefactor
         bankfactor = 2  # .5  * scalefactor
         speedfactor = scalefactor
 
@@ -311,6 +314,7 @@ class MyApp(ShowBase):
 
         elif (self.keyMap["fall"] != 0):  # and parameters["speed"] > 0.00):
             self.player.setZ(self.player.getZ() - climbfactor)
+            print self.player.getZ()
 
         # Left and Right
         if (self.keyMap["left"] != 0):  # and parameters["speed"] > 0.0):

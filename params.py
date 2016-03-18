@@ -27,11 +27,11 @@ parameters = {
 
 
 
-    "loadingString":"tt",
-    "heightObjects":25,
-    "widthObjects":25,
+    "loadingString":"0r",
+    "heightObjects":10,
+    "widthObjects":10,
     "lattice":20,
-    "origin":Vec3(50,50,0),
+    "origin":Vec3(0,0,0),
 
     "lrGain":1.0,
 
@@ -39,12 +39,12 @@ parameters = {
     "trajectoryUpdateInterval": 60,  # frames between update,
 
     "worldSize": 257,  # relevant for world boundaries
-    "playerInitPos": (257 / 2, 75, 3),
+    "playerInitPos": (257 / 2, 0, 0.5),
     "playerInitH": 0,
 
 
-    "sphereZ": 3,
-    "treeZ": 1,
+    "sphereZ": 0.5,
+    "treeZ": 0,
 
     "speed": 0.0,
     "speedIncrement": 0.05,
@@ -55,9 +55,9 @@ parameters = {
     "wbas": 0,
     "sphereScale": 0.3,
     "treeScale": 0.02,
-    "maxDistance": 30,
+    "maxDistance": 232,
     "camFOV": 120,
-    "camHpr":(0,1,0),
+    "camHpr":(0,-2,0),
     "frameNum": 0,
     "recordDur": 10,
     "recordFps": 30,
