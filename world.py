@@ -52,17 +52,13 @@ class MyApp(ShowBase):
         if parameters["frameRecord"]:
             self.record(dur=parameters["recordDur"], fps=parameters["recordFps"])
 
-        self.fig = plt.figure()
         self.bagRecordingState = False
-        self.loaderDictKeys = ("leftTree", "leftRedSphere", "leftGreenSphere",
-                               "rightTree", "rightRedSphere", "rightGreenSphere")
-        self.loaderDict = dict.fromkeys(self.loaderDictKeys, False)
 
     def initInput(self):
         self.keyboardSetup()
 
     def initOutput(self):
-        # self.initPlot()  # load the plot 1st so that the active window is panda
+        self.initPlot()  # load the plot 1st so that the active window is panda
         loadPrcFileData("", "win-size "+str(parameters["windowWidth"])+" "+str(parameters["windowHeight"]))  # set window size
         self.modelLoader()
         self.createEnvironment()
@@ -134,22 +130,17 @@ class MyApp(ShowBase):
 
     def winClose(self):
         # self.closeWindow(self.win)
+        self.plotter.kill()
         sys.exit()
 
 
     # output functions
     def initPlot(self):
         if parameters["loadTrajectory"]:
-            self.ax = self.fig.add_subplot(111)
-            self.ax.set_xlim(0, parameters["worldSize"])
-            self.ax.set_ylim(0, parameters["worldSize"])
+            self.plotter=subprocess.Popen(["python", "realTimePlotter.py"])
+            print "\n \n \n realtime plotter started \n \n \n"
+            time.sleep(1)
 
-            plt.plot(self.posR[0], self.posR[1], 'gs')
-            plt.plot(self.posL[0], self.posL[1], 'gs')
-            plt.ion()
-            plt.show()
-
-            # parametric functions constantly modified
 
     # models
     def modelLoader(self):
@@ -158,18 +149,19 @@ class MyApp(ShowBase):
 
 
     def worldLoader(self):
+        # global plotter
         self.worldFilename = "models/world_" + "size:" + parameters["modelSizeSuffix"] + "_obj:" \
                              + parameters["loadingString"] + "_num:" + str(parameters["widthObjects"]) \
                              + "x" + str(parameters["heightObjects"])+"_lattice:"\
                              +str(parameters["lattice"]) + ".bam"
 
-        print "file exists:",os.path.isfile(self.worldFilename)
+        print "model file exists:",os.path.isfile(self.worldFilename)
 
-        print (not os.path.isfile(self.worldFilename)) or parameters["generateWorld"]
+        print "open worldgen?",(not os.path.isfile(self.worldFilename)) or parameters["generateWorld"]
+
         if ((not os.path.isfile(self.worldFilename)) or parameters["generateWorld"]):
-            subprocess.Popen("python hcpWorldGen.py",shell=True, stdout=subprocess.PIPE)
-            time.sleep(8)
-        print os.path.isfile(self.worldFilename)
+            subprocess.Popen(["python", "hcpWorldGen.py"])
+            time.sleep(3)
 
 
         self.world = self.loader.loadModel(self.worldFilename)  # loads the world_size
@@ -193,7 +185,7 @@ class MyApp(ShowBase):
         # Our sky
         skysphere = loader.loadModel('models/sky.egg')
         skysphere.setEffect(CompassEffect.make(self.render))
-        skysphere.setScale(parameters["maxDistance"] / 1.2)  # bit less than "far"
+        skysphere.setScale(parameters["maxDistance"] )  # bit less than "far"
         skysphere.setZ(-3)
         # NOT render - you'll fly through the sky!:
         skysphere.reparentTo(self.camera)
@@ -210,8 +202,8 @@ class MyApp(ShowBase):
 
     # labels
     def makeStatusLabel(self, i):
-        return OnscreenText(style=2, fg=(0, 0, 0, 0.5), bg=(0.4, 0.4, 0.4, 0.8),
-                            scale=0.05, pos=(-3.1, 0.92 - (.08 * i)), mayChange=1)
+        return OnscreenText(style=2, fg=(0, 0, 0, 0.12), bg=(0.4, 0.4, 0.4, 0.18),
+                            scale=0.04, pos=(-3.1, 0.92 - (.04 * i)), mayChange=1)
 
     def makeLabels(self):
         self.positionLabel = self.makeStatusLabel(0)
@@ -234,6 +226,7 @@ class MyApp(ShowBase):
         """returns a rounded string of vec 3 interspersed with a,b,c as headings"""
         return a + ":" + str(round(vector[0])) + " " + b + ":" + str(round(vector[1])) + " " + c + ":" + str(
             round(vector[2]))
+
 
 
 
@@ -283,9 +276,10 @@ class MyApp(ShowBase):
         self.updatePlayer()
         self.updateCamera()
         self.bagControl()
-
-        if parameters["loadTrajectory"]:
-            self.trajectory()
+        # print data.position
+        #
+        # if parameters["loadTrajectory"]:
+        #     self.trajectory()
         if parameters["loadHUD"]:
             self.updateLabel()
 
@@ -311,10 +305,11 @@ class MyApp(ShowBase):
         if (self.keyMap["climb"] != 0):  # and parameters["speed"] > 0.00):
             # faster you go, quicker you climb
             self.player.setZ(self.player.getZ() + climbfactor)
+            print "z is ",self.player.getZ()
 
         elif (self.keyMap["fall"] != 0):  # and parameters["speed"] > 0.00):
             self.player.setZ(self.player.getZ() - climbfactor)
-            print self.player.getZ()
+            print "z is ",self.player.getZ()
 
         # Left and Right
         if (self.keyMap["left"] != 0):  # and parameters["speed"] > 0.0):
@@ -410,14 +405,15 @@ class MyApp(ShowBase):
             # self.runBagCommand.send_signal(subprocess.signal.SIGINT) #send signal on stop command
             self.terminate_ros_node("/record")
             self.bagRecordingState = False
-            rospy.loginfo("Bag recording stopped")
-            print self.bagFilename
+            rospy.loginfo("\n \n \n Bag recording stopped \n \n \n ")
+            print "\n \n bagfilename is",self.bagFilename
             self.addMetadata()
-            print "metadata added"
+            print "metadata added \n \n "
 
     def bagger(self):
         self.bagFilenameGen()
-        self.bagCommand = "rosbag record --lz4 --output-name=" + self.bagFilename + " " + parameters["bagTopics"]
+        self.bagCommand = "rosbag record --lz4 --output-name=" + self.bagFilename + " " \
+                          + parameters["bagTopics"]
         # print self.bagCommand
         self.runBagCommand = subprocess.Popen(self.bagCommand, shell=True, stdout=subprocess.PIPE)
         rospy.loginfo("Bag recording started")
@@ -425,10 +421,9 @@ class MyApp(ShowBase):
 
     def bagFilenameGen(self):
         self.timeNow = str(datetime.now().strftime('%Y-%m-%d__%H:%M:%S'))
-        self.bagFilename = "bags/" + parameters["fly"] + "_" + parameters["leftObjects"] + "_" + parameters["rightObjects"] + "_gain" + str(
-            parameters["gain"]) + "_speed_" + str(parameters["maxSpeed"]) + "_trial_" \
-                           + str(parameters["trialNo"]) + "_" + self.timeNow
-        print self.bagFilename
+        self.bagFilename = "bags/" + parameters["fly"] + "_" + parameters["loadingString"]  \
+                           + "_gain" + str(parameters["gain"]) + "_speed_" + str(parameters["maxSpeed"]) \
+                           + "_trial_" + str(parameters["trialNo"]) + "_" + self.timeNow
 
     def terminate_ros_node(self, s):
         list_cmd = subprocess.Popen("rosnode list", shell=True, stdout=subprocess.PIPE)
@@ -445,7 +440,7 @@ class MyApp(ShowBase):
         time.sleep(5)#so that bag file can be transfereed from memory
 
         metadata=String(json.dumps(parameters))
-        print metadata
+        print "metadata is:",metadata
 
         with rosbag.Bag(a,'a') as bag:
             i=0
@@ -479,21 +474,8 @@ class MyApp(ShowBase):
     # wind control
     def windTunnel(self, windDirection):
         self.servoAngle = (int(self.player.getH()) - 90) % 360 - 180
-        print self.servoAngle
+        print "servoangle is", self.servoAngle
         servo.move(1, self.servoAngle)
-
-        # def modelLoader(self, modelName, modelPath, modelPos, modelScale, texName, texPath, modelParent):
-        #     modelName = self.loader.loadModel(modelPath)
-        #     modelName.setPos(modelParent, modelPos)
-        #     modelName.setScale(modelScale)
-        #
-        #     texName = self.loader.loadTexture(texPath)
-        #     modelName.setTexture(texName)
-        #     modelName.reparentTo(self.render)
-
-
-
-
 
 
 
@@ -511,78 +493,6 @@ class MyApp(ShowBase):
         """
         for key in list:
             exec (key)
-
-    # trajectory
-    def trajectory(self):
-        if (parameters["frameNum"] % parameters["trajectoryUpdateInterval"] == 1):
-            self.playerCurrentPos = (self.player.getX(), self.player.getY())
-            self.verts = [(self.playerPrevPos), (self.playerCurrentPos)]
-            self.codes = [Path.MOVETO, Path.LINETO]
-            self.path = Path(self.verts, self.codes)
-
-            self.patch = patches.PathPatch(self.path, facecolor='white', lw=0.5)  # ,color=hex(parameters["frameNum"]))
-            self.ax.add_patch(self.patch)
-            self.fig.canvas.draw()
-            self.fig.canvas.flush_events()
-            self.playerPrevPos = self.playerCurrentPos
-
-        if (self.keyMap["clf"] != 0):
-            plt.clf()
-            self.initPlot()
-
-        if (self.keyMap["saveFig"] != 0):
-            self.bagFilenameGen()
-            self.save("trajectory" + self.bagFilename, ext="png", close=False, verbose=True)
-            self.save("trajectory" + self.bagFilename, ext="svg", close=False, verbose=True)
-            # pickle.dump(self.fig,file(self.bagFilename+"fig",'w'))
-        parameters["frameNum"] += 1
-
-    def save(self, path, ext='png', close=True, verbose=True):
-        """Save a figure from pyplot.
-        Parameters
-        ----------
-        path : string
-            The path (and filename, without the extension) to save the
-            figure to.
-        ext : string (default='png')
-            The file extension. This must be supported by the active
-            matplotlib backend (see matplotlib.backends module).  Most
-            backends support 'png', 'pdf', 'ps', 'eps', and 'svg'.
-        close : boolean (default=True)
-            Whether to close the figure after saving.  If you want to save
-            the figure multiple times (e.g., to multiple formats), you
-            should NOT close it in between saves or you will have to
-            re-plot it.
-        verbose : boolean (default=True)
-            Whether to print information about when and where the image
-            has been saved.
-        """
-
-        # Extract the directory and filename from the given path
-        directory = os.path.split(path)[0]
-        filename = "%s.%s" % (os.path.split(path)[1], ext)
-        if directory == '':
-            directory = '.'
-
-        # If the directory does not exist, create it
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-
-        # The final path to save to
-        savepath = os.path.join(directory, filename)
-
-        if verbose:
-            print("Saving figure to '%s'..." % savepath),
-
-        # Actually save the figure
-        plt.savefig(savepath)
-
-        # Close it
-        if close:
-            plt.close()
-
-        if verbose:
-            print("Done")
 
     # testing functions not stable
     # screen capture

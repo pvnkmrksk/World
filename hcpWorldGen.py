@@ -13,7 +13,6 @@ class WorldGen(ShowBase):  # our 'class'
 
 
         if __name__ =='__main__':
-            print "I am main"
 
             ShowBase.__init__(self)  # initialise
 
@@ -28,13 +27,16 @@ class WorldGen(ShowBase):  # our 'class'
             if self.oddLoad:
                 self.oddInstance(self.oddObj, scale=self.oddScale, tex=self.oddTex,z=self.oddZ)
 
+            # print " \n \n \n Generate is about to exit \n \n \n"
+
             self.generate()
 
-        #
-        # if __name__ == '__main__':
-        #     import sys,time
-        #     time.sleep(1)
-        #     sys.exit()
+            # print "kill is ", parameters["killWorldGen"]
+            # parameters["killWorldGen"]=False
+            if parameters["killWorldGen"]:
+                import sys
+                print " \n \n \n World Generate is about to exit \n \n \n"
+                sys.exit()
 
     def initTerrain(self):
         self.terrain = GeoMipTerrain("worldTerrain")  # create a self.terrain
@@ -43,7 +45,7 @@ class WorldGen(ShowBase):  # our 'class'
         self.terrain.setBruteforce(True)  # level of detail
         self.root = self.terrain.getRoot()  # capture root
         self.root.reparentTo(self.render)  # render from root
-        self.root.setSz(0)  # maximum height
+        self.root.setSz(0.2)  # maximum height
         self.terrain.generate()  # generate
 
     def initModels(self):
@@ -62,7 +64,6 @@ class WorldGen(ShowBase):  # our 'class'
         self.loadingStringParser(parameters["loadingString"])
         plt.scatter(self.odd[:,0],self.odd[:,1],color=self.oddPlotColor,marker=self.oddPlotMarker)
         plt.scatter(self.even[:,0],self.even[:,1],color=self.evenPlotColor,marker=self.evenPlotMarker)#,marker='|',color='g')
-        # plt.show()
 
 
     def initPositions(self):
@@ -75,9 +76,10 @@ class WorldGen(ShowBase):  # our 'class'
                                                          widthObjects=parameters["widthObjects"],
                                                          lattice=parameters["lattice"])
 
-        self.odd=np.array([])
-        print "odd is",self.odd
-        print "even is ", self.even
+
+        # print "odd is",self.odd
+        # print "even is ", self.even
+
 
 
     def loadingStringParser(self, loadingString):
@@ -197,8 +199,14 @@ class WorldGen(ShowBase):  # our 'class'
                 self.posList[index, :] = [x, y]
                 index += 1
 
+        # self.posList[:,0]=np.linspace(0,100,num=(self.posList.shape)[0])
+        # self.posList[:,1]=np.linspace(0,100,num=(self.posList.shape)[0])
+
         self.oddPosList = self.posList[1::2]
         self.evenPosList = self.posList[0::2]
+
+        # print "odd is ",self.oddPosList
+        # print "even is", self.evenPosList
 
         return self.oddPosList, self.evenPosList
 
@@ -208,7 +216,7 @@ class WorldGen(ShowBase):  # our 'class'
                              + str(parameters["widthObjects"])      + "x" \
                              + str(parameters["heightObjects"])+"_lattice:"\
                              +str(parameters["lattice"]) + ".bam"
-        print self.worldFilename
+        print "world file name is ",self.worldFilename
 
     def generate(self):
 

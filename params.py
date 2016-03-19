@@ -4,7 +4,7 @@ parameters = {
     # bools
 
     "loadHUD": True,
-    "loadTrajectory": False,
+    "loadTrajectory": True,
     "lockFps": True,  # False,
     "frameRecord": False,
     "loadWind": False,
@@ -22,15 +22,17 @@ parameters = {
 
 
     "modelSizeSuffix": "257",
-    "modelHeightMap": "models/height" + "257" + "0.png",
-    "modelTextureMap": "models/texture" + "257" + "s.png",
+    "modelHeightMap": "models/height" + "257" + "_t2.png",
+    "modelTextureMap": "models/texture" + "257" + "_t2.png",
+    # "modelHeightMap": "models/height" + "257" + "0.png",
+    # "modelTextureMap": "models/texture" + "257" + "s.png",
 
+    "killWorldGen":True,
 
-
-    "loadingString":"0r",
+    "loadingString":"gr",
     "heightObjects":10,
     "widthObjects":10,
-    "lattice":20,
+    "lattice":25,
     "origin":Vec3(0,0,0),
 
     "lrGain":1.0,
@@ -39,11 +41,11 @@ parameters = {
     "trajectoryUpdateInterval": 60,  # frames between update,
 
     "worldSize": 257,  # relevant for world boundaries
-    "playerInitPos": (257 / 2, 0, 0.5),
+    "playerInitPos": (137.5, 0, 0.92),
     "playerInitH": 0,
 
 
-    "sphereZ": 0.5,
+    "sphereZ": 1.9,
     "treeZ": 0,
 
     "speed": 0.0,
@@ -53,10 +55,13 @@ parameters = {
 
     "wbad": 0,
     "wbas": 0,
-    "sphereScale": 0.3,
+
+    "sphereScale": 0.6,
     "treeScale": 0.02,
-    "maxDistance": 232,
-    "camFOV": 120,
+
+    "maxDistance": 30,
+    "camFOV": 140,
+
     "camHpr":(0,-2,0),
     "frameNum": 0,
     "recordDur": 10,
