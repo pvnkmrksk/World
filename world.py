@@ -128,6 +128,12 @@ class MyApp(ShowBase):
     def setKey(self, key, value):
         self.keyMap[key] = value
 
+        mes=MsgTrajectory()
+        mes.key=(str(key))
+
+        # print "key is",mes.key, "key type is ",type(mes.key)
+        self.publisher(message=mes)
+
     def winClose(self):
         # self.closeWindow(self.win)
         self.plotter.kill()
@@ -246,10 +252,9 @@ class MyApp(ShowBase):
             parameters["wbad"] = self.scaledWbad
         return parameters["wbad"]
 
-    def publisher(self):
-        data = self.message()
+    def publisher(self,message):
         trajectory = rospy.Publisher('trajectory', MsgTrajectory, queue_size=600)
-        trajectory.publish(data)
+        trajectory.publish(message)
         # print parameters["wbad"]
 
     def message(self):
@@ -263,6 +268,9 @@ class MyApp(ShowBase):
         mes.speed = parameters["speed"]
         mes.gain = parameters["gain"]
         mes.closed = self.keyMap["closed"]
+        mes.key=''
+
+
         return mes
 
 
@@ -278,14 +286,17 @@ class MyApp(ShowBase):
         self.bagControl()
         # print data.position
         #
-        # if parameters["loadTrajectory"]:
-        #     self.trajectory()
+        if parameters["loadTrajectory"]:
+            self.trajectoryControl()
+
         if parameters["loadHUD"]:
             self.updateLabel()
 
         if parameters["loadWind"]:
             self.windTunnel(0)
-        self.publisher()
+
+        data = self.message()
+        self.publisher(message=data)
 
         return Task.cont
 
@@ -395,6 +406,10 @@ class MyApp(ShowBase):
         self.camera.setPos(self.player, 0, 0, 0)
         self.camera.setHpr(self.player, parameters["camHpr"])
 
+
+    def trajectoryControl(self):
+        pass
+
     # recording functions
     def bagControl(self):
         if (self.keyMap["startBag"] == 1):
@@ -441,6 +456,8 @@ class MyApp(ShowBase):
 
         metadata=String(json.dumps(parameters))
         print "metadata is:",metadata
+        self.pickler(parameters,self.bagFilename+".pickle")
+        print "pickled the parameters"
 
         with rosbag.Bag(a,'a') as bag:
             i=0

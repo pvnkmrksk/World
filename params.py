@@ -9,7 +9,7 @@ parameters = {
     "frameRecord": False,
     "loadWind": False,
     "disabledFly":True,
-    "generateWorld":True,
+    "generateWorld":False,
     "loadWorld":True,
 
 
@@ -29,19 +29,20 @@ parameters = {
 
     "killWorldGen":True,
 
-    "loadingString":"gr",
-    "heightObjects":10,
+    "loadingString":"t0",
+    "heightObjects":15,
     "widthObjects":10,
     "lattice":25,
-    "origin":Vec3(0,0,0),
+    "origin":(0,0,0),
 
-    "lrGain":1.0,
+    "sphereScale": 0.6,
+    "treeScale": 0.02,
 
-    "fps": 60,
-    "trajectoryUpdateInterval": 60,  # frames between update,
+    "maxDistance": 28,
+    "camFOV": 140,
 
     "worldSize": 257,  # relevant for world boundaries
-    "playerInitPos": (137.5, 0, 0.92),
+    "playerInitPos": (137.5, 53, 0.92),
     "playerInitH": 0,
 
 
@@ -53,14 +54,16 @@ parameters = {
     "gainIncrement": 0.02,
 
 
+    "lrGain":1.0,
+
+    "fps": 60,
+    "trajectoryUpdateInterval": 60,  # frames between update,
+    "plotDuration":20000,
+
+
     "wbad": 0,
     "wbas": 0,
 
-    "sphereScale": 0.6,
-    "treeScale": 0.02,
-
-    "maxDistance": 30,
-    "camFOV": 140,
 
     "camHpr":(0,-2,0),
     "frameNum": 0,
