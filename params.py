@@ -39,15 +39,11 @@ parameters = {
     "lattice":25,
     "origin":Vec3(0,0,0),
 
-<<<<<<< Updated upstream
     "lrGain":1.0,
 
     "fps": 60,
     "trajectoryUpdateInterval": 60,  # frames between update,
 
-    "worldSize": 257,  # relevant for world boundaries
-    "playerInitPos": (137.5, 0, 0.92),
-=======
     "sphereScale": 0.6,
     "treeScale": 0.04,
 
@@ -56,7 +52,6 @@ parameters = {
 
     "worldSize": 257,  # relevant for world boundaries
     "playerInitPos": (64, 64, 1),
->>>>>>> Stashed changes
     "playerInitH": 0,
 
 
@@ -71,11 +66,6 @@ parameters = {
     "wbad": 0,
     "wbas": 0,
 
-    "sphereScale": 0.6,
-    "treeScale": 0.02,
-
-    "maxDistance": 30,
-    "camFOV": 140,
 
     "camHpr":(0,-2,0),
     "frameNum": 0,
