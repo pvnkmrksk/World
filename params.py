@@ -20,9 +20,9 @@ parameters = {
 
     "fly":"fly1",
 
-    "gain": 5.3,
-    "maxSpeed": 7.5,
-    "trialNo":1,
+    "gain": 8.1,
+    "maxSpeed": 3.5,
+    "trialNo":5,
 
 
     "modelSizeSuffix": "257",

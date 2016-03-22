@@ -175,6 +175,7 @@ class MyApp(ShowBase):
         print "model file exists:",os.path.isfile(self.worldFilename)
 
         print "open worldgen?",(not os.path.isfile(self.worldFilename)) or parameters["generateWorld"]
+        print "\n \n \n"
 
         if ((not os.path.isfile(self.worldFilename)) or parameters["generateWorld"]):
             subprocess.Popen(["python", "hcpWorldGen.py"])
@@ -263,8 +264,8 @@ class MyApp(ShowBase):
             parameters["wbad"] = self.scaledWbad
         return parameters["wbad"]
 
-    def publisher(self):
-        data = self.message()
+    def publisher(self,data):
+        # data = self.message()
         trajectory = rospy.Publisher('trajectory', MsgTrajectory, queue_size=600)
         trajectory.publish(data)
         # print parameters["wbad"]
@@ -280,6 +281,7 @@ class MyApp(ShowBase):
         mes.speed = parameters["speed"]
         mes.gain = parameters["gain"]
         mes.closed = self.keyMap["closed"]
+        mes.reset=False
         return mes
 
 
@@ -302,7 +304,7 @@ class MyApp(ShowBase):
 
         if parameters["loadWind"]:
             self.windTunnel(0)
-        self.publisher()
+        self.publisher(self.message())
 
         return Task.cont
 
@@ -446,9 +448,12 @@ class MyApp(ShowBase):
 
     def reachedDestination(self):
         oddeven=np.append(self.odd,self.even,axis=0)
-        for i,j in (oddeven):
-            pos=(i,j)
-            if self.isInsideTarget(pos):
+        for i in (oddeven):
+
+            if self.isInsideTarget(i):
+                mes=MsgTrajectory()
+                mes.reset=True
+                self.publisher(mes)
                 return True
                 break
 
@@ -507,9 +512,10 @@ class MyApp(ShowBase):
         self.player.setPos(newPos)
         self.player.setH(parameters["playerInitH"])
 
-        self.decayTime=120
+        self.decayTime=240
         self.speedMemory=parameters["speed"]
         print "newPos is", newPos
+
         return newPos
 
     def updateCamera(self):
@@ -544,9 +550,9 @@ class MyApp(ShowBase):
     def bagFilenameGen(self):
         self.timeNow = str(datetime.now().strftime('%Y-%m-%d__%H:%M:%S'))
         if parameters["hcp"]:
-            mode="hcp"
+            mode="hcp_"
         elif parameters["quad"]:
-            mode="quad"
+            mode="quad_"
         self.bagFilename = "bags/" + parameters["fly"] + "_" + mode+parameters["loadingString"]  \
                            + "_gain" + str(parameters["gain"]) + "_speed_" + str(parameters["maxSpeed"]) \
                            + "_trial_" + str(parameters["trialNo"]) + "_" + self.timeNow
