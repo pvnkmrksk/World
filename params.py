@@ -12,6 +12,10 @@ parameters = {
     "generateWorld":True,
     "loadWorld":True,
 
+    "hcp":False,
+    "quad":True,
+    "posL":(32,96),
+    "posR":(96,96),
 
 
     "fly":"test",
@@ -22,8 +26,8 @@ parameters = {
 
 
     "modelSizeSuffix": "257",
-    "modelHeightMap": "models/height" + "257" + "_t2.png",
-    "modelTextureMap": "models/texture" + "257" + "_t2.png",
+    "modelHeightMap": "models/height" + "257" + "0.png",
+    "modelTextureMap": "models/texture" + "257" + "_quadrant_t2.png",
     # "modelHeightMap": "models/height" + "257" + "0.png",
     # "modelTextureMap": "models/texture" + "257" + "s.png",
 
@@ -35,6 +39,7 @@ parameters = {
     "lattice":25,
     "origin":Vec3(0,0,0),
 
+<<<<<<< Updated upstream
     "lrGain":1.0,
 
     "fps": 60,
@@ -42,6 +47,16 @@ parameters = {
 
     "worldSize": 257,  # relevant for world boundaries
     "playerInitPos": (137.5, 0, 0.92),
+=======
+    "sphereScale": 0.6,
+    "treeScale": 0.04,
+
+    "maxDistance": 80,
+    "camFOV": 140,
+
+    "worldSize": 257,  # relevant for world boundaries
+    "playerInitPos": (64, 64, 1),
+>>>>>>> Stashed changes
     "playerInitH": 0,
 
 

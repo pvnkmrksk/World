@@ -18,7 +18,10 @@ import matplotlib.pyplot as plt  # plotting imports
 from matplotlib.path import Path
 import matplotlib.patches as patches
 import cPickle as pickle
+import random
+
 from params import parameters
+
 
 # import servo
 
@@ -51,6 +54,16 @@ class MyApp(ShowBase):
             pass#parameter["fps"]=Limit(parameter["fps"])
         if parameters["frameRecord"]:
             self.record(dur=parameters["recordDur"], fps=parameters["recordFps"])
+
+        parameters["offset"]=(int(parameters["worldSize"])-1)/2
+        print "offset is ", parameters["offset"]
+
+        parameters["initPosList"]=[parameters["playerInitPos"],
+                                   (parameters["playerInitPos"][0]+parameters["offset"],parameters["playerInitPos"][1],parameters["playerInitPos"][2]),
+                                  (parameters["playerInitPos"][0],parameters["playerInitPos"][1]+parameters["offset"],parameters["playerInitPos"][2]),
+        (parameters["playerInitPos"][0]+parameters["offset"],parameters["playerInitPos"][1]+parameters["offset"],parameters["playerInitPos"][2])
+                                   ]
+        print "init pos list", parameters["initPosList"]
 
         self.bagRecordingState = False
 
@@ -347,19 +360,35 @@ class MyApp(ShowBase):
 
         # and now the X/Y world boundaries:
         if (self.player.getX() < 0):
-            self.player.setX(0)
+            if parameters["quad"]:
+                self.resetPosition()
+            else:
+                self.player.setX(0)
+
         elif (self.player.getX() > parameters["worldSize"]):
-            self.player.setX(parameters["worldSize"])
+            if parameters["quad"]:
+                self.resetPosition()
+            else:
+                self.player.setX(parameters["worldSize"])
 
         if (self.player.getY() < 0):
-            self.player.setY(0)
+            if parameters["quad"]:
+                self.resetPosition()
+            else:
+                self.player.setY(0)
+
         elif (self.player.getY() > parameters["worldSize"]):
-            self.player.setY(parameters["worldSize"])
+            if parameters["quad"]:
+                self.resetPosition()
+            else:
+                self.player.setY(parameters["worldSize"])
 
         # reset to initial position
         if (self.keyMap["init"] != 0):
-            self.player.setPos(self.world, parameters["playerInitPos"])
-            self.player.setH(parameters["playerInitH"])
+            self.resetPosition()
+            time.sleep(0.1)
+            # self.player.setPos(self.world, parameters["playerInitPos"])
+            # self.player.setH(parameters["playerInitH"])
 
         # update new init position
         if (self.keyMap["newInit"] != 0):
@@ -389,6 +418,58 @@ class MyApp(ShowBase):
         if (self.keyMap["lrGain-down"] != 0):
             parameters["lrGain"] -= parameters["gainIncrement"]
             print "lrGain is ", parameters["lrGain"]
+
+        if parameters["quad"]:
+            # print "x is",self.player.getX
+            # print " offsetis",parameters["offset"]
+            # x=self.player.getX()
+            # y=self.player.getY()
+            if (self.player.getX()>parameters["offset"] and self.player.getX()<(parameters["offset"]+1)):
+                self.resetPosition()
+            if (self.player.getY()>parameters["offset"] and self.player.getY()<(parameters["offset"]+1)):
+                self.resetPosition()
+
+
+    def quadPositionGenerator(self):
+        offset=(int(parameters["worldSize"])-1)/2
+
+        quad3PosL=parameters["posL"]
+        quad3PosR=parameters["posR"]
+
+        quad4PosL=(parameters["posL"][0]+offset,parameters["posL"][1])
+        quad4PosR=(parameters["posR"][0]+offset,parameters["posR"][1])
+
+        quad2PosL=(parameters["posL"][0],parameters["posL"][1]+offset)
+        quad2PosR=(parameters["posR"][0],parameters["posR"][1]+offset)
+
+        quad1PosL=(parameters["posL"][0]+offset,parameters["posL"][1]+offset)
+        quad1PosR=(parameters["posR"][0]+offset,parameters["posR"][1]+offset)
+
+        odd=np.array([quad1PosR,quad2PosL,quad3PosL,quad3PosR])
+        even=np.array([quad1PosL,quad2PosR,quad4PosL,quad4PosR])
+
+        print offset
+        print "even is ",odd
+        print "even is ", even
+        return odd,even
+    def boundingBox(self,obj,distance):
+        """
+        Args:
+
+            obj:the object whose bound box has to be found
+            distance: the half width of the box | pseudo radius
+
+        Returns:
+
+        """
+
+        pass
+    def resetPosition(self):
+        newPos=random.choice(parameters["initPosList"])
+        self.player.setPos(newPos)
+        self.player.setH(parameters["playerInitH"])
+        print "newPos is", newPos
+        return newPos
 
     def updateCamera(self):
         # see issue content for how we calculated these:
