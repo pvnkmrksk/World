@@ -107,7 +107,7 @@ class WorldGen(ShowBase):  # our 'class'
         return self.oddPosList, self.evenPosList
 
     def quadPositionGenerator(self):
-        offset=(int(parameters["worldSize"])-1)/2
+        offset=((int(parameters["worldSize"])-1)/2)+1
 
         quad3PosL=parameters["posL"]
         quad3PosR=parameters["posR"]

@@ -9,16 +9,16 @@ parameters = {
     "frameRecord": False,
     "loadWind": False,
     "disabledFly":True,
-    "generateWorld":True,
+    "generateWorld":False,
     "loadWorld":True,
 
     "hcp":False,
     "quad":True,
-    "posL":(32,96),
-    "posR":(96,96),
+    "posL":(32,64),
+    "posR":(96,64),
+    "bboxDist":5,
 
-
-    "fly":"test",
+    "fly":"fly1",
 
     "gain": 5.3,
     "maxSpeed": 7.5,
@@ -37,7 +37,7 @@ parameters = {
     "heightObjects":10,
     "widthObjects":10,
     "lattice":25,
-    "origin":Vec3(0,0,0),
+    "origin":(0,0,0),
 
     "lrGain":1.0,
 
@@ -47,11 +47,11 @@ parameters = {
     "sphereScale": 0.6,
     "treeScale": 0.04,
 
-    "maxDistance": 80,
+    "maxDistance": 50,
     "camFOV": 140,
 
     "worldSize": 257,  # relevant for world boundaries
-    "playerInitPos": (64, 64, 1),
+    "playerInitPos": (64, 32, 1),
     "playerInitH": 0,
 
 

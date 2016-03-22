@@ -19,6 +19,7 @@ from matplotlib.path import Path
 import matplotlib.patches as patches
 import cPickle as pickle
 import random
+import numpy as np
 
 from params import parameters
 
@@ -55,7 +56,7 @@ class MyApp(ShowBase):
         if parameters["frameRecord"]:
             self.record(dur=parameters["recordDur"], fps=parameters["recordFps"])
 
-        parameters["offset"]=(int(parameters["worldSize"])-1)/2
+        parameters["offset"]=((int(parameters["worldSize"])-1)/2)+1
         print "offset is ", parameters["offset"]
 
         parameters["initPosList"]=[parameters["playerInitPos"],
@@ -64,8 +65,11 @@ class MyApp(ShowBase):
         (parameters["playerInitPos"][0]+parameters["offset"],parameters["playerInitPos"][1]+parameters["offset"],parameters["playerInitPos"][2])
                                    ]
         print "init pos list", parameters["initPosList"]
+        self.odd,self.even = self.quadPositionGenerator()
+
 
         self.bagRecordingState = False
+        self.decayTime=-1
 
     def initInput(self):
         self.keyboardSetup()
@@ -429,6 +433,24 @@ class MyApp(ShowBase):
             if (self.player.getY()>parameters["offset"] and self.player.getY()<(parameters["offset"]+1)):
                 self.resetPosition()
 
+        if self.decayTime>0:
+            parameters["speed"]=0
+            self.decayTime-=1
+        elif self.decayTime==0:
+            parameters["speed"]=self.speedMemory
+            self.decayTime-=1
+
+        if self.reachedDestination():
+            self.resetPosition()
+
+
+    def reachedDestination(self):
+        oddeven=np.append(self.odd,self.even,axis=0)
+        for i,j in (oddeven):
+            pos=(i,j)
+            if self.isInsideTarget(pos):
+                return True
+                break
 
     def quadPositionGenerator(self):
         offset=(int(parameters["worldSize"])-1)/2
@@ -448,26 +470,45 @@ class MyApp(ShowBase):
         odd=np.array([quad1PosR,quad2PosL,quad3PosL,quad3PosR])
         even=np.array([quad1PosL,quad2PosR,quad4PosL,quad4PosR])
 
-        print offset
-        print "even is ",odd
-        print "even is ", even
+        # print offset
+        # print "even is ",odd
+        # print "even is ", even
         return odd,even
-    def boundingBox(self,obj,distance):
+
+
+    def isInsideTarget(self,target):
+        tl,br=self.boundingBoxCoordinates(target,parameters["bboxDist"])
+        x,y,z=self.player.getPos()
+        if x>tl[0] and x<br[0] and y<tl[1] and y>br[1]:
+            return True
+        else:
+            return False
+
+
+
+    def boundingBoxCoordinates(self,target,distance):
         """
         Args:
 
-            obj:the object whose bound box has to be found
+            obj:the position of object whose bound box has to be found
             distance: the half width of the box | pseudo radius
 
         Returns:
-
+            tl: top left coordinate.
+            br: bottom right coordinate
         """
+        tl=(target[0]-distance,target[1]+distance)
+        br=(target[0]+distance,target[1]-distance)
 
-        pass
+        return tl,br
+
     def resetPosition(self):
         newPos=random.choice(parameters["initPosList"])
         self.player.setPos(newPos)
         self.player.setH(parameters["playerInitH"])
+
+        self.decayTime=120
+        self.speedMemory=parameters["speed"]
         print "newPos is", newPos
         return newPos
 
@@ -502,7 +543,11 @@ class MyApp(ShowBase):
 
     def bagFilenameGen(self):
         self.timeNow = str(datetime.now().strftime('%Y-%m-%d__%H:%M:%S'))
-        self.bagFilename = "bags/" + parameters["fly"] + "_" + parameters["loadingString"]  \
+        if parameters["hcp"]:
+            mode="hcp"
+        elif parameters["quad"]:
+            mode="quad"
+        self.bagFilename = "bags/" + parameters["fly"] + "_" + mode+parameters["loadingString"]  \
                            + "_gain" + str(parameters["gain"]) + "_speed_" + str(parameters["maxSpeed"]) \
                            + "_trial_" + str(parameters["trialNo"]) + "_" + self.timeNow
 
