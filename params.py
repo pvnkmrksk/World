@@ -9,7 +9,7 @@ parameters = {
     "frameRecord": False,
     "loadWind": False,
     "disabledFly":True,
-    "generateWorld":False,
+    "generateWorld":True,
     "loadWorld":True,
 
     "hcp":False,
@@ -17,12 +17,12 @@ parameters = {
     "posL":(32,64),
     "posR":(96,64),
     "bboxDist":5,
-
+    "maxBoutDur":7200,#frames
     "fly":"fly2",
 
     "gain": 7.0,
     "maxSpeed": 3.5,
-    "trialNo":1,
+    "trialNo":3,
 
 
     "modelSizeSuffix": "257",
@@ -33,7 +33,7 @@ parameters = {
 
     "killWorldGen":True,
 
-    "loadingString":"gr",
+    "loadingString":"g0",
     "heightObjects":10,
     "widthObjects":10,
     "lattice":25,
@@ -47,7 +47,7 @@ parameters = {
     "sphereScale": 0.6,
     "treeScale": 0.04,
 
-    "maxDistance": 50,
+    "maxDistance": 65,
     "camFOV": 140,
 
     "worldSize": 257,  # relevant for world boundaries

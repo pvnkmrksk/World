@@ -23,8 +23,8 @@ import numpy as np
 
 from params import parameters
 
-
-# import servo
+if parameters["loadWind"]:
+    import servo
 
 try:
     # Checkif rosmaster is running or not.
@@ -69,6 +69,7 @@ class MyApp(ShowBase):
 
         self.bagRecordingState = False
         self.decayTime=-1
+        self.boutFrame=0
         self.lastResetTime=datetime.now()
 
     def initInput(self):
@@ -465,7 +466,13 @@ class MyApp(ShowBase):
                 self.resetPosition(i+1)
                 time.sleep(0.15)
 
+        self.tooLongBoutReset()
 
+    def tooLongBoutReset(self):
+        if self.boutFrame>parameters["maxBoutDur"]:
+            self.resetPosition("rand")
+            print "bout longer than max duration", parameters["maxBoutDur"]
+        else: self.boutFrame+=1
 
     def reachedDestination(self):
         oddeven=np.append(self.odd,self.even,axis=0)
@@ -531,20 +538,27 @@ class MyApp(ShowBase):
     def resetPosition(self,quad):
 
         if quad=="rand":
-            newPos=random.choice(parameters["initPosList"])
-        else: newPos=parameters["initPosList"][quad-1]
+            index=random.randrange(len(parameters["initPosList"]))
+            newPos=parameters["initPosList"][index]
+            print "random quadrant is ", index+1, "\n"
 
+        else:
+            newPos=parameters["initPosList"][quad-1]
+            print "Your quadrant is", (quad),"\n"
         self.player.setPos(newPos)
         self.player.setH(parameters["playerInitH"])
+
 
         self.decayTime=240
         self.speedMemory=parameters["speed"]
         self.closedMemory=self.keyMap["closed"]
-        print "newPos is", newPos
+        print "newPos is", newPos,"\n"
 
         print "quadrant duration was ",str((datetime.now()-self.lastResetTime).total_seconds())
-        print "\n"
+        print "\n \n \n"
         self.lastResetTime=datetime.now()
+
+        self.boutFrame=0
 
 
         return newPos
