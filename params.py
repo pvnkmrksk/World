@@ -18,11 +18,11 @@ parameters = {
     "posR":(96,64),
     "bboxDist":5,
 
-    "fly":"fly1",
+    "fly":"fly2",
 
-    "gain": 8.1,
+    "gain": 7.0,
     "maxSpeed": 3.5,
-    "trialNo":5,
+    "trialNo":1,
 
 
     "modelSizeSuffix": "257",

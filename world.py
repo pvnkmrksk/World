@@ -59,17 +59,17 @@ class MyApp(ShowBase):
         parameters["offset"]=((int(parameters["worldSize"])-1)/2)+1
         print "offset is ", parameters["offset"]
 
-        parameters["initPosList"]=[parameters["playerInitPos"],
-                                   (parameters["playerInitPos"][0]+parameters["offset"],parameters["playerInitPos"][1],parameters["playerInitPos"][2]),
-                                  (parameters["playerInitPos"][0],parameters["playerInitPos"][1]+parameters["offset"],parameters["playerInitPos"][2]),
-        (parameters["playerInitPos"][0]+parameters["offset"],parameters["playerInitPos"][1]+parameters["offset"],parameters["playerInitPos"][2])
-                                   ]
+        parameters["initPosList"]=[(parameters["playerInitPos"][0]+parameters["offset"],parameters["playerInitPos"][1]+parameters["offset"],parameters["playerInitPos"][2]),
+                                   (parameters["playerInitPos"][0],parameters["playerInitPos"][1]+parameters["offset"],parameters["playerInitPos"][2]),
+                                   (parameters["playerInitPos"]),
+                                   (parameters["playerInitPos"][0]+parameters["offset"],parameters["playerInitPos"][1],parameters["playerInitPos"][2])]
         print "init pos list", parameters["initPosList"]
         self.odd,self.even = self.quadPositionGenerator()
 
 
         self.bagRecordingState = False
         self.decayTime=-1
+        self.lastResetTime=datetime.now()
 
     def initInput(self):
         self.keyboardSetup()
@@ -96,7 +96,7 @@ class MyApp(ShowBase):
                        "closed": 0, "gain-up": 0, "gain-down": 0, "lrGain-up": 0,
                        "lrGain-down": 0,
                        "init": 0, "newInit": 0, "newTopSpeed": 0, "clf": 0, "saveFig": 0,
-                       "startBag": 0, "stopBag": 0}
+                       "startBag": 0, "stopBag": 0,"quad1":0,"quad2":0,"quad3":0,"quad4":0}
 
         self.accept("escape", self.winClose)
         self.accept("a", self.setKey, ["climb", 1])
@@ -139,6 +139,15 @@ class MyApp(ShowBase):
         self.accept("v-up", self.setKey, ["lrGain-down", 0])
         self.accept("b", self.setKey, ["lrGain-up", 1])
         self.accept("b-up", self.setKey, ["lrGain-up", 0])
+        self.accept("1", self.setKey, ["quad1", 1])
+        self.accept("1-up", self.setKey, ["quad1", 0])
+        self.accept("2", self.setKey, ["quad2", 1])
+        self.accept("2-up", self.setKey, ["quad2", 0])
+        self.accept("3", self.setKey, ["quad3", 1])
+        self.accept("3-up", self.setKey, ["quad3", 0])
+        self.accept("4", self.setKey, ["quad4", 1])
+        self.accept("4-up", self.setKey, ["quad4", 0])
+
 
         base.disableMouse()  # or updateCamera will fail!
 
@@ -367,31 +376,31 @@ class MyApp(ShowBase):
         # and now the X/Y world boundaries:
         if (self.player.getX() < 0):
             if parameters["quad"]:
-                self.resetPosition()
+                self.resetPosition("rand")
             else:
                 self.player.setX(0)
 
         elif (self.player.getX() > parameters["worldSize"]):
             if parameters["quad"]:
-                self.resetPosition()
+                self.resetPosition("rand")
             else:
                 self.player.setX(parameters["worldSize"])
 
         if (self.player.getY() < 0):
             if parameters["quad"]:
-                self.resetPosition()
+                self.resetPosition("rand")
             else:
                 self.player.setY(0)
 
         elif (self.player.getY() > parameters["worldSize"]):
             if parameters["quad"]:
-                self.resetPosition()
+                self.resetPosition("rand")
             else:
                 self.player.setY(parameters["worldSize"])
 
         # reset to initial position
         if (self.keyMap["init"] != 0):
-            self.resetPosition()
+            self.resetPosition("rand")
             time.sleep(0.1)
             # self.player.setPos(self.world, parameters["playerInitPos"])
             # self.player.setH(parameters["playerInitH"])
@@ -431,19 +440,31 @@ class MyApp(ShowBase):
             # x=self.player.getX()
             # y=self.player.getY()
             if (self.player.getX()>parameters["offset"] and self.player.getX()<(parameters["offset"]+1)):
-                self.resetPosition()
+                self.resetPosition("rand")
             if (self.player.getY()>parameters["offset"] and self.player.getY()<(parameters["offset"]+1)):
-                self.resetPosition()
+                self.resetPosition("rand")
 
-        if self.decayTime>0:
+        if self.decayTime>60:
             parameters["speed"]=0
+            self.keyMap["closed"]=0
             self.decayTime-=1
+        elif self.decayTime<=60 and self.decayTime>0:
+
+            self.keyMap["closed"]=self.closedMemory
+            self.decayTime-=1
+
         elif self.decayTime==0:
             parameters["speed"]=self.speedMemory
             self.decayTime-=1
 
         if self.reachedDestination():
-            self.resetPosition()
+            self.resetPosition("rand")
+
+        for i in range(4):
+            if (self.keyMap["quad"+str(i+1)]!=0):
+                self.resetPosition(i+1)
+                time.sleep(0.15)
+
 
 
     def reachedDestination(self):
@@ -507,14 +528,24 @@ class MyApp(ShowBase):
 
         return tl,br
 
-    def resetPosition(self):
-        newPos=random.choice(parameters["initPosList"])
+    def resetPosition(self,quad):
+
+        if quad=="rand":
+            newPos=random.choice(parameters["initPosList"])
+        else: newPos=parameters["initPosList"][quad-1]
+
         self.player.setPos(newPos)
         self.player.setH(parameters["playerInitH"])
 
         self.decayTime=240
         self.speedMemory=parameters["speed"]
+        self.closedMemory=self.keyMap["closed"]
         print "newPos is", newPos
+
+        print "quadrant duration was ",str((datetime.now()-self.lastResetTime).total_seconds())
+        print "\n"
+        self.lastResetTime=datetime.now()
+
 
         return newPos
 
