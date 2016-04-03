@@ -7,7 +7,7 @@ parameters = {
     "loadTrajectory": True,
     "lockFps": True,  # False,
     "frameRecord": False,
-    "loadWind": False,
+    "loadWind": True,
     "disabledFly":True,
     "generateWorld":True,
     "loadWorld":True,
@@ -33,7 +33,7 @@ parameters = {
 
     "killWorldGen":True,
 
-    "loadingString":"g0",
+    "loadingString":"gr",
     "heightObjects":10,
     "widthObjects":10,
     "lattice":25,
@@ -44,7 +44,7 @@ parameters = {
     "fps": 60,
     "trajectoryUpdateInterval": 60,  # frames between update,
 
-    "sphereScale": 0.6,
+    "sphereScale": 0.9,
     "treeScale": 0.04,
 
     "maxDistance": 65,
@@ -53,9 +53,9 @@ parameters = {
     "worldSize": 257,  # relevant for world boundaries
     "playerInitPos": (64, 32, 1),
     "playerInitH": 0,
+    "windDirection":190,
 
-
-    "sphereZ": 1.9,
+    "sphereZ": 2.9,
     "treeZ": 0,
 
     "speed": 0.0,
@@ -75,7 +75,7 @@ parameters = {
     "windowHeight":768,
 
     "spherePath": "models/sphere.egg",
-    "greenTexPath": "models/green.tga",
+    "greenTexPath": "models/greenRed.tga",
     "redTexPath": "models/red.tga",
     "treePath": "models/treeHighB.egg",
     "treeTexPath": "models/BarkBrown.tga",

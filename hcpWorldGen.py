@@ -4,6 +4,7 @@ from direct.showbase.ShowBase import ShowBase  # import the bits of panda
 from panda3d.core import GeoMipTerrain  # that we need
 import numpy as np
 import matplotlib.pyplot as plt
+
 from params import parameters
 
 

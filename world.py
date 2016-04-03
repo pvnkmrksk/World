@@ -1,7 +1,7 @@
 # system imports
 
 from datetime import datetime
-import sys, time, subprocess, os ,json # ROS imports
+import sys, time, subprocess, os,serial ,json # ROS imports
 import rospy, rostopic, roslib,std_msgs.msg, rosbag
 from beginner.msg import MsgFlystate, MsgTrajectory
 from std_msgs.msg import String
@@ -24,7 +24,12 @@ import numpy as np
 from params import parameters
 
 if parameters["loadWind"]:
-    import servo
+    try:
+        import servo
+    except serial.serialutil.SerialException:
+        parameters["loadWind"]=False
+        print ("\n \n \n servo disabled \n \n \n")
+
 
 try:
     # Checkif rosmaster is running or not.
@@ -313,7 +318,7 @@ class MyApp(ShowBase):
             self.updateLabel()
 
         if parameters["loadWind"]:
-            self.windTunnel(0)
+            self.windTunnel(parameters["windDirection"])
         self.publisher(self.message())
 
         return Task.cont
@@ -650,7 +655,7 @@ class MyApp(ShowBase):
 
     # wind control
     def windTunnel(self, windDirection):
-        self.servoAngle = (int(self.player.getH()) - 90) % 360 - 180
+        self.servoAngle = (90-int(self.player.getH())+windDirection-180 ) % 360
         print "servoangle is", self.servoAngle
         servo.move(1, self.servoAngle)
 
