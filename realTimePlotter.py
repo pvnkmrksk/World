@@ -18,8 +18,8 @@ def callback( data):
     y=data.position.y
     keys =data.key
     return x,y,keys
-    
-    
+
+
 def listener():
     """ Listens to Kinefly Flystate topic"""
     rospy.Subscriber("/trajectory", MsgTrajectory, callback)

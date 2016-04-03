@@ -4,6 +4,7 @@ from direct.showbase.ShowBase import ShowBase  # import the bits of panda
 from panda3d.core import GeoMipTerrain  # that we need
 import numpy as np
 import matplotlib.pyplot as plt
+
 from params import parameters
 
 
@@ -58,29 +59,76 @@ class WorldGen(ShowBase):  # our 'class'
         self.redTex = self.loader.loadTexture(parameters["redTexPath"])
 
 
-
-    def plotPositions(self):
-        self.tree=self.greenSphere=self.redSphere=self.treeTex=self.greenTex=self.redTex=None
-        self.loadingStringParser(parameters["loadingString"])
-        plt.scatter(self.odd[:,0],self.odd[:,1],color=self.oddPlotColor,marker=self.oddPlotMarker)
-        plt.scatter(self.even[:,0],self.even[:,1],color=self.evenPlotColor,marker=self.evenPlotMarker)#,marker='|',color='g')
-
-
     def initPositions(self):
-
         self.evenObj = self.oddObj = self.evenScale = self.oddScale = \
-            self.evenTex = self.oddTex = self.evenLoad = self.oddLoad =self.evenZ=self.oddZ= \
-            self.evenPlotColor=self.oddPlotColor=self.evenPlotMarker=self.oddPlotMarker=None
+                self.evenTex = self.oddTex = self.evenLoad = self.oddLoad =self.evenZ=self.oddZ= \
+                self.evenPlotColor=self.oddPlotColor=self.evenPlotMarker=self.oddPlotMarker=None
 
-        self.odd, self.even = self.positionListGenerator(heightObjects=parameters["heightObjects"],
-                                                         widthObjects=parameters["widthObjects"],
-                                                         lattice=parameters["lattice"])
+        if parameters["hcp"]:
 
+            self.odd, self.even = self.hcpListGenerator(heightObjects=parameters["heightObjects"],
+                                                        widthObjects=parameters["widthObjects"],
+                                                        lattice=parameters["lattice"])
+
+        elif parameters["quad"]:
+
+            self.odd,self.even=self.quadPositionGenerator()
 
         # print "odd is",self.odd
         # print "even is ", self.even
 
 
+    def hcpListGenerator(self, heightObjects, widthObjects, lattice):
+        self.posList = np.zeros([heightObjects * widthObjects, 2])
+        self.alternate = False
+        index = 0
+
+        for i in range(0, heightObjects):
+            y = i * lattice * (3 ** 0.5) / 2
+            self.alternate = not self.alternate
+
+            for j in range(0, widthObjects):
+                if self.alternate:
+                    x = j * lattice + (lattice / 2)
+                else:
+                    x = j * lattice
+
+                self.posList[index, :] = [x, y]
+                index += 1
+
+        # self.posList[:,0]=np.linspace(0,100,num=(self.posList.shape)[0])
+        # self.posList[:,1]=np.linspace(0,100,num=(self.posList.shape)[0])
+
+        self.oddPosList = self.posList[1::2]
+        self.evenPosList = self.posList[0::2]
+
+        # print "odd is ",self.oddPosList
+        # print "even is", self.evenPosList
+
+        return self.oddPosList, self.evenPosList
+
+    def quadPositionGenerator(self):
+        offset=((int(parameters["worldSize"])-1)/2)+1
+
+        quad3PosL=parameters["posL"]
+        quad3PosR=parameters["posR"]
+
+        quad4PosL=(parameters["posL"][0]+offset,parameters["posL"][1])
+        quad4PosR=(parameters["posR"][0]+offset,parameters["posR"][1])
+
+        quad2PosL=(parameters["posL"][0],parameters["posL"][1]+offset)
+        quad2PosR=(parameters["posR"][0],parameters["posR"][1]+offset)
+
+        quad1PosL=(parameters["posL"][0]+offset,parameters["posL"][1]+offset)
+        quad1PosR=(parameters["posR"][0]+offset,parameters["posR"][1]+offset)
+
+        odd=np.array([quad1PosR,quad2PosL,quad3PosL,quad3PosR])
+        even=np.array([quad1PosL,quad2PosR,quad4PosL,quad4PosR])
+
+        print offset
+        print "even is ",odd
+        print "even is ", even
+        return odd,even
 
     def loadingStringParser(self, loadingString):
         """
@@ -181,34 +229,15 @@ class WorldGen(ShowBase):  # our 'class'
             evenPlaceholder.setPos(self.even[i][0], self.even[i][1], z)
             dummy.instanceTo(evenPlaceholder)
 
-    def positionListGenerator(self, heightObjects, widthObjects, lattice):
-        self.posList = np.zeros([heightObjects * widthObjects, 2])
-        self.alternate = False
-        index = 0
 
-        for i in range(0, heightObjects):
-            y = i * lattice * (3 ** 0.5) / 2
-            self.alternate = not self.alternate
 
-            for j in range(0, widthObjects):
-                if self.alternate:
-                    x = j * lattice + (lattice / 2)
-                else:
-                    x = j * lattice
+    def plotPositions(self):
+        self.tree=self.greenSphere=self.redSphere=self.treeTex=self.greenTex=self.redTex=None
+        self.loadingStringParser(parameters["loadingString"])
+        plt.scatter(self.odd[:,0],self.odd[:,1],color=self.oddPlotColor,marker=self.oddPlotMarker)
+        plt.scatter(self.even[:,0],self.even[:,1],color=self.evenPlotColor,marker=self.evenPlotMarker)#,marker='|',color='g')
 
-                self.posList[index, :] = [x, y]
-                index += 1
 
-        # self.posList[:,0]=np.linspace(0,100,num=(self.posList.shape)[0])
-        # self.posList[:,1]=np.linspace(0,100,num=(self.posList.shape)[0])
-
-        self.oddPosList = self.posList[1::2]
-        self.evenPosList = self.posList[0::2]
-
-        # print "odd is ",self.oddPosList
-        # print "even is", self.evenPosList
-
-        return self.oddPosList, self.evenPosList
 
     def worldNameGen(self):
         self.worldFilename = "models/world_" + "size:" + parameters["modelSizeSuffix"] \

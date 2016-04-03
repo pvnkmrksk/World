@@ -1,7 +1,7 @@
 # system imports
 
 from datetime import datetime
-import sys, time, subprocess, os ,json # ROS imports
+import sys, time, subprocess, os,serial ,json # ROS imports
 import rospy, rostopic, roslib,std_msgs.msg, rosbag
 from beginner.msg import MsgFlystate, MsgTrajectory
 from std_msgs.msg import String
@@ -18,9 +18,18 @@ import matplotlib.pyplot as plt  # plotting imports
 from matplotlib.path import Path
 import matplotlib.patches as patches
 import cPickle as pickle
+import random
+import numpy as np
+
 from params import parameters
 
-# import servo
+if parameters["loadWind"]:
+    try:
+        import servo
+    except serial.serialutil.SerialException:
+        parameters["loadWind"]=False
+        print ("\n \n \n servo disabled \n \n \n")
+
 
 try:
     # Checkif rosmaster is running or not.
@@ -52,7 +61,21 @@ class MyApp(ShowBase):
         if parameters["frameRecord"]:
             self.record(dur=parameters["recordDur"], fps=parameters["recordFps"])
 
+        parameters["offset"]=((int(parameters["worldSize"])-1)/2)+1
+        print "offset is ", parameters["offset"]
+
+        parameters["initPosList"]=[(parameters["playerInitPos"][0]+parameters["offset"],parameters["playerInitPos"][1]+parameters["offset"],parameters["playerInitPos"][2]),
+                                   (parameters["playerInitPos"][0],parameters["playerInitPos"][1]+parameters["offset"],parameters["playerInitPos"][2]),
+                                   (parameters["playerInitPos"]),
+                                   (parameters["playerInitPos"][0]+parameters["offset"],parameters["playerInitPos"][1],parameters["playerInitPos"][2])]
+        print "init pos list", parameters["initPosList"]
+        self.odd,self.even = self.quadPositionGenerator()
+
+
         self.bagRecordingState = False
+        self.decayTime=-1
+        self.boutFrame=0
+        self.lastResetTime=datetime.now()
 
     def initInput(self):
         self.keyboardSetup()
@@ -79,7 +102,7 @@ class MyApp(ShowBase):
                        "closed": 0, "gain-up": 0, "gain-down": 0, "lrGain-up": 0,
                        "lrGain-down": 0,
                        "init": 0, "newInit": 0, "newTopSpeed": 0, "clf": 0, "saveFig": 0,
-                       "startBag": 0, "stopBag": 0}
+                       "startBag": 0, "stopBag": 0,"quad1":0,"quad2":0,"quad3":0,"quad4":0}
 
         self.accept("escape", self.winClose)
         self.accept("a", self.setKey, ["climb", 1])
@@ -122,17 +145,20 @@ class MyApp(ShowBase):
         self.accept("v-up", self.setKey, ["lrGain-down", 0])
         self.accept("b", self.setKey, ["lrGain-up", 1])
         self.accept("b-up", self.setKey, ["lrGain-up", 0])
+        self.accept("1", self.setKey, ["quad1", 1])
+        self.accept("1-up", self.setKey, ["quad1", 0])
+        self.accept("2", self.setKey, ["quad2", 1])
+        self.accept("2-up", self.setKey, ["quad2", 0])
+        self.accept("3", self.setKey, ["quad3", 1])
+        self.accept("3-up", self.setKey, ["quad3", 0])
+        self.accept("4", self.setKey, ["quad4", 1])
+        self.accept("4-up", self.setKey, ["quad4", 0])
+
 
         base.disableMouse()  # or updateCamera will fail!
 
     def setKey(self, key, value):
         self.keyMap[key] = value
-
-        mes=MsgTrajectory()
-        mes.key=(str(key))
-
-        # print "key is",mes.key, "key type is ",type(mes.key)
-        self.publisher(message=mes)
 
     def winClose(self):
         # self.closeWindow(self.win)
@@ -164,6 +190,7 @@ class MyApp(ShowBase):
         print "model file exists:",os.path.isfile(self.worldFilename)
 
         print "open worldgen?",(not os.path.isfile(self.worldFilename)) or parameters["generateWorld"]
+        print "\n \n \n"
 
         if ((not os.path.isfile(self.worldFilename)) or parameters["generateWorld"]):
             subprocess.Popen(["python", "hcpWorldGen.py"])
@@ -252,9 +279,10 @@ class MyApp(ShowBase):
             parameters["wbad"] = self.scaledWbad
         return parameters["wbad"]
 
-    def publisher(self,message):
+    def publisher(self,data):
+        # data = self.message()
         trajectory = rospy.Publisher('trajectory', MsgTrajectory, queue_size=600)
-        trajectory.publish(message)
+        trajectory.publish(data)
         # print parameters["wbad"]
 
     def message(self):
@@ -268,9 +296,7 @@ class MyApp(ShowBase):
         mes.speed = parameters["speed"]
         mes.gain = parameters["gain"]
         mes.closed = self.keyMap["closed"]
-        mes.key=''
-
-
+        mes.reset=False
         return mes
 
 
@@ -286,17 +312,14 @@ class MyApp(ShowBase):
         self.bagControl()
         # print data.position
         #
-        if parameters["loadTrajectory"]:
-            self.trajectoryControl()
-
+        # if parameters["loadTrajectory"]:
+        #     self.trajectory()
         if parameters["loadHUD"]:
             self.updateLabel()
 
         if parameters["loadWind"]:
-            self.windTunnel(0)
-
-        data = self.message()
-        self.publisher(message=data)
+            self.windTunnel(parameters["windDirection"])
+        self.publisher(self.message())
 
         return Task.cont
 
@@ -358,19 +381,35 @@ class MyApp(ShowBase):
 
         # and now the X/Y world boundaries:
         if (self.player.getX() < 0):
-            self.player.setX(0)
+            if parameters["quad"]:
+                self.resetPosition("rand")
+            else:
+                self.player.setX(0)
+
         elif (self.player.getX() > parameters["worldSize"]):
-            self.player.setX(parameters["worldSize"])
+            if parameters["quad"]:
+                self.resetPosition("rand")
+            else:
+                self.player.setX(parameters["worldSize"])
 
         if (self.player.getY() < 0):
-            self.player.setY(0)
+            if parameters["quad"]:
+                self.resetPosition("rand")
+            else:
+                self.player.setY(0)
+
         elif (self.player.getY() > parameters["worldSize"]):
-            self.player.setY(parameters["worldSize"])
+            if parameters["quad"]:
+                self.resetPosition("rand")
+            else:
+                self.player.setY(parameters["worldSize"])
 
         # reset to initial position
         if (self.keyMap["init"] != 0):
-            self.player.setPos(self.world, parameters["playerInitPos"])
-            self.player.setH(parameters["playerInitH"])
+            self.resetPosition("rand")
+            time.sleep(0.1)
+            # self.player.setPos(self.world, parameters["playerInitPos"])
+            # self.player.setH(parameters["playerInitH"])
 
         # update new init position
         if (self.keyMap["newInit"] != 0):
@@ -401,14 +440,138 @@ class MyApp(ShowBase):
             parameters["lrGain"] -= parameters["gainIncrement"]
             print "lrGain is ", parameters["lrGain"]
 
+        if parameters["quad"]:
+            # print "x is",self.player.getX
+            # print " offsetis",parameters["offset"]
+            # x=self.player.getX()
+            # y=self.player.getY()
+            if (self.player.getX()>parameters["offset"] and self.player.getX()<(parameters["offset"]+1)):
+                self.resetPosition("rand")
+            if (self.player.getY()>parameters["offset"] and self.player.getY()<(parameters["offset"]+1)):
+                self.resetPosition("rand")
+
+        if self.decayTime>60:
+            parameters["speed"]=0
+            self.keyMap["closed"]=0
+            self.decayTime-=1
+        elif self.decayTime<=60 and self.decayTime>0:
+
+            self.keyMap["closed"]=self.closedMemory
+            self.decayTime-=1
+
+        elif self.decayTime==0:
+            parameters["speed"]=self.speedMemory
+            self.decayTime-=1
+
+        if self.reachedDestination():
+            self.resetPosition("rand")
+
+        for i in range(4):
+            if (self.keyMap["quad"+str(i+1)]!=0):
+                self.resetPosition(i+1)
+                time.sleep(0.15)
+
+        self.tooLongBoutReset()
+
+    def tooLongBoutReset(self):
+        if self.boutFrame>parameters["maxBoutDur"]:
+            self.resetPosition("rand")
+            print "bout longer than max duration", parameters["maxBoutDur"]
+        else: self.boutFrame+=1
+
+    def reachedDestination(self):
+        oddeven=np.append(self.odd,self.even,axis=0)
+        for i in (oddeven):
+
+            if self.isInsideTarget(i):
+                mes=MsgTrajectory()
+                mes.reset=True
+                self.publisher(mes)
+                return True
+                break
+
+    def quadPositionGenerator(self):
+        offset=(int(parameters["worldSize"])-1)/2
+
+        quad3PosL=parameters["posL"]
+        quad3PosR=parameters["posR"]
+
+        quad4PosL=(parameters["posL"][0]+offset,parameters["posL"][1])
+        quad4PosR=(parameters["posR"][0]+offset,parameters["posR"][1])
+
+        quad2PosL=(parameters["posL"][0],parameters["posL"][1]+offset)
+        quad2PosR=(parameters["posR"][0],parameters["posR"][1]+offset)
+
+        quad1PosL=(parameters["posL"][0]+offset,parameters["posL"][1]+offset)
+        quad1PosR=(parameters["posR"][0]+offset,parameters["posR"][1]+offset)
+
+        odd=np.array([quad1PosR,quad2PosL,quad3PosL,quad3PosR])
+        even=np.array([quad1PosL,quad2PosR,quad4PosL,quad4PosR])
+
+        # print offset
+        # print "even is ",odd
+        # print "even is ", even
+        return odd,even
+
+
+    def isInsideTarget(self,target):
+        tl,br=self.boundingBoxCoordinates(target,parameters["bboxDist"])
+        x,y,z=self.player.getPos()
+        if x>tl[0] and x<br[0] and y<tl[1] and y>br[1]:
+            return True
+        else:
+            return False
+
+
+
+    def boundingBoxCoordinates(self,target,distance):
+        """
+        Args:
+
+            obj:the position of object whose bound box has to be found
+            distance: the half width of the box | pseudo radius
+
+        Returns:
+            tl: top left coordinate.
+            br: bottom right coordinate
+        """
+        tl=(target[0]-distance,target[1]+distance)
+        br=(target[0]+distance,target[1]-distance)
+
+        return tl,br
+
+    def resetPosition(self,quad):
+
+        if quad=="rand":
+            index=random.randrange(len(parameters["initPosList"]))
+            newPos=parameters["initPosList"][index]
+            print "random quadrant is ", index+1, "\n"
+
+        else:
+            newPos=parameters["initPosList"][quad-1]
+            print "Your quadrant is", (quad),"\n"
+        self.player.setPos(newPos)
+        self.player.setH(parameters["playerInitH"])
+
+
+        self.decayTime=240
+        self.speedMemory=parameters["speed"]
+        self.closedMemory=self.keyMap["closed"]
+        print "newPos is", newPos,"\n"
+
+        print "quadrant duration was ",str((datetime.now()-self.lastResetTime).total_seconds())
+        print "\n \n \n"
+        self.lastResetTime=datetime.now()
+
+        self.boutFrame=0
+
+
+        return newPos
+
     def updateCamera(self):
         # see issue content for how we calculated these:
         self.camera.setPos(self.player, 0, 0, 0)
         self.camera.setHpr(self.player, parameters["camHpr"])
-
-
-    def trajectoryControl(self):
-        pass
 
     # recording functions
     def bagControl(self):
@@ -436,7 +599,11 @@ class MyApp(ShowBase):
 
     def bagFilenameGen(self):
         self.timeNow = str(datetime.now().strftime('%Y-%m-%d__%H:%M:%S'))
-        self.bagFilename = "bags/" + parameters["fly"] + "_" + parameters["loadingString"]  \
+        if parameters["hcp"]:
+            mode="hcp_"
+        elif parameters["quad"]:
+            mode="quad_"
+        self.bagFilename = "bags/" + parameters["fly"] + "_" + mode+parameters["loadingString"]  \
                            + "_gain" + str(parameters["gain"]) + "_speed_" + str(parameters["maxSpeed"]) \
                            + "_trial_" + str(parameters["trialNo"]) + "_" + self.timeNow
 
@@ -456,8 +623,6 @@ class MyApp(ShowBase):
 
         metadata=String(json.dumps(parameters))
         print "metadata is:",metadata
-        self.pickler(parameters,self.bagFilename+".pickle")
-        print "pickled the parameters"
 
         with rosbag.Bag(a,'a') as bag:
             i=0
@@ -490,7 +655,7 @@ class MyApp(ShowBase):
 
     # wind control
     def windTunnel(self, windDirection):
-        self.servoAngle = (int(self.player.getH()) - 90) % 360 - 180
+        self.servoAngle = (90-int(self.player.getH())+windDirection-180 ) % 360
         print "servoangle is", self.servoAngle
         servo.move(1, self.servoAngle)
 

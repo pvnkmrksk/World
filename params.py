@@ -7,59 +7,60 @@ parameters = {
     "loadTrajectory": True,
     "lockFps": True,  # False,
     "frameRecord": False,
-    "loadWind": False,
+    "loadWind": True,
     "disabledFly":True,
-    "generateWorld":False,
+    "generateWorld":True,
     "loadWorld":True,
 
+    "hcp":False,
+    "quad":True,
+    "posL":(32,64),
+    "posR":(96,64),
+    "bboxDist":5,
+    "maxBoutDur":7200,#frames
+    "fly":"fly2",
 
-
-    "fly":"test",
-
-    "gain": 5.3,
-    "maxSpeed": 7.5,
-    "trialNo":1,
+    "gain": 7.0,
+    "maxSpeed": 3.5,
+    "trialNo":3,
 
 
     "modelSizeSuffix": "257",
-    "modelHeightMap": "models/height" + "257" + "_t2.png",
-    "modelTextureMap": "models/texture" + "257" + "_t2.png",
+    "modelHeightMap": "models/height" + "257" + "0.png",
+    "modelTextureMap": "models/texture" + "257" + "_quadrant_t2.png",
     # "modelHeightMap": "models/height" + "257" + "0.png",
     # "modelTextureMap": "models/texture" + "257" + "s.png",
 
     "killWorldGen":True,
 
-    "loadingString":"t0",
-    "heightObjects":15,
+    "loadingString":"gr",
+    "heightObjects":10,
     "widthObjects":10,
     "lattice":25,
     "origin":(0,0,0),
-
-    "sphereScale": 0.6,
-    "treeScale": 0.02,
-
-    "maxDistance": 28,
-    "camFOV": 140,
-
-    "worldSize": 257,  # relevant for world boundaries
-    "playerInitPos": (137.5, 53, 0.92),
-    "playerInitH": 0,
-
-
-    "sphereZ": 1.9,
-    "treeZ": 0,
-
-    "speed": 0.0,
-    "speedIncrement": 0.05,
-    "gainIncrement": 0.02,
-
 
     "lrGain":1.0,
 
     "fps": 60,
     "trajectoryUpdateInterval": 60,  # frames between update,
-    "plotDuration":20000,
 
+    "sphereScale": 0.9,
+    "treeScale": 0.04,
+
+    "maxDistance": 65,
+    "camFOV": 140,
+
+    "worldSize": 257,  # relevant for world boundaries
+    "playerInitPos": (64, 32, 1),
+    "playerInitH": 0,
+    "windDirection":190,
+
+    "sphereZ": 2.9,
+    "treeZ": 0,
+
+    "speed": 0.0,
+    "speedIncrement": 0.05,
+    "gainIncrement": 0.02,
 
     "wbad": 0,
     "wbas": 0,
@@ -73,7 +74,7 @@ parameters = {
     "windowHeight":768,
 
     "spherePath": "models/sphere.egg",
-    "greenTexPath": "models/green.tga",
+    "greenTexPath": "models/greenRed.tga",
     "redTexPath": "models/red.tga",
     "treePath": "models/treeHighB.egg",
     "treeTexPath": "models/BarkBrown.tga",
