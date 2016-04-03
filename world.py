@@ -1,7 +1,11 @@
 # system imports
-import sys, time, subprocess, os  # ROS imports
-import rospy, rostopic, std_msgs.msg
+
+from datetime import datetime
+import sys, time, subprocess, os,serial ,json # ROS imports
+import rospy, rostopic, roslib,std_msgs.msg, rosbag
 from beginner.msg import MsgFlystate, MsgTrajectory
+from std_msgs.msg import String
+from rospy_message_converter import message_converter
 
 from direct.showbase.ShowBase import ShowBase  # Panda imports
 from direct.task import Task
@@ -13,8 +17,19 @@ from direct.gui.OnscreenText import OnscreenText
 import matplotlib.pyplot as plt  # plotting imports
 from matplotlib.path import Path
 import matplotlib.patches as patches
+import cPickle as pickle
+import random
+import numpy as np
 
-# import servo
+from params import parameters
+
+if parameters["loadWind"]:
+    try:
+        import servo
+    except serial.serialutil.SerialException:
+        parameters["loadWind"]=False
+        print ("\n \n \n servo disabled \n \n \n")
+
 
 try:
     # Checkif rosmaster is running or not.
@@ -28,201 +43,68 @@ except rostopic.ROSTopicIOException as e:
 
 class MyApp(ShowBase):
     def __init__(self):
-
         ShowBase.__init__(self)  # start the app
-        # loadPrcFileData("", "win-size 1360 384")  # set window size
-        loadPrcFileData("", "win-size 2720 768")  # set window size
-
-        self.params()  # fire up the params
-        self.debug = False  # debugging, prints pos
-
-        rospy.init_node('world')  # init node
-
-        self.initPlot()
-        self.modelsLoad()  # load the models
-        self.listener()  # wba subscriber using ROS
-        self.keyboardSetup()  # keyboard input
-        self.createEnvironment()
-        self.makeLabels()  # overlays setup
-
+        self.initParams()  # run this 1st. Loads all content and params.
+        self.initInput()
+        self.initOutput()
+        self.initFeedback()
         self.taskMgr.add(self.updateTask, "update")  # A task to run every frame, some keyboard setup and our speed
 
-    def params(self):
-        # booleans
-        self.loadSpheres = True  # False
-        self.loadTree = True  # False
-        self.loadWind = True
 
-        # params
-        self.worldSize = 257  # relevant for world boundaries
+    def initParams(self):
 
-        self.playerInitPos = Vec3(self.worldSize / 2, 50, 1.3)
-        self.playerPrevPos = (self.playerInitPos[0], self.playerInitPos[1])
-        self.playerInitH = 0
-        self.speed = 0.0
-        self.maxSpeed = 3.0
-        self.speedIncrement = 0.02
-        self.gain = 1  # gain for turning
-        self.gainIncrement = 0.02
+        self.camLens.setFar(parameters["maxDistance"])
+        self.camLens.setFov(parameters["camFOV"])
 
-        self.wbad = self.wbas = 0
+        if parameters["lockFps"]:
+            pass#parameter["fps"]=Limit(parameter["fps"])
+        if parameters["frameRecord"]:
+            self.record(dur=parameters["recordDur"], fps=parameters["recordFps"])
 
-        self.spacing = 20  # distance from the midpoint
-        self.posL = (self.worldSize / 2 + self.spacing, self.worldSize / 2)
-        self.posR = (self.worldSize / 2 - self.spacing, self.worldSize / 2)
-        self.sphereZ = 4
-        self.treeZ = 1
-        self.sphereScale = 0.4
-        self.treeScale = 0.03
+        parameters["offset"]=((int(parameters["worldSize"])-1)/2)+1
+        print "offset is ", parameters["offset"]
 
-        self.spherePath = "models/sphere.egg"
-        self.greenTexPath = "models/green.tga"
-        self.redTexPath = "models/red.tga"
-        self.treePath = "models/treeHighB.egg"
-        self.treeTexPath = "models/BarkBrown.tga"
+        parameters["initPosList"]=[(parameters["playerInitPos"][0]+parameters["offset"],parameters["playerInitPos"][1]+parameters["offset"],parameters["playerInitPos"][2]),
+                                   (parameters["playerInitPos"][0],parameters["playerInitPos"][1]+parameters["offset"],parameters["playerInitPos"][2]),
+                                   (parameters["playerInitPos"]),
+                                   (parameters["playerInitPos"][0]+parameters["offset"],parameters["playerInitPos"][1],parameters["playerInitPos"][2])]
+        print "init pos list", parameters["initPosList"]
+        self.odd,self.even = self.quadPositionGenerator()
 
-        self.treePos = Vec3(self.posL, self.treeZ)
-        self.redSpherePos = Vec3(self.posL, self.sphereZ)
-        self.greenSpherePos = Vec3(self.posR, self.sphereZ)
 
-        self.treeLoadOn=False
-        self.redSphereLoadOn=False
-        self.greenSphereLoadOn=False
+        self.bagRecordingState = False
+        self.decayTime=-1
+        self.boutFrame=0
+        self.lastResetTime=datetime.now()
 
-        self.maxDistance = 200
-        self.camLens.setFar(self.maxDistance)
-        self.camLens.setFov(120)
+    def initInput(self):
+        self.keyboardSetup()
 
-        self.frameNum = 0
-        self.fig = plt.figure()
-        self.trajectoryUpdateInterval = 30  # frames between update
-        self.fps = 60
+    def initOutput(self):
+        self.initPlot()  # load the plot 1st so that the active window is panda
+        loadPrcFileData("", "win-size "+str(parameters["windowWidth"])+" "+str(parameters["windowHeight"]))  # set window size
+        self.modelLoader()
+        self.createEnvironment()
+        self.makeLabels()
 
-        self.lockFps = True  # False
-        if self.lockFps:
-            self.fpsLimit(self.fps)
+    def initFeedback(self):
+        rospy.init_node('world')
+        self.listener()
 
-        self.recordDur = 10
-        self.recordFps = 30
-        self.frameRecord = False
-        if self.frameRecord:
-            self.record(dur=self.recordDur, fps=self.recordFps)
 
-        self.bagPrefix = "pavan"
-        self.bagTopics = "/usb_cam/image_raw /kinefly/image_output " \
-                         "/kinefly/flystate /trajectory"
 
-    def modelsLoad(self):
-        self.worldLoad()  # load the player and model
-        if self.treeLoadOn:
-            self.treeLoad()  # load the tree
-        if self.redSphereLoadOn:
-            self.redSphereLoad()  # load the red sphere
-        if self.greenSphereLoadOn:
-            self.greenSphereLoad()  # load the green sphere
 
-    def updatePlayer(self):
-        # global prevPos, currentPos, ax, fig, treePos, redPos
-        # Global Clock by default, panda runs as fast as it can frame to frame
-        scalefactor = self.speed * (globalClock.getDt() * self.speed)
-        climbfactor = 0.1  # (.001) * scalefactor
-        bankfactor = 1  # .5  * scalefactor
-        speedfactor = scalefactor
-
-        # closed loop
-        if (self.keyMap["closed"] != 0):
-            self.player.setH(self.player.getH() - self.wbad * self.gain)
-
-        # Climb and Fall
-        if (self.keyMap["climb"] != 0):  # and self.speed > 0.00):
-            # faster you go, quicker you climb
-            self.player.setZ(self.player.getZ() + climbfactor)
-
-        elif (self.keyMap["fall"] != 0):  # and self.speed > 0.00):
-            self.player.setZ(self.player.getZ() - climbfactor)
-
-        # Left and Right
-        if (self.keyMap["left"] != 0):  # and self.speed > 0.0):
-            self.player.setH(self.player.getH() + bankfactor)
-        elif (self.keyMap["right"] != 0):  # and self.speed > 0.0):
-            self.player.setH(self.player.getH() - bankfactor)
-
-        # throttle control
-        if (self.keyMap["accelerate"] != 0):
-            self.speed += self.speedIncrement
-            if (self.speed > self.maxSpeed):
-                self.speed = self.maxSpeed
-        elif (self.keyMap["decelerate"] != 0):
-            self.speed -= self.speedIncrement
-            if (self.speed < 0.0):
-                self.speed = 0.0
-        # handbrake
-        if (self.keyMap["handBrake"] != 0):
-            self.speed = 0
-
-        # reverse gear
-        if (self.keyMap["reverse"] != 0):
-            self.speed -= self.speedIncrement
-
-        # move forwards
-        self.player.setY(self.player, speedfactor)
-
-        # respect max camera distance else you
-        # cannot see the floor post loop the loop!
-        if (self.player.getZ() > self.maxDistance):
-            self.player.setZ(self.maxDistance)
-
-        elif (self.player.getZ() < 0):
-            self.player.setZ(0)
-
-        # and now the X/Y world boundaries:
-        if (self.player.getX() < 0):
-            self.player.setX(0)
-        elif (self.player.getX() > self.worldSize):
-            self.player.setX(self.worldSize)
-
-        if (self.player.getY() < 0):
-            self.player.setY(0)
-        elif (self.player.getY() > self.worldSize):
-            self.player.setY(self.worldSize)
-
-        # reset to initial position
-        if (self.keyMap["init"] != 0):
-            self.player.setPos(self.world, self.playerInitPos)
-            self.player.setH(self.playerInitH)
-
-        if (self.keyMap["newInit"] != 0):
-            self.playerInitPos = self.player.getPos(self.world)
-            self.playerInitH = self.player.getH(self.world)
-            print "new init pos is ", self.playerInitPos
-            print "new init H is ", self.playerInitH
-
-        # update gain
-        if (self.keyMap["gain-up"] != 0):
-            self.gain += self.gainIncrement
-            print "gain is", self.gain
-        elif (self.keyMap["gain-down"] != 0):
-            self.gain -= self.gainIncrement
-            print "gain is ", self.gain
-
-    def updateTask(self, task):
-
-        self.updatePlayer()
-        self.publisher()
-        self.updateCamera()
-        # self.trajectory()
-        # self.updateLabel()
-        self.bagControl()
-        return Task.cont
-
+    # input functions
+    # Key control
     def keyboardSetup(self):
         self.keyMap = {"left": 0, "right": 0, "climb": 0, "fall": 0,
                        "accelerate": 0, "decelerate": 0, "handBrake": 0, "reverse": 0,
-                       "closed": 0, "gain-up": 0, "gain-down": 0,
-                       "init": 0, "newInit": 0, "clf": 0, "saveFig": 0,
-                       "startBag": 0, "stopBag": 0}
+                       "closed": 0, "gain-up": 0, "gain-down": 0, "lrGain-up": 0,
+                       "lrGain-down": 0,
+                       "init": 0, "newInit": 0, "newTopSpeed": 0, "clf": 0, "saveFig": 0,
+                       "startBag": 0, "stopBag": 0,"quad1":0,"quad2":0,"quad3":0,"quad4":0}
 
-        self.accept("escape", sys.exit)
+        self.accept("escape", self.winClose)
         self.accept("a", self.setKey, ["climb", 1])
         self.accept("a-up", self.setKey, ["climb", 0])
         self.accept("z", self.setKey, ["fall", 1])
@@ -257,146 +139,73 @@ class MyApp(ShowBase):
         self.accept("e-up", self.setKey, ["startBag", 0])
         self.accept("d", self.setKey, ["stopBag", 1])
         self.accept("d-up", self.setKey, ["stopBag", 0])
+        self.accept("t", self.setKey, ["newTopSpeed", 1])
+        self.accept("t-up", self.setKey, ["newTopSpeed", 0])
+        self.accept("v", self.setKey, ["lrGain-down", 1])
+        self.accept("v-up", self.setKey, ["lrGain-down", 0])
+        self.accept("b", self.setKey, ["lrGain-up", 1])
+        self.accept("b-up", self.setKey, ["lrGain-up", 0])
+        self.accept("1", self.setKey, ["quad1", 1])
+        self.accept("1-up", self.setKey, ["quad1", 0])
+        self.accept("2", self.setKey, ["quad2", 1])
+        self.accept("2-up", self.setKey, ["quad2", 0])
+        self.accept("3", self.setKey, ["quad3", 1])
+        self.accept("3-up", self.setKey, ["quad3", 0])
+        self.accept("4", self.setKey, ["quad4", 1])
+        self.accept("4-up", self.setKey, ["quad4", 0])
+
 
         base.disableMouse()  # or updateCamera will fail!
 
+    def setKey(self, key, value):
+        self.keyMap[key] = value
+
+    def winClose(self):
+        # self.closeWindow(self.win)
+        self.plotter.kill()
+        sys.exit()
+
+
+    # output functions
     def initPlot(self):
-        self.ax = self.fig.add_subplot(111)
-        self.ax.set_xlim(0, self.worldSize)
-        self.ax.set_ylim(0, self.worldSize)
+        if parameters["loadTrajectory"]:
+            self.plotter=subprocess.Popen(["python", "realTimePlotter.py"])
+            print "\n \n \n realtime plotter started \n \n \n"
+            time.sleep(1)
 
-        plt.plot(self.treePos[0], self.treePos[1], 'gs')
-        plt.plot(self.redSpherePos[0], self.redSpherePos[1], 'ro')
-        plt.ion()
-        plt.show()
 
-    def trajectory(self):
-        if (self.frameNum % self.trajectoryUpdateInterval == 1):
-            self.playerCurrentPos = (self.player.getX(), self.player.getY())
-            self.verts = [(self.playerPrevPos), (self.playerCurrentPos)]
-            self.codes = [Path.MOVETO, Path.LINETO]
-            self.path = Path(self.verts, self.codes)
+    # models
+    def modelLoader(self):
+        if parameters["loadWorld"]:
+            self.worldLoader()
 
-            self.patch = patches.PathPatch(self.path, facecolor='white', lw=0.5)  # ,color=hex(self.frameNum))
-            self.ax.add_patch(self.patch)
-            self.fig.canvas.draw()
-            self.fig.canvas.flush_events()
-            self.playerPrevPos = self.playerCurrentPos
 
-        if (self.keyMap["clf"] != 0):
-            plt.clf()
-            self.initPlot()
+    def worldLoader(self):
+        # global plotter
+        self.worldFilename = "models/world_" + "size:" + parameters["modelSizeSuffix"] + "_obj:" \
+                             + parameters["loadingString"] + "_num:" + str(parameters["widthObjects"]) \
+                             + "x" + str(parameters["heightObjects"])+"_lattice:"\
+                             +str(parameters["lattice"]) + ".bam"
 
-        if (self.keyMap["saveFig"] != 0):
-            self.save("trajectory" + str(self.frameNum), ext="png", close=False, verbose=True)
-            self.save("trajectory" + str(self.frameNum), ext="svg", close=False, verbose=True)
-        self.frameNum += 1
+        print "model file exists:",os.path.isfile(self.worldFilename)
 
-        # # global pos, ori
-        # # pos.append(self.player.getPos(self.world))
-        # # ori.append(self.player.getHpr(self.world))
-        # # # print "pos is ",pos
-        # # print "ori is ",ori    def greenSphereLoad(self):
+        print "open worldgen?",(not os.path.isfile(self.worldFilename)) or parameters["generateWorld"]
+        print "\n \n \n"
 
-    def publisher(self):
-        data = self.message()
-        trajectory = rospy.Publisher('trajectory', MsgTrajectory, queue_size=600)
-        trajectory.publish(data)
+        if ((not os.path.isfile(self.worldFilename)) or parameters["generateWorld"]):
+            subprocess.Popen(["python", "hcpWorldGen.py"])
+            time.sleep(3)
 
-    def message(self):
 
-        mes = MsgTrajectory()
-        mes.header.stamp = rospy.Time.now()
-        mes.position = self.player.getPos()
-        mes.orientation = self.player.getHpr()
-        mes.wbad = self.wbad
-        mes.wbas = self.wbas
-        mes.speed = self.speed
-        mes.gain = self.gain
-        mes.closed = self.keyMap["closed"]
-        return mes
-
-    def bagger(self):
-        self.bagCommand = "rosbag record --lz4 --output-prefix=" + self.bagPrefix + " " + self.bagTopics
-        self.runBagCommand = subprocess.Popen(self.bagCommand, shell=True, stdout=subprocess.PIPE)
-        rospy.loginfo("Bag recording started")
-        time.sleep(0.15)  # prevent multiple key presss/bounce
-
-    def bagControl(self):
-        if (self.keyMap["startBag"] == 1):
-            self.bagger()
-        elif (self.keyMap["stopBag"] != 0):
-            # self.runBagCommand.send_signal(subprocess.signal.SIGINT) #send signal on stop command
-            self.terminate_ros_node("/record")
-            rospy.loginfo("Bag recording stopped")
-
-    def terminate_ros_node(self, s):
-        list_cmd = subprocess.Popen("rosnode list", shell=True, stdout=subprocess.PIPE)
-        list_output = list_cmd.stdout.read()
-        retcode = list_cmd.wait()
-        assert retcode == 0, "List command returned %d" % retcode
-        for str in list_output.split("\n"):
-            if (str.startswith(s)):
-                os.system("rosnode kill " + str)
-
-    def worldLoad(self):
-        self.world = self.loader.loadModel("models/world" + str(self.worldSize) + ".bam")  # loads the world_size
+        self.world = self.loader.loadModel(self.worldFilename)  # loads the world_size
         self.world.reparentTo(self.render)  # render the world
         # the Player
         self.player = NodePath("player")
-        self.player.setPos(self.world, self.playerInitPos)
-        self.player.setH(self.world, self.playerInitH)  # heading angle is 0
+        self.player.setPos(self.world, parameters["playerInitPos"])
+        self.player.setH(self.world, parameters["playerInitH"])  # heading angle is 0
 
-    def treeLoad(self):
-        self.tree = self.loader.loadModel(self.treePath)
-        self.tree.setPos(self.world, self.treePos)
-        self.tree.setScale(self.treeScale)
-        self.treeTex = self.loader.loadTexture(self.treeTexPath)
-        self.tree.setTexture(self.treeTex)
-        self.tree.reparentTo(self.render)
 
-    def greenSphereLoad(self):
-        self.greenSphere = self.loader.loadModel(self.spherePath)
-        self.greenSphere.setPos(self.world, self.greenSpherePos)
-        self.greenSphere.setScale(self.sphereScale)
-        self.greenTex = self.loader.loadTexture(self.greenTexPath)
-        self.greenSphere.setTexture(self.greenTex)
-        self.greenSphere.reparentTo(self.render)
-
-    def redSphereLoad(self):
-        self.redSphere = self.loader.loadModel(self.spherePath)
-        self.redSphere.setPos(self.world, self.redSpherePos)
-        self.redSphere.setScale(self.sphereScale)
-        self.redTex = self.loader.loadTexture(self.redTexPath)
-        self.redSphere.setTexture(self.redTex)
-        self.redSphere.reparentTo(self.render)
-
-    def updateCamera(self):
-        # see issue content for how we calculated these:
-        self.camera.setPos(self.player, 0, 0, 0)
-        self.camera.setHpr(self.player, 0, 0, 0)
-
-    def makeStatusLabel(self, i):
-        return OnscreenText(style=2, fg=(0, 0, 0, 0.5), bg=(0.4, 0.4, 0.4, 0.8),
-                            scale=0.05, pos=(-3.1, 0.92 - (.08 * i)), mayChange=1)
-
-    def makeLabels(self):
-        self.positionLabel = self.makeStatusLabel(0)
-        self.orientationLabel = self.makeStatusLabel(1)
-        self.speedLabel = self.makeStatusLabel(2)
-        self.gainLabel = self.makeStatusLabel(3)
-
-    def updateLabel(self):
-        self.positionLabel.setText(self.vec32String(self.player.getPos(), "x", "y", "z"))
-        self.orientationLabel.setText(self.vec32String(self.player.getHpr(), "H", "P", "R"))
-        self.speedLabel.setText("speed:" + str(self.speed))
-        self.gainLabel.setText("gain:" + str(self.gain))
-
-    def vec32String(self, vector, a, b, c):
-        """returns a rounded string of vec 3 interspersed with a,b,c as headings"""
-        return a + ":" + str(round(vector[0])) + " " + b + ":" + str(round(vector[1])) + " " + c + ":" + str(
-            round(vector[2]))
-
+    # sky load
     def createEnvironment(self):
         # Fog to hide a performance tweak:
         colour = (0.0, 0.0, 0.0)
@@ -409,8 +218,8 @@ class MyApp(ShowBase):
         # Our sky
         skysphere = loader.loadModel('models/sky.egg')
         skysphere.setEffect(CompassEffect.make(self.render))
-        skysphere.setScale(self.maxDistance / 2)  # bit less than "far"
-        skysphere.setZ(-5)
+        skysphere.setScale(parameters["maxDistance"] )  # bit less than "far"
+        skysphere.setZ(-3)
         # NOT render - you'll fly through the sky!:
         skysphere.reparentTo(self.camera)
 
@@ -424,68 +233,451 @@ class MyApp(ShowBase):
         render.setLight(render.attachNewNode(ambientLight))
         render.setLight(render.attachNewNode(directionalLight))
 
-    def setKey(self, key, value):
-        self.keyMap[key] = value
+    # labels
+    def makeStatusLabel(self, i):
+        return OnscreenText(style=2, fg=(0, 0, 0, 0.12), bg=(0.4, 0.4, 0.4, 0.18),
+                            scale=0.04, pos=(-3.1, 0.92 - (.04 * i)), mayChange=1)
 
-    def callback(self, data):
-        """ Returns Wing Beat Amplitude Difference from received data"""
-        self.wbad = data.left.angles[0] - data.right.angles[0]
-        self.wbas = data.left.angles[0] + data.right.angles[0]
-        return self.wbad
+    def makeLabels(self):
+        self.positionLabel = self.makeStatusLabel(0)
+        self.orientationLabel = self.makeStatusLabel(1)
+        self.speedLabel = self.makeStatusLabel(2)
+        self.gainLabel = self.makeStatusLabel(3)
+        self.closedLabel = self.makeStatusLabel(4)
+        self.bagRecordingLabel = self.makeStatusLabel(5)
 
+    def updateLabel(self):
+        self.positionLabel.setText(self.vec32String(self.player.getPos(), "x", "y", "z"))
+        self.orientationLabel.setText(self.vec32String(self.player.getHpr(), "H", "P", "R"))
+        self.speedLabel.setText("Speed: " + str(parameters["speed"]))
+        self.gainLabel.setText("Gain: " + str(parameters["gain"]))
+        self.closedLabel.setText("Closed Loop: " + str(bool(self.keyMap["closed"])))
+        self.bagRecordingLabel.setText("Recording Bag: " + str(bool(self.bagRecordingState)))
+
+    # content handlers
+    def vec32String(self, vector, a, b, c):
+        """returns a rounded string of vec 3 interspersed with a,b,c as headings"""
+        return a + ":" + str(round(vector[0])) + " " + b + ":" + str(round(vector[1])) + " " + c + ":" + str(
+            round(vector[2]))
+
+
+
+
+
+
+    # feedback
     def listener(self):
         """ Listens to Kinefly Flystate topic"""
         rospy.Subscriber("/kinefly/flystate", MsgFlystate, self.callback)
 
-        # print self.wbad
+    def callback(self, data):
+        """ Returns Wing Beat Amplitude Difference from received data"""
+        parameters["wbad"] = data.left.angles[0] - data.right.angles[0]
+        parameters["wbas"] = data.left.angles[0] + data.right.angles[0]
+        self.scaledWbad = parameters["lrGain"] * data.left.angles[0] - data.right.angles[0]
+        if parameters["disabledFly"]:
+            parameters["wbad"] = self.scaledWbad
+        return parameters["wbad"]
 
-    def save(self, path, ext='png', close=True, verbose=True):
-        """Save a figure from pyplot.
-        Parameters
-        ----------
-        path : string
-            The path (and filename, without the extension) to save the
-            figure to.
-        ext : string (default='png')
-            The file extension. This must be supported by the active
-            matplotlib backend (see matplotlib.backends module).  Most
-            backends support 'png', 'pdf', 'ps', 'eps', and 'svg'.
-        close : boolean (default=True)
-            Whether to close the figure after saving.  If you want to save
-            the figure multiple times (e.g., to multiple formats), you
-            should NOT close it in between saves or you will have to
-            re-plot it.
-        verbose : boolean (default=True)
-            Whether to print information about when and where the image
-            has been saved.
+    def publisher(self,data):
+        # data = self.message()
+        trajectory = rospy.Publisher('trajectory', MsgTrajectory, queue_size=600)
+        trajectory.publish(data)
+        # print parameters["wbad"]
+
+    def message(self):
+
+        mes = MsgTrajectory()
+        mes.header.stamp = rospy.Time.now()
+        mes.position = self.player.getPos()
+        mes.orientation = self.player.getHpr()
+        mes.wbad = parameters["wbad"]
+        mes.wbas = parameters["wbas"]
+        mes.speed = parameters["speed"]
+        mes.gain = parameters["gain"]
+        mes.closed = self.keyMap["closed"]
+        mes.reset=False
+        return mes
+
+
+
+
+
+    # frameupdate
+
+    def updateTask(self, task):
+
+        self.updatePlayer()
+        self.updateCamera()
+        self.bagControl()
+        # print data.position
+        #
+        # if parameters["loadTrajectory"]:
+        #     self.trajectory()
+        if parameters["loadHUD"]:
+            self.updateLabel()
+
+        if parameters["loadWind"]:
+            self.windTunnel(parameters["windDirection"])
+        self.publisher(self.message())
+
+        return Task.cont
+
+    def updatePlayer(self):
+        # global prevPos, currentPos, ax, fig, treePos, redPos
+        # Global Clock by default, panda runs as fast as it can frame to frame
+        scalefactor = parameters["speed"] * (globalClock.getDt())
+        climbfactor = 0.001  # (.001) * scalefactor
+        bankfactor = 2  # .5  * scalefactor
+        speedfactor = scalefactor
+
+        # closed loop
+        if (self.keyMap["closed"] != 0):
+            self.player.setH(self.player.getH() - parameters["wbad"] * parameters["gain"])
+
+        # Climb and Fall
+        if (self.keyMap["climb"] != 0):  # and parameters["speed"] > 0.00):
+            # faster you go, quicker you climb
+            self.player.setZ(self.player.getZ() + climbfactor)
+            print "z is ",self.player.getZ()
+
+        elif (self.keyMap["fall"] != 0):  # and parameters["speed"] > 0.00):
+            self.player.setZ(self.player.getZ() - climbfactor)
+            print "z is ",self.player.getZ()
+
+        # Left and Right
+        if (self.keyMap["left"] != 0):  # and parameters["speed"] > 0.0):
+            self.player.setH(self.player.getH() + bankfactor)
+        elif (self.keyMap["right"] != 0):  # and parameters["speed"] > 0.0):
+            self.player.setH(self.player.getH() - bankfactor)
+
+        # throttle control
+        if (self.keyMap["accelerate"] != 0):
+            parameters["speed"] += parameters["speedIncrement"]
+            if (parameters["speed"] > parameters["maxSpeed"]):
+                parameters["speed"] = parameters["maxSpeed"]
+        elif (self.keyMap["decelerate"] != 0):
+            parameters["speed"] -= parameters["speedIncrement"]
+            if (parameters["speed"] < 0.0):
+                parameters["speed"] = 0.0
+        # handbrake
+        if (self.keyMap["handBrake"] != 0):
+            parameters["speed"] = 0
+
+        # reverse gear
+        if (self.keyMap["reverse"] != 0):
+            parameters["speed"] -= parameters["speedIncrement"]
+
+        # move forwards
+        self.player.setY(self.player, speedfactor)
+
+        # respect max camera distance else you
+        # cannot see the floor post loop the loop!
+        if (self.player.getZ() > parameters["maxDistance"]):
+            self.player.setZ(parameters["maxDistance"])
+
+        elif (self.player.getZ() < 0):
+            self.player.setZ(0)
+
+        # and now the X/Y world boundaries:
+        if (self.player.getX() < 0):
+            if parameters["quad"]:
+                self.resetPosition("rand")
+            else:
+                self.player.setX(0)
+
+        elif (self.player.getX() > parameters["worldSize"]):
+            if parameters["quad"]:
+                self.resetPosition("rand")
+            else:
+                self.player.setX(parameters["worldSize"])
+
+        if (self.player.getY() < 0):
+            if parameters["quad"]:
+                self.resetPosition("rand")
+            else:
+                self.player.setY(0)
+
+        elif (self.player.getY() > parameters["worldSize"]):
+            if parameters["quad"]:
+                self.resetPosition("rand")
+            else:
+                self.player.setY(parameters["worldSize"])
+
+        # reset to initial position
+        if (self.keyMap["init"] != 0):
+            self.resetPosition("rand")
+            time.sleep(0.1)
+            # self.player.setPos(self.world, parameters["playerInitPos"])
+            # self.player.setH(parameters["playerInitH"])
+
+        # update new init position
+        if (self.keyMap["newInit"] != 0):
+            parameters["playerInitPos"] = self.player.getPos(self.world)
+            parameters["playerInitH"] = self.player.getH(self.world)
+            print "new init pos is ", parameters["playerInitPos"]
+            print "new init H is ", parameters["playerInitH"]
+
+        # update gain
+        if (self.keyMap["gain-up"] != 0):
+            parameters["gain"] += parameters["gainIncrement"]
+            print "gain is", parameters["gain"]
+        elif (self.keyMap["gain-down"] != 0):
+            parameters["gain"] -= parameters["gainIncrement"]
+            print "gain is ", parameters["gain"]
+
+        # update newTopSpeed
+        if (self.keyMap["newTopSpeed"] != 0):
+            parameters["maxSpeed"] = parameters["speed"]
+            print "new max speed is", parameters["maxSpeed"]
+
+        # update left by right gain for diabled flies
+        if (self.keyMap["lrGain-up"] != 0):
+            parameters["lrGain"] += parameters["gainIncrement"]
+            print "lrGain is ", parameters["lrGain"]
+
+        if (self.keyMap["lrGain-down"] != 0):
+            parameters["lrGain"] -= parameters["gainIncrement"]
+            print "lrGain is ", parameters["lrGain"]
+
+        if parameters["quad"]:
+            # print "x is",self.player.getX
+            # print " offsetis",parameters["offset"]
+            # x=self.player.getX()
+            # y=self.player.getY()
+            if (self.player.getX()>parameters["offset"] and self.player.getX()<(parameters["offset"]+1)):
+                self.resetPosition("rand")
+            if (self.player.getY()>parameters["offset"] and self.player.getY()<(parameters["offset"]+1)):
+                self.resetPosition("rand")
+
+        if self.decayTime>60:
+            parameters["speed"]=0
+            self.keyMap["closed"]=0
+            self.decayTime-=1
+        elif self.decayTime<=60 and self.decayTime>0:
+
+            self.keyMap["closed"]=self.closedMemory
+            self.decayTime-=1
+
+        elif self.decayTime==0:
+            parameters["speed"]=self.speedMemory
+            self.decayTime-=1
+
+        if self.reachedDestination():
+            self.resetPosition("rand")
+
+        for i in range(4):
+            if (self.keyMap["quad"+str(i+1)]!=0):
+                self.resetPosition(i+1)
+                time.sleep(0.15)
+
+        self.tooLongBoutReset()
+
+    def tooLongBoutReset(self):
+        if self.boutFrame>parameters["maxBoutDur"]:
+            self.resetPosition("rand")
+            print "bout longer than max duration", parameters["maxBoutDur"]
+        else: self.boutFrame+=1
+
+    def reachedDestination(self):
+        oddeven=np.append(self.odd,self.even,axis=0)
+        for i in (oddeven):
+
+            if self.isInsideTarget(i):
+                mes=MsgTrajectory()
+                mes.reset=True
+                self.publisher(mes)
+                return True
+                break
+
+    def quadPositionGenerator(self):
+        offset=(int(parameters["worldSize"])-1)/2
+
+        quad3PosL=parameters["posL"]
+        quad3PosR=parameters["posR"]
+
+        quad4PosL=(parameters["posL"][0]+offset,parameters["posL"][1])
+        quad4PosR=(parameters["posR"][0]+offset,parameters["posR"][1])
+
+        quad2PosL=(parameters["posL"][0],parameters["posL"][1]+offset)
+        quad2PosR=(parameters["posR"][0],parameters["posR"][1]+offset)
+
+        quad1PosL=(parameters["posL"][0]+offset,parameters["posL"][1]+offset)
+        quad1PosR=(parameters["posR"][0]+offset,parameters["posR"][1]+offset)
+
+        odd=np.array([quad1PosR,quad2PosL,quad3PosL,quad3PosR])
+        even=np.array([quad1PosL,quad2PosR,quad4PosL,quad4PosR])
+
+        # print offset
+        # print "even is ",odd
+        # print "even is ", even
+        return odd,even
+
+
+    def isInsideTarget(self,target):
+        tl,br=self.boundingBoxCoordinates(target,parameters["bboxDist"])
+        x,y,z=self.player.getPos()
+        if x>tl[0] and x<br[0] and y<tl[1] and y>br[1]:
+            return True
+        else:
+            return False
+
+
+
+    def boundingBoxCoordinates(self,target,distance):
         """
+        Args:
 
-        # Extract the directory and filename from the given path
-        directory = os.path.split(path)[0]
-        filename = "%s.%s" % (os.path.split(path)[1], ext)
-        if directory == '':
-            directory = '.'
+            obj:the position of object whose bound box has to be found
+            distance: the half width of the box | pseudo radius
 
-        # If the directory does not exist, create it
-        if not os.path.exists(directory):
-            os.makedirs(directory)
+        Returns:
+            tl: top left coordinate.
+            br: bottom right coordinate
+        """
+        tl=(target[0]-distance,target[1]+distance)
+        br=(target[0]+distance,target[1]-distance)
 
-        # The final path to save to
-        savepath = os.path.join(directory, filename)
+        return tl,br
 
-        if verbose:
-            print("Saving figure to '%s'..." % savepath),
+    def resetPosition(self,quad):
 
-        # Actually save the figure
-        plt.savefig(savepath)
+        if quad=="rand":
+            index=random.randrange(len(parameters["initPosList"]))
+            newPos=parameters["initPosList"][index]
+            print "random quadrant is ", index+1, "\n"
 
-        # Close it
-        if close:
-            plt.close()
+        else:
+            newPos=parameters["initPosList"][quad-1]
+            print "Your quadrant is", (quad),"\n"
+        self.player.setPos(newPos)
+        self.player.setH(parameters["playerInitH"])
 
-        if verbose:
-            print("Done")
 
+        self.decayTime=240
+        self.speedMemory=parameters["speed"]
+        self.closedMemory=self.keyMap["closed"]
+        print "newPos is", newPos,"\n"
+
+        print "quadrant duration was ",str((datetime.now()-self.lastResetTime).total_seconds())
+        print "\n \n \n"
+        self.lastResetTime=datetime.now()
+
+        self.boutFrame=0
+
+
+        return newPos
+
+    def updateCamera(self):
+        # see issue content for how we calculated these:
+        self.camera.setPos(self.player, 0, 0, 0)
+        self.camera.setHpr(self.player, parameters["camHpr"])
+
+    # recording functions
+    def bagControl(self):
+        if (self.keyMap["startBag"] == 1):
+            self.bagger()
+            self.bagRecordingState = True
+            self.pickler(parameters, self.bagFilename)
+        elif (self.keyMap["stopBag"] != 0):
+            # self.runBagCommand.send_signal(subprocess.signal.SIGINT) #send signal on stop command
+            self.terminate_ros_node("/record")
+            self.bagRecordingState = False
+            rospy.loginfo("\n \n \n Bag recording stopped \n \n \n ")
+            print "\n \n bagfilename is",self.bagFilename
+            self.addMetadata()
+            print "metadata added \n \n "
+
+    def bagger(self):
+        self.bagFilenameGen()
+        self.bagCommand = "rosbag record --lz4 --output-name=" + self.bagFilename + " " \
+                          + parameters["bagTopics"]
+        # print self.bagCommand
+        self.runBagCommand = subprocess.Popen(self.bagCommand, shell=True, stdout=subprocess.PIPE)
+        rospy.loginfo("Bag recording started")
+        time.sleep(0.15)
+
+    def bagFilenameGen(self):
+        self.timeNow = str(datetime.now().strftime('%Y-%m-%d__%H:%M:%S'))
+        if parameters["hcp"]:
+            mode="hcp_"
+        elif parameters["quad"]:
+            mode="quad_"
+        self.bagFilename = "bags/" + parameters["fly"] + "_" + mode+parameters["loadingString"]  \
+                           + "_gain" + str(parameters["gain"]) + "_speed_" + str(parameters["maxSpeed"]) \
+                           + "_trial_" + str(parameters["trialNo"]) + "_" + self.timeNow
+
+    def terminate_ros_node(self, s):
+        list_cmd = subprocess.Popen("rosnode list", shell=True, stdout=subprocess.PIPE)
+        list_output = list_cmd.stdout.read()
+        retcode = list_cmd.wait()
+        assert retcode == 0, "List command returned %d" % retcode
+        for str in list_output.split("\n"):
+            if (str.startswith(s)):
+                os.system("rosnode kill " + str)
+
+    def addMetadata(self):
+        print "allo " + self.bagFilename
+        a=self.bagFilename+".bag"
+        time.sleep(5)#so that bag file can be transfereed from memory
+
+        metadata=String(json.dumps(parameters))
+        print "metadata is:",metadata
+
+        with rosbag.Bag(a,'a') as bag:
+            i=0
+            for _,_,t in bag.read_messages():
+                if i==0:
+                    tstamp=t
+                i+=1
+                break
+            bag.write('/metadata',metadata,tstamp)
+
+
+        # datasave
+
+    def pickler(self, obj, path):
+        """
+        Pickle a Python object
+        """
+        with open(path, "wb") as pfile:
+            pickle.dump(obj, pfile)
+
+            # ----------------------------------------------------------------------
+
+    def depickler(self, path):
+        """
+        Extracts a pickled Python object and returns it
+        """
+        with open(path, "rb") as pfile:
+            data = pickle.load(pfile)
+        return data
+
+    # wind control
+    def windTunnel(self, windDirection):
+        self.servoAngle = (90-int(self.player.getH())+windDirection-180 ) % 360
+        print "servoangle is", self.servoAngle
+        servo.move(1, self.servoAngle)
+
+
+
+
+    # evals
+    def dict2Var(self, dict):
+        """converts a dict to a variable using exec for assignment
+            use it with caution"""
+        for key, val in dict.items():
+            exec (key + '=val')
+
+    def list2Exec(self, list):
+        """
+        Converts the list items to eval statement
+        """
+        for key in list:
+            exec (key)
+
+    # testing functions not stable
+    # screen capture
     def record(self, dur, fps):
         self.movie('frames/movie', dur, fps=fps, format='jpg', sd=5)
 
@@ -493,18 +685,10 @@ class MyApp(ShowBase):
         globalClock.setMode(ClockObject.MLimited)
         globalClock.setFrameRate(fps)
 
-    def windTunnel(self, windDirection):
-        self.servoAngle = (self.player.getH() % 360) - 180
-
-    def modelLoader(self, modelName, modelPath, modelPos, modelScale, texName, texPath, modelParent):
-        modelName = self.loader.loadModel(modelPath)
-        modelName.setPos(modelParent, modelPos)
-        modelName.setScale(modelScale)
-
-        texName = self.loader.loadTexture(texPath)
-        modelName.setTexture(texName)
-        modelName.reparentTo(self.render)
+        # to be implemented functions fully unstable
 
 
 app = MyApp()
 app.run()
+
+print 2 + 3
