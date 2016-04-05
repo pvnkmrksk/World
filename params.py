@@ -8,8 +8,8 @@ parameters = {
     "lockFps": True,  # False,
     "frameRecord": False,
     "loadWind": True,
-    "disabledFly":True,
-    "generateWorld":True,
+    "disabledFly":False,
+    "generateWorld":False,
     "loadWorld":True,
 
     "hcp":False,
@@ -19,6 +19,7 @@ parameters = {
     "bboxDist":5,
     "maxBoutDur":7200,#frames
     "fly":"fly2",
+    "windQuad":[-1,180,270,90],#-1 is open loop
 
     "gain": 7.0,
     "maxSpeed": 3.5,
@@ -33,7 +34,7 @@ parameters = {
 
     "killWorldGen":True,
 
-    "loadingString":"gr",
+    "loadingString":"00",
     "heightObjects":10,
     "widthObjects":10,
     "lattice":25,

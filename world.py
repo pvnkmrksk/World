@@ -61,7 +61,8 @@ class MyApp(ShowBase):
         if parameters["frameRecord"]:
             self.record(dur=parameters["recordDur"], fps=parameters["recordFps"])
 
-        parameters["offset"]=((int(parameters["worldSize"])-1)/2)+1
+        parameters["offset"]=((int(parameters["worldSize"])-1)/2)+1 #offset for position displacemtn and boundary being 2^n+1,
+
         print "offset is ", parameters["offset"]
 
         parameters["initPosList"]=[(parameters["playerInitPos"][0]+parameters["offset"],parameters["playerInitPos"][1]+parameters["offset"],parameters["playerInitPos"][2]),
@@ -69,7 +70,7 @@ class MyApp(ShowBase):
                                    (parameters["playerInitPos"]),
                                    (parameters["playerInitPos"][0]+parameters["offset"],parameters["playerInitPos"][1],parameters["playerInitPos"][2])]
         print "init pos list", parameters["initPosList"]
-        self.odd,self.even = self.quadPositionGenerator()
+        self.odd,self.even,quad = self.quadPositionGenerator(posL=parameters["posL"],posR=parameters["posR"])
 
 
         self.bagRecordingState = False
@@ -90,8 +91,40 @@ class MyApp(ShowBase):
     def initFeedback(self):
         rospy.init_node('world')
         self.listener()
+        self.windFieldGen()
 
 
+        # field=plt.figure()
+        # scale=1
+        # Q=plt.quiver(scale*np.cos(np.radians((parameters["windField"]))),
+        #              scale*np.sin(np.radians(parameters["windField"])))
+        # qk = plt.quiverkey(Q, 0.5, 0.92, 2, r'$2 \frac{m}{s}$', labelpos='W',
+        #                    fontproperties={'weight': 'bold'})
+        # l, r, b, t = plt.axis()
+        # dx, dy = r - l, t - b
+        # plt.axis([l - 0.05*dx, r + 0.05*dx, b - 0.05*dy, t + 0.05*dy])
+        #
+        # plt.title('Minimal arguments, no kwargs')
+        # plt.show()
+
+# import matplotlib.pyplot as plt
+# import numpy as np
+# from numpy import ma
+#
+# X, Y = np.meshgrid(np.arange(0, 2 * np.pi, .2), np.arange(0, 2 * np.pi, .2))
+# U = np.cos(X)
+# V = np.sin(Y)
+#
+# # 1
+# plt.figure()
+# Q = plt.quiver(U, V)
+# qk = plt.quiverkey(Q, 0.5, 0.92, 2, r'$2 \frac{m}{s}$', labelpos='W',
+#                    fontproperties={'weight': 'bold'})
+# l, r, b, t = plt.axis()
+# dx, dy = r - l, t - b
+# plt.axis([l - 0.05*dx, r + 0.05*dx, b - 0.05*dy, t + 0.05*dy])
+#
+# plt.title('Minimal arguments, no kwargs')
 
 
     # input functions
@@ -317,8 +350,13 @@ class MyApp(ShowBase):
         if parameters["loadHUD"]:
             self.updateLabel()
 
+
         if parameters["loadWind"]:
-            self.windTunnel(parameters["windDirection"])
+            x,y,z=self.player.getPos()
+            windDir=parameters["windField"][x,y]
+            self.windTunnel(windDir)
+
+            # self.windTunnel(parameters["windDirection"])
         self.publisher(self.message())
 
         return Task.cont
@@ -490,28 +528,29 @@ class MyApp(ShowBase):
                 return True
                 break
 
-    def quadPositionGenerator(self):
+    def quadPositionGenerator(self,posL,posR):
+
         offset=(int(parameters["worldSize"])-1)/2
 
-        quad3PosL=parameters["posL"]
-        quad3PosR=parameters["posR"]
+        quad3PosL=posL
+        quad3PosR=posR
 
-        quad4PosL=(parameters["posL"][0]+offset,parameters["posL"][1])
-        quad4PosR=(parameters["posR"][0]+offset,parameters["posR"][1])
+        quad4PosL=(posL[0]+offset,posL[1])
+        quad4PosR=(posR[0]+offset,posR[1])
 
-        quad2PosL=(parameters["posL"][0],parameters["posL"][1]+offset)
-        quad2PosR=(parameters["posR"][0],parameters["posR"][1]+offset)
+        quad2PosL=(posL[0],posL[1]+offset)
+        quad2PosR=(posR[0],posR[1]+offset)
 
-        quad1PosL=(parameters["posL"][0]+offset,parameters["posL"][1]+offset)
-        quad1PosR=(parameters["posR"][0]+offset,parameters["posR"][1]+offset)
+        quad1PosL=(posL[0]+offset,posL[1]+offset)
+        quad1PosR=(posR[0]+offset,posR[1]+offset)
 
         odd=np.array([quad1PosR,quad2PosL,quad3PosL,quad3PosR])
         even=np.array([quad1PosL,quad2PosR,quad4PosL,quad4PosR])
-
+        quad=np.array([[quad1PosL,quad1PosR],[quad2PosL,quad2PosR],[quad3PosL,quad3PosR],[quad4PosL,quad4PosR]])
         # print offset
         # print "even is ",odd
         # print "even is ", even
-        return odd,even
+        return odd,even,quad
 
 
     def isInsideTarget(self,target):
@@ -655,10 +694,25 @@ class MyApp(ShowBase):
 
     # wind control
     def windTunnel(self, windDirection):
-        self.servoAngle = (90-int(self.player.getH())+windDirection-180 ) % 360
+        if windDirection!=-1:#-1 is open loop in wind direction
+            self.servoAngle = int((90-(self.player.getH())+windDirection-180 ) % 360)
+        else:
+            self.servoAngle=90
+            print "wind in open loop"
+
         print "servoangle is", self.servoAngle
         servo.move(1, self.servoAngle)
 
+    def windFieldGen(self):
+        self.windField=np.zeros([parameters["worldSize"],parameters["worldSize"]])
+
+        offset=(parameters["worldSize"]-1)/2
+        world=parameters["worldSize"]
+        self.windField[0:offset,0:offset]=parameters["windQuad"][2]
+        self.windField[offset+1:world,0:offset]=parameters["windQuad"][3]
+        self.windField[0:offset,offset+1:world]=parameters["windQuad"][1]
+        self.windField[offset+1:world,offset+1:world]=parameters["windQuad"][0]
+        parameters["windField"]=self.windField
 
 
 
