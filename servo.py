@@ -33,12 +33,23 @@ def move(servo, angle):
     (e.g.) >>> servo.move(2, 90)
            ... # "move servo #2 to 90 degrees"'''
 
+    ser.write(chr(255))
+    ser.write(chr(servo))
+
     if (0 <= angle <= 180):
-        ser.write(chr(255))
-        ser.write(chr(servo))
+        # ser.write(chr(255))
+        # ser.write(chr(servo))
         ser.write(chr(angle))
-    else:
-        print "Servo angle must be an integer between 0 and 180.\n"
+
+    elif (180<angle<=240):
+        ser.write(chr(180))
+
+    elif (300<angle<=360):
+        ser.write(chr(0))
+    #60 degrees of buffer space to handle noise in turning. Will only bounce to other side if 30 degrees away from
+        #end point like. Will bounce to 0 if it is 300 to 360. Will bounce to 180 only if between 180 and 240
+    # else:
+    #     print "Servo angle must be an integer between 0 and 180.\n"
 
 i=0
 j=0

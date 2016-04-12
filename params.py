@@ -9,7 +9,7 @@ parameters = {
     "frameRecord": False,
     "loadWind": True,
     "disabledFly":False,
-    "generateWorld":False,
+    "generateWorld":True,
     "loadWorld":True,
 
     "hcp":False,
@@ -18,12 +18,12 @@ parameters = {
     "posR":(96,64),
     "bboxDist":5,
     "maxBoutDur":7200,#frames
-    "fly":"fly2",
+    "fly":"fly3",
     "windQuad":[-1,180,270,90],#-1 is open loop
 
     "gain": 7.0,
     "maxSpeed": 3.5,
-    "trialNo":3,
+    "trialNo":1,
 
 
     "modelSizeSuffix": "257",
@@ -45,7 +45,7 @@ parameters = {
     "fps": 60,
     "trajectoryUpdateInterval": 60,  # frames between update,
 
-    "sphereScale": 0.9,
+    "sphereScale": 1.9,
     "treeScale": 0.04,
 
     "maxDistance": 65,
@@ -56,7 +56,7 @@ parameters = {
     "playerInitH": 0,
     "windDirection":190,
 
-    "sphereZ": 2.9,
+    "sphereZ": 4.9,
     "treeZ": 0,
 
     "speed": 0.0,
@@ -75,7 +75,8 @@ parameters = {
     "windowHeight":768,
 
     "spherePath": "models/sphere.egg",
-    "greenTexPath": "models/greenRed.tga",
+    "greenTexPath": "models/green.tga",
+    # "greenTexPath": "models/greenRed.tga",
     "redTexPath": "models/red.tga",
     "treePath": "models/treeHighB.egg",
     "treeTexPath": "models/BarkBrown.tga",

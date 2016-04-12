@@ -1,7 +1,7 @@
 # system imports
 
 from datetime import datetime
-import sys, time, subprocess, os,serial ,json # ROS imports
+import sys, time, subprocess, os,serial ,json_tricks    # ROS imports
 import rospy, rostopic, roslib,std_msgs.msg, rosbag
 from beginner.msg import MsgFlystate, MsgTrajectory
 from std_msgs.msg import String
@@ -20,6 +20,9 @@ import matplotlib.patches as patches
 import cPickle as pickle
 import random
 import numpy as np
+
+print os.path.basename(__file__)
+
 
 from params import parameters
 
@@ -72,7 +75,7 @@ class MyApp(ShowBase):
         print "init pos list", parameters["initPosList"]
         self.odd,self.even,quad = self.quadPositionGenerator(posL=parameters["posL"],posR=parameters["posR"])
 
-
+        self.servoAngle=None
         self.bagRecordingState = False
         self.decayTime=-1
         self.boutFrame=0
@@ -276,14 +279,18 @@ class MyApp(ShowBase):
         self.orientationLabel = self.makeStatusLabel(1)
         self.speedLabel = self.makeStatusLabel(2)
         self.gainLabel = self.makeStatusLabel(3)
-        self.closedLabel = self.makeStatusLabel(4)
-        self.bagRecordingLabel = self.makeStatusLabel(5)
+        self.servoLabel=self.makeStatusLabel(4)
+        self.closedLabel = self.makeStatusLabel(5)
+        self.bagRecordingLabel = self.makeStatusLabel(6)
+
 
     def updateLabel(self):
         self.positionLabel.setText(self.vec32String(self.player.getPos(), "x", "y", "z"))
         self.orientationLabel.setText(self.vec32String(self.player.getHpr(), "H", "P", "R"))
         self.speedLabel.setText("Speed: " + str(parameters["speed"]))
         self.gainLabel.setText("Gain: " + str(parameters["gain"]))
+
+        self.servoLabel.setText("Servo Angle: "+str(self.servoAngle))
         self.closedLabel.setText("Closed Loop: " + str(bool(self.keyMap["closed"])))
         self.bagRecordingLabel.setText("Recording Bag: " + str(bool(self.bagRecordingState)))
 
@@ -660,7 +667,7 @@ class MyApp(ShowBase):
         a=self.bagFilename+".bag"
         time.sleep(5)#so that bag file can be transfereed from memory
 
-        metadata=String(json.dumps(parameters))
+        metadata=String(json_tricks.dumps(parameters))
         print "metadata is:",metadata
 
         with rosbag.Bag(a,'a') as bag:
@@ -700,7 +707,7 @@ class MyApp(ShowBase):
             self.servoAngle=90
             print "wind in open loop"
 
-        print "servoangle is", self.servoAngle
+        # print "servoangle is", self.servoAngle
         servo.move(1, self.servoAngle)
 
     def windFieldGen(self):
