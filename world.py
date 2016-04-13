@@ -648,7 +648,11 @@ class MyApp(ShowBase):
         if parameters["hcp"]:
             mode="hcp_"
         elif parameters["quad"]:
-            mode="quad_"
+            if parameters["loadWind"]:
+                mode="wind_quad_"
+            else:
+                mode="quad_"
+
         self.bagFilename = "bags/" + parameters["fly"] + "_" + mode+parameters["loadingString"]  \
                            + "_gain" + str(parameters["gain"]) + "_speed_" + str(parameters["maxSpeed"]) \
                            + "_trial_" + str(parameters["trialNo"]) + "_" + self.timeNow

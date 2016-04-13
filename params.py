@@ -17,9 +17,9 @@ parameters = {
     "posL":(32,64),
     "posR":(96,64),
     "bboxDist":5,
-    "maxBoutDur":7200,#frames
-    "fly":"fly3",
-    "windQuad":[-1,180,270,90],#-1 is open loop
+    "maxBoutDur":3600,#frames
+    "fly":"fly4",
+    "windQuad":[-1,180,225,135],#-1 is open loop
 
     "gain": 7.0,
     "maxSpeed": 3.5,
@@ -28,7 +28,9 @@ parameters = {
 
     "modelSizeSuffix": "257",
     "modelHeightMap": "models/height" + "257" + "0.png",
+    # "modelTextureMap": "models/texture_green_" + "257" + ".png",
     "modelTextureMap": "models/texture" + "257" + "_quadrant_t2.png",
+
     # "modelHeightMap": "models/height" + "257" + "0.png",
     # "modelTextureMap": "models/texture" + "257" + "s.png",
 
