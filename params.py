@@ -7,7 +7,7 @@ parameters = {
     "loadTrajectory": True,
     "lockFps": True,  # False,
     "frameRecord": False,
-    "loadWind": True,
+    "loadWind": False,
     "disabledFly":False,
     "generateWorld":True,
     "loadWorld":True,
@@ -36,7 +36,7 @@ parameters = {
 
     "killWorldGen":True,
 
-    "loadingString":"00",
+    "loadingString":"rg",
     "heightObjects":10,
     "widthObjects":10,
     "lattice":25,

@@ -485,6 +485,8 @@ class MyApp(ShowBase):
             parameters["lrGain"] -= parameters["gainIncrement"]
             print "lrGain is ", parameters["lrGain"]
 
+
+        #respect quad boundary
         if parameters["quad"]:
             # print "x is",self.player.getX
             # print " offsetis",parameters["offset"]
@@ -499,7 +501,7 @@ class MyApp(ShowBase):
             parameters["speed"]=0
             self.keyMap["closed"]=0
             self.decayTime-=1
-        elif self.decayTime<=60 and self.decayTime>0:
+        elif 0<self.decayTime<=60 :
 
             self.keyMap["closed"]=self.closedMemory
             self.decayTime-=1
@@ -511,6 +513,7 @@ class MyApp(ShowBase):
         if self.reachedDestination():
             self.resetPosition("rand")
 
+        #reset position by user input
         for i in range(4):
             if (self.keyMap["quad"+str(i+1)]!=0):
                 self.resetPosition(i+1)
@@ -624,15 +627,19 @@ class MyApp(ShowBase):
         if (self.keyMap["startBag"] == 1):
             self.bagger()
             self.bagRecordingState = True
-            self.pickler(parameters, self.bagFilename)
+            file=open(__file__,'r')
+            obj=[file.read(),parameters]
+            self.pickler(obj, self.bagFilename)
+
         elif (self.keyMap["stopBag"] != 0):
             # self.runBagCommand.send_signal(subprocess.signal.SIGINT) #send signal on stop command
             self.terminate_ros_node("/record")
             self.bagRecordingState = False
             rospy.loginfo("\n \n \n Bag recording stopped \n \n \n ")
-            print "\n \n bagfilename is",self.bagFilename
             self.addMetadata()
             print "metadata added \n \n "
+            print "\n \n bagfilename is",self.bagFilename
+
 
     def bagger(self):
         self.bagFilenameGen()
