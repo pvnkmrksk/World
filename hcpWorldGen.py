@@ -122,6 +122,11 @@ class WorldGen(ShowBase):  # our 'class'
         quad1PosL=(parameters["posL"][0]+offset,parameters["posL"][1]+offset)
         quad1PosR=(parameters["posR"][0]+offset,parameters["posR"][1]+offset)
 
+        #identical visual stim
+
+        # odd=np.array([quad1PosR,quad2PosR,quad3PosR,quad4PosR])
+        # even=np.array([quad1PosL,quad2PosL,quad3PosL,quad4PosL])
+
         odd=np.array([quad1PosR,quad2PosL,quad3PosL,quad3PosR])
         even=np.array([quad1PosL,quad2PosR,quad4PosL,quad4PosR])
 
@@ -234,8 +239,8 @@ class WorldGen(ShowBase):  # our 'class'
     def plotPositions(self):
         self.tree=self.greenSphere=self.redSphere=self.treeTex=self.greenTex=self.redTex=None
         self.loadingStringParser(parameters["loadingString"])
-        plt.scatter(self.odd[:,0],self.odd[:,1],color=self.oddPlotColor,marker=self.oddPlotMarker)
-        plt.scatter(self.even[:,0],self.even[:,1],color=self.evenPlotColor,marker=self.evenPlotMarker)#,marker='|',color='g')
+        plt.scatter(self.odd[:,0],self.odd[:,1],color=self.oddPlotColor,marker=self.oddPlotMarker,s=80)
+        plt.scatter(self.even[:,0],self.even[:,1],color=self.evenPlotColor,marker=self.evenPlotMarker,s=80)#,marker='|',color='g')
 
 
 
