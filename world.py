@@ -532,9 +532,9 @@ class MyApp(ShowBase):
         for i in (oddeven):
 
             if self.isInsideTarget(i):
-                mes=MsgTrajectory()
-                mes.reset=True
-                self.publisher(mes)
+                # mes=MsgTrajectory()
+                # mes.reset=True
+                # self.publisher(mes)
                 return True
                 break
 
@@ -614,7 +614,9 @@ class MyApp(ShowBase):
 
         self.boutFrame=0
 
-
+        mes=MsgTrajectory()
+        mes.reset=True
+        self.publisher(mes)
         return newPos
 
     def updateCamera(self):
