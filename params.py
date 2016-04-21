@@ -8,23 +8,23 @@ parameters = {
     "lockFps": True,  # False,
     "frameRecord": False,
     "loadWind": False,
-    "disabledFly":False,
-    "generateWorld":True,
-    "loadWorld":True,
+    "disabledFly": False,
+    "generateWorld": True,
+    "loadWorld": True,
 
-    "hcp":False,
-    "quad":True,
-    "posL":(32,64),
-    "posR":(96,64),
-    "bboxDist":5.5,
-    "maxBoutDur":3600,#frames
-    "fly":"fly4",
-    "windQuad":[-1,180,225,135],#-1 is open loop
+    "hcp": False,
+    "quad": True,
+    "posL": (32, 64),
+    "posR": (96, 64),
+    "bboxDist": 5.5,
+    "maxBoutDur": 3600,  # frames
 
+    "fly": "fly4",
+    "windQuad": [-1, 180, 225, 135],  # -1 is open loop
+    "loadingString": "g0",
     "gain": 7.0,
     "maxSpeed": 3.5,
-    "trialNo":2,
-
+    "trialNo": 2,
 
     "modelSizeSuffix": "257",
     "modelHeightMap": "models/height" + "257" + "0.png",
@@ -34,15 +34,14 @@ parameters = {
     # "modelHeightMap": "models/height" + "257" + "0.png",
     # "modelTextureMap": "models/texture" + "257" + "s.png",
 
-    "killWorldGen":True,
+    "killWorldGen": True,
 
-    "loadingString":"g0",
-    "heightObjects":10,
-    "widthObjects":10,
-    "lattice":25,
-    "origin":(0,0,0),
+    "heightObjects": 10,
+    "widthObjects": 10,
+    "lattice": 25,
+    "origin": (0, 0, 0),
 
-    "lrGain":1.0,
+    "lrGain": 1.0,
 
     "fps": 60,
     "trajectoryUpdateInterval": 60,  # frames between update,
@@ -56,7 +55,7 @@ parameters = {
     "worldSize": 257,  # relevant for world boundaries
     "playerInitPos": (64, 32, 1),
     "playerInitH": 0,
-    "windDirection":190,
+    "windDirection": 190,
 
     "sphereZ": 4.9,
     "treeZ": 0,
@@ -68,13 +67,12 @@ parameters = {
     "wbad": 0,
     "wbas": 0,
 
-
-    "camHpr":(0,-2,0),
+    "camHpr": (0, -2, 0),
     "frameNum": 0,
     "recordDur": 10,
     "recordFps": 30,
-    "windowWidth":2720,
-    "windowHeight":768,
+    "windowWidth": 2720,
+    "windowHeight": 768,
 
     "spherePath": "models/sphere.egg",
     # "greenTexPath": "models/green.tga",
