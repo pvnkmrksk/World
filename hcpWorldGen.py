@@ -4,10 +4,33 @@ from direct.showbase.ShowBase import ShowBase  # import the bits of panda
 from panda3d.core import GeoMipTerrain  # that we need
 import numpy as np
 import matplotlib.pyplot as plt
-
+import json_tricks as json
 from params import parameters
 
+if parameters["replayWorld"]:
+    import easygui
+    import pandas as pd
 
+    # replayPath = easygui.fileopenbox(multiple=False, filetypes=["*.pickle"])
+    replayPath="/home/behaviour/catkin/src/beginner/scripts/panda/world/bags/fly4/fly4_quad_rg_gain7.0_speed_3.5_" \
+               "trial_1_2016-04-13__23:31:35.bag_df.pickle"
+
+    print replayPath
+    df = pd.read_pickle(replayPath)
+
+    #change current parameters to parameters saved in dataframe
+    parameters = None
+
+    try:
+        parameters = json.loads(df.metadata__data.values[1])
+
+    except:
+        parameters = json.loads(df.metadata__data.values[0])
+        print "using exceprion"
+
+    parameters["replayWorld"]=True
+
+    print "allooo \n \n \n \n "
 
 class WorldGen(ShowBase):  # our 'class'
     def __init__(self):
@@ -215,7 +238,7 @@ class WorldGen(ShowBase):  # our 'class'
             j += 1
 
     def oddInstance(self, dummy, scale, tex,z):
-        dummy.setPos(parameters["origin"])
+        dummy.setPos(tuple(parameters["origin"]))
         dummy.setScale(scale)
         dummy.setTexture(tex)
 
@@ -225,7 +248,7 @@ class WorldGen(ShowBase):  # our 'class'
             dummy.instanceTo(self.oddPlaceholder)
 
     def evenInstance(self, dummy, scale, tex,z):
-        dummy.setPos(parameters["origin"])
+        dummy.setPos(tuple(parameters["origin"]))
         dummy.setScale(scale)
         dummy.setTexture(tex)
 

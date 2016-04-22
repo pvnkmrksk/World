@@ -3,14 +3,21 @@ from panda3d.core import Vec3
 parameters = {
     # bools
 
-    "loadHUD": True,
-    "loadTrajectory": True,
+    "loadHUD": False,
+    "loadTrajectory": False,
     "lockFps": True,  # False,
     "frameRecord": False,
     "loadWind": False,
     "disabledFly": False,
     "generateWorld": True,
     "loadWorld": True,
+
+    "replayWorld": True,
+    "captureScale": 1,  # scale the window to improve speed
+    "captureStart": 0,  # start point of playback
+    "playbackIncrement": 1,  # step size of playback
+    "recordDur": 10,  # in seconds
+    "recordFps": 30,
 
     "hcp": False,
     "quad": True,
@@ -69,8 +76,7 @@ parameters = {
 
     "camHpr": (0, -2, 0),
     "frameNum": 0,
-    "recordDur": 10,
-    "recordFps": 30,
+
     "windowWidth": 2720,
     "windowHeight": 768,
 

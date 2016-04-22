@@ -1,7 +1,8 @@
 # system imports
 
 from datetime import datetime
-import sys, time, subprocess, os, serial, json_tricks  # ROS imports
+import sys, time, subprocess, os, serial   # ROS imports
+import json_tricks as json
 import rospy, rostopic, roslib, std_msgs.msg, rosbag
 from beginner.msg import MsgFlystate, MsgTrajectory
 from std_msgs.msg import String
@@ -23,7 +24,49 @@ import numpy as np
 
 print os.path.basename(__file__)
 
+
 from params import parameters
+
+#save params from current instance as backup toload back into the playback file
+parameters["replayWorld"] = replay
+parameters["captureScale"]=scale
+parameters["captureStart"]=start
+parameters["playbackIncrement"]=increment
+
+if parameters["replayWorld"]:
+    import easygui
+    import pandas as pd
+
+    # replayPath = easygui.fileopenbox(multiple=False, filetypes=["*.pickle"])
+    replayPath="/home/behaviour/catkin/src/beginner/scripts/panda/world/bags/fly4/fly4_quad_rg_gain7.0_speed_3.5_" \
+               "trial_1_2016-04-13__23:31:35.bag_df.pickle"
+
+    print replayPath
+    df = pd.read_pickle(replayPath)
+
+    # slice pos and orientation and remove nans
+    traj = df.loc[:, "trajectory__orientation_x":"trajectory__position_z"].dropna()
+    cols = traj.columns.tolist()  # list of colums
+    cols = cols[-3:] + cols[:-3]  # reorder colums. hprpos to poshpr by python splicing
+    traj = traj[cols]  # reassign with this order
+
+    #change current parameters to parameters saved in dataframe
+    parameters = None
+
+    try:
+        parameters = json.loads(df.metadata__data.values[1])
+
+    except:
+        parameters = json.loads(df.metadata__data.values[0])
+        print "using exceprion"
+
+    #dump back params from vars
+    parameters["replayWorld"]=replay
+    parameters["captureScale"] = scale
+    parameters["captureStart"] = start
+    parameters["playbackIncrement"] = increment
+
+
 
 if parameters["loadWind"]:
     try:
@@ -44,6 +87,8 @@ except rostopic.ROSTopicIOException as e:
 
 class MyApp(ShowBase):
     def __init__(self):
+        loadPrcFileData("", "win-size " + str(parameters["windowWidth"]/parameters["captureScale"]) + " " +
+                        str(parameters["windowHeight"]/parameters["captureScale"]))  # set window size
         ShowBase.__init__(self)  # start the app
         self.initParams()  # run this 1st. Loads all content and params.
         self.initInput()
@@ -58,6 +103,7 @@ class MyApp(ShowBase):
 
         if parameters["lockFps"]:
             pass  # parameter["fps"]=Limit(parameter["fps"])
+
         if parameters["frameRecord"]:
             self.record(dur=parameters["recordDur"], fps=parameters["recordFps"])
 
@@ -83,17 +129,22 @@ class MyApp(ShowBase):
         self.decayTime = -1
         self.boutFrame = 0
         self.lastResetTime = datetime.now()
+        self.frame=parameters["captureStart"]
+        self.playbackIncrement=parameters["playbackIncrement"]
 
     def initInput(self):
         self.keyboardSetup()
 
     def initOutput(self):
+
         self.initPlot()  # load the plot 1st so that the active window is panda
-        loadPrcFileData("", "win-size " + str(parameters["windowWidth"]) + " " + str(
-            parameters["windowHeight"]))  # set window size
+
+        # loadPrcFileData("", "win-size " + str(parameters["windowWidth"]) + " " + str(
+        #     parameters["windowHeight"]))  # set window size
         self.modelLoader()
         self.createEnvironment()
         self.makeLabels()
+
 
     def initFeedback(self):
         rospy.init_node('world')
@@ -211,8 +262,8 @@ class MyApp(ShowBase):
         self.world.reparentTo(self.render)  # render the world
         # the Player
         self.player = NodePath("player")
-        self.player.setPos(self.world, parameters["playerInitPos"])
-        self.player.setH(self.world, parameters["playerInitH"])  # heading angle is 0
+        self.player.setPos(self.world, tuple(parameters["playerInitPos"]))
+        self.player.setH(self.world, (parameters["playerInitH"]))  # heading angle is 0
 
 
 
@@ -322,10 +373,6 @@ class MyApp(ShowBase):
         return mes
 
 
-
-
-
-
     # frameupdate
     def updateTask(self, task):
 
@@ -350,156 +397,170 @@ class MyApp(ShowBase):
         return Task.cont
 
     def updatePlayer(self):
-        # global prevPos, currentPos, ax, fig, treePos, redPos
-        # Global Clock by default, panda runs as fast as it can frame to frame
-        scalefactor = parameters["speed"] * (globalClock.getDt())
-        climbfactor = 0.001  # (.001) * scalefactor
-        bankfactor = 2  # .5  * scalefactor
-        speedfactor = scalefactor
+        if parameters["replayWorld"]:
 
-        # closed loop
-        if (self.keyMap["closed"] != 0):
-            self.player.setH(self.player.getH() - parameters["wbad"] * parameters["gain"])
+            try:
+                poshpr=traj.ix[self.frame,:].values
+                print self.frame
+            except IndexError:
+                print "Finished playback"
+                self.winClose()
+            # print poshpr
+            self.player.setPosHpr(tuple(poshpr[0:3]),tuple(poshpr[3:]))
+            # self.player.setPosHpr(traj.ix[self.frame,:].values)
 
-        # Climb and Fall
-        if (self.keyMap["climb"] != 0):  # and parameters["speed"] > 0.00):
-            # faster you go, quicker you climb
-            self.player.setZ(self.player.getZ() + climbfactor)
-            print "z is ", self.player.getZ()
+            self.frame+=self.playbackIncrement
+        else:
 
-        elif (self.keyMap["fall"] != 0):  # and parameters["speed"] > 0.00):
-            self.player.setZ(self.player.getZ() - climbfactor)
-            print "z is ", self.player.getZ()
 
-        # Left and Right
-        if (self.keyMap["left"] != 0):  # and parameters["speed"] > 0.0):
-            self.player.setH(self.player.getH() + bankfactor)
-        elif (self.keyMap["right"] != 0):  # and parameters["speed"] > 0.0):
-            self.player.setH(self.player.getH() - bankfactor)
+            # global prevPos, currentPos, ax, fig, treePos, redPos Global Clock by default, panda runs as fast as it can frame to frame
+            scalefactor = parameters["speed"] * (globalClock.getDt())
+            climbfactor = 0.001  # (.001) * scalefactor
+            bankfactor = 2  # .5  * scalefactor
+            speedfactor = scalefactor
 
-        # throttle control
-        if (self.keyMap["accelerate"] != 0):
-            parameters["speed"] += parameters["speedIncrement"]
-            if (parameters["speed"] > parameters["maxSpeed"]):
-                parameters["speed"] = parameters["maxSpeed"]
-        elif (self.keyMap["decelerate"] != 0):
-            parameters["speed"] -= parameters["speedIncrement"]
-            if (parameters["speed"] < 0.0):
-                parameters["speed"] = 0.0
-        # handbrake
-        if (self.keyMap["handBrake"] != 0):
-            parameters["speed"] = 0
+            # closed loop
+            if (self.keyMap["closed"] != 0):
+                self.player.setH(self.player.getH() - parameters["wbad"] * parameters["gain"])
 
-        # reverse gear
-        if (self.keyMap["reverse"] != 0):
-            parameters["speed"] -= parameters["speedIncrement"]
+            # Climb and Fall
+            if (self.keyMap["climb"] != 0):  # and parameters["speed"] > 0.00):
+                # faster you go, quicker you climb
+                self.player.setZ(self.player.getZ() + climbfactor)
+                print "z is ", self.player.getZ()
 
-        # move forwards
-        self.player.setY(self.player, speedfactor)
+            elif (self.keyMap["fall"] != 0):  # and parameters["speed"] > 0.00):
+                self.player.setZ(self.player.getZ() - climbfactor)
+                print "z is ", self.player.getZ()
 
-        # respect max camera distance else you
-        # cannot see the floor post loop the loop!
-        if (self.player.getZ() > parameters["maxDistance"]):
-            self.player.setZ(parameters["maxDistance"])
+            # Left and Right
+            if (self.keyMap["left"] != 0):  # and parameters["speed"] > 0.0):
+                self.player.setH(self.player.getH() + bankfactor)
+            elif (self.keyMap["right"] != 0):  # and parameters["speed"] > 0.0):
+                self.player.setH(self.player.getH() - bankfactor)
 
-        elif (self.player.getZ() < 0):
-            self.player.setZ(0)
+            # throttle control
+            if (self.keyMap["accelerate"] != 0):
+                parameters["speed"] += parameters["speedIncrement"]
+                if (parameters["speed"] > parameters["maxSpeed"]):
+                    parameters["speed"] = parameters["maxSpeed"]
+            elif (self.keyMap["decelerate"] != 0):
+                parameters["speed"] -= parameters["speedIncrement"]
+                if (parameters["speed"] < 0.0):
+                    parameters["speed"] = 0.0
+            # handbrake
+            if (self.keyMap["handBrake"] != 0):
+                parameters["speed"] = 0
 
-        # and now the X/Y world boundaries:
-        if (self.player.getX() < 0):
+            # reverse gear
+            if (self.keyMap["reverse"] != 0):
+                parameters["speed"] -= parameters["speedIncrement"]
+
+            # move forwards
+            self.player.setY(self.player, speedfactor)
+
+            # respect max camera distance else you cannot see the floor post loop the loop!
+            if (self.player.getZ() > parameters["maxDistance"]):
+                self.player.setZ(parameters["maxDistance"])
+
+            elif (self.player.getZ() < 0):
+                self.player.setZ(0)
+
+            # and now the X/Y world boundaries:
+            if (self.player.getX() < 0):
+                if parameters["quad"]:
+                    self.resetPosition("rand")
+                else:
+                    self.player.setX(0)
+
+            elif (self.player.getX() > parameters["worldSize"]):
+                if parameters["quad"]:
+                    self.resetPosition("rand")
+                else:
+                    self.player.setX(parameters["worldSize"])
+
+            if (self.player.getY() < 0):
+                if parameters["quad"]:
+                    self.resetPosition("rand")
+                else:
+                    self.player.setY(0)
+
+            elif (self.player.getY() > parameters["worldSize"]):
+                if parameters["quad"]:
+                    self.resetPosition("rand")
+                else:
+                    self.player.setY(parameters["worldSize"])
+
+            # reset to initial position
+            if (self.keyMap["init"] != 0):
+                self.resetPosition("rand")
+                time.sleep(0.1)
+                # self.player.setPos(self.world, parameters["playerInitPos"])
+                # self.player.setH(parameters["playerInitH"])
+
+            # update new init position
+            if (self.keyMap["newInit"] != 0):
+                parameters["playerInitPos"] = self.player.getPos(self.world)
+                parameters["playerInitH"] = self.player.getH(self.world)
+                print "new init pos is ", parameters["playerInitPos"]
+                print "new init H is ", parameters["playerInitH"]
+
+            # update gain
+            if (self.keyMap["gain-up"] != 0):
+                parameters["gain"] += parameters["gainIncrement"]
+                print "gain is", parameters["gain"]
+            elif (self.keyMap["gain-down"] != 0):
+                parameters["gain"] -= parameters["gainIncrement"]
+                print "gain is ", parameters["gain"]
+
+            # update newTopSpeed
+            if (self.keyMap["newTopSpeed"] != 0):
+                parameters["maxSpeed"] = parameters["speed"]
+                print "new max speed is", parameters["maxSpeed"]
+
+            # update left by right gain for diabled flies
+            if (self.keyMap["lrGain-up"] != 0):
+                parameters["lrGain"] += parameters["gainIncrement"]
+                print "lrGain is ", parameters["lrGain"]
+
+            if (self.keyMap["lrGain-down"] != 0):
+                parameters["lrGain"] -= parameters["gainIncrement"]
+                print "lrGain is ", parameters["lrGain"]
+
+            # respect quad boundary
             if parameters["quad"]:
-                self.resetPosition("rand")
-            else:
-                self.player.setX(0)
+                # print "x is",self.player.getX
+                # print " offsetis",parameters["offset"]
+                # x=self.player.getX()
+                # y=self.player.getY()
+                if (self.player.getX() > parameters["offset"] and self.player.getX() < (parameters["offset"] + 1)):
+                    self.resetPosition("rand")
+                if (self.player.getY() > parameters["offset"] and self.player.getY() < (parameters["offset"] + 1)):
+                    self.resetPosition("rand")
 
-        elif (self.player.getX() > parameters["worldSize"]):
-            if parameters["quad"]:
-                self.resetPosition("rand")
-            else:
-                self.player.setX(parameters["worldSize"])
+            if self.decayTime > 60:
+                parameters["speed"] = 0
+                self.keyMap["closed"] = 0
+                self.decayTime -= 1
+            elif 0 < self.decayTime <= 60:
 
-        if (self.player.getY() < 0):
-            if parameters["quad"]:
-                self.resetPosition("rand")
-            else:
-                self.player.setY(0)
+                self.keyMap["closed"] = self.closedMemory
+                self.decayTime -= 1
 
-        elif (self.player.getY() > parameters["worldSize"]):
-            if parameters["quad"]:
-                self.resetPosition("rand")
-            else:
-                self.player.setY(parameters["worldSize"])
+            elif self.decayTime == 0:
+                parameters["speed"] = self.speedMemory
+                self.decayTime -= 1
 
-        # reset to initial position
-        if (self.keyMap["init"] != 0):
-            self.resetPosition("rand")
-            time.sleep(0.1)
-            # self.player.setPos(self.world, parameters["playerInitPos"])
-            # self.player.setH(parameters["playerInitH"])
-
-        # update new init position
-        if (self.keyMap["newInit"] != 0):
-            parameters["playerInitPos"] = self.player.getPos(self.world)
-            parameters["playerInitH"] = self.player.getH(self.world)
-            print "new init pos is ", parameters["playerInitPos"]
-            print "new init H is ", parameters["playerInitH"]
-
-        # update gain
-        if (self.keyMap["gain-up"] != 0):
-            parameters["gain"] += parameters["gainIncrement"]
-            print "gain is", parameters["gain"]
-        elif (self.keyMap["gain-down"] != 0):
-            parameters["gain"] -= parameters["gainIncrement"]
-            print "gain is ", parameters["gain"]
-
-        # update newTopSpeed
-        if (self.keyMap["newTopSpeed"] != 0):
-            parameters["maxSpeed"] = parameters["speed"]
-            print "new max speed is", parameters["maxSpeed"]
-
-        # update left by right gain for diabled flies
-        if (self.keyMap["lrGain-up"] != 0):
-            parameters["lrGain"] += parameters["gainIncrement"]
-            print "lrGain is ", parameters["lrGain"]
-
-        if (self.keyMap["lrGain-down"] != 0):
-            parameters["lrGain"] -= parameters["gainIncrement"]
-            print "lrGain is ", parameters["lrGain"]
-
-        # respect quad boundary
-        if parameters["quad"]:
-            # print "x is",self.player.getX
-            # print " offsetis",parameters["offset"]
-            # x=self.player.getX()
-            # y=self.player.getY()
-            if (self.player.getX() > parameters["offset"] and self.player.getX() < (parameters["offset"] + 1)):
-                self.resetPosition("rand")
-            if (self.player.getY() > parameters["offset"] and self.player.getY() < (parameters["offset"] + 1)):
+            if self.reachedDestination():
                 self.resetPosition("rand")
 
-        if self.decayTime > 60:
-            parameters["speed"] = 0
-            self.keyMap["closed"] = 0
-            self.decayTime -= 1
-        elif 0 < self.decayTime <= 60:
+            # reset position by user input
+            for i in range(4):
+                if (self.keyMap["quad" + str(i + 1)] != 0):
+                    self.resetPosition(i + 1)
+                    time.sleep(0.15)
 
-            self.keyMap["closed"] = self.closedMemory
-            self.decayTime -= 1
-
-        elif self.decayTime == 0:
-            parameters["speed"] = self.speedMemory
-            self.decayTime -= 1
-
-        if self.reachedDestination():
-            self.resetPosition("rand")
-
-        # reset position by user input
-        for i in range(4):
-            if (self.keyMap["quad" + str(i + 1)] != 0):
-                self.resetPosition(i + 1)
-                time.sleep(0.15)
-
-        self.tooLongBoutReset()
+            self.tooLongBoutReset()
 
     def tooLongBoutReset(self):
         if self.boutFrame > parameters["maxBoutDur"]:
@@ -599,8 +660,12 @@ class MyApp(ShowBase):
 
     def updateCamera(self):
         # see issue content for how we calculated these:
+        #
+        # if parameters["replayWorld"]:
+        #     self.camera.setPos()
+
         self.camera.setPos(self.player, 0, 0, 0)
-        self.camera.setHpr(self.player, parameters["camHpr"])
+        self.camera.setHpr(self.player, tuple(parameters["camHpr"]))
 
 
 
@@ -743,7 +808,7 @@ class MyApp(ShowBase):
     # testing functions not stable
     # screen capture
     def record(self, dur, fps):
-        self.movie('frames/movie', dur, fps=fps, format='jpg', sd=5)
+        self.movie('frames/movie', dur, fps=fps, format='jpg', sd=7)
 
     def fpsLimit(self, fps):
         globalClock.setMode(ClockObject.MLimited)
