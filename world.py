@@ -28,10 +28,10 @@ print os.path.basename(__file__)
 from params import parameters
 
 #save params from current instance as backup toload back into the playback file
-parameters["replayWorld"] = replay
-parameters["captureScale"]=scale
-parameters["captureStart"]=start
-parameters["playbackIncrement"]=increment
+replay=parameters["replayWorld"]
+scale=parameters["captureScale"]
+start=parameters["captureStart"]
+increment=parameters["playbackIncrement"]
 
 if parameters["replayWorld"]:
     import easygui
@@ -97,7 +97,16 @@ class MyApp(ShowBase):
         self.taskMgr.add(self.updateTask, "update")  # A task to run every frame, some keyboard setup and our speed
 
     def initParams(self):
+        '''
+        initializes camera
+        initiales screen capture
+        generates init positions lists
+        generates object positions
+        init param values
 
+        Returns:
+            None
+        '''
         self.camLens.setFar(parameters["maxDistance"])
         self.camLens.setFov(parameters["camFOV"])
 
@@ -132,10 +141,26 @@ class MyApp(ShowBase):
         self.frame=parameters["captureStart"]
         self.playbackIncrement=parameters["playbackIncrement"]
 
+        self.quadSet= set(range(0, 4))
+        self.quadSetCopy= self.quadSet.copy()
+
     def initInput(self):
+        '''
+        initializes use input via keyboard
+        Returns:
+
+        '''
         self.keyboardSetup()
 
     def initOutput(self):
+        '''
+        initilizes plotting mechanism
+        inits models, world and labels
+        inits the wind field
+        Returns:
+            None
+
+        '''
 
         self.initPlot()  # load the plot 1st so that the active window is panda
 
@@ -144,18 +169,30 @@ class MyApp(ShowBase):
         self.modelLoader()
         self.createEnvironment()
         self.makeLabels()
-
-
-    def initFeedback(self):
-        rospy.init_node('world')
-        self.listener()
         self.windFieldGen()
 
+    def initFeedback(self):
+        '''
+        initializes the ros nodes
+        initilizes the listener node for closing the loop
+        Returns:
+            None
+
+        '''
+        rospy.init_node('world')
+        self.listener()
 
 
 
     # input functions
     def keyboardSetup(self):
+        '''
+        Setup the keybindings to actions
+
+        Returns:
+            None
+
+        '''
         self.keyMap = {"left": 0, "right": 0, "climb": 0, "fall": 0,
                        "accelerate": 0, "decelerate": 0, "handBrake": 0, "reverse": 0,
                        "closed": 0, "gain-up": 0, "gain-down": 0, "lrGain-up": 0,
@@ -216,6 +253,15 @@ class MyApp(ShowBase):
         base.disableMouse()  # or updateCamera will fail!
 
     def setKey(self, key, value):
+        '''
+        maps the key to value
+        Args:
+            key: keyboard key name
+            value: parameter to update
+
+        Returns:
+
+        '''
         self.keyMap[key] = value
 
     def winClose(self):
@@ -401,7 +447,7 @@ class MyApp(ShowBase):
 
             try:
                 poshpr=traj.ix[self.frame,:].values
-                print self.frame
+                print "frame is", self.frame
             except IndexError:
                 print "Finished playback"
                 self.winClose()
@@ -632,13 +678,18 @@ class MyApp(ShowBase):
     def resetPosition(self, quad):
 
         if quad == "rand":
-            index = random.randrange(len(parameters["initPosList"]))
-            newPos = parameters["initPosList"][index]
-            print "random quadrant is ", index + 1, "\n"
+            self.randIndex()
+            newPos = parameters["initPosList"][self.index]
+            print "random quadrant is ", self.index + 1, "\n"
+
+            # index = random.randrange(len(parameters["initPosList"]))
+            # newPos = parameters["initPosList"][index]
+            # print "random quadrant is ", index + 1, "\n"
 
         else:
             newPos = parameters["initPosList"][quad - 1]
             print "Your quadrant is", (quad), "\n"
+
         self.player.setPos(newPos)
         self.player.setH(parameters["playerInitH"])
 
@@ -649,6 +700,7 @@ class MyApp(ShowBase):
 
         print "quadrant duration was ", str((datetime.now() - self.lastResetTime).total_seconds())
         print "\n \n \n"
+
         self.lastResetTime = datetime.now()
 
         self.boutFrame = 0
@@ -657,6 +709,18 @@ class MyApp(ShowBase):
         mes.reset = True
         self.publisher(mes)
         return newPos
+
+    def randChoice(self):
+        self.index = random.choice(list(self.quadSet))
+        self.quadSet.remove(self.index)
+
+    def randIndex(self):
+        if len(self.quadSet) > 0:
+            self.randChoice()
+
+        else:
+            self.quadSet = self.quadSetCopy.copy()
+
 
     def updateCamera(self):
         # see issue content for how we calculated these:

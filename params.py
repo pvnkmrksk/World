@@ -4,7 +4,7 @@ parameters = {
     # bools
 
     "loadHUD": False,
-    "loadTrajectory": False,
+    "loadTrajectory": True,
     "lockFps": True,  # False,
     "frameRecord": False,
     "loadWind": False,
@@ -12,7 +12,7 @@ parameters = {
     "generateWorld": True,
     "loadWorld": True,
 
-    "replayWorld": True,
+    "replayWorld": False,
     "captureScale": 1,  # scale the window to improve speed
     "captureStart": 0,  # start point of playback
     "playbackIncrement": 1,  # step size of playback
@@ -27,6 +27,9 @@ parameters = {
     "maxBoutDur": 3600,  # frames
 
     "fly": "fly4",
+    "race":"colony apple",
+    "emergence":20160307,
+    "age":50,
     "windQuad": [-1, 180, 225, 135],  # -1 is open loop
     "loadingString": "g0",
     "gain": 7.0,
