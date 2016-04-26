@@ -714,13 +714,16 @@ class MyApp(ShowBase):
         self.index = random.choice(list(self.quadSet))
         self.quadSet.remove(self.index)
 
+        print "index is", self.index
+        print "set is", self.quadSet
+
     def randIndex(self):
         if len(self.quadSet) > 0:
             self.randChoice()
 
         else:
             self.quadSet = self.quadSetCopy.copy()
-
+            self.randChoice()
 
     def updateCamera(self):
         # see issue content for how we calculated these:
@@ -792,7 +795,7 @@ class MyApp(ShowBase):
         a = self.bagFilename + ".bag"
         time.sleep(5)  # so that bag file can be transfereed from memory
 
-        metadata = String(json_tricks.dumps(parameters))
+        metadata = String(json.dumps(parameters))
         print "metadata is:", metadata
 
         with rosbag.Bag(a, 'a') as bag:
