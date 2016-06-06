@@ -3,13 +3,13 @@ from panda3d.core import Vec3
 parameters = {
     # bools
 
-    "loadHUD": False,
+    "loadHUD": True,
     "loadTrajectory": True,
-    "lockFps": True,  # False,
+    "lockFps": False,  # False,
     "frameRecord": False,
-    "loadWind": False,
+    "loadWind":  True,
     "disabledFly": False,
-    "generateWorld": True,
+    "generateWorld": False,
     "loadWorld": True,
 
     "replayWorld": False,
@@ -24,12 +24,12 @@ parameters = {
     "posL": (32, 64),
     "posR": (96, 64),
     "bboxDist": 5.5,
-    "maxBoutDur": 3600,  # frames
+    "maxBoutDur": 36000,  # frames
 
     "fly": "fly6",
-    "race":"colony apple",
-    "emergence":20160307,
-    "age":50,
+    "race": "colony apple",
+    "emergence": 20160307,
+    "age": 50,
     "windQuad": [-1, 180, 225, 135],  # -1 is open loop
     "loadingString": "rg",
     "gain": 7.0,
@@ -53,17 +53,17 @@ parameters = {
 
     "lrGain": 1.0,
 
-    "fps": 60,
-    "trajectoryUpdateInterval": 60,  # frames between update,
+    "fps": 165,
+    "trajectoryUpdateInterval": 165,  # frames between update,
 
     "sphereScale": 1.9,
     "treeScale": 0.04,
 
     "maxDistance": 65,
-    "camFOV": 140,
+    "camFOV": (178, 140),  # hfov, vfov,
 
     "worldSize": 257,  # relevant for world boundaries
-    "playerInitPos": (64, 32, 1),
+    "playerInitPos": (64, 32, 3),
     "playerInitH": 0,
     "windDirection": 190,
 
@@ -80,8 +80,8 @@ parameters = {
     "camHpr": (0, -2, 0),
     "frameNum": 0,
 
-    "windowWidth": 2720,
-    "windowHeight": 768,
+    "windowWidth": 4320,  # 1440,
+    "windowHeight": 2560,
 
     "spherePath": "models/sphere.egg",
     "greenTexPath": "models/green.tga",
