@@ -1,7 +1,7 @@
 # system imports
-
+from __future__ import division
 from datetime import datetime
-import sys, time, subprocess, os, serial   # ROS imports
+import sys, time, subprocess, os, serial  # ROS imports
 import json_tricks as json
 import rospy, rostopic, roslib, std_msgs.msg, rosbag
 from beginner.msg import MsgFlystate, MsgTrajectory
@@ -10,7 +10,7 @@ from rospy_message_converter import message_converter
 
 from direct.showbase.ShowBase import ShowBase  # Panda imports
 from direct.task import Task
-from panda3d.core import AmbientLight, DirectionalLight, Vec4, Vec3, Fog
+from panda3d.core import AmbientLight, DirectionalLight, Vec4, Vec3, Fog, Camera, PerspectiveLens
 from panda3d.core import loadPrcFileData, NodePath, TextNode
 from pandac.PandaModules import CompassEffect, ClockObject
 from direct.gui.OnscreenText import OnscreenText
@@ -21,25 +21,23 @@ import matplotlib.patches as patches
 import cPickle as pickle
 import random
 import numpy as np
-
-print os.path.basename(__file__)
-
-
 from params import parameters
 
-#save params from current instance as backup toload back into the playback file
-replay=parameters["replayWorld"]
-scale=parameters["captureScale"]
-start=parameters["captureStart"]
-increment=parameters["playbackIncrement"]
 
 if parameters["replayWorld"]:
+
+    # save params from current instance as backup toload back into the playback file
+    replay = parameters["replayWorld"]
+    scale = parameters["captureScale"]
+    start = parameters["captureStart"]
+    increment = parameters["playbackIncrement"]
+
     import easygui
     import pandas as pd
 
     # replayPath = easygui.fileopenbox(multiple=False, filetypes=["*.pickle"])
-    replayPath="/home/behaviour/catkin/src/beginner/scripts/panda/world/bags/fly4/fly4_quad_rg_gain7.0_speed_3.5_" \
-               "trial_1_2016-04-13__23:31:35.bag_df.pickle"
+    replayPath = "/home/behaviour/catkin/src/beginner/scripts/panda/world/bags/fly4/fly4_quad_rg_gain7.0_speed_3.5_" \
+                 "trial_1_2016-04-13__23:31:35.bag_df.pickle"
 
     print replayPath
     df = pd.read_pickle(replayPath)
@@ -50,7 +48,7 @@ if parameters["replayWorld"]:
     cols = cols[-3:] + cols[:-3]  # reorder colums. hprpos to poshpr by python splicing
     traj = traj[cols]  # reassign with this order
 
-    #change current parameters to parameters saved in dataframe
+    # change current parameters to parameters saved in dataframe
     parameters = None
 
     try:
@@ -60,13 +58,11 @@ if parameters["replayWorld"]:
         parameters = json.loads(df.metadata__data.values[0])
         print "using exceprion"
 
-    #dump back params from vars
-    parameters["replayWorld"]=replay
+    # dump back params from vars
+    parameters["replayWorld"] = replay
     parameters["captureScale"] = scale
     parameters["captureStart"] = start
     parameters["playbackIncrement"] = increment
-
-
 
 if parameters["loadWind"]:
     try:
@@ -87,9 +83,14 @@ except rostopic.ROSTopicIOException as e:
 
 class MyApp(ShowBase):
     def __init__(self):
-        loadPrcFileData("", "win-size " + str(parameters["windowWidth"]/parameters["captureScale"]) + " " +
-                        str(parameters["windowHeight"]/parameters["captureScale"]))  # set window size
+        loadPrcFileData("", "win-size " + str(parameters["windowWidth"] / parameters["captureScale"]) + " " +
+                        str(parameters["windowHeight"] / parameters["captureScale"]))  # set window size
+
+        # loadPrcFileData('', 'fullscreen true')
+
         ShowBase.__init__(self)  # start the app
+        base.setFrameRateMeter(True)
+
         self.initParams()  # run this 1st. Loads all content and params.
         self.initInput()
         self.initOutput()
@@ -107,8 +108,8 @@ class MyApp(ShowBase):
         Returns:
             None
         '''
-        self.camLens.setFar(parameters["maxDistance"])
-        self.camLens.setFov(parameters["camFOV"])
+
+        self.fpsLimit(165)
 
         if parameters["lockFps"]:
             pass  # parameter["fps"]=Limit(parameter["fps"])
@@ -138,11 +139,11 @@ class MyApp(ShowBase):
         self.decayTime = -1
         self.boutFrame = 0
         self.lastResetTime = datetime.now()
-        self.frame=parameters["captureStart"]
-        self.playbackIncrement=parameters["playbackIncrement"]
+        self.frame = parameters["captureStart"]
+        self.playbackIncrement = parameters["playbackIncrement"]
 
-        self.quadSet= set(range(0, 4))
-        self.quadSetCopy= self.quadSet.copy()
+        self.quadSet = set(range(0, 4))
+        self.quadSetCopy = self.quadSet.copy()
 
     def initInput(self):
         '''
@@ -167,6 +168,8 @@ class MyApp(ShowBase):
         # loadPrcFileData("", "win-size " + str(parameters["windowWidth"]) + " " + str(
         #     parameters["windowHeight"]))  # set window size
         self.modelLoader()
+        self.initDisplayRegion()
+
         self.createEnvironment()
         self.makeLabels()
         self.windFieldGen()
@@ -182,8 +185,6 @@ class MyApp(ShowBase):
         rospy.init_node('world')
         self.listener()
 
-
-
     # input functions
     def keyboardSetup(self):
         '''
@@ -198,7 +199,8 @@ class MyApp(ShowBase):
                        "closed": 0, "gain-up": 0, "gain-down": 0, "lrGain-up": 0,
                        "lrGain-down": 0,
                        "init": 0, "newInit": 0, "newTopSpeed": 0, "clf": 0, "saveFig": 0,
-                       "startBag": 0, "stopBag": 0, "quad1": 0, "quad2": 0, "quad3": 0, "quad4": 0}
+                       "startBag": 0, "stopBag": 0, "quad1": 0, "quad2": 0, "quad3": 0, "quad4": 0, "human": 0,
+                       "hRight": 0}
 
         self.accept("escape", self.winClose)
         self.accept("a", self.setKey, ["climb", 1])
@@ -249,6 +251,10 @@ class MyApp(ShowBase):
         self.accept("3-up", self.setKey, ["quad3", 0])
         self.accept("4", self.setKey, ["quad4", 1])
         self.accept("4-up", self.setKey, ["quad4", 0])
+        self.accept("8", self.setKey, ["human", 1])
+        # self.accept("8-up",self.setKey,["human",0])
+        self.accept("5", self.setKey, ["hRight", 1])
+        self.accept("5-up", self.setKey, ["hRight", -1])
 
         base.disableMouse()  # or updateCamera will fail!
 
@@ -269,19 +275,12 @@ class MyApp(ShowBase):
         self.plotter.kill()
         sys.exit()
 
-
-
-
-
     # output functions
     def initPlot(self):
         if parameters["loadTrajectory"]:
             self.plotter = subprocess.Popen(["python", "realTimePlotter.py"])
             print "\n \n \n realtime plotter started \n \n \n"
             time.sleep(1)
-
-
-
 
     # models
     def modelLoader(self):
@@ -311,9 +310,6 @@ class MyApp(ShowBase):
         self.player.setPos(self.world, tuple(parameters["playerInitPos"]))
         self.player.setH(self.world, (parameters["playerInitH"]))  # heading angle is 0
 
-
-
-
     # sky load
     def createEnvironment(self):
         # Fog to hide a performance tweak:
@@ -330,7 +326,7 @@ class MyApp(ShowBase):
         skysphere.setScale(parameters["maxDistance"])  # bit less than "far"
         skysphere.setZ(-3)
         # NOT render - you'll fly through the sky!:
-        skysphere.reparentTo(self.camera)
+        skysphere.reparentTo(self.cameraCenter)
 
         # Our lighting
         ambientLight = AmbientLight("ambientLight")
@@ -341,10 +337,6 @@ class MyApp(ShowBase):
         directionalLight.setSpecularColor(Vec4(1, 1, 1, 1))
         render.setLight(render.attachNewNode(ambientLight))
         render.setLight(render.attachNewNode(directionalLight))
-
-
-
-
 
     # labels
     def makeStatusLabel(self, i):
@@ -370,18 +362,46 @@ class MyApp(ShowBase):
         self.closedLabel.setText("Closed Loop: " + str(bool(self.keyMap["closed"])))
         self.bagRecordingLabel.setText("Recording Bag: " + str(bool(self.bagRecordingState)))
 
-
-
-
     # content handlers
     def vec32String(self, vector, a, b, c):
         """returns a rounded string of vec 3 interspersed with a,b,c as headings"""
         return a + ":" + str(round(vector[0])) + " " + b + ":" + str(round(vector[1])) + " " + c + ":" + str(
             round(vector[2]))
 
+    # display regions
+    def initDisplayRegion(self):
 
+        dr = base.camNode.getDisplayRegion(0)
+        dr.setActive(0)
 
+        lens = PerspectiveLens(120, 140)  # tuple(parameters["camFOV"]))
 
+        displayLeft = self.win.makeDisplayRegion(0, 1 / 3, 0, 1)
+        camL = Camera('Lcam')
+        camL.setLens(lens)
+        self.cameraLeft = self.render.attach_new_node(camL)
+        displayLeft.setCamera(self.cameraLeft)
+
+        displayCenter = self.win.makeDisplayRegion(1 / 3, 2 / 3, 0, 1)
+        camC = Camera('Ccam')
+        camC.setLens(lens)
+        self.cameraCenter = self.render.attach_new_node(camC)
+        displayCenter.setCamera(self.cameraCenter)
+
+        displayRight = self.win.makeDisplayRegion(2 / 3, 1, 0, 1)
+        camR = Camera('Rcam')
+        camR.setLens(lens)
+        self.cameraRight = self.render.attach_new_node(camR)
+        displayRight.setCamera(self.cameraRight)
+
+        self.cameraLeft.setPos(self.player, 0, 0, 0)
+        self.cameraLeft.setHpr(self.player, tuple(parameters["camHpr"]))
+
+        self.cameraCenter.setPos(self.player, 0, 0, 0)
+        self.cameraCenter.setHpr(self.player, tuple(parameters["camHpr"]))
+
+        self.cameraRight.setPos(self.player, 0, 0, 0)
+        self.cameraRight.setHpr(self.player, tuple(parameters["camHpr"]))
 
     # feedback
 
@@ -399,10 +419,8 @@ class MyApp(ShowBase):
         return parameters["wbad"]
 
     def publisher(self, data):
-        # data = self.message()
         trajectory = rospy.Publisher('trajectory', MsgTrajectory, queue_size=600)
         trajectory.publish(data)
-        # print parameters["wbad"]
 
     def message(self):
 
@@ -418,19 +436,15 @@ class MyApp(ShowBase):
         mes.reset = False
         return mes
 
-
     # frameupdate
     def updateTask(self, task):
 
         self.updatePlayer()
         self.updateCamera()
         self.bagControl()
-        # print data.position
         #
-        # if parameters["loadTrajectory"]:
-        #     self.trajectory()
-        if parameters["loadHUD"]:
-            self.updateLabel()
+        # if parameters["loadHUD"]:
+        #     self.updateLabel()
 
         if parameters["loadWind"]:
             x, y, z = self.player.getPos()
@@ -438,6 +452,7 @@ class MyApp(ShowBase):
             self.windTunnel(windDir)
 
             # self.windTunnel(parameters["windDirection"])
+
         self.publisher(self.message())
 
         return Task.cont
@@ -446,28 +461,31 @@ class MyApp(ShowBase):
         if parameters["replayWorld"]:
 
             try:
-                poshpr=traj.ix[self.frame,:].values
+                poshpr = traj.ix[self.frame, :].values
                 print "frame is", self.frame
             except IndexError:
                 print "Finished playback"
                 self.winClose()
             # print poshpr
-            self.player.setPosHpr(tuple(poshpr[0:3]),tuple(poshpr[3:]))
+            self.player.setPosHpr(tuple(poshpr[0:3]), tuple(poshpr[3:]))
             # self.player.setPosHpr(traj.ix[self.frame,:].values)
 
-            self.frame+=self.playbackIncrement
+            self.frame += self.playbackIncrement
         else:
 
 
             # global prevPos, currentPos, ax, fig, treePos, redPos Global Clock by default, panda runs as fast as it can frame to frame
             scalefactor = parameters["speed"] * (globalClock.getDt())
-            climbfactor = 0.001  # (.001) * scalefactor
+            climbfactor = 0.01  # (.001) * scalefactor
             bankfactor = 2  # .5  * scalefactor
             speedfactor = scalefactor
 
             # closed loop
             if (self.keyMap["closed"] != 0):
                 self.player.setH(self.player.getH() - parameters["wbad"] * parameters["gain"])
+
+            if (self.keyMap["human"] != 0):
+                self.player.setH(self.player.getH() + self.keyMap["hRight"] * parameters["gain"])
 
             # Climb and Fall
             if (self.keyMap["climb"] != 0):  # and parameters["speed"] > 0.00):
@@ -731,14 +749,20 @@ class MyApp(ShowBase):
         # if parameters["replayWorld"]:
         #     self.camera.setPos()
 
-        self.camera.setPos(self.player, 0, 0, 0)
-        self.camera.setHpr(self.player, tuple(parameters["camHpr"]))
+        # self.camera.setPos(self.player, 0, 0, 0)
+        # self.camera.setHpr(self.player, tuple(parameters["camHpr"]))
 
 
 
 
+        self.cameraLeft.setPos(self.player, 0, 0, 0)
+        self.cameraLeft.setH(self.player, 120)  # self.player.getH())#+120)
+        #
+        self.cameraCenter.setPos(self.player, 0, 0, 0)
+        self.cameraCenter.setHpr(self.player, tuple(parameters["camHpr"]))  # (0,-2,0))# self.world, self.player.getH())
 
-
+        self.cameraRight.setPos(self.player, 0, 0, 0)
+        self.cameraRight.setH(self.player, 240)  # self.world, self.player.getH())#-120)
 
     # recording functions
     def bagControl(self):
@@ -827,10 +851,6 @@ class MyApp(ShowBase):
             data = pickle.load(pfile)
         return data
 
-
-
-
-
     # wind control
     def windTunnel(self, windDirection):
         if windDirection != -1:  # -1 is open loop in wind direction
@@ -853,11 +873,6 @@ class MyApp(ShowBase):
         self.windField[offset + 1:world, offset + 1:world] = parameters["windQuad"][0]
         parameters["windField"] = self.windField
 
-
-
-
-
-
     # evals
     def dict2Var(self, dict):
         """converts a dict to a variable using exec for assignment
@@ -878,6 +893,7 @@ class MyApp(ShowBase):
         self.movie('frames/movie', dur, fps=fps, format='jpg', sd=7)
 
     def fpsLimit(self, fps):
+        globalClock = ClockObject.getGlobalClock()
         globalClock.setMode(ClockObject.MLimited)
         globalClock.setFrameRate(fps)
 
