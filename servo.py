@@ -16,10 +16,17 @@ for use with Arduino "MultipleSerialServoControl" sketch.
 
 import serial
 
-usbport = '/dev/ttyACM0'
 
+usbport0 = '/dev/ttyACM0'
+usbport1 = '/dev/ttyACM1'
 # Set up serial baud rate
-ser = serial.Serial(usbport, 9600)
+
+try :
+    ser = serial.Serial(usbport0, 9600)
+
+except serial.SerialException:
+    ser = serial.Serial(usbport1, 9600)
+        
 
 def move(servo, angle):
     '''Moves the specified servo to the supplied angle.
@@ -36,7 +43,7 @@ def move(servo, angle):
     ser.write(chr(255))
     ser.write(chr(servo))
 
-    if (0 <= angle <= 180):
+    if (0 <= angle ):#<= 180):
         # ser.write(chr(255))
         # ser.write(chr(servo))
         ser.write(chr(angle))

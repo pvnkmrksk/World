@@ -23,7 +23,7 @@ import random
 import numpy as np
 from params import parameters
 
-
+# If replay world for playback old data, copy existing params to prevent overwrite from the saved state of previous run
 if parameters["replayWorld"]:
 
     # save params from current instance as backup toload back into the playback file
@@ -64,15 +64,15 @@ if parameters["replayWorld"]:
     parameters["captureStart"] = start
     parameters["playbackIncrement"] = increment
 
-if parameters["loadWind"]:
-    try:
-        import servo
-    except serial.serialutil.SerialException:
-        parameters["loadWind"] = False
-        print ("\n \n \n servo disabled \n \n \n")
-
+#check if arduino servo is connected
 try:
-    # Checkif rosmaster is running or not.
+    import servo
+except serial.serialutil.SerialException:
+    parameters["loadWind"] = False
+    print ("\n \n \n servo disabled \n \n \n")
+
+# Checkif rosmaster is running else run roscore
+try:
     rostopic.get_topic_class('/rosout')
     is_rosmaster_running = True
 except rostopic.ROSTopicIOException as e:
@@ -80,9 +80,12 @@ except rostopic.ROSTopicIOException as e:
     time.sleep(1)  # wait a bit to be sure the roscore is really launched
     subprocess.Popen(["roslaunch", "Kinefly", "main.launch"])
 
-
+#World class definition
 class MyApp(ShowBase):
+
+    #init windows size, params, I/O, feedback
     def __init__(self):
+
         loadPrcFileData("", "win-size " + str(parameters["windowWidth"] / parameters["captureScale"]) + " " +
                         str(parameters["windowHeight"] / parameters["captureScale"]))  # set window size
 
@@ -97,6 +100,7 @@ class MyApp(ShowBase):
         self.initFeedback()
         self.taskMgr.add(self.updateTask, "update")  # A task to run every frame, some keyboard setup and our speed
 
+    #
     def initParams(self):
         '''
         initializes camera
@@ -109,19 +113,19 @@ class MyApp(ShowBase):
             None
         '''
 
-        self.fpsLimit(165)
 
         if parameters["lockFps"]:
-            pass  # parameter["fps"]=Limit(parameter["fps"])
+            print "fps locked"
+            self.fpsLimit(165)
 
         if parameters["frameRecord"]:
             self.record(dur=parameters["recordDur"], fps=parameters["recordFps"])
 
-        parameters["offset"] = ((int(
-            parameters["worldSize"]) - 1) / 2) + 1  # offset for position displacemtn and boundary being 2^n+1,
-
+        # offset for position displacemtn and boundary being 2^n+1,
+        parameters["offset"] = ((int(parameters["worldSize"]) - 1) / 2) + 1
         print "offset is ", parameters["offset"]
 
+        #initial position of player pushed around the 4 quadrants with edge effect correction
         parameters["initPosList"] = [(parameters["playerInitPos"][0] + parameters["offset"],
                                       parameters["playerInitPos"][1] + parameters["offset"],
                                       parameters["playerInitPos"][2]),
@@ -132,15 +136,17 @@ class MyApp(ShowBase):
                                      (parameters["playerInitPos"][0] + parameters["offset"],
                                       parameters["playerInitPos"][1], parameters["playerInitPos"][2])]
         print "init pos list", parameters["initPosList"]
+
+
+        #position of objects generated
         self.odd, self.even, quad = self.quadPositionGenerator(posL=parameters["posL"], posR=parameters["posR"])
 
-        self.servoAngle = None
+        self.servoAngle = None                                      #
         self.bagRecordingState = False
         self.decayTime = -1
         self.boutFrame = 0
         self.lastResetTime = datetime.now()
         self.frame = parameters["captureStart"]
-        self.playbackIncrement = parameters["playbackIncrement"]
 
         self.quadSet = set(range(0, 4))
         self.quadSetCopy = self.quadSet.copy()
@@ -300,7 +306,7 @@ class MyApp(ShowBase):
         print "\n \n \n"
 
         if ((not os.path.isfile(self.worldFilename)) or parameters["generateWorld"]):
-            subprocess.Popen(["python", "hcpWorldGen.py"])
+            subprocess.Popen(["python", "worldGen.py"])
             time.sleep(3)
 
         self.world = self.loader.loadModel(self.worldFilename)  # loads the world_size
@@ -470,7 +476,7 @@ class MyApp(ShowBase):
             self.player.setPosHpr(tuple(poshpr[0:3]), tuple(poshpr[3:]))
             # self.player.setPosHpr(traj.ix[self.frame,:].values)
 
-            self.frame += self.playbackIncrement
+            self.frame += parameters["playbackIncrement"]
         else:
 
 
