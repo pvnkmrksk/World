@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('TkAgg') # THIS MAKES IT FAST!
 import matplotlib.cm as cm
-from hcpWorldGen import WorldGen
+from worldGen import WorldGen
 x=y=None
 keys=String()
 

@@ -3,16 +3,16 @@ from panda3d.core import Vec3
 parameters = {
     # bools
 
-    "loadHUD": True,
+    "loadHUD": False,
     "loadTrajectory": True,
-    "lockFps": False,  # False,
+    "lockFps": True,  # False,
     "frameRecord": False,
-    "loadWind":  True,
+    "loadWind":  False,
     "disabledFly": False,
-    "generateWorld": False,
+    "generateWorld": True,
     "loadWorld": True,
-
     "replayWorld": False,
+
     "captureScale": 1,  # scale the window to improve speed
     "captureStart": 0,  # start point of playback
     "playbackIncrement": 1,  # step size of playback
@@ -28,7 +28,7 @@ parameters = {
 
     "fly": "fly6",
     "race": "colony apple",
-    "emergence": 20160307,
+    "emergence": 20160507,
     "age": 50,
     "windQuad": [-1, 180, 225, 135],  # -1 is open loop
     "loadingString": "rg",
