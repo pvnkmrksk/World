@@ -179,6 +179,7 @@ class MyApp(ShowBase):
         self.createEnvironment()
         self.makeLabels()
         self.windFieldGen()
+        self.odourFieldGen()
 
     def initFeedback(self):
         '''
@@ -344,36 +345,6 @@ class MyApp(ShowBase):
         render.setLight(render.attachNewNode(ambientLight))
         render.setLight(render.attachNewNode(directionalLight))
 
-    # labels
-    def makeStatusLabel(self, i):
-        return OnscreenText(style=2, fg=(0, 0, 0, 0.12), bg=(0.4, 0.4, 0.4, 0.18),
-                            scale=0.04, pos=(-3.1, 0.92 - (.04 * i)), mayChange=1)
-
-    def makeLabels(self):
-        self.positionLabel = self.makeStatusLabel(0)
-        self.orientationLabel = self.makeStatusLabel(1)
-        self.speedLabel = self.makeStatusLabel(2)
-        self.gainLabel = self.makeStatusLabel(3)
-        self.servoLabel = self.makeStatusLabel(4)
-        self.closedLabel = self.makeStatusLabel(5)
-        self.bagRecordingLabel = self.makeStatusLabel(6)
-
-    def updateLabel(self):
-        self.positionLabel.setText(self.vec32String(self.player.getPos(), "x", "y", "z"))
-        self.orientationLabel.setText(self.vec32String(self.player.getHpr(), "H", "P", "R"))
-        self.speedLabel.setText("Speed: " + str(parameters["speed"]))
-        self.gainLabel.setText("Gain: " + str(parameters["gain"]))
-
-        self.servoLabel.setText("Servo Angle: " + str(self.servoAngle))
-        self.closedLabel.setText("Closed Loop: " + str(bool(self.keyMap["closed"])))
-        self.bagRecordingLabel.setText("Recording Bag: " + str(bool(self.bagRecordingState)))
-
-    # content handlers
-    def vec32String(self, vector, a, b, c):
-        """returns a rounded string of vec 3 interspersed with a,b,c as headings"""
-        return a + ":" + str(round(vector[0])) + " " + b + ":" + str(round(vector[1])) + " " + c + ":" + str(
-            round(vector[2]))
-
     # display regions
     def initDisplayRegion(self):
 
@@ -448,20 +419,26 @@ class MyApp(ShowBase):
         self.updatePlayer()
         self.updateCamera()
         self.bagControl()
-        #
-        # if parameters["loadHUD"]:
-        #     self.updateLabel()
+
+        if parameters["loadHUD"]:
+            self.updateLabel()
 
         if parameters["loadWind"]:
             x, y, z = self.player.getPos()
             windDir = parameters["windField"][x, y]
             self.windTunnel(windDir)
 
+        if parameters["loadOdour"]:
+            self.odourTunnel()
             # self.windTunnel(parameters["windDirection"])
 
         self.publisher(self.message())
 
         return Task.cont
+
+
+
+
 
     def updatePlayer(self):
         if parameters["replayWorld"]:
@@ -861,12 +838,14 @@ class MyApp(ShowBase):
     def windTunnel(self, windDirection):
         if windDirection != -1:  # -1 is open loop in wind direction
             self.servoAngle = int((90 - (self.player.getH()) + windDirection - 180) % 360)
+            # self.servoAngle = int((90 - (self.player.getH()) + windDirection - 180) % 360)
         else:
             self.servoAngle = 90
-            print "wind in open loop"
+            # print "wind in open loop"
 
         # print "servoangle is", self.servoAngle
         servo.move(1, self.servoAngle)
+
 
     def windFieldGen(self):
         self.windField = np.zeros([parameters["worldSize"], parameters["worldSize"]])
@@ -878,6 +857,52 @@ class MyApp(ShowBase):
         self.windField[0:offset, offset + 1:world] = parameters["windQuad"][1]
         self.windField[offset + 1:world, offset + 1:world] = parameters["windQuad"][0]
         parameters["windField"] = self.windField
+
+        print "windfield is", parameters["windField"]
+
+    def odourTunnel(self):
+        servo.move(99,int(self.odourField[self.player.getX(),self.player.getY()]))
+
+    def odourFieldGen(self):
+        self.odourField=np.zeros([parameters["worldSize"], parameters["worldSize"]])
+
+        offset = (parameters["worldSize"] - 1) / 2
+        world = parameters["worldSize"]
+        #
+        # for i in parameters["odourQuad"]:
+        #     if i=='c':
+        #         parameters["odourQuadImage"][i]=
+        #
+        strip=self.plumeStripGen(offset,offset,5,offset,offset/2,0)
+        self.odourField[0:offset, 0:offset] = strip
+        # self.odourField[0:offset, 0:offset] = parameters["odourQuad"][2]
+        self.odourField[offset + 1:world, 0:offset] = parameters["odourQuad"][3]
+        self.odourField[0:offset, offset + 1:world] = parameters["odourQuad"][1]
+        self.odourField[offset + 1:world, offset + 1:world] = parameters["odourQuad"][0]
+        parameters["odourField"] = self.odourField
+
+        print parameters["odourField"]
+
+    def plumeStripGen(self,fieldWidth,fieldHeight,stripWidth,stripHeight,initX,initY ):
+        """
+
+        Args:
+            fieldWidth: width of array
+            fieldHeight: height of array
+            stripWidth:  width of the plume strip
+            stripHeight: height of the plume strip
+            initX:      starting X point of strip in numpy array
+            initY:      starting Y point of strip in numpy array
+
+        Returns:
+            stripField :    An array with 1 where the plume exists, which is a
+                            rectangular strip and 0 else where
+        """
+        stripField=np.zeros([fieldWidth,fieldHeight])
+        stripField[initX:initX+stripWidth,initY:initY+stripHeight]=1
+
+        print "stripfield is",stripField
+        return stripField
 
     # evals
     def dict2Var(self, dict):
@@ -904,6 +929,38 @@ class MyApp(ShowBase):
         globalClock.setFrameRate(fps)
 
         # to be implemented functions fully unstable
+
+
+
+    # labels
+    def makeStatusLabel(self, i):
+        return OnscreenText(style=2, fg=(0, 0, 0, 0.12), bg=(0.4, 0.4, 0.4, 0.18),
+                            scale=0.04, pos=(0.5, 0.5 - (.04 * i)), mayChange=1)
+
+    def makeLabels(self):
+        self.positionLabel = self.makeStatusLabel(0)
+        self.orientationLabel = self.makeStatusLabel(1)
+        self.speedLabel = self.makeStatusLabel(2)
+        self.gainLabel = self.makeStatusLabel(3)
+        self.servoLabel = self.makeStatusLabel(4)
+        self.closedLabel = self.makeStatusLabel(5)
+        self.bagRecordingLabel = self.makeStatusLabel(6)
+
+    def updateLabel(self):
+        self.positionLabel.setText(self.vec32String(self.player.getPos(), "x", "y", "z"))
+        self.orientationLabel.setText(self.vec32String(self.player.getHpr(), "H", "P", "R"))
+        self.speedLabel.setText("Speed: " + str(parameters["speed"]))
+        self.gainLabel.setText("Gain: " + str(parameters["gain"]))
+
+        self.servoLabel.setText("Servo Angle: " + str(self.servoAngle))
+        self.closedLabel.setText("Closed Loop: " + str(bool(self.keyMap["closed"])))
+        self.bagRecordingLabel.setText("Recording Bag: " + str(bool(self.bagRecordingState)))
+
+    # content handlers
+    def vec32String(self, vector, a, b, c):
+        """returns a rounded string of vec 3 interspersed with a,b,c as headings"""
+        return a + ":" + str(round(vector[0])) + " " + b + ":" + str(round(vector[1])) + " " + c + ":" + str(
+            round(vector[2]))
 
 
 app = MyApp()

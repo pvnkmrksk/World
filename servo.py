@@ -43,7 +43,7 @@ def move(servo, angle):
     ser.write(chr(255))
     ser.write(chr(servo))
 
-    if (0 <= angle ):#<= 180):
+    if (0 <= angle <= 180):
         # ser.write(chr(255))
         # ser.write(chr(servo))
         ser.write(chr(angle))
