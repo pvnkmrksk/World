@@ -868,17 +868,19 @@ class MyApp(ShowBase):
 
         offset = (parameters["worldSize"] - 1) / 2
         world = parameters["worldSize"]
-        #
-        # for i in parameters["odourQuad"]:
-        #     if i=='c':
-        #         parameters["odourQuadImage"][i]=
-        #
+
+        parameters["odourQuadImage"]=parameters["odourQuad"]
+        for i in parameters["odourQuad"]:
+            from skimage.io import imread
+            if i=='c':
+                parameters["odourQuadImage"][i]=imread("models/odour/"+str(i+1)+".png") #py 0 index but non zero quadrants
+
         strip=self.plumeStripGen(offset,offset,5,offset,offset/2,0)
         self.odourField[0:offset, 0:offset] = strip
-        # self.odourField[0:offset, 0:offset] = parameters["odourQuad"][2]
-        self.odourField[offset + 1:world, 0:offset] = parameters["odourQuad"][3]
-        self.odourField[0:offset, offset + 1:world] = parameters["odourQuad"][1]
-        self.odourField[offset + 1:world, offset + 1:world] = parameters["odourQuad"][0]
+        # self.odourField[0:offset, 0:offset] = parameters["odourQuadImage"][2]
+        self.odourField[offset + 1:world, 0:offset] = parameters["odourQuadImage"][3]
+        self.odourField[0:offset, offset + 1:world] = parameters["odourQuadImage"][1]
+        self.odourField[offset + 1:world, offset + 1:world] = parameters["odourQuadImage"][0]
         parameters["odourField"] = self.odourField
 
         print parameters["odourField"]
