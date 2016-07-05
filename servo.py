@@ -19,14 +19,22 @@ import serial
 
 usbport0 = '/dev/ttyACM0'
 usbport1 = '/dev/ttyACM1'
+usbport2 = '/dev/ttyACM2'
 # Set up serial baud rate
 
 try :
     ser = serial.Serial(usbport0, 9600)
-
+    print "using port 0 \n \n"
 except serial.SerialException:
-    ser = serial.Serial(usbport1, 9600)
-        
+    try:
+        ser = serial.Serial(usbport1, 9600)
+        print "using port 1 \n \n"
+
+    except serial.SerialException:
+
+        ser = serial.Serial(usbport2, 9600)
+        print "using port 2 \n \n"
+
 
 def move(servo, angle):
     '''Moves the specified servo to the supplied angle.
