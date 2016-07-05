@@ -79,7 +79,7 @@ parameters = {
     "camFOV": (178, 140),  # hfov, vfov,
 
     "worldSize": 257,  # relevant for world boundaries
-    "playerInitPos": (64, 32, 3),
+    "playerInitPos": (64, 32, 3), # start in quadrant 3
     "playerInitH": 0,
     "windDirection": 190,
 

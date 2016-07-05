@@ -141,7 +141,12 @@ class MyApp(ShowBase):
         #position of objects generated
         self.odd, self.even, quad = self.quadPositionGenerator(posL=parameters["posL"], posR=parameters["posR"])
 
-        self.servoAngle = None                                      #
+        self.servoAngle = 90#
+        servo.move(1,self.servoAngle)
+        self.quadrantIndex=2 #starts in 3rd quadrant, index 2 based on init pos
+        self.valve=0
+        self.trial=1
+        self.reset=False
         self.bagRecordingState = False
         self.decayTime = -1
         self.boutFrame = 0
@@ -150,6 +155,7 @@ class MyApp(ShowBase):
 
         self.quadSet = set(range(0, 4))
         self.quadSetCopy = self.quadSet.copy()
+
 
     def initInput(self):
         '''
@@ -405,12 +411,18 @@ class MyApp(ShowBase):
         mes.header.stamp = rospy.Time.now()
         mes.position = self.player.getPos()
         mes.orientation = self.player.getHpr()
+
         mes.wbad = parameters["wbad"]
         mes.wbas = parameters["wbas"]
         mes.speed = parameters["speed"]
         mes.gain = parameters["gain"]
         mes.closed = self.keyMap["closed"]
-        mes.reset = False
+
+        mes.trial=self.trial
+        mes.servoAngle=self.servoAngle
+        mes.valve=self.valve
+        mes.quadrant=self.quadrantIndex+1 #0 indexing of python
+        mes.reset = self.reset
         return mes
 
     # frameupdate
@@ -433,6 +445,7 @@ class MyApp(ShowBase):
             self.odourTunnel()
 
         self.publisher(self.message())
+        self.reset=False
 
         return Task.cont
 
@@ -621,9 +634,7 @@ class MyApp(ShowBase):
         for i in (oddeven):
 
             if self.isInsideTarget(i):
-                # mes=MsgTrajectory()
-                # mes.reset=True
-                # self.publisher(mes)
+
                 return True
                 break
 
@@ -680,8 +691,8 @@ class MyApp(ShowBase):
 
         if quad == "rand":
             self.randIndex()
-            newPos = parameters["initPosList"][self.index]
-            print "random quadrant is ", self.index + 1, "\n"
+            newPos = parameters["initPosList"][self.quadrantIndex]
+            print "random quadrant is ", self.quadrantIndex + 1, "\n"
 
             # index = random.randrange(len(parameters["initPosList"]))
             # newPos = parameters["initPosList"][index]
@@ -689,7 +700,8 @@ class MyApp(ShowBase):
 
         else:
             newPos = parameters["initPosList"][quad - 1]
-            print "Your quadrant is", (quad), "\n"
+            self.quadrantIndex=quad-1
+            print "Your quadrant is", (self.quadrantIndex), "\n"
 
         self.player.setPos(newPos)
         self.player.setH(parameters["playerInitH"])
@@ -703,19 +715,16 @@ class MyApp(ShowBase):
         print "\n \n \n"
 
         self.lastResetTime = datetime.now()
-
         self.boutFrame = 0
-
-        mes = MsgTrajectory()
-        mes.reset = True
-        self.publisher(mes)
+        self.reset=True #set reset to true. Will be set to false after frame updtae
+        self.trial+=1
         return newPos
 
     def randChoice(self):
-        self.index = random.choice(list(self.quadSet))
-        self.quadSet.remove(self.index)
+        self.quadrantIndex = random.choice(list(self.quadSet))
+        self.quadSet.remove(self.quadrantIndex)
 
-        print "index is", self.index
+        print "quadrant ndex is", self.quadrantIndex
         print "set is", self.quadSet
 
     def randIndex(self):
@@ -752,6 +761,7 @@ class MyApp(ShowBase):
         if (self.keyMap["startBag"] == 1):
             self.bagger()
             self.bagRecordingState = True
+            self.trial=0
             file = open(__file__, 'r')
             obj = [file.read(), parameters]
             self.pickler(obj, self.bagFilename)
@@ -861,7 +871,8 @@ class MyApp(ShowBase):
         print "windfield is", parameters["windField"]
 
     def odourTunnel(self):
-        servo.move(99,int(self.odourField[int(self.player.getX()),int(self.player.getY())]))
+        self.valve=int(self.odourField[int(self.player.getX()),int(self.player.getY())])
+        servo.move(99,self.valve)
 
     def odourFieldGen(self):
         self.odourField=np.zeros([parameters["worldSize"], parameters["worldSize"]])
