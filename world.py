@@ -974,5 +974,5 @@ class MyApp(ShowBase):
 
 app = MyApp()
 app.run()
-plt.show()
+plt.show() # for async plt plot window from closing
 print 2 + 3
