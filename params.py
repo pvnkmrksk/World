@@ -11,7 +11,7 @@ parameters = {
     "emergence": 20160507,
     "age": 50,
     "windQuad": [-1, -1, 180, 180],  # -1 is open loop
-    "odourQuad":[0,1,'c',1], #0 is always off, 1 is always on, c is custom
+    "odourQuad":['c','c','c','c'], #0 is always off, 1 is always on, c is custom
     "odour1":"models/odour/1.png",
     "odour2":"models/odour/2.png",
     "odour3":"models/odour/3.png",

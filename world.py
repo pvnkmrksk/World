@@ -427,10 +427,10 @@ class MyApp(ShowBase):
             x, y, z = self.player.getPos()
             windDir = parameters["windField"][x, y]
             self.windTunnel(windDir)
+            # self.windTunnel(parameters["windDirection"])
 
         if parameters["loadOdour"]:
             self.odourTunnel()
-            # self.windTunnel(parameters["windDirection"])
 
         self.publisher(self.message())
 
@@ -861,7 +861,7 @@ class MyApp(ShowBase):
         print "windfield is", parameters["windField"]
 
     def odourTunnel(self):
-        servo.move(99,int(self.odourField[self.player.getX(),self.player.getY()]))
+        servo.move(99,int(self.odourField[int(self.player.getX()),int(self.player.getY())]))
 
     def odourFieldGen(self):
         self.odourField=np.zeros([parameters["worldSize"], parameters["worldSize"]])
@@ -870,19 +870,26 @@ class MyApp(ShowBase):
         world = parameters["worldSize"]
 
         parameters["odourQuadImage"]=parameters["odourQuad"]
+        quad=0
         for i in parameters["odourQuad"]:
             from skimage.io import imread
-            if i=='c':
-                parameters["odourQuadImage"][i]=imread("models/odour/"+str(i+1)+".png") #py 0 index but non zero quadrants
 
-        strip=self.plumeStripGen(offset,offset,5,offset,offset/2,0)
-        self.odourField[0:offset, 0:offset] = strip
-        # self.odourField[0:offset, 0:offset] = parameters["odourQuadImage"][2]
+            if i=='c':
+                parameters["odourQuadImage"][quad]=np.rot90(imread("models/odour/"+str(quad+1)+".png")/255)
+                #py 0 index but non zero quadrants and the image is rotated to fix plt and array axes
+                print "odour image is",quad, parameters["odourQuadImage"][quad]
+            quad+=1
+
+        # strip=self.plumeStripGen(offset,offset,5,offset,offset/2,0)
+        # self.odourField[0:offset, 0:offset] = strip
+        self.odourField[0:offset, 0:offset] = parameters["odourQuadImage"][2]
         self.odourField[offset + 1:world, 0:offset] = parameters["odourQuadImage"][3]
         self.odourField[0:offset, offset + 1:world] = parameters["odourQuadImage"][1]
         self.odourField[offset + 1:world, offset + 1:world] = parameters["odourQuadImage"][0]
         parameters["odourField"] = self.odourField
-
+        plt.imshow(np.rot90(self.odourField))
+        plt.gray()
+        plt.show(block=False)
         print parameters["odourField"]
 
     def plumeStripGen(self,fieldWidth,fieldHeight,stripWidth,stripHeight,initX,initY ):
@@ -967,5 +974,5 @@ class MyApp(ShowBase):
 
 app = MyApp()
 app.run()
-
+plt.show()
 print 2 + 3
