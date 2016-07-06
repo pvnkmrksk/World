@@ -6,18 +6,18 @@ parameters = {
     "loadWind": True,
     "loadOdour": True,
 
-    "fly": "fly6",
+    "fly": "fly7",
     "race": "colony apple",
     "emergence": 20160507,
     "age": 50,
     "windQuad": [-1, -1, 180, 180],  # -1 is open loop
-    "odourQuad":['c','c','c','c'], #0 is always off, 1 is always on, c is custom
+    "odourQuad":[0,'s',0,'s'], #0 is always off, 1 is always on, c is custom
     "odour1":"models/odour/1.png",
     "odour2":"models/odour/2.png",
     "odour3":"models/odour/3.png",
     "odour4":"models/odour/4.png",
 
-    "loadingString": "rg",
+    "loadingString": "00",
     "trialNo": 1,
 
     "generateWorld": False,
@@ -28,6 +28,8 @@ parameters = {
     "loadTrajectory": True,
     "loadWorld": True,
     "disabledFly": False,
+    "DCoffset":0.31,
+    "DCoffsetIncrement":0.002,
 
     "frameRecord": False,
     "replayWorld": False,
@@ -50,7 +52,7 @@ parameters = {
     "posL": (32, 64),
     "posR": (96, 64),
     "bboxDist": 5.5,
-    "maxBoutDur": 36000,  # frames
+    "maxBoutDur": 9900,  # frames
 
     "modelSizeSuffix": "257",
     "modelHeightMap": "models/height" + "257" + "0.png",
@@ -58,7 +60,7 @@ parameters = {
     "modelTextureMap": "models/texture" + "257" + "_quadrant_t2.png",
 
     # "modelHeightMap": "models/height" + "257" + "0.png",
-    # "modelTextureMap": "models/texture" + "257" + "s.png",
+    # "modelTextureMap": "models/texture" + "257" + "s.png",rqtpl
 
     "killWorldGen": True,
 
