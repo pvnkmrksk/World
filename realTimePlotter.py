@@ -29,8 +29,8 @@ def listener():
 def trajectory():
     listener()
     plt.scatter(x,y,s=1,c=t)
-    plt.pause(0.001)
-    # plt.show()
+    plt.pause(0.01)
+    plt.draw()
 
 
 def initPlot():
@@ -62,7 +62,7 @@ fig.canvas.mpl_connect('key_press_event', press)
 
 rospy.init_node('plot')
 initPlot()
-plt.show()
+plt.draw()
 
 
 play=True
