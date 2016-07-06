@@ -184,8 +184,10 @@ class MyApp(ShowBase):
 
         self.createEnvironment()
         self.makeLabels()
-        self.windFieldGen()
-        self.odourFieldGen()
+        if parameters["loadWind"]:
+            self.windFieldGen()
+        if parameters["loadOdour"]:
+            self.odourFieldGen()
 
     def initFeedback(self):
         '''
@@ -213,7 +215,7 @@ class MyApp(ShowBase):
                        "lrGain-down": 0,
                        "init": 0, "newInit": 0, "newTopSpeed": 0, "clf": 0, "saveFig": 0,
                        "startBag": 0, "stopBag": 0, "quad1": 0, "quad2": 0, "quad3": 0, "quad4": 0, "human": 0,
-                       "hRight": 0}
+                       "hRight": 0, "DCoffset-up":0,"DCoffset-down":0}
 
         self.accept("escape", self.winClose)
         self.accept("a", self.setKey, ["climb", 1])
@@ -268,6 +270,11 @@ class MyApp(ShowBase):
         # self.accept("8-up",self.setKey,["human",0])
         self.accept("5", self.setKey, ["hRight", 1])
         self.accept("5-up", self.setKey, ["hRight", -1])
+        self.accept("g", self.setKey, ["DCoffset-down", 1])
+        self.accept("g-up", self.setKey, ["DCoffset-down", 0])
+        self.accept("h", self.setKey, ["DCoffset-up", 1])
+        self.accept("h-up", self.setKey, ["DCoffset-up", 0])
+
 
         base.disableMouse()  # or updateCamera will fail!
 
@@ -394,7 +401,7 @@ class MyApp(ShowBase):
 
     def callback(self, data):
         """ Returns Wing Beat Amplitude Difference from received data"""
-        parameters["wbad"] = data.left.angles[0] - data.right.angles[0]
+        parameters["wbad"] = data.left.angles[0] - data.right.angles[0] +parameters["DCoffset"]
         parameters["wbas"] = data.left.angles[0] + data.right.angles[0]
         self.scaledWbad = parameters["lrGain"] * data.left.angles[0] - data.right.angles[0]
         if parameters["disabledFly"]:
@@ -586,6 +593,15 @@ class MyApp(ShowBase):
             if (self.keyMap["lrGain-down"] != 0):
                 parameters["lrGain"] -= parameters["gainIncrement"]
                 print "lrGain is ", parameters["lrGain"]
+
+            #update DCoffset
+            if (self.keyMap["DCoffset-up"] != 0):
+                parameters["DCoffset"] += parameters["DCoffsetIncrement"]
+                print "ofset is ", parameters["DCoffset"]
+
+            if (self.keyMap["DCoffset-down"] != 0):
+                parameters["DCoffset"] -= parameters["DCoffsetIncrement"]
+                print "ofset is ", parameters["DCoffset"]
 
             # respect quad boundary
             if parameters["quad"]:
@@ -889,10 +905,16 @@ class MyApp(ShowBase):
                 parameters["odourQuadImage"][quad]=np.rot90(imread("models/odour/"+str(quad+1)+".png")/255)
                 #py 0 index but non zero quadrants and the image is rotated to fix plt and array axes
                 print "odour image is",quad, parameters["odourQuadImage"][quad]
+            elif i=='s':
+                width=5
+                strip=self.plumeStripGen(offset,offset,width,offset,offset/2-(width/2),0)
+                parameters["odourQuadImage"][quad]= strip
+
+
             quad+=1
 
-        # strip=self.plumeStripGen(offset,offset,5,offset,offset/2,0)
-        # self.odourField[0:offset, 0:offset] = strip
+
+
         self.odourField[0:offset, 0:offset] = parameters["odourQuadImage"][2]
         self.odourField[offset + 1:world, 0:offset] = parameters["odourQuadImage"][3]
         self.odourField[0:offset, offset + 1:world] = parameters["odourQuadImage"][1]
