@@ -50,17 +50,22 @@ def move(servo, angle):
 
     ser.write(chr(255))
     ser.write(chr(servo))
+    lb=45
+    ub=135
 
-    if (0 <= angle <= 180):
+    if servo==99:
+        ser.write((chr(angle)))
+
+    elif (lb < angle <= ub) :
         # ser.write(chr(255))
         # ser.write(chr(servo))
         ser.write(chr(angle))
 
-    elif (180<angle<=240):
-        ser.write(chr(180))
+    elif (ub<angle<=240):
+        ser.write(chr(ub))
 
-    elif (300<angle<=360):
-        ser.write(chr(0))
+    elif (300<angle<=360) or angle <lb:
+        ser.write(chr(lb))
     #60 degrees of buffer space to handle noise in turning. Will only bounce to other side if 30 degrees away from
         #end point like. Will bounce to 0 if it is 300 to 360. Will bounce to 180 only if between 180 and 240
     # else:

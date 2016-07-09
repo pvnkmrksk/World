@@ -293,6 +293,7 @@ class MyApp(ShowBase):
     def winClose(self):
         # self.closeWindow(self.win)
         self.plotter.kill()
+        servo.move(99,0)#close valve
         sys.exit()
 
     # output functions
@@ -906,7 +907,7 @@ class MyApp(ShowBase):
                 #py 0 index but non zero quadrants and the image is rotated to fix plt and array axes
                 print "odour image is",quad, parameters["odourQuadImage"][quad]
             elif i=='s':
-                width=5
+                width=15
                 strip=self.plumeStripGen(offset,offset,width,offset,offset/2-(width/2),0)
                 parameters["odourQuadImage"][quad]= strip
 

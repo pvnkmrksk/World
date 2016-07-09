@@ -49,6 +49,7 @@ int i;               // iterator
 
 // LED on Pin 13 for digital on/off demo
 int ledPin = 13;
+int valveLedPin=2;
 int pinState = LOW;
 
 int s1=6;           //servo 1 pin
@@ -110,6 +111,7 @@ void loop()
             pinState = LOW;
           }
           digitalWrite(ledPin, pinState);
+          digitalWrite(valveLedPin, pinState);
           break;
       }
     }

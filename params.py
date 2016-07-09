@@ -6,7 +6,7 @@ parameters = {
     "loadWind": True,
     "loadOdour": True,
 
-    "fly": "fly7",
+    "fly": "fly8",
     "race": "colony apple",
     "emergence": 20160507,
     "age": 50,
@@ -28,7 +28,7 @@ parameters = {
     "loadTrajectory": True,
     "loadWorld": True,
     "disabledFly": False,
-    "DCoffset":0.31,
+    "DCoffset":0.232,
     "DCoffsetIncrement":0.002,
 
     "frameRecord": False,
@@ -51,7 +51,7 @@ parameters = {
     "quad": True,
     "posL": (32, 64),
     "posR": (96, 64),
-    "bboxDist": 5.5,
+    "bboxDist": 7.5,
     "maxBoutDur": 9900,  # frames
 
     "modelSizeSuffix": "257",
@@ -100,7 +100,7 @@ parameters = {
 
     "windowWidth": 4320,  # 1440,
     "windowHeight": 2560,
-    "bagTopics": "/usb_cam/image_raw /kinefly/image_output /kinefly/flystate /trajectory",
+    "bagTopics": "/usb_cam/image_raw /kinefly/image_output /kinefly/flystate /trajectory /vr_camera/image_raw",
 
 }
 
