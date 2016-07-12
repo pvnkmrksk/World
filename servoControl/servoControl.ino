@@ -50,8 +50,8 @@ int i;               // iterator
 // LED on Pin 13 for digital on/off demo
 int ledPin = 13;
 int valveLedPin=2;
+int buzzerPin=8;
 int pinState = LOW;
-
 int s1=6;           //servo 1 pin
 
 void setup() 
@@ -106,9 +106,11 @@ void loop()
         case 99:
           if (pos == 1) {
             pinState = HIGH;
+            tone(buzzerPin,500);
           }
           if (pos == 0) {
             pinState = LOW;
+            noTone(buzzerPin);
           }
           digitalWrite(ledPin, pinState);
           digitalWrite(valveLedPin, pinState);
