@@ -169,7 +169,7 @@ class MyApp(ShowBase):
         '''
         initilizes plotting mechanism
         inits models, world and labels
-        inits the wind field
+    inits the wind field
         Returns:
             None
 
@@ -215,7 +215,8 @@ class MyApp(ShowBase):
                        "lrGain-down": 0,
                        "init": 0, "newInit": 0, "newTopSpeed": 0, "clf": 0, "saveFig": 0,
                        "startBag": 0, "stopBag": 0, "quad1": 0, "quad2": 0, "quad3": 0, "quad4": 0, "human": 0,
-                       "hRight": 0, "DCoffset-up":0,"DCoffset-down":0}
+                       "hRight": 0, "DCoffset-up":0,"DCoffset-down":0,
+                       "valve-on":0,"valve-off":1}
 
         self.accept("escape", self.winClose)
         self.accept("a", self.setKey, ["climb", 1])
@@ -254,10 +255,10 @@ class MyApp(ShowBase):
         self.accept("d-up", self.setKey, ["stopBag", 0])
         self.accept("t", self.setKey, ["newTopSpeed", 1])
         self.accept("t-up", self.setKey, ["newTopSpeed", 0])
-        self.accept("v", self.setKey, ["lrGain-down", 1])
-        self.accept("v-up", self.setKey, ["lrGain-down", 0])
-        self.accept("b", self.setKey, ["lrGain-up", 1])
-        self.accept("b-up", self.setKey, ["lrGain-up", 0])
+        # self.accept("v", self.setKey, ["lrGain-down", 1])
+        # self.accept("v-up", self.setKey, ["lrGain-down", 0])
+        # self.accept("b", self.setKey, ["lrGain-up", 1])
+        # self.accept("b-up", self.setKey, ["lrGain-up", 0])
         self.accept("1", self.setKey, ["quad1", 1])
         self.accept("1-up", self.setKey, ["quad1", 0])
         self.accept("2", self.setKey, ["quad2", 1])
@@ -274,6 +275,10 @@ class MyApp(ShowBase):
         self.accept("g-up", self.setKey, ["DCoffset-down", 0])
         self.accept("h", self.setKey, ["DCoffset-up", 1])
         self.accept("h-up", self.setKey, ["DCoffset-up", 0])
+        self.accept("v", self.setKey, ["valve-on", 1])
+        self.accept("v-up", self.setKey, ["valve-on", 0])
+        self.accept("c", self.setKey, ["valve-off", 1])
+        self.accept("c-up", self.setKey, ["valve-off", 0])
 
 
         base.disableMouse()  # or updateCamera will fail!
@@ -604,6 +609,19 @@ class MyApp(ShowBase):
                 parameters["DCoffset"] -= parameters["DCoffsetIncrement"]
                 print "ofset is ", parameters["DCoffset"]
 
+            #update use controlled valve state
+            if (self.keyMap["valve-on"] != 0):
+                self.valve=1
+                servo.move(99, self.valve)
+
+                # print "valve is ", self.valve
+            if (self.keyMap["valve-off"] != 0):
+                self.valve=0
+                servo.move(99, self.valve)
+
+                # print "valve is ", self.valve
+
+
             # respect quad boundary
             if parameters["quad"]:
                 # print "x is",self.player.getX
@@ -676,8 +694,8 @@ class MyApp(ShowBase):
         quad = np.array(
             [[quad1PosL, quad1PosR], [quad2PosL, quad2PosR], [quad3PosL, quad3PosR], [quad4PosL, quad4PosR]])
         # print offset
-        # print "even is ",odd
-        # print "even is ", even
+        print "even is ",odd
+        print "even is ", even
         return odd, even, quad
 
     def isInsideTarget(self, target):
@@ -780,7 +798,11 @@ class MyApp(ShowBase):
             self.bagRecordingState = True
             self.trial=0
             file = open(__file__, 'r')
-            obj = [file.read(), parameters]
+            servo=open("servo.py",'r')
+            arduino=open("servoControl/servoControl.ino",'r')
+            world=open(self.worldFilename)
+
+            obj = [parameters,file.read(),servo.read(),arduino.read(),world.read() ]
             self.pickler(obj, self.bagFilename)
 
         elif (self.keyMap["stopBag"] != 0):
@@ -885,7 +907,7 @@ class MyApp(ShowBase):
         self.windField[offset + 1:world, offset + 1:world] = parameters["windQuad"][0]
         parameters["windField"] = self.windField
 
-        print "windfield is", parameters["windField"]
+        # print "windfield is", parameters["windField"]
 
     def odourTunnel(self):
         self.valve=int(self.odourField[int(self.player.getX()),int(self.player.getY())])
@@ -944,7 +966,7 @@ class MyApp(ShowBase):
         stripField=np.zeros([fieldWidth,fieldHeight])
         stripField[initX:initX+stripWidth,initY:initY+stripHeight]=1
 
-        print "stripfield is",stripField
+        # print "stripfield is",stripField
         return stripField
 
     # evals

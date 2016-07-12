@@ -9,4 +9,8 @@ while True:
 
     except KeyboardInterrupt:
         print " thanks for controlling the valve"
+        servo.move(99,0) #close valve on exit
         break
+
+    except ValueError:
+        print "enter 0 or 1"

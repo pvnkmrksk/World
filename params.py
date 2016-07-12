@@ -4,20 +4,24 @@ parameters = {
     # bools
 
     "loadWind": True,
-    "loadOdour": True,
+    "loadOdour": False,
 
     "fly": "fly8",
     "race": "colony apple",
     "emergence": 20160507,
     "age": 50,
-    "windQuad": [-1, -1, 180, 180],  # -1 is open loop
-    "odourQuad":[0,'s',0,'s'], #0 is always off, 1 is always on, c is custom
+    "windQuad": [180, 150, 210, 180],  # -1 is open loop
+    "odourQuad":['c','c','c','c'], #0 is always off, 1 is always on, c is custom
     "odour1":"models/odour/1.png",
     "odour2":"models/odour/2.png",
     "odour3":"models/odour/3.png",
     "odour4":"models/odour/4.png",
+    "packetFrequency":5,
 
-    "loadingString": "00",
+    "loadingString": "rg",
+    "DCoffset": 0.072,
+    "DCoffsetIncrement": 0.002,
+
     "trialNo": 1,
 
     "generateWorld": False,
@@ -28,8 +32,6 @@ parameters = {
     "loadTrajectory": True,
     "loadWorld": True,
     "disabledFly": False,
-    "DCoffset":0.232,
-    "DCoffsetIncrement":0.002,
 
     "frameRecord": False,
     "replayWorld": False,
@@ -57,7 +59,7 @@ parameters = {
     "modelSizeSuffix": "257",
     "modelHeightMap": "models/height" + "257" + "0.png",
     # "modelTextureMap": "models/texture_green_" + "257" + ".png",
-    "modelTextureMap": "models/texture" + "257" + "_quadrant_t2.png",
+    "modelTextureMap": "models/texture" + "257" + "_quadrant_t2_sym.png",
 
     # "modelHeightMap": "models/height" + "257" + "0.png",
     # "modelTextureMap": "models/texture" + "257" + "s.png",rqtpl
@@ -100,7 +102,7 @@ parameters = {
 
     "windowWidth": 4320,  # 1440,
     "windowHeight": 2560,
-    "bagTopics": "/usb_cam/image_raw /kinefly/image_output /kinefly/flystate /trajectory /vr_camera/image_raw",
+    "bagTopics": "/usb_cam/image_raw /kinefly/image_output /kinefly/flystate /trajectory /vr_camera/image_raw /servo_camera/image_raw",
 
 }
 

@@ -15,11 +15,15 @@ for use with Arduino "MultipleSerialServoControl" sketch.
 ################################################
 
 import serial
+from params import parameters
+from scipy import signal
+import numpy as np
 
 
 usbport0 = '/dev/ttyACM0'
 usbport1 = '/dev/ttyACM1'
 usbport2 = '/dev/ttyACM2'
+usbport3 = '/dev/ttyACM3'
 # Set up serial baud rate
 
 try :
@@ -31,12 +35,24 @@ except serial.SerialException:
         print "using port 1 \n \n"
 
     except serial.SerialException:
+        try:
+            ser = serial.Serial(usbport2, 9600)
+            print "using port 2 \n \n"
 
-        ser = serial.Serial(usbport2, 9600)
-        print "using port 2 \n \n"
+        except serial.SerialException:
+            ser = serial.Serial(usbport3, 9600)
+            print "using port 3 \n \n"
+
+prevValve=0
+currValve=0
+frame=0
+t = np.linspace(0, 1, 165, endpoint=False) #time series for 1 second, 165 hz referesh rate
+y=(signal.square(2 * np.pi *parameters["packetFrequency"] * t)) #square wave of 5 Hz
+y = (y + abs(y)) / 2 #-1 to 0, 1 to 1
 
 
 def move(servo, angle):
+    global prevValve,currValve, frame
     '''Moves the specified servo to the supplied angle.
 
     Arguments:
@@ -50,11 +66,27 @@ def move(servo, angle):
 
     ser.write(chr(255))
     ser.write(chr(servo))
-    lb=45
-    ub=135
+    lb=0
+    ub=180
 
     if servo==99:
-        ser.write((chr(angle)))
+        currValve=angle
+        if currValve:
+
+            if prevValve:
+                try:
+                    angle=y[frame]
+                except IndexError:
+                    frame=0
+                    angle=y[frame]
+            else:
+                frame=0
+                angle = y[frame]
+
+            prevValve = currValve
+            frame += 1
+        ser.write((chr(int(angle))))
+
 
     elif (lb < angle <= ub) :
         # ser.write(chr(255))
