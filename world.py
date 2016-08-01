@@ -1,4 +1,13 @@
 # system imports
+"""
+Imports for file handling, datetime, json reading
+Followed by ROS and messages type for wbad
+Then Panda3d direct for visual stimuli
+matplotlib, numpy , pandas, pickle
+
+Finally parmeters stored as dictionary in params
+
+"""
 from __future__ import division
 from datetime import datetime
 import sys, time, subprocess, os, serial  # ROS imports
@@ -21,8 +30,17 @@ import matplotlib.patches as patches
 import cPickle as pickle
 import random
 import numpy as np
+import easygui
+import pandas as pd
+
 from params import parameters
 
+
+"""
+Replay world playsback position and orientation, can be additionally used for screen capturing
+Servo instantiates the servo object
+next check for if ROS is running in the background, else start ros and the kinefly for WBAD
+"""
 # If replay world for playback old data, copy existing params to prevent overwrite from the saved state of previous run
 if parameters["replayWorld"]:
 
@@ -32,9 +50,6 @@ if parameters["replayWorld"]:
     start = parameters["captureStart"]
     increment = parameters["playbackIncrement"]
 
-    import easygui
-    import pandas as pd
-
     # replayPath = easygui.fileopenbox(multiple=False, filetypes=["*.pickle"])
     replayPath = "/home/behaviour/catkin/src/beginner/scripts/panda/world/bags/fly4/fly4_quad_rg_gain7.0_speed_3.5_" \
                  "trial_1_2016-04-13__23:31:35.bag_df.pickle"
@@ -42,13 +57,13 @@ if parameters["replayWorld"]:
     print replayPath
     df = pd.read_pickle(replayPath)
 
-    # slice pos and orientation and remove nans
+    # slice pos and orientation and remove nans heading,pitch,roll, x,y,z and drop na which is from camera message time
     traj = df.loc[:, "trajectory__orientation_x":"trajectory__position_z"].dropna()
     cols = traj.columns.tolist()  # list of colums
     cols = cols[-3:] + cols[:-3]  # reorder colums. hprpos to poshpr by python splicing
     traj = traj[cols]  # reassign with this order
 
-    # change current parameters to parameters saved in dataframe
+    # //todo change current parameters to parameters saved in dataframe
     parameters = None
 
     try:
@@ -56,7 +71,7 @@ if parameters["replayWorld"]:
 
     except:
         parameters = json.loads(df.metadata__data.values[0])
-        print "using exceprion"
+        print "using exceprion to load params"
 
     # dump back params from vars
     parameters["replayWorld"] = replay
@@ -73,18 +88,31 @@ except serial.serialutil.SerialException:
 
 # Checkif rosmaster is running else run roscore
 try:
-    rostopic.get_topic_class('/rosout')
-    is_rosmaster_running = True
+    rostopic.get_topic_class('/rosout')    # is_rosmaster_running = True
 except rostopic.ROSTopicIOException as e:
     roscore = subprocess.Popen('roscore')  # then start roscore yourself
     time.sleep(1)  # wait a bit to be sure the roscore is really launched
-    subprocess.Popen(["roslaunch", "Kinefly", "main.launch"])
+    subprocess.Popen(["roslaunch", "Kinefly", "main.launch"]) # start kinefly
 
 #World class definition
 class MyApp(ShowBase):
+    """
+    Initialize windows, params, I/O and feedback, taskUpdate
+    Windows: Size, position
+    Params: Init values, initPos list generation
+    Input: Keyboard setup
+    Output: Plotting, Models, Environment,  DisplayRegions, WindField, OdourField
+    FeedBack: ROSnode for WBAD
+    taskUpdate: update player, camera, bagcontrol, control servo and valve, publish message
 
+    """
     #init windows size, params, I/O, feedback
     def __init__(self):
+        """
+        Set the window size
+        inherit from panda showbase
+        initialize init function for params, I/O, feedback and TaskManager
+        """
 
         loadPrcFileData("", "win-size " + str(parameters["windowWidth"] / parameters["captureScale"]) + " " +
                         str(parameters["windowHeight"] / parameters["captureScale"]))  # set window size
@@ -92,7 +120,7 @@ class MyApp(ShowBase):
         # loadPrcFileData('', 'fullscreen true')
 
         ShowBase.__init__(self)  # start the app
-        base.setFrameRateMeter(True)
+        base.setFrameRateMeter(True)#show frame rate monitor
 
         self.initParams()  # run this 1st. Loads all content and params.
         self.initInput()
@@ -103,11 +131,11 @@ class MyApp(ShowBase):
     #
     def initParams(self):
         '''
-        initializes camera
-        initiales screen capture
-        generates init positions lists
-        generates object positions
-        init param values
+        locks fps
+        frame capture in playback mode
+        generate init position list of player
+        generate positions of objects in the choice assay
+        init internal param values
 
         Returns:
             None
@@ -159,17 +187,19 @@ class MyApp(ShowBase):
 
     def initInput(self):
         '''
-        initializes use input via keyboard
+        initializes user input via keyboard
         Returns:
-
+            None
         '''
         self.keyboardSetup()
 
     def initOutput(self):
         '''
-        initilizes plotting mechanism
+        initializes plotting mechanism
         inits models, world and labels
-    inits the wind field
+        inits the wind field generation
+        inits the odour field generation
+
         Returns:
             None
 
@@ -193,6 +223,7 @@ class MyApp(ShowBase):
         '''
         initializes the ros nodes
         initilizes the listener node for closing the loop
+
         Returns:
             None
 
@@ -204,6 +235,32 @@ class MyApp(ShowBase):
     def keyboardSetup(self):
         '''
         Setup the keybindings to actions
+        Esc: Exit
+        a   : climb
+        z   : fall
+        up  : accelerate
+        down: decelerate
+        left:head Counter clockwise
+        right: head clockwise
+        o   : Open loop
+        p   : Closed loop
+        r   : reverse gear
+        s   : handbrake
+        i   : reset to init position
+        u   : increase gain
+        y   : decrease gain
+        e   : start bag recording
+        d   : stop bag recording
+        1234: go to quadrants 1234
+        8   : human mode on
+        5   : human control key
+        g   : Decrease DC offset
+        h   : Increase DC offset
+        v   : valve on
+        c   : valve off
+
+        # //todo q,w,t  discard key funcs
+
 
         Returns:
             None
@@ -216,7 +273,7 @@ class MyApp(ShowBase):
                        "init": 0, "newInit": 0, "newTopSpeed": 0, "clf": 0, "saveFig": 0,
                        "startBag": 0, "stopBag": 0, "quad1": 0, "quad2": 0, "quad3": 0, "quad4": 0, "human": 0,
                        "hRight": 0, "DCoffset-up":0,"DCoffset-down":0,
-                       "valve-on":0,"valve-off":1}
+                       "valve-on":0,"valve-off":0}
 
         self.accept("escape", self.winClose)
         self.accept("a", self.setKey, ["climb", 1])
@@ -296,6 +353,13 @@ class MyApp(ShowBase):
         self.keyMap[key] = value
 
     def winClose(self):
+        """
+        kills plotting window subprocess
+        sets valve to off to prevent odour desaturation
+        exits the window
+        Returns:
+            None
+        """
         # self.closeWindow(self.win)
         self.plotter.kill()
         servo.move(99,0)#close valve
@@ -303,6 +367,11 @@ class MyApp(ShowBase):
 
     # output functions
     def initPlot(self):
+        """
+        opens a new process to call realtimeplotter and then sleeps for 1 second to ensure functioning
+        Returns:
+
+        """
         if parameters["loadTrajectory"]:
             self.plotter = subprocess.Popen(["python", "realTimePlotter.py"])
             print "\n \n \n realtime plotter started \n \n \n"
@@ -310,10 +379,23 @@ class MyApp(ShowBase):
 
     # models
     def modelLoader(self):
+        """
+        calls worldloader if world load is true
+        Returns:
+        None
+        """
         if parameters["loadWorld"]:
             self.worldLoader()
 
     def worldLoader(self):
+        """
+        generate filename of world,
+        if file absent or force generate true, generate world using worldgen
+        load model and reparent panda render node
+        create player node and set init pos and hpr
+        Returns:
+            None
+        """
         # global plotter
         self.worldFilename = "models/world_" + "size:" + parameters["modelSizeSuffix"] + "_obj:" \
                              + parameters["loadingString"] + "_num:" + str(parameters["widthObjects"]) \
@@ -338,6 +420,13 @@ class MyApp(ShowBase):
 
     # sky load
     def createEnvironment(self):
+        """
+        load fog
+        load sky
+        setup lights
+        Returns:
+
+        """
         # Fog to hide a performance tweak:
         colour = (0.0, 0.0, 0.0)
         expfog = Fog("scene-wide-fog")
@@ -366,6 +455,14 @@ class MyApp(ShowBase):
 
     # display regions
     def initDisplayRegion(self):
+        """
+        make 3 display regions for the 3 monitors which project 3 120degree images panning the full sphere
+        set camera with 120, 140 calculated using geometry fov
+        attach camera to display region
+
+        Returns:
+
+        """
 
         dr = base.camNode.getDisplayRegion(0)
         dr.setActive(0)
@@ -406,7 +503,14 @@ class MyApp(ShowBase):
         rospy.Subscriber("/kinefly/flystate", MsgFlystate, self.callback)
 
     def callback(self, data):
-        """ Returns Wing Beat Amplitude Difference from received data"""
+        """
+        Returns Wing Beat Amplitude Difference from received data
+        Args:
+            data: the data from the subscriber ROS node
+
+        Returns:
+
+        """
         parameters["wbad"] = data.left.angles[0] - data.right.angles[0] +parameters["DCoffset"]
         parameters["wbas"] = data.left.angles[0] + data.right.angles[0]
         self.scaledWbad = parameters["lrGain"] * data.left.angles[0] - data.right.angles[0]
@@ -415,10 +519,28 @@ class MyApp(ShowBase):
         return parameters["wbad"]
 
     def publisher(self, data):
+        """
+        publishes the trajectory data using ROS node
+        Args:
+            data: message in MsgTrajectory format to be published
+
+        Returns:
+
+        """
         trajectory = rospy.Publisher('trajectory', MsgTrajectory, queue_size=600)
         trajectory.publish(data)
 
     def message(self):
+        """
+        generate message of MsgTrajectory
+        sends header with timestamp,
+        current position, orientation
+        wbad, wbas, speed, gain, closedstate
+        trial, servoAngle,valve, quadrant
+        reset to indicate a flag on quad change
+        Returns:
+
+        """
 
         mes = MsgTrajectory()
         mes.header.stamp = rospy.Time.now()
@@ -440,6 +562,17 @@ class MyApp(ShowBase):
 
     # frameupdate
     def updateTask(self, task):
+        """
+        calls all update functions, player, camera and bag control
+        updates labels, servoangle, valveState
+        Finally publishes the message and reset reset to false after a reset event
+
+        Args:
+            task: name of task to call
+
+        Returns:
+            task.cont, panda internal return value to say , frame call complete,please render the frame
+        """
 
         self.updatePlayer()
         self.updateCamera()
@@ -454,8 +587,9 @@ class MyApp(ShowBase):
             self.windTunnel(windDir)
             # self.windTunnel(parameters["windDirection"])
 
-        if parameters["loadOdour"]:
-            self.odourTunnel()
+        if not(self.keyMap["valve-on"] or self.keyMap["valve-off"]):
+            if parameters["loadOdour"]:
+                self.odourTunnel()
 
         self.publisher(self.message())
         self.reset=False

@@ -3,23 +3,24 @@ from panda3d.core import Vec3
 parameters = {
     # bools
 
-    "loadWind": True,
+    "loadWind": False,
     "loadOdour": False,
 
     "fly": "fly8",
     "race": "colony apple",
     "emergence": 20160507,
     "age": 50,
-    "windQuad": [180, 150, 210, 180],  # -1 is open loop
-    "odourQuad":['c','c','c','c'], #0 is always off, 1 is always on, c is custom
+    "windQuad": [180, 180, -1, -1],  # -1 is open loop
+    "odourQuad":['s',0,'s',0], #0 is always off, 1 is always on, c is custom
     "odour1":"models/odour/1.png",
     "odour2":"models/odour/2.png",
     "odour3":"models/odour/3.png",
     "odour4":"models/odour/4.png",
+    "pulseMode":False,
     "packetFrequency":5,
 
-    "loadingString": "rg",
-    "DCoffset": 0.072,
+    "loadingString": "00",
+    "DCoffset": 0.176,
     "DCoffsetIncrement": 0.002,
 
     "trialNo": 1,
