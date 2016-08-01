@@ -70,21 +70,23 @@ def move(servo, angle):
     ub=180
 
     if servo==99:
-        currValve=angle
-        if currValve:
+        if parameters["pulseMode"]:
+            currValve=angle
+            if currValve:
 
-            if prevValve:
-                try:
-                    angle=y[frame]
-                except IndexError:
+                if prevValve:
+                    try:
+                        angle=y[frame]
+                    except IndexError:
+                        frame=0
+                        angle=y[frame]
+                else:
                     frame=0
-                    angle=y[frame]
-            else:
-                frame=0
-                angle = y[frame]
+                    angle = y[frame]
 
-            prevValve = currValve
-            frame += 1
+                prevValve = currValve
+                frame += 1
+
         ser.write((chr(int(angle))))
 
 
