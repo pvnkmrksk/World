@@ -105,6 +105,31 @@ parameters = {
     "windowHeight": 2560,
     "bagTopics": "/usb_cam/image_raw /kinefly/image_output /kinefly/flystate /trajectory /vr_camera/image_raw /servo_camera/image_raw",
 
-}
 
+    "imposeStimulus":True,
+    "durList": [4, 2, 1],
+    "headingRate": [2, 4, 8],
+
+    "fps": 165,  # repeats items with number of frames since all durations in seconds
+
+    "intraTrial": 0.5,  # duration between two imposed turns within a sweep
+    "interTrial": 2,  # duration between two sweeps
+    "startDur": 4,  # duration of the first turn
+    "stopDur": 1,  # duration of the last turn
+    "stepDur": -1,  # if not in geometric progression gpMode, it is ap mode, linear spaced durations (arithmetic prog)
+    "factorDur": 0.5,  # if in gpmode, the common ration of consequetive durations
+    "nSteps": 3,  # number of steps , will be used instead of stopDur if stepmode is true
+    "nReps": 2,  # number of times the entire sweep to be repated
+    "startHeading": 2.1,  # initial heading rate, will be used if areaMode is false
+    "area": 10,  # area, will be kept constant , will be used instead of startheading if areaMode is true
+
+    "gpMode": True,  # uses GP instead of AP for durations list gen
+    "stepMode": True,  # uses number steps instead of using start and end
+    "durListGen": True,  # Generate dur list instead of manually entered
+    "headingListGen": True,  # generate heading List ,else use manully entered list
+    "areaMode": True,  # Area mode if true, will genreate heading based on given value instead of startHeading
+    "signFlip": True,  # flip direction between each turn
+    "orderFlip": True,  # flip entire order of sweep
+
+}
 

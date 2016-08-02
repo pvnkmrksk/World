@@ -33,8 +33,7 @@ import numpy as np
 import easygui
 import pandas as pd
 
-from params import parameters
-
+from params import *
 
 """
 Replay world playsback position and orientation, can be additionally used for screen capturing
@@ -179,7 +178,8 @@ class MyApp(ShowBase):
         self.decayTime = -1
         self.boutFrame = 0
         self.lastResetTime = datetime.now()
-        self.frame = parameters["captureStart"]
+        self.replayFrame = parameters["captureStart"]
+        self.frame=0
 
         self.quadSet = set(range(0, 4))
         self.quadSetCopy = self.quadSet.copy()
@@ -188,10 +188,14 @@ class MyApp(ShowBase):
     def initInput(self):
         '''
         initializes user input via keyboard
+        genrates stimulus List for imposed turn
         Returns:
             None
         '''
         self.keyboardSetup()
+        self.stimList=self.stimulusListGen()
+        parameters["stimList"]=self.stimList
+
 
     def initOutput(self):
         '''
@@ -624,16 +628,16 @@ class MyApp(ShowBase):
             """
 
             try:
-                poshpr = traj.ix[self.frame, :].values
-                print "frame is", self.frame
+                poshpr = traj.ix[self.replayFrame, :].values
+                print "frame is", self.replayFrame
             except IndexError:
                 print "Finished playback"
                 self.winClose()
             # print poshpr
             self.player.setPosHpr(tuple(poshpr[0:3]), tuple(poshpr[3:]))
-            # self.player.setPosHpr(traj.ix[self.frame,:].values)
+            # self.player.setPosHpr(traj.ix[self.replayFrame,:].values)
 
-            self.frame += parameters["playbackIncrement"]
+            self.replayFrame += parameters["playbackIncrement"]
         else:
 
             """
@@ -647,6 +651,13 @@ class MyApp(ShowBase):
             climbfactor = 0.01  # (.001) * scalefactor
             bankfactor = 2  # .5  * scalefactor
             speedfactor = scalefactor
+
+            if parameters["imposeStimulus"]:
+                try:
+                    self.player.setH(self.player.getH()+self.stimList[self.frame] )
+                except IndexError:
+                    print "\n \n impose Stimulus Complete \n \n"
+                    parameters["imposeStimulus"]=False
 
             # closed loop
             """
@@ -739,6 +750,7 @@ class MyApp(ShowBase):
 
             #update DCoffset
             """
+
             DC offset is to fix individual errors in allignment of wbad and tethering
             When a fly "intends" to fly straight, the wbad should be around 0.
             But due to geometry errors and position errors, the zero is not zero.
@@ -863,6 +875,66 @@ class MyApp(ShowBase):
                 parameters["lrGain"] += parameters["gainIncrement"]
                 print "lrGain is ", parameters["lrGain"]
 
+            self.frame+=1
+
+    def stimulusListGen(self):
+        print "startDur is",  parameters["nSteps"]
+
+        if not parameters["stepMode"]:
+            parameters["nSteps"] = np.log10(parameters["stopDur"] / parameters["startDur"]) / \
+                     np.log10(parameters["factorDur"])
+        else:
+            parameters["nSteps"]-= 1  # because power estimation will increment it because factor^0 is also included
+
+        if not parameters["areaMode"]:
+            parameters["area "]= parameters["startHeading"] * parameters["startDur"]
+
+        if parameters["durListGen"]:
+            if parameters["gpMode"]:
+                print "parameters is True"
+                parameters["durList"] = np.array([parameters["startDur"] *
+                                                  parameters["factorDur"] ** x
+                                                  for x in range(int(parameters["nSteps"] + 1))])
+            else:
+                parameters["durList"] = np.array(range(parameters["startDur"],
+                                                       parameters["stopDur"], parameters["stepDur"]))
+                print "parameters is False"
+        if parameters["headingListGen"]:
+            parameters["headingRate"] = parameters["area"] / parameters["durList"]
+
+        print "parameters durlist is", parameters["durList"]
+        print "Heading is", parameters["headingRate"]
+        print parameters["durList"] * parameters["headingRate"]
+        i = 0
+        parameters["timeSeries"] = (np.zeros(parameters["interTrial"] * parameters["fps"]))
+
+        for dur in parameters["durList"]:
+            try:
+                assert len(parameters["durList"]) == len(parameters["headingRate"])
+
+            except AssertionError:
+                print "gain and dur of smae lengty"
+
+            parameters["timeSeries"] = np.append(parameters["timeSeries"],
+                                                 parameters["headingRate"][i] * np.ones(dur * parameters["fps"]))
+            parameters["timeSeries"] = np.append(parameters["timeSeries"], np.zeros(parameters["intraTrial"] * parameters["fps"]))
+
+            if parameters["signFlip"]:
+                parameters["timeSeries"] = np.append(parameters["timeSeries"],
+                                                     -parameters["headingRate"][i] * np.ones(dur * parameters["fps"]))
+                parameters["timeSeries"] = np.append(parameters["timeSeries"], np.zeros(parameters["intraTrial"] * parameters["fps"]))
+
+            i += 1
+
+        parameters["timeSeries"] = np.append(parameters["timeSeries"], np.zeros(parameters["interTrial"] * parameters["fps"]))
+
+        if parameters["orderFlip"]:
+            parameters["timeSeries"] = np.append(parameters["timeSeries"], np.flipud(parameters["timeSeries"]))
+        parameters["timeSeries"] = np.tile(parameters["timeSeries"], parameters["nReps"])
+        return parameters["timeSeries"]
+
+        plt.plot(parameters["timeSeries"])
+        plt.show()
 
     def tooLongBoutReset(self):
         if self.boutFrame > parameters["maxBoutDur"]:
