@@ -601,7 +601,27 @@ class MyApp(ShowBase):
 
 
     def updatePlayer(self):
+        """
+        tries to replay past poshpr, else updates it using wbad
+
+        listens to keyboard to update values
+        closed and open loop
+        climb and fall
+        turn cw and ccw
+        throttle and handbrake
+        handbrake and translation
+        gain and DC offset
+        respects space time boundary conditions
+
+        Returns:
+            None
+        """
         if parameters["replayWorld"]:
+            """
+            Replay world sets the current frame poshpr from the dataframe loaded from file
+            If current frame exceeds dataframe, Indexerror catches and finishes playback cleanly
+            Finally it updates the current frame number by playbackIncrement which can be used to speed up playback
+            """
 
             try:
                 poshpr = traj.ix[self.frame, :].values
@@ -616,6 +636,11 @@ class MyApp(ShowBase):
             self.frame += parameters["playbackIncrement"]
         else:
 
+            """
+            the factors are essentially keyboard gains. On user input via keyboard, the gain with which the action
+            happens is controlled by these numbers
+            There is a fps invariant factor which is implemented using a frame time to normalize for computing power
+            """
 
             # global prevPos, currentPos, ax, fig, treePos, redPos Global Clock by default, panda runs as fast as it can frame to frame
             scalefactor = parameters["speed"] * (globalClock.getDt())
@@ -624,6 +649,18 @@ class MyApp(ShowBase):
             speedfactor = scalefactor
 
             # closed loop
+            """
+            In closed loop, the current heading is updated by adding(subtracting) a value that is product of
+            wbad and gain.
+            Heading is defined counterclockwise in degrees.
+            wbad is left-right. positive wbad is left>right --> right turn --> heading increase cw.
+            Therefore, the negative sign in effect brings about the negative feedback and makes coherent reality.
+
+            In human mode, there is a button on activaqtion, a key down is left and key up is right.
+            This is a costant race to keep stable and inactivity is not a solution.
+            One has to constantly osscilate up down to keep heading steady.
+
+            """
             if (self.keyMap["closed"] != 0):
                 self.player.setH(self.player.getH() - parameters["wbad"] * parameters["gain"])
 
@@ -631,6 +668,10 @@ class MyApp(ShowBase):
                 self.player.setH(self.player.getH() + self.keyMap["hRight"] * parameters["gain"])
 
             # Climb and Fall
+            """
+            this is strictly not climb and fall. It is actually Z up and Z down.
+            when key press, z is incremented (decrenmented) by climbfactor
+            """
             if (self.keyMap["climb"] != 0):  # and parameters["speed"] > 0.00):
                 # faster you go, quicker you climb
                 self.player.setZ(self.player.getZ() + climbfactor)
@@ -641,30 +682,92 @@ class MyApp(ShowBase):
                 print "z is ", self.player.getZ()
 
             # Left and Right
+            """
+            this is actually turn ccw and cw. The increment is bankfactor
+            """
             if (self.keyMap["left"] != 0):  # and parameters["speed"] > 0.0):
                 self.player.setH(self.player.getH() + bankfactor)
             elif (self.keyMap["right"] != 0):  # and parameters["speed"] > 0.0):
                 self.player.setH(self.player.getH() - bankfactor)
 
             # throttle control
+            """
+            this updates the speed until top speed
+            handbrake sets speed to zero
+            """
             if (self.keyMap["accelerate"] != 0):
                 parameters["speed"] += parameters["speedIncrement"]
                 if (parameters["speed"] > parameters["maxSpeed"]):
                     parameters["speed"] = parameters["maxSpeed"]
             elif (self.keyMap["decelerate"] != 0):
                 parameters["speed"] -= parameters["speedIncrement"]
-                if (parameters["speed"] < 0.0):
-                    parameters["speed"] = 0.0
+                # if (parameters["speed"] < 0.0):
+                #     parameters["speed"] = 0.0
+
             # handbrake
             if (self.keyMap["handBrake"] != 0):
                 parameters["speed"] = 0
 
-            # reverse gear
+            # todo.scrap reverse gear
             if (self.keyMap["reverse"] != 0):
                 parameters["speed"] -= parameters["speedIncrement"]
 
-            # move forwards
+
+
+            # todo.fix latency of one frame move forwards
+            """
+            This finally updates the position of the player, there is adelay of one frame in speed update.
+
+            """
             self.player.setY(self.player, speedfactor)
+
+
+            # update gain
+            """
+            THis updates gain by gainIncrement
+            """
+            if (self.keyMap["gain-up"] != 0):
+                parameters["gain"] += parameters["gainIncrement"]
+                print "gain is", parameters["gain"]
+            elif (self.keyMap["gain-down"] != 0):
+                parameters["gain"] -= parameters["gainIncrement"]
+                print "gain is ", parameters["gain"]
+
+            if (self.keyMap["lrGain-down"] != 0):
+                parameters["lrGain"] -= parameters["gainIncrement"]
+                print "lrGain is ", parameters["lrGain"]
+
+            #update DCoffset
+            """
+            DC offset is to fix individual errors in allignment of wbad and tethering
+            When a fly "intends" to fly straight, the wbad should be around 0.
+            But due to geometry errors and position errors, the zero is not zero.
+            The DC offset adds or subtracts a constant amount to set to zero
+            """
+            if (self.keyMap["DCoffset-up"] != 0):
+                parameters["DCoffset"] += parameters["DCoffsetIncrement"]
+                print "ofset is ", parameters["DCoffset"]
+
+            if (self.keyMap["DCoffset-down"] != 0):
+                parameters["DCoffset"] -= parameters["DCoffsetIncrement"]
+                print "ofset is ", parameters["DCoffset"]
+
+            #update use controlled valve state
+            """
+            The valve is controlled via servo code itself. The servo 99 case changes digital state of pin 13
+
+            """
+            if (self.keyMap["valve-on"] != 0):
+                self.valve=1
+                servo.move(99, self.valve)
+
+                # print "valve is ", self.valve
+            if (self.keyMap["valve-off"] != 0):
+                self.valve=0
+                servo.move(99, self.valve)
+
+                # print "valve is ", self.valve
+
 
             # respect max camera distance else you cannot see the floor post loop the loop!
             if (self.player.getZ() > parameters["maxDistance"]):
@@ -698,65 +801,7 @@ class MyApp(ShowBase):
                 else:
                     self.player.setY(parameters["worldSize"])
 
-            # reset to initial position
-            if (self.keyMap["init"] != 0):
-                self.resetPosition("rand")
-                time.sleep(0.1)
-                # self.player.setPos(self.world, parameters["playerInitPos"])
-                # self.player.setH(parameters["playerInitH"])
-
-            # update new init position
-            if (self.keyMap["newInit"] != 0):
-                parameters["playerInitPos"] = self.player.getPos(self.world)
-                parameters["playerInitH"] = self.player.getH(self.world)
-                print "new init pos is ", parameters["playerInitPos"]
-                print "new init H is ", parameters["playerInitH"]
-
-            # update gain
-            if (self.keyMap["gain-up"] != 0):
-                parameters["gain"] += parameters["gainIncrement"]
-                print "gain is", parameters["gain"]
-            elif (self.keyMap["gain-down"] != 0):
-                parameters["gain"] -= parameters["gainIncrement"]
-                print "gain is ", parameters["gain"]
-
-            # update newTopSpeed
-            if (self.keyMap["newTopSpeed"] != 0):
-                parameters["maxSpeed"] = parameters["speed"]
-                print "new max speed is", parameters["maxSpeed"]
-
-            # update left by right gain for diabled flies
-            if (self.keyMap["lrGain-up"] != 0):
-                parameters["lrGain"] += parameters["gainIncrement"]
-                print "lrGain is ", parameters["lrGain"]
-
-            if (self.keyMap["lrGain-down"] != 0):
-                parameters["lrGain"] -= parameters["gainIncrement"]
-                print "lrGain is ", parameters["lrGain"]
-
-            #update DCoffset
-            if (self.keyMap["DCoffset-up"] != 0):
-                parameters["DCoffset"] += parameters["DCoffsetIncrement"]
-                print "ofset is ", parameters["DCoffset"]
-
-            if (self.keyMap["DCoffset-down"] != 0):
-                parameters["DCoffset"] -= parameters["DCoffsetIncrement"]
-                print "ofset is ", parameters["DCoffset"]
-
-            #update use controlled valve state
-            if (self.keyMap["valve-on"] != 0):
-                self.valve=1
-                servo.move(99, self.valve)
-
-                # print "valve is ", self.valve
-            if (self.keyMap["valve-off"] != 0):
-                self.valve=0
-                servo.move(99, self.valve)
-
-                # print "valve is ", self.valve
-
-
-            # respect quad boundary
+            # respect quad boundary and time reset
             if parameters["quad"]:
                 # print "x is",self.player.getX
                 # print " offsetis",parameters["offset"]
@@ -789,7 +834,35 @@ class MyApp(ShowBase):
                     self.resetPosition(i + 1)
                     time.sleep(0.15)
 
+
+            # reset to initial position
+            if (self.keyMap["init"] != 0):
+                self.resetPosition("rand")
+                time.sleep(0.1)
+                # self.player.setPos(self.world, parameters["playerInitPos"])
+                # self.player.setH(parameters["playerInitH"])
+
+
             self.tooLongBoutReset()
+
+            # todo.scrap update new init position
+            if (self.keyMap["newInit"] != 0):
+                parameters["playerInitPos"] = self.player.getPos(self.world)
+                parameters["playerInitH"] = self.player.getH(self.world)
+                print "new init pos is ", parameters["playerInitPos"]
+                print "new init H is ", parameters["playerInitH"]
+
+
+            # todo.scrap update newTopSpeed
+            if (self.keyMap["newTopSpeed"] != 0):
+                parameters["maxSpeed"] = parameters["speed"]
+                print "new max speed is", parameters["maxSpeed"]
+
+            # todo.scrap update left by right gain for diabled flies
+            if (self.keyMap["lrGain-up"] != 0):
+                parameters["lrGain"] += parameters["gainIncrement"]
+                print "lrGain is ", parameters["lrGain"]
+
 
     def tooLongBoutReset(self):
         if self.boutFrame > parameters["maxBoutDur"]:
