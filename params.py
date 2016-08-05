@@ -19,7 +19,7 @@ parameters = {
     "pulseMode":False,
     "packetFrequency":5,
 
-    "loadingString": "00",
+    "loadingString": "0t",
     "DCoffset": 0.176,
     "DCoffsetIncrement": 0.002,
 
@@ -30,7 +30,7 @@ parameters = {
     "maxSpeed": 3.5,
 
     "loadHUD": False,
-    "loadTrajectory": True,
+    "loadTrajectory": False,
     "loadWorld": True,
     "disabledFly": False,
 
@@ -118,10 +118,10 @@ parameters = {
     "stopDur": 1,  # duration of the last turn
     "stepDur": -1,  # if not in geometric progression gpMode, it is ap mode, linear spaced durations (arithmetic prog)
     "factorDur": 0.5,  # if in gpmode, the common ration of consequetive durations
-    "nSteps": 3,  # number of steps , will be used instead of stopDur if stepmode is true
-    "nReps": 2,  # number of times the entire sweep to be repated
+    "nSteps": 5,  # number of steps , will be used instead of stopDur if stepmode is true
+    "nReps": 20,  # number of times the entire sweep to be repated
     "startHeading": 2.1,  # initial heading rate, will be used if areaMode is false
-    "area": 10,  # area, will be kept constant , will be used instead of startheading if areaMode is true
+    "area": 5,  # area, will be kept constant , will be used instead of startheading if areaMode is true
 
     "gpMode": True,  # uses GP instead of AP for durations list gen
     "stepMode": True,  # uses number steps instead of using start and end
