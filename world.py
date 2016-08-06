@@ -190,7 +190,7 @@ class MyApp(ShowBase):
 
         self.stim = 0
         self.imposedCurrentH = 0
-        self.prevH = 0
+        self.prevH = parameters["playerInitH"]
         self.currentImposeResponse = 0
         self.compensation = 0
 
@@ -559,37 +559,33 @@ class MyApp(ShowBase):
 
         """
 
-        mes = MsgTrajectory()
-        mes.header.stamp = rospy.Time.now()
-        mes.position = self.player.getPos()
-        mes.orientation = self.player.getHpr()
+        mes = MsgTrajectory()                       #create message
+        mes.header.stamp = rospy.Time.now()         #set time stamp
+        mes.position = self.player.getPos()         #set xyz
+        mes.orientation = self.player.getHpr()      #set heading pitch roll
+        mes.speed = parameters["speed"]             #set current forward velocity, pixel/s (1px=1m)
+        mes.gain = parameters["gain"]               #set current closed loop gain
+        mes.closed = self.keyMap["closed"]          #boolean to indicate closed loop state
 
-        mes.wbad = parameters["wbad"]
-        mes.wbas = parameters["wbas"]
-        mes.speed = parameters["speed"]
-        mes.gain = parameters["gain"]
-        mes.closed = self.keyMap["closed"]
+        mes.wbad = parameters["wbad"]               #set wing beat amplitude difference
+        mes.wbas = parameters["wbas"]               #set wing beat amplitude sum
 
-        try:
-            mes.imposedH = self.imposedCurrentH + self.stim  # recreate heading as though the fly did nothing
-            mes.impose = self.stim  # imposed heading rate
+        mes.trial = self.trial                      #trial number. increments after every reset
+        mes.servoAngle = self.servoAngle            #servo angle command, may not complete if out of bounds
+        mes.valve = self.valve                      #odour valve state
+        mes.quadrant = self.quadrantIndex + 1       # 0 indexing of python +1 to real qorld quadrant naming
+        mes.reset = self.reset                      #boolean flag on quad change
 
-        except IndexError:
-            pass
 
+        mes.imposedH = self.imposedCurrentH + self.stim  #recreate heading as though the fly did nothing
+        mes.impose = self.stim  # imposed heading rate
         self.imposedCurrentH = mes.imposedH  # copy of the current value for the next frame
-
         # mes.imposeResponse=parameters["wbad"] * parameters["gain"]#send what the fly's motion caused on heading
         mes.imposeResponse = self.currentImposeResponse  # send what the fly's motion caused on heading
         mes.headingMod = self.headingMod
         mes.headingResponseMod = self.headingResponseMod
         mes.compensation = self.compensation
 
-        mes.trial = self.trial
-        mes.servoAngle = self.servoAngle
-        mes.valve = self.valve
-        mes.quadrant = self.quadrantIndex + 1  # 0 indexing of python
-        mes.reset = self.reset
         return mes
 
     # frameupdate

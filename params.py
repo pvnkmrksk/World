@@ -19,18 +19,18 @@ parameters = {
     "pulseMode":False,
     "packetFrequency":5,
 
-    "loadingString": "0t",
+    "loadingString": "rg",
     "DCoffset": 0.176,
     "DCoffsetIncrement": 0.002,
 
     "trialNo": 1,
 
-    "generateWorld": False,
+    "generateWorld": True,
     "gain": 7.0,
     "maxSpeed": 3.5,
 
     "loadHUD": False,
-    "loadTrajectory": False,
+    "loadTrajectory": True,
     "loadWorld": True,
     "disabledFly": False,
 
@@ -106,7 +106,7 @@ parameters = {
     "bagTopics": "/usb_cam/image_raw /kinefly/image_output /kinefly/flystate /trajectory /vr_camera/image_raw /servo_camera/image_raw",
 
 
-    "imposeStimulus":True,
+    "imposeStimulus":False,
     "durList": [4, 2, 1],
     "headingRate": [2, 4, 8],
 
