@@ -28,20 +28,20 @@ usbport3 = '/dev/ttyACM3'
 
 try :
     ser = serial.Serial(usbport0, 9600)
-    print "using port 0 \n \n"
+    print "Arduino connected via port 0 \n \n"
 except serial.SerialException:
     try:
         ser = serial.Serial(usbport1, 9600)
-        print "using port 1 \n \n"
+        print "Arduino connected via port 1 \n \n"
 
     except serial.SerialException:
         try:
             ser = serial.Serial(usbport2, 9600)
-            print "using port 2 \n \n"
+            print "Arduino connected via port 2 \n \n"
 
         except serial.SerialException:
             ser = serial.Serial(usbport3, 9600)
-            print "using port 3 \n \n"
+            print "Arduino connected via port 3 \n \n"
 
 prevValve=0
 currValve=0

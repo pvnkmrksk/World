@@ -65,7 +65,10 @@ class WorldGen(ShowBase):  # our 'class'
     def initTerrain(self):
         self.terrain = GeoMipTerrain("worldTerrain")  # create a self.terrain
         self.terrain.setHeightfield(parameters["modelHeightMap"])  # set the height map
-        self.terrain.setColorMap(parameters["modelTextureMap"])  # set the colour map
+        if parameters["loadNullModels"]:#if null, then create uniform back and sky
+            self.terrain.setColorMap(parameters["modelTextureMapNull"])  # set the colour map
+        else:
+            self.terrain.setColorMap(parameters["modelTextureMap"])  # set the colour map
         self.terrain.setBruteforce(True)  # level of detail
         self.root = self.terrain.getRoot()  # capture root
         self.root.reparentTo(self.render)  # render from root
