@@ -19,18 +19,18 @@ parameters = {
     "pulseMode":False,
     "packetFrequency":5,
 
-    "loadingString": "00",
-    "DCoffset": 0.35,
+    "loadingString": "rg",
+    "DCoffset": 0.216,
     "DCoffsetIncrement": 0.002,
 
     "trialNo": 1,
 
     "generateWorld": True,
-    "gain": 14,
+    "gain": 3.5,
     "maxSpeed": 3.5,
 
     "loadHUD": False,
-    "loadTrajectory": False,
+    "loadTrajectory": True,
     "loadWorld": True,
     "disabledFly": False,
 
@@ -109,24 +109,24 @@ parameters = {
     "bagTrajTopics": "/kinefly/flystate /trajectory ",
 
 
-    "imposeStimulus":True,
+    "imposeStimulus":False,
     "durList": [4, 2, 1],
     "headingRate": [2, 4, 8],
 
     "fps": 165,  # repeats items with number of frames since all durations in seconds
 
-    "intraTrial": 4,  # duration between two imposed turns within a sweep
-    "interTrial": 6,  # duration between two sweeps
+    "intraTrial": 2,  # duration between two imposed turns within a sweep
+    "interTrial": 4,  # duration between two sweeps
     # "interTrial": 12,  # duration between two sweeps
     "startDur": 8,  # duration of the first turn
-    "stopDur": 1,  # duration of the last turn
+    "stopDur": 0.5,  # duration of the last turn
     "stepDur": -1,  # if not in geometric progression gpMode, it is ap mode, linear spaced durations (arithmetic prog)
     "factorDur": 0.5,  # if in gpmode, the common ration of consequetive durations
     # "factorDur": 0.75,  # if in gpmode, the common ration of consequetive durations
     "nSteps": 5,  # number of steps , will be used instead of stopDur if stepmode is true
     "nReps": 20,  # number of times the entire sweep to be repated
     "startHeading": 2.1,  # initial heading rate, will be used if areaMode is false
-    "area": 6,  # area, will be kept constant , will be used instead of startheading if areaMode is true
+    "area": 2,  # number of degrees per frame area, will be kept constant , will be used instead of startheading if areaMode is true
 
     "gpMode": True,  # uses GP instead of AP for durations list gen
     "stepMode": True,  # uses number steps instead of using start and end
