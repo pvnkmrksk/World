@@ -651,7 +651,7 @@ class MyApp(ShowBase):
             self.windTunnel(windDir)
             # self.windTunnel(parameters["windDirection"])
 
-        if not (self.keyMap["valve-on"] or self.keyMap["valve-off"]):
+        if not (self.keyMap["valve-on"] or self.keyMap["valve-off"]):#if key down for override, don't use odourtunnel
             if parameters["loadOdour"]:
                 self.odourTunnel()
 
@@ -924,15 +924,6 @@ class MyApp(ShowBase):
             if parameters["imposeStimulus"]:
                 self.player.setH(self.player.getH() + self.stim)
 
-                # self.headingResponseMod = self.cumSummer(self.currentImposeResponse, self.stim,
-                #                                          self.headingResponseMod)
-                # self.headingMod = self.cumSummer(self.stim, self.stim, self.headingMod)
-                # self.compensation = self.headingMod - self.headingResponseMod
-
-
-
-
-
 
 
             # todo.scrap update new init position
@@ -1187,6 +1178,18 @@ class MyApp(ShowBase):
         if (self.keyMap["startBag"] == 1):
             self.startBag()
             self.frame=0#restart stim impose
+            self.bagger()
+            self.bagRecordingState = True
+            self.trial=0
+            file = open(__file__, 'r')
+            servo=open("servo.py",'r')
+            arduino=open("servoControl/servoControl.ino",'r')
+            world=open(self.worldFilename)
+
+            # obj = [parameters,file.read(),servo.read(),arduino.read(),world.read() ]
+            obj = {'parameters':parameters,'file':file.read(),
+                   'servo':servo.read(),'arduino':arduino.read(),'worldBam':world.read() }
+            self.pickler(obj, self.bagFilename)
 
         elif (self.keyMap["stopBag"] != 0):
             self.stopbag()
@@ -1263,8 +1266,15 @@ class MyApp(ShowBase):
         a = self.bagFilename + ".bag"
         time.sleep(5)  # so that bag file can be transfereed from memory
 
-        metadata = String(json.dumps(parameters))
-        print "metadata is:", metadata
+        file = open(__file__, 'r')
+        servo = open("servo.py", 'r')
+        arduino = open("servoControl/servoControl.ino", 'r')
+        world = open(self.worldFilename)
+
+        obj = [parameters, file.read(), servo.read(), arduino.read(), world.read()]
+        metadata = String(json.dumps(obj))
+
+        # print "metadata is:", metadata
 
         with rosbag.Bag(a, 'a') as bag:
             i = 0
