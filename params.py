@@ -4,7 +4,7 @@ parameters = {
     # bools
 
     "loadWind": False,
-    "loadOdour": True,
+    "loadOdour": False,
     "loadNullModels":False,
     "fly": "fly8",
     "race": "colony apple",
@@ -116,7 +116,7 @@ parameters = {
     "fps": 165,  # repeats items with number of frames since all durations in seconds
 
     "intraTrial": 4,  # duration between two imposed turns within a sweep
-    "interTrial": 8,  # duration between two sweeps
+    "interTrial": 12,  # duration between two sweeps
     # "interTrial": 12,  # duration between two sweeps
     "startDur": 12,  # duration of the first turn
     "stopDur": 2,  # duration of the last turn
@@ -126,7 +126,7 @@ parameters = {
     "nSteps": 5,  # number of steps , will be used instead of stopDur if stepmode is true
     "nReps": 20,  # number of times the entire sweep to be repated
     "startHeading": 2.1,  # initial heading rate, will be used if areaMode is false
-    "area": 2,  # number of degrees per frame area, will be kept constant , will be used instead of startheading if areaMode is true
+    "area": 8,  # number of degrees per frame area, will be kept constant , will be used instead of startheading if areaMode is true
 
     "gpMode": True,  # uses GP instead of AP for durations list gen
     "stepMode": True,  # uses number steps instead of using start and end
@@ -136,7 +136,7 @@ parameters = {
     "signFlip": True,  # flip direction between each turn
     "orderFlip": True,  # flip entire order of sweep
 
-    "mouseMode":True
+    "mouseMode":False
 
 }
 
