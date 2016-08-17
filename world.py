@@ -210,7 +210,8 @@ class MyApp(ShowBase):
         # loadPrcFileData("", "win-size " + str(parameters["windowWidth"]) + " " + str(
         #     parameters["windowHeight"]))  # set window size
         self.modelLoader()
-        self.initDisplayRegion()
+        if not parameters['humanDisplay']:
+            self.initDisplayRegion()
 
         self.createEnvironment()
         self.makeLabels()
@@ -441,7 +442,10 @@ class MyApp(ShowBase):
         skysphere.setScale(parameters["maxDistance"])  # bit less than "far"
         skysphere.setZ(-3)
         # NOT render - you'll fly through the sky!:
-        skysphere.reparentTo(self.cameraCenter)
+        if parameters["humanDisplay"]:
+            skysphere.reparentTo(self.camera)
+        else:
+            skysphere.reparentTo(self.cameraCenter)
 
         # Our lighting
         ambientLight = AmbientLight("ambientLight")
@@ -987,16 +991,18 @@ class MyApp(ShowBase):
         # self.camera.setHpr(self.player, tuple(parameters["camHpr"]))
 
 
+        if parameters['humanDisplay']:
+            self.camera.setPos(self.player, 0, 0, 0)
+            self.camera.setHpr(self.player,tuple(parameters["camHpr"]))  # (0,-2,0))# self.world, self.player.getH())
+        else:
+            self.cameraLeft.setPos(self.player, 0, 0, 0)
+            self.cameraLeft.setH(self.player, 120)  # self.player.getH())#+120)
+            #
+            self.cameraCenter.setPos(self.player, 0, 0, 0)
+            self.cameraCenter.setHpr(self.player, tuple(parameters["camHpr"]))  # (0,-2,0))# self.world, self.player.getH())
 
-
-        self.cameraLeft.setPos(self.player, 0, 0, 0)
-        self.cameraLeft.setH(self.player, 120)  # self.player.getH())#+120)
-        #
-        self.cameraCenter.setPos(self.player, 0, 0, 0)
-        self.cameraCenter.setHpr(self.player, tuple(parameters["camHpr"]))  # (0,-2,0))# self.world, self.player.getH())
-
-        self.cameraRight.setPos(self.player, 0, 0, 0)
-        self.cameraRight.setH(self.player, 240)  # self.world, self.player.getH())#-120)
+            self.cameraRight.setPos(self.player, 0, 0, 0)
+            self.cameraRight.setH(self.player, 240)  # self.world, self.player.getH())#-120)
 
     # recording functions
     def bagControl(self):

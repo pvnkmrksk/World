@@ -3,8 +3,8 @@ from panda3d.core import Vec3
 parameters = {
     # bools
 
-    "loadWind": False,
-    "loadOdour": False,
+    "loadWind": True,
+    "loadOdour": True,
 
     "fly": "fly8",
     "race": "colony apple",
@@ -19,7 +19,7 @@ parameters = {
     "pulseMode":False,
     "packetFrequency":5,
 
-    "loadingString": "00",
+    "loadingString": "rg",
     "DCoffset": 0.176,
     "DCoffsetIncrement": 0.002,
 
@@ -104,7 +104,7 @@ parameters = {
     "windowWidth": 4320,  # 1440,
     "windowHeight": 2560,
     "bagTopics": "/usb_cam/image_raw /kinefly/image_output /kinefly/flystate /trajectory /vr_camera/image_raw /servo_camera/image_raw",
-
+    "humanDisplay":False
 }
 
 
