@@ -4,7 +4,7 @@ parameters = {
     # bools
 
     "loadWind": False,
-    "loadOdour": False,
+    "loadOdour": True,
     "loadNullModels":False,
     "fly": "fly8",
     "race": "colony apple",
@@ -109,19 +109,19 @@ parameters = {
     "bagTrajTopics": "/kinefly/flystate /trajectory ",
 
 
-    "imposeStimulus":False,
+    "imposeStimulus":True,
     "durList": [4, 2, 1],
     "headingRate": [2, 4, 8],
 
     "fps": 165,  # repeats items with number of frames since all durations in seconds
 
-    "intraTrial": 2,  # duration between two imposed turns within a sweep
-    "interTrial": 4,  # duration between two sweeps
+    "intraTrial": 4,  # duration between two imposed turns within a sweep
+    "interTrial": 8,  # duration between two sweeps
     # "interTrial": 12,  # duration between two sweeps
-    "startDur": 8,  # duration of the first turn
-    "stopDur": 0.5,  # duration of the last turn
+    "startDur": 12,  # duration of the first turn
+    "stopDur": 2,  # duration of the last turn
     "stepDur": -1,  # if not in geometric progression gpMode, it is ap mode, linear spaced durations (arithmetic prog)
-    "factorDur": 0.5,  # if in gpmode, the common ration of consequetive durations
+    "factorDur": 0.65,  # if in gpmode, the common ration of consequetive durations
     # "factorDur": 0.75,  # if in gpmode, the common ration of consequetive durations
     "nSteps": 5,  # number of steps , will be used instead of stopDur if stepmode is true
     "nReps": 20,  # number of times the entire sweep to be repated
@@ -136,7 +136,7 @@ parameters = {
     "signFlip": True,  # flip direction between each turn
     "orderFlip": True,  # flip entire order of sweep
 
-    "mouseMode":False
+    "mouseMode":True
 
 }
 
