@@ -23,6 +23,7 @@ from panda3d.core import AmbientLight, DirectionalLight, Vec4, Vec3, Fog, Camera
 from panda3d.core import loadPrcFileData, NodePath, TextNode
 from pandac.PandaModules import CompassEffect, ClockObject
 from direct.gui.OnscreenText import OnscreenText
+from pandac.PandaModules import WindowProperties
 
 import matplotlib.pyplot as plt  # plotting imports
 from matplotlib.path import Path
@@ -33,8 +34,7 @@ import numpy as np
 import easygui
 import pandas as pd
 
-from params import parameters
-
+from params import *
 
 """
 Replay world playsback position and orientation, can be additionally used for screen capturing
@@ -79,7 +79,7 @@ if parameters["replayWorld"]:
     parameters["captureStart"] = start
     parameters["playbackIncrement"] = increment
 
-#check if arduino servo is connected
+# check if arduino servo is connected
 try:
     import servo
 except serial.serialutil.SerialException:
@@ -88,13 +88,14 @@ except serial.serialutil.SerialException:
 
 # Checkif rosmaster is running else run roscore
 try:
-    rostopic.get_topic_class('/rosout')    # is_rosmaster_running = True
+    rostopic.get_topic_class('/rosout')  # is_rosmaster_running = True
 except rostopic.ROSTopicIOException as e:
     roscore = subprocess.Popen('roscore')  # then start roscore yourself
     time.sleep(1)  # wait a bit to be sure the roscore is really launched
-    subprocess.Popen(["roslaunch", "Kinefly", "main.launch"]) # start kinefly
+    subprocess.Popen(["roslaunch", "Kinefly", "main.launch"])  # start kinefly
 
-#World class definition
+
+# World class definition
 class MyApp(ShowBase):
     """
     Initialize windows, params, I/O and feedback, taskUpdate
@@ -106,7 +107,8 @@ class MyApp(ShowBase):
     taskUpdate: update player, camera, bagcontrol, control servo and valve, publish message
 
     """
-    #init windows size, params, I/O, feedback
+
+    # init windows size, params, I/O, feedback
     def __init__(self):
         """
         Set the window size
@@ -114,13 +116,13 @@ class MyApp(ShowBase):
         initialize init function for params, I/O, feedback and TaskManager
         """
 
-        loadPrcFileData("", "win-size " + str(parameters["windowWidth"] / parameters["captureScale"]) + " " +
-                        str(parameters["windowHeight"] / parameters["captureScale"]))  # set window size
+        loadPrcFileData("", "win-size " + str(int(parameters["windowWidth"] / parameters["captureScale"])) + " " +
+                        str(int(parameters["windowHeight"] / parameters["captureScale"])))  # set window size
 
         # loadPrcFileData('', 'fullscreen true')
 
         ShowBase.__init__(self)  # start the app
-        base.setFrameRateMeter(True)#show frame rate monitor
+        base.setFrameRateMeter(True)  # show frame rate monitor
 
         self.initParams()  # run this 1st. Loads all content and params.
         self.initInput()
@@ -143,17 +145,17 @@ class MyApp(ShowBase):
 
 
         if parameters["lockFps"]:
-            print "fps locked"
-            self.fpsLimit(165)
+            # print "\nfps of panda window is locked to ",parameters["fps"]
+            self.fpsLimit(parameters["fps"])
 
         if parameters["frameRecord"]:
             self.record(dur=parameters["recordDur"], fps=parameters["recordFps"])
 
         # offset for position displacemtn and boundary being 2^n+1,
         parameters["offset"] = ((int(parameters["worldSize"]) - 1) / 2) + 1
-        print "offset is ", parameters["offset"]
+        # print "offset is ", parameters["offset"]
 
-        #initial position of player pushed around the 4 quadrants with edge effect correction
+        # initial position of player pushed around the 4 quadrants with edge effect correction
         parameters["initPosList"] = [(parameters["playerInitPos"][0] + parameters["offset"],
                                       parameters["playerInitPos"][1] + parameters["offset"],
                                       parameters["playerInitPos"][2]),
@@ -163,35 +165,50 @@ class MyApp(ShowBase):
                                      (parameters["playerInitPos"]),
                                      (parameters["playerInitPos"][0] + parameters["offset"],
                                       parameters["playerInitPos"][1], parameters["playerInitPos"][2])]
-        print "init pos list", parameters["initPosList"]
+        # print "init pos list", parameters["initPosList"]
 
-
-        #position of objects generated
+        # position of objects generated
         self.odd, self.even, quad = self.quadPositionGenerator(posL=parameters["posL"], posR=parameters["posR"])
 
-        self.servoAngle = 90#
-        servo.move(1,self.servoAngle)
-        self.quadrantIndex=2 #starts in 3rd quadrant, index 2 based on init pos
-        self.valve=0
-        self.trial=1
-        self.reset=False
+        self.servoAngle = 90  #
+        servo.move(1, self.servoAngle)
+        self.quadrantIndex = 2  # starts in 3rd quadrant, index 2 based on init pos
+        self.valve = 0
+        self.trial = 1
+        self.reset = False
         self.bagRecordingState = False
         self.decayTime = -1
         self.boutFrame = 0
         self.lastResetTime = datetime.now()
-        self.frame = parameters["captureStart"]
-
+        self.replayFrame = parameters["captureStart"]
+        self.frame = 0
+        self.wbad = 0
+        self.wbas = 0
         self.quadSet = set(range(0, 4))
         self.quadSetCopy = self.quadSet.copy()
+        self.headingMod = 0
+        self.headingResponseMod = 0
 
+        self.stim = 0
+        self.prevStim=0
+        self.imposedCurrentH = 0
+        self.prevH = parameters["playerInitH"]
+        self.currentImposeResponse = 0
+        self.prevImposeResponse=0
+        self.compensation = 0
+        self.bin=60
+        self.imposeResponseArr=np.zeros(self.bin)
 
     def initInput(self):
         '''
         initializes user input via keyboard
+        genrates stimulus List for imposed turn
         Returns:
             None
         '''
         self.keyboardSetup()
+        self.stimList = self.stimulusListGen()
+        parameters["stimList"] = self.stimList
 
     def initOutput(self):
         '''
@@ -215,6 +232,12 @@ class MyApp(ShowBase):
 
         self.createEnvironment()
         self.makeLabels()
+        # THis is to set the window title so that I can captur in CCSM for pinning to visible workspace
+
+        props = WindowProperties()
+        props.setTitle('RhagVR')
+        base.win.requestProperties(props)
+
         if parameters["loadWind"]:
             self.windFieldGen()
         if parameters["loadOdour"]:
@@ -273,8 +296,8 @@ class MyApp(ShowBase):
                        "lrGain-down": 0,
                        "init": 0, "newInit": 0, "newTopSpeed": 0, "clf": 0, "saveFig": 0,
                        "startBag": 0, "stopBag": 0, "quad1": 0, "quad2": 0, "quad3": 0, "quad4": 0, "human": 0,
-                       "hRight": 0, "DCoffset-up":0,"DCoffset-down":0,
-                       "valve-on":0,"valve-off":0}
+                       "hRight": 0, "DCoffset-up": 0, "DCoffset-down": 0,
+                       "valve-on": 0, "valve-off": 0}
 
         self.accept("escape", self.winClose)
         self.accept("a", self.setKey, ["climb", 1])
@@ -338,7 +361,6 @@ class MyApp(ShowBase):
         self.accept("c", self.setKey, ["valve-off", 1])
         self.accept("c-up", self.setKey, ["valve-off", 0])
 
-
         base.disableMouse()  # or updateCamera will fail!
 
     def setKey(self, key, value):
@@ -362,8 +384,15 @@ class MyApp(ShowBase):
             None
         """
         # self.closeWindow(self.win)
-        self.plotter.kill()
-        servo.move(99,0)#close valve
+        if self.bagRecordingState:#if bag recording , close before exit
+            self.stopbag()
+
+        if parameters["loadTrajectory"]:
+            self.plotter.kill()
+        try:
+            servo.move(99, 0)  # close valve to prevent odour bleeding through
+        except serial.serialutil.SerialException:
+            pass #arduino disconnected or faulty, let go
         sys.exit()
 
     # output functions
@@ -437,7 +466,11 @@ class MyApp(ShowBase):
         base.setBackgroundColor(*colour)
 
         # Our sky
-        skysphere = loader.loadModel('models/sky.egg')
+        if parameters["loadNullModels"]:#if null, then create uniform back and sky
+            skysphere = loader.loadModel(parameters["skyMapNull"])
+        else:
+            skysphere = loader.loadModel(parameters["skyMap"])
+
         skysphere.setEffect(CompassEffect.make(self.render))
         skysphere.setScale(parameters["maxDistance"])  # bit less than "far"
         skysphere.setZ(-3)
@@ -515,12 +548,13 @@ class MyApp(ShowBase):
         Returns:
 
         """
-        parameters["wbad"] = data.left.angles[0] - data.right.angles[0] +parameters["DCoffset"]
-        parameters["wbas"] = data.left.angles[0] + data.right.angles[0]
+        self.wbad = data.left.angles[0] - data.right.angles[0] + parameters["DCoffset"]
+        self.wbas = data.left.angles[0] + data.right.angles[0]
         self.scaledWbad = parameters["lrGain"] * data.left.angles[0] - data.right.angles[0]
+        # todo.scrap remove disabled fly
         if parameters["disabledFly"]:
-            parameters["wbad"] = self.scaledWbad
-        return parameters["wbad"]
+            self.wbad = self.scaledWbad
+        return self.wbad
 
     def publisher(self, data):
         """
@@ -546,22 +580,54 @@ class MyApp(ShowBase):
 
         """
 
-        mes = MsgTrajectory()
-        mes.header.stamp = rospy.Time.now()
-        mes.position = self.player.getPos()
-        mes.orientation = self.player.getHpr()
+        mes = MsgTrajectory()                       #create message
+        mes.header.stamp = rospy.Time.now()         #set time stamp
+        mes.position = self.player.getPos()         #set xyz
+        mes.orientation = self.player.getHpr()      #set heading pitch roll
+        mes.speed = parameters["speed"]             #set current forward velocity, pixel/s (1px=1m)
+        mes.gain = parameters["gain"]               #set current closed loop gain
+        mes.closed = self.keyMap["closed"]          #boolean to indicate closed loop state
 
-        mes.wbad = parameters["wbad"]
-        mes.wbas = parameters["wbas"]
-        mes.speed = parameters["speed"]
-        mes.gain = parameters["gain"]
-        mes.closed = self.keyMap["closed"]
+        mes.wbad = parameters["wbad"]               #set wing beat amplitude difference
+        mes.wbas = parameters["wbas"]               #set wing beat amplitude sum
 
-        mes.trial=self.trial
-        mes.servoAngle=self.servoAngle
-        mes.valve=self.valve
-        mes.quadrant=self.quadrantIndex+1 #0 indexing of python
-        mes.reset = self.reset
+        mes.trial = self.trial                      #trial number. increments after every reset
+        mes.servoAngle = self.servoAngle            #servo angle command, may not complete if out of bounds
+        mes.valve = self.valve                      #odour valve state
+        mes.quadrant = self.quadrantIndex + 1       # 0 indexing of python +1 to real qorld quadrant naming
+        mes.reset = self.reset                      #boolean flag on quad change
+
+        mes.DCoffset=parameters["DCoffset"]
+        """
+        Recreate heading as though the fly did nothing
+        This is done by cumulative sum of just imposed turns
+        imposedCurrentH is the initial sum=0. As stim is imposed, it adds on
+        to make the imposeHeading
+        """
+
+
+        mes.impose = self.stim  # imposed heading rate
+        self.currentImposeResponse=-(self.player.getH()-self.prevH-self.stim )#send what the fly's motion caused on heading, negative for ease of view in rqtPlot
+        mes.imposeResponse=self.currentImposeResponse
+        self.imposeResponseArr=np.append(self.imposeResponseArr,mes.imposeResponse)
+        self.prevH=self.player.getH()
+
+        mes.imposeResponseSmooth=np.mean(self.imposeResponseArr[-self.bin:])
+
+
+        mes.imposeHeading = self.imposedCurrentH + self.stim
+        self.imposedCurrentH = mes.imposeHeading  # copy of the current value for the next frame
+
+
+        if self.prevStim==0 and self.stim!=0:
+            self.prevImposeResponse=0 #pull to zero to remove DC drift
+        mes.imposeResponseHeading=self.currentImposeResponse+self.prevImposeResponse
+        self.prevImposeResponse=mes.imposeResponseHeading
+        # mes.imposeResponse = self.currentImposeResponse  # send what the fly's motion caused on heading
+        # mes.headingMod = self.headingMod
+        # mes.headingResponseMod = self.headingResponseMod
+        mes.compensation = mes.impose-mes.imposeResponse
+        self.prevStim=self.stim
         return mes
 
     # frameupdate
@@ -591,15 +657,14 @@ class MyApp(ShowBase):
             self.windTunnel(windDir)
             # self.windTunnel(parameters["windDirection"])
 
-        if not(self.keyMap["valve-on"] or self.keyMap["valve-off"]):
+        if not (self.keyMap["valve-on"] or self.keyMap["valve-off"]):#if key down for override, don't use odourtunnel
             if parameters["loadOdour"]:
                 self.odourTunnel()
 
         self.publisher(self.message())
-        self.reset=False
+        self.reset = False
 
         return Task.cont
-
 
 
 
@@ -628,16 +693,16 @@ class MyApp(ShowBase):
             """
 
             try:
-                poshpr = traj.ix[self.frame, :].values
-                print "frame is", self.frame
+                poshpr = traj.ix[self.replayFrame, :].values
+                print "frame is", self.replayFrame
             except IndexError:
                 print "Finished playback"
                 self.winClose()
             # print poshpr
             self.player.setPosHpr(tuple(poshpr[0:3]), tuple(poshpr[3:]))
-            # self.player.setPosHpr(traj.ix[self.frame,:].values)
+            # self.player.setPosHpr(traj.ix[self.replayFrame,:].values)
 
-            self.frame += parameters["playbackIncrement"]
+            self.replayFrame += parameters["playbackIncrement"]
         else:
 
             """
@@ -648,9 +713,17 @@ class MyApp(ShowBase):
 
             # global prevPos, currentPos, ax, fig, treePos, redPos Global Clock by default, panda runs as fast as it can frame to frame
             scalefactor = parameters["speed"] * (globalClock.getDt())
-            climbfactor = 0.01  # (.001) * scalefactor
-            bankfactor = 2  # .5  * scalefactor
-            speedfactor = scalefactor
+            climbfactor = 0.01
+            bankfactor = 1
+            parameters["wbad"] = self.wbad
+            parameters["wbas"] = self.wbas
+
+            if parameters["imposeStimulus"]:
+                try :
+                    self.stim = self.stimList[self.frame]
+                except IndexError:
+                    parameters["imposeStimulus"]=False
+                    print "\n \n impose Stimulus Complete \n \n"
 
             # closed loop
             """
@@ -665,25 +738,20 @@ class MyApp(ShowBase):
             One has to constantly osscilate up down to keep heading steady.
 
             """
+
+            if parameters["mouseMode"]:
+                if base.mouseWatcherNode.hasMouse():
+                    # x = base.mouseWatcherNode.getMouseX()
+                    #sets wbad to a clamped value of mouseY pos*gain
+                    clamp=0.5
+                    parameters["wbad"]= self.clamp(1*
+                        parameters["gain"] * base.mouseWatcherNode.getMouseX(),-clamp,clamp)
+
             if (self.keyMap["closed"] != 0):
                 self.player.setH(self.player.getH() - parameters["wbad"] * parameters["gain"])
 
             if (self.keyMap["human"] != 0):
                 self.player.setH(self.player.getH() + self.keyMap["hRight"] * parameters["gain"])
-
-            # Climb and Fall
-            """
-            this is strictly not climb and fall. It is actually Z up and Z down.
-            when key press, z is incremented (decrenmented) by climbfactor
-            """
-            if (self.keyMap["climb"] != 0):  # and parameters["speed"] > 0.00):
-                # faster you go, quicker you climb
-                self.player.setZ(self.player.getZ() + climbfactor)
-                print "z is ", self.player.getZ()
-
-            elif (self.keyMap["fall"] != 0):  # and parameters["speed"] > 0.00):
-                self.player.setZ(self.player.getZ() - climbfactor)
-                print "z is ", self.player.getZ()
 
             # Left and Right
             """
@@ -693,6 +761,24 @@ class MyApp(ShowBase):
                 self.player.setH(self.player.getH() + bankfactor)
             elif (self.keyMap["right"] != 0):  # and parameters["speed"] > 0.0):
                 self.player.setH(self.player.getH() - bankfactor)
+
+
+
+            # Climb and Fall
+            """
+            this is strictly not climb and fall. It is actually Z up and Z down.
+            when key press, z is incremented (decrenmented) by climbfactor
+            """
+            if (self.keyMap["climb"] != 0):  # and parameters["speed"] > 0.00):
+                self.player.setZ(self.player.getZ() + climbfactor)
+                print "z is ", self.player.getZ()
+
+            elif (self.keyMap["fall"] != 0):  # and parameters["speed"] > 0.00):
+                self.player.setZ(self.player.getZ() - climbfactor)
+                print "z is ", self.player.getZ()
+
+
+
 
             # throttle control
             """
@@ -705,26 +791,21 @@ class MyApp(ShowBase):
                     parameters["speed"] = parameters["maxSpeed"]
             elif (self.keyMap["decelerate"] != 0):
                 parameters["speed"] -= parameters["speedIncrement"]
-                # if (parameters["speed"] < 0.0):
-                #     parameters["speed"] = 0.0
 
             # handbrake
             if (self.keyMap["handBrake"] != 0):
                 parameters["speed"] = 0
 
             # todo.scrap reverse gear
-            if (self.keyMap["reverse"] != 0):
-                parameters["speed"] -= parameters["speedIncrement"]
-
-
 
             # todo.fix latency of one frame move forwards
+
+
             """
             This finally updates the position of the player, there is adelay of one frame in speed update.
 
             """
-            self.player.setY(self.player, speedfactor)
-
+            self.player.setY(self.player, scalefactor)
 
             # update gain
             """
@@ -741,8 +822,9 @@ class MyApp(ShowBase):
                 parameters["lrGain"] -= parameters["gainIncrement"]
                 print "lrGain is ", parameters["lrGain"]
 
-            #update DCoffset
+            # update DCoffset
             """
+
             DC offset is to fix individual errors in allignment of wbad and tethering
             When a fly "intends" to fly straight, the wbad should be around 0.
             But due to geometry errors and position errors, the zero is not zero.
@@ -756,21 +838,21 @@ class MyApp(ShowBase):
                 parameters["DCoffset"] -= parameters["DCoffsetIncrement"]
                 print "ofset is ", parameters["DCoffset"]
 
-            #update use controlled valve state
+            # update user controlled valve state
             """
             The valve is controlled via servo code itself. The servo 99 case changes digital state of pin 13
 
             """
             if (self.keyMap["valve-on"] != 0):
-                self.valve=1
+                self.valve = 1
                 servo.move(99, self.valve)
 
                 # print "valve is ", self.valve
             if (self.keyMap["valve-off"] != 0):
-                self.valve=0
+                self.valve = 0
                 servo.move(99, self.valve)
 
-                # print "valve is ", self.valve
+
 
 
             # respect max camera distance else you cannot see the floor post loop the loop!
@@ -805,17 +887,19 @@ class MyApp(ShowBase):
                 else:
                     self.player.setY(parameters["worldSize"])
 
-            # respect quad boundary and time reset
+
+
+            # todo.fix what is gthis? respect quad boundary and time reset
             if parameters["quad"]:
-                # print "x is",self.player.getX
-                # print " offsetis",parameters["offset"]
-                # x=self.player.getX()
-                # y=self.player.getY()
-                if (self.player.getX() > parameters["offset"] and self.player.getX() < (parameters["offset"] + 1)):
+                if (self.player.getX() > parameters["offset"] and
+                            self.player.getX() < (parameters["offset"] + 1)):
                     self.resetPosition("rand")
-                if (self.player.getY() > parameters["offset"] and self.player.getY() < (parameters["offset"] + 1)):
+                if (self.player.getY() > parameters["offset"] and
+                            self.player.getY() < (parameters["offset"] + 1)):
                     self.resetPosition("rand")
 
+
+            # todo.fix document and clean the timer
             if self.decayTime > 60:
                 parameters["speed"] = 0
                 self.keyMap["closed"] = 0
@@ -829,6 +913,9 @@ class MyApp(ShowBase):
                 parameters["speed"] = self.speedMemory
                 self.decayTime -= 1
 
+
+
+
             if self.reachedDestination():
                 self.resetPosition("rand")
 
@@ -839,34 +926,125 @@ class MyApp(ShowBase):
                     time.sleep(0.15)
 
 
-            # reset to initial position
-            if (self.keyMap["init"] != 0):
-                self.resetPosition("rand")
-                time.sleep(0.1)
-                # self.player.setPos(self.world, parameters["playerInitPos"])
-                # self.player.setH(parameters["playerInitH"])
 
 
-            self.tooLongBoutReset()
+            if parameters["imposeStimulus"]:
+                self.player.setH(self.player.getH() + self.stim)
+
+
 
             # todo.scrap update new init position
-            if (self.keyMap["newInit"] != 0):
-                parameters["playerInitPos"] = self.player.getPos(self.world)
-                parameters["playerInitH"] = self.player.getH(self.world)
-                print "new init pos is ", parameters["playerInitPos"]
-                print "new init H is ", parameters["playerInitH"]
-
 
             # todo.scrap update newTopSpeed
-            if (self.keyMap["newTopSpeed"] != 0):
-                parameters["maxSpeed"] = parameters["speed"]
-                print "new max speed is", parameters["maxSpeed"]
 
             # todo.scrap update left by right gain for diabled flies
             if (self.keyMap["lrGain-up"] != 0):
                 parameters["lrGain"] += parameters["gainIncrement"]
                 print "lrGain is ", parameters["lrGain"]
 
+            # if imposing turns, don't change quad after too long a bout
+            if not parameters["imposeStimulus"]:
+                self.tooLongBoutReset()
+
+            self.frame += 1
+
+
+
+
+
+    def stimulusListGen(self,):
+        """
+        If stepMode is true, the stimulus will have than many steps
+         Else it calculates, the number of steps needed to reach Start to stop in step ratio of factorDur
+
+        If areaMode is true, the stimulus will all have area equal to area given
+         Else it calculates area from startHeading rate and startDuration
+
+        If durListGen is true, it generates the list of durations, else the entered list of durations is used
+            In gp Mode, the list forms a gp with common ratio of factorDur
+            In ap Mode, the list forms a ap with common difference of stepDur
+
+        If headingListGen is true, it generates the list of heading rates, else the entered list is used
+            It generates it by dividing durlist form area, this is because, area, which is total rotation imposed every stimulus is kept constant (ex, 720degrees)
+
+
+
+        Returns:
+
+        """
+        # print "startDur is", parameters["nSteps"]
+
+        if not parameters["stepMode"]:
+            # todo.fix this calculates steps for gp mode. Missing ap mode
+            parameters["nSteps"] = np.log10(parameters["stopDur"] / parameters["startDur"]) / \
+                                   np.log10(parameters["factorDur"])
+        else:
+            parameters["nSteps"] -= 1  # because power estimation will increment it because factor^0 is also included
+
+        if not parameters["areaMode"]:
+            parameters["area"] = parameters["startHeading"] * parameters["startDur"]
+
+        if parameters["durListGen"]:
+            if parameters["gpMode"]:
+                # print "GP mode is True"
+                parameters["durList"] = np.array([parameters["startDur"] *
+                                                  parameters["factorDur"] ** x
+                                                  for x in range(int(parameters["nSteps"] + 1))])
+            else:
+                parameters["durList"] = np.array(range(parameters["startDur"],
+                                                       parameters["stopDur"], parameters["stepDur"]))
+                # print "GP mode is False"
+        if parameters["headingListGen"]:
+            parameters["headingRate"] = parameters["area"] / parameters["durList"]
+
+        print "\nDurlist is", parameters["durList"]
+        print "Heading is", parameters["headingRate"]
+        print "Imposed turn in degrees/frame is,", parameters["durList"] * parameters["headingRate"]
+
+        i = 0
+        parameters["timeSeries"] = (np.zeros(int(parameters["interTrial"] * parameters["fps"])))
+
+        for dur in parameters["durList"]:
+            try:
+                assert len(parameters["durList"]) == len(parameters["headingRate"])#they should be equal unless there is a bug or typo
+
+            except AssertionError:
+                print "gain and dur of smae lengty"
+
+            parameters["timeSeries"] = np.append(parameters["timeSeries"],
+                                                 parameters["headingRate"][i] * np.ones(int(dur * parameters["fps"])))
+            parameters["timeSeries"] = np.append(parameters["timeSeries"],
+                                                 np.zeros(int(parameters["intraTrial"] * parameters["fps"])))
+
+            if parameters["signFlip"]:
+                parameters["timeSeries"] = np.append(parameters["timeSeries"],
+                                                     -parameters["headingRate"][i] * np.ones(int(dur * parameters["fps"])))
+                parameters["timeSeries"] = np.append(parameters["timeSeries"],
+                                                     np.zeros(int(parameters["intraTrial"] * parameters["fps"])))
+
+            i += 1
+
+        parameters["timeSeries"] = np.append(parameters["timeSeries"],
+                                             np.zeros(int(parameters["interTrial"] * parameters["fps"])))
+
+        if parameters["orderFlip"]:
+            parameters["timeSeries"] = np.append(parameters["timeSeries"], np.flipud(parameters["timeSeries"]))
+        parameters["timeSeries"] = np.tile(parameters["timeSeries"], parameters["nReps"])
+
+
+        # plt.plot(parameters["timeSeries"])
+        # plt.show()
+
+
+        return parameters["timeSeries"]
+
+    def cumSummer(self, addend, reference, currSum):
+        if reference == 0:
+            currSum = 0
+        else:
+            currSum += addend
+        return currSum
+        # plt.plot(sums)
 
     def tooLongBoutReset(self):
         if self.boutFrame > parameters["maxBoutDur"]:
@@ -905,8 +1083,8 @@ class MyApp(ShowBase):
         quad = np.array(
             [[quad1PosL, quad1PosR], [quad2PosL, quad2PosR], [quad3PosL, quad3PosR], [quad4PosL, quad4PosR]])
         # print offset
-        print "even is ",odd
-        print "even is ", even
+        # print "even is ", odd
+        # print "even is ", even
         return odd, even, quad
 
     def isInsideTarget(self, target):
@@ -946,7 +1124,7 @@ class MyApp(ShowBase):
 
         else:
             newPos = parameters["initPosList"][quad - 1]
-            self.quadrantIndex=quad-1
+            self.quadrantIndex = quad - 1
             print "Your quadrant is", (self.quadrantIndex), "\n"
 
         self.player.setPos(newPos)
@@ -962,8 +1140,8 @@ class MyApp(ShowBase):
 
         self.lastResetTime = datetime.now()
         self.boutFrame = 0
-        self.reset=True #set reset to true. Will be set to false after frame updtae
-        self.trial+=1
+        self.reset = True  # set reset to true. Will be set to false after frame updtae
+        self.trial += 1
         return newPos
 
     def randChoice(self):
@@ -1001,12 +1179,22 @@ class MyApp(ShowBase):
             self.cameraCenter.setPos(self.player, 0, 0, 0)
             self.cameraCenter.setHpr(self.player, tuple(parameters["camHpr"]))  # (0,-2,0))# self.world, self.player.getH())
 
-            self.cameraRight.setPos(self.player, 0, 0, 0)
-            self.cameraRight.setH(self.player, 240)  # self.world, self.player.getH())#-120)
+
+        self.cameraLeft.setPos(self.player, 0, 0, 0)
+        self.cameraLeft.setH(self.player, 120)  # self.player.getH())#+120)
+        #
+        self.cameraCenter.setPos(self.player, 0, 0, 0)
+        self.cameraCenter.setHpr(self.player, tuple(parameters["camHpr"]))  # (0,-2,0))# self.world, self.player.getH())
+
+        self.cameraRight.setPos(self.player, 0, 0, 0)
+        self.cameraRight.setH(self.player, 240)  # self.world, self.player.getH())#-120)
+
 
     # recording functions
     def bagControl(self):
         if (self.keyMap["startBag"] == 1):
+            self.startBag()
+            self.frame=0#restart stim impose
             self.bagger()
             self.bagRecordingState = True
             self.trial=0
@@ -1015,28 +1203,55 @@ class MyApp(ShowBase):
             arduino=open("servoControl/servoControl.ino",'r')
             world=open(self.worldFilename)
 
-            obj = [parameters,file.read(),servo.read(),arduino.read(),world.read() ]
+            # obj = [parameters,file.read(),servo.read(),arduino.read(),world.read() ]
+            obj = {'parameters':parameters,'file':file.read(),
+                   'servo':servo.read(),'arduino':arduino.read(),'worldBam':world.read() }
             self.pickler(obj, self.bagFilename)
 
         elif (self.keyMap["stopBag"] != 0):
-            # self.runBagCommand.send_signal(subprocess.signal.SIGINT) #send signal on stop command
-            self.terminate_ros_node("/record")
-            self.bagRecordingState = False
-            rospy.loginfo("\n \n \n Bag recording stopped \n \n \n ")
-            self.addMetadata()
-            print "metadata added \n \n "
-            print "\n \n bagfilename is", self.bagFilename
+            self.stopbag()
 
-    def bagger(self):
-        self.bagFilenameGen()
+    def startBag(self):
+
+        self.bagRecordingState = True
+        self.trial = 0
+        file = open(__file__, 'r')
+        servo = open("servo.py", 'r')
+        arduino = open("servoControl/servoControl.ino", 'r')
+        world = open(self.worldFilename)
+
+
+        obj = [parameters, file.read(), servo.read(), arduino.read(), world.read()]
+
+        self.bagger("traj")
+        self.bagger("full")
+        self.pickler(obj, self.bagFilename)
+
+
+
+    def stopbag(self):
+        # self.runBagCommand.send_signal(subprocess.signal.SIGINT) #send signal on stop command
+        self.terminate_ros_node("/record")
+        self.bagRecordingState = False
+        rospy.loginfo("\n \n \n Bag recording stopped \n \n \n ")
+        self.addMetadata()
+        print "metadata added \n \n "
+        print "\n \n bagfilename is", self.bagFilename
+
+    def bagger(self,bagType):
+        self.bagFilenameGen(bagType)
+        if bagType=="traj":
+            topics=parameters["bagTrajTopics"]
+        elif bagType=="full":
+            topics=parameters["bagTopics"]
         self.bagCommand = "rosbag record --lz4 --output-name=" + self.bagFilename + " " \
-                          + parameters["bagTopics"]
+                          + topics
         # print self.bagCommand
         self.runBagCommand = subprocess.Popen(self.bagCommand, shell=True, stdout=subprocess.PIPE)
         rospy.loginfo("Bag recording started")
         time.sleep(0.15)
 
-    def bagFilenameGen(self):
+    def bagFilenameGen(self,bagType):
         self.timeNow = str(datetime.now().strftime('%Y-%m-%d__%H:%M:%S'))
         if parameters["hcp"]:
             mode = "hcp_"
@@ -1046,10 +1261,14 @@ class MyApp(ShowBase):
             else:
                 mode = "quad_"
 
-        self.bagFilename = "bags/" + parameters["fly"] + "_" + mode + parameters["loadingString"] \
-                           + "_gain" + str(parameters["gain"]) + "_speed_" + str(parameters["maxSpeed"]) \
-                           + "_trial_" + str(parameters["trialNo"]) + "_" + self.timeNow
+        bagDir="bags/"+str(datetime.now().strftime('%Y_%m_%d'))#make a directory of current date
+        if not os.path.exists(bagDir):
+            os.makedirs(bagDir)#create dir if non existent
 
+        self.bagFilename = bagDir+"/" + self.timeNow+"_"+parameters["fly"] + "_" + mode + parameters["loadingString"] \
+                           + "_gain" + str(parameters["gain"])  + "_trial_" + str(parameters["trialNo"])+ "_"+bagType
+
+        print self.bagFilename
     def terminate_ros_node(self, s):
         list_cmd = subprocess.Popen("rosnode list", shell=True, stdout=subprocess.PIPE)
         list_output = list_cmd.stdout.read()
@@ -1064,8 +1283,15 @@ class MyApp(ShowBase):
         a = self.bagFilename + ".bag"
         time.sleep(5)  # so that bag file can be transfereed from memory
 
-        metadata = String(json.dumps(parameters))
-        print "metadata is:", metadata
+        file = open(__file__, 'r')
+        servo = open("servo.py", 'r')
+        arduino = open("servoControl/servoControl.ino", 'r')
+        world = open(self.worldFilename)
+
+        obj = [parameters, file.read(), servo.read(), arduino.read(), world.read()]
+        metadata = String(json.dumps(obj))
+
+        # print "metadata is:", metadata
 
         with rosbag.Bag(a, 'a') as bag:
             i = 0
@@ -1123,33 +1349,30 @@ class MyApp(ShowBase):
         # print "windfield is", parameters["windField"]
 
     def odourTunnel(self):
-        self.valve=int(self.odourField[int(self.player.getX()),int(self.player.getY())])
-        servo.move(99,self.valve)
+        self.valve = int(self.odourField[int(self.player.getX()), int(self.player.getY())])
+        servo.move(99, self.valve)
 
     def odourFieldGen(self):
-        self.odourField=np.zeros([parameters["worldSize"], parameters["worldSize"]])
+        self.odourField = np.zeros([parameters["worldSize"], parameters["worldSize"]])
 
         offset = (parameters["worldSize"] - 1) / 2
         world = parameters["worldSize"]
 
-        parameters["odourQuadImage"]=parameters["odourQuad"]
-        quad=0
+        parameters["odourQuadImage"] = parameters["odourQuad"]
+        quad = 0
         for i in parameters["odourQuad"]:
             from skimage.io import imread
 
-            if i=='c':
-                parameters["odourQuadImage"][quad]=np.rot90(imread("models/odour/"+str(quad+1)+".png")/255)
-                #py 0 index but non zero quadrants and the image is rotated to fix plt and array axes
-                print "odour image is",quad, parameters["odourQuadImage"][quad]
-            elif i=='s':
-                width=15
-                strip=self.plumeStripGen(offset,offset,width,offset,offset/2-(width/2),0)
-                parameters["odourQuadImage"][quad]= strip
+            if i == 'c':
+                parameters["odourQuadImage"][quad] = np.rot90(imread("models/odour/" + str(quad + 1) + ".png") / 255)
+                # py 0 index but non zero quadrants and the image is rotated to fix plt and array axes
+                print "odour image is", quad, parameters["odourQuadImage"][quad]
+            elif i == 's':
+                width = 15
+                strip = self.plumeStripGen(offset, offset, width, offset, offset / 2 - (width / 2), 0)
+                parameters["odourQuadImage"][quad] = strip
 
-
-            quad+=1
-
-
+            quad += 1
 
         self.odourField[0:offset, 0:offset] = parameters["odourQuadImage"][2]
         self.odourField[offset + 1:world, 0:offset] = parameters["odourQuadImage"][3]
@@ -1161,7 +1384,7 @@ class MyApp(ShowBase):
         plt.show(block=False)
         print parameters["odourField"]
 
-    def plumeStripGen(self,fieldWidth,fieldHeight,stripWidth,stripHeight,initX,initY ):
+    def plumeStripGen(self, fieldWidth, fieldHeight, stripWidth, stripHeight, initX, initY):
         """
 
         Args:
@@ -1176,8 +1399,8 @@ class MyApp(ShowBase):
             stripField :    An array with 1 where the plume exists, which is a
                             rectangular strip and 0 else where
         """
-        stripField=np.zeros([fieldWidth,fieldHeight])
-        stripField[initX:initX+stripWidth,initY:initY+stripHeight]=1
+        stripField = np.zeros([fieldWidth, fieldHeight])
+        stripField[initX:initX + stripWidth, initY:initY + stripHeight] = 1
 
         # print "stripfield is",stripField
         return stripField
@@ -1240,8 +1463,26 @@ class MyApp(ShowBase):
         return a + ":" + str(round(vector[0])) + " " + b + ":" + str(round(vector[1])) + " " + c + ":" + str(
             round(vector[2]))
 
+    def clamp(self,n, minn, maxn):
+        """
+        clamps values to lie between min and max
+        Args:
+            n: value to be clamped
+            minn: min value of clamp
+            maxn: max value of clamp
+
+        Returns:
+            Clamped value of n
+        """
+        if n < minn:
+            return minn
+        elif n > maxn:
+            return maxn
+        else:
+            return n
+
 
 app = MyApp()
 app.run()
-plt.show() # for async plt plot window from closing
+plt.show()  # for async plt plot window from closing
 print 2 + 3
