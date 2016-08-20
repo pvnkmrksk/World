@@ -3,9 +3,9 @@ from panda3d.core import Vec3
 parameters = {
     # bools
 
-    "loadWind": True,
-    "loadOdour": True,
-
+    "loadWind": False,
+    "loadOdour": False,
+    "loadNullModels":False,
     "fly": "fly8",
     "race": "colony apple",
     "emergence": 20160507,
@@ -20,13 +20,13 @@ parameters = {
     "packetFrequency":5,
 
     "loadingString": "rg",
-    "DCoffset": 0.176,
+    "DCoffset": 0.216,
     "DCoffsetIncrement": 0.002,
 
     "trialNo": 1,
 
-    "generateWorld": False,
-    "gain": 7.0,
+    "generateWorld": True,
+    "gain": 3.5,
     "maxSpeed": 3.5,
 
     "loadHUD": False,
@@ -61,7 +61,9 @@ parameters = {
     "modelHeightMap": "models/height" + "257" + "0.png",
     # "modelTextureMap": "models/texture_green_" + "257" + ".png",
     "modelTextureMap": "models/texture" + "257" + "_quadrant_t2_sym.png",
-
+    "modelTextureMapNull": "models/texture" + "257" + "_quadrant_t2_sym_null.png",
+    "skyMap":'models/sky.egg',
+    "skyMapNull":'models/sky_null.egg',
     # "modelHeightMap": "models/height" + "257" + "0.png",
     # "modelTextureMap": "models/texture" + "257" + "s.png",rqtpl
 
@@ -81,7 +83,7 @@ parameters = {
     "treeScale": 0.04,
 
     "maxDistance": 65,
-    "camFOV": (178, 140),  # hfov, vfov,
+    "camFOV": (180, 140),  # hfov, vfov,
 
     "worldSize": 257,  # relevant for world boundaries
     "playerInitPos": (64, 32, 3), # start in quadrant 3
@@ -103,8 +105,39 @@ parameters = {
 
     "windowWidth": 4320,  # 1440,
     "windowHeight": 2560,
-    "bagTopics": "/usb_cam/image_raw /kinefly/image_output /kinefly/flystate /trajectory /vr_camera/image_raw /servo_camera/image_raw",
-    "humanDisplay":False
+    "bagTopics": "/rhag_camera/image_raw/compressed /kinefly/image_output /kinefly/flystate /trajectory /vr_camera/image_raw /servo_camera/image_raw/compressed",
+    "bagTrajTopics": "/kinefly/flystate /trajectory ",
+
+
+    "imposeStimulus":True,
+    "durList": [4, 2, 1],
+    "headingRate": [2, 4, 8],
+
+    "fps": 165,  # repeats items with number of frames since all durations in seconds
+
+    "intraTrial": 4,  # duration between two imposed turns within a sweep
+    "interTrial": 12,  # duration between two sweeps
+    # "interTrial": 12,  # duration between two sweeps
+    "startDur": 12,  # duration of the first turn
+    "stopDur": 2,  # duration of the last turn
+    "stepDur": -1,  # if not in geometric progression gpMode, it is ap mode, linear spaced durations (arithmetic prog)
+    "factorDur": 0.65,  # if in gpmode, the common ration of consequetive durations
+    # "factorDur": 0.75,  # if in gpmode, the common ration of consequetive durations
+    "nSteps": 5,  # number of steps , will be used instead of stopDur if stepmode is true
+    "nReps": 20,  # number of times the entire sweep to be repated
+    "startHeading": 2.1,  # initial heading rate, will be used if areaMode is false
+    "area": 8,  # number of degrees per frame area, will be kept constant , will be used instead of startheading if areaMode is true
+
+    "gpMode": True,  # uses GP instead of AP for durations list gen
+    "stepMode": True,  # uses number steps instead of using start and end
+    "durListGen": True,  # Generate dur list instead of manually entered
+    "headingListGen": True,  # generate heading List ,else use manully entered list
+    "areaMode": True,  # Area mode if true, will genreate heading based on given value instead of startHeading
+    "signFlip": True,  # flip direction between each turn
+    "orderFlip": True,  # flip entire order of sweep
+
+    "mouseMode":False
+
 }
 
 
