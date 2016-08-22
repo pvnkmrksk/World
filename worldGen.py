@@ -156,9 +156,9 @@ class WorldGen(ShowBase):  # our 'class'
         odd=np.array([quad1PosR,quad2PosL,quad3PosL,quad3PosR])
         even=np.array([quad1PosL,quad2PosR,quad4PosL,quad4PosR])
 
-        print offset
-        print "even is ",odd
-        print "even is ", even
+        # print offset
+        # print "even is ",odd
+        # print "even is ", even
         return odd,even
 
     def loadingStringParser(self, loadingString):
