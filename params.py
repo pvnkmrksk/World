@@ -19,18 +19,18 @@ parameters = {
     "pulseMode":False,
     "packetFrequency":5,
 
-    "loadingString": "rg",
+    "loadingString": "00",
     "DCoffset": 0.216,
     "DCoffsetIncrement": 0.002,
 
     "trialNo": 1,
 
-    "generateWorld": True,
+    "generateWorld": False,
     "gain": 3.5,
     "maxSpeed": 3.5,
 
     "loadHUD": False,
-    "loadTrajectory": True,
+    "loadTrajectory": False,
     "loadWorld": True,
     "disabledFly": False,
 
@@ -105,13 +105,13 @@ parameters = {
 
     "windowWidth": 4320,  # 1440,
     "windowHeight": 2560,
-    "bagTopics": "/rhag_camera/image_raw/compressed /kinefly/image_output /kinefly/flystate /trajectory /vr_camera/image_raw /servo_camera/image_raw/compressed",
+    "bagTopics": "/rhag_camera/image_raw/compressed /kinefly/image_output /servo_camera/image_raw/compressed /kinefly/flystate /trajectory  ",#/vr_camera/image_raw
     "bagTrajTopics": "/kinefly/flystate /trajectory ",
 
 
     "imposeStimulus":True,
-    "durList": [4, 2, 1],
-    "headingRate": [2, 4, 8],
+    "durList": [4, 4, 4,4,4,4],
+    "headingRate": [0.5,1,2, 4, 8,16],
 
     "fps": 165,  # repeats items with number of frames since all durations in seconds
 
@@ -130,13 +130,14 @@ parameters = {
 
     "gpMode": True,  # uses GP instead of AP for durations list gen
     "stepMode": True,  # uses number steps instead of using start and end
-    "durListGen": True,  # Generate dur list instead of manually entered
-    "headingListGen": True,  # generate heading List ,else use manully entered list
+    "durListGen": False,  # Generate dur list instead of manually entered
+    "headingListGen": False,  # generate heading List ,else use manully entered list
     "areaMode": True,  # Area mode if true, will genreate heading based on given value instead of startHeading
     "signFlip": True,  # flip direction between each turn
     "orderFlip": True,  # flip entire order of sweep
 
-    "mouseMode":False
+    "mouseMode":False,
+    "humanDisplay":False
 
 }
 
