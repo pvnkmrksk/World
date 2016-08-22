@@ -388,7 +388,8 @@ class MyApp(ShowBase):
             self.stopbag()
 
         if parameters["loadTrajectory"]:
-            self.plotter.kill()
+            pass
+            # self.plotter.kill()
         try:
             servo.move(99, 0)  # close valve to prevent odour bleeding through
         except serial.serialutil.SerialException:
@@ -996,10 +997,10 @@ class MyApp(ShowBase):
                 # print "GP mode is False"
         if parameters["headingListGen"]:
             parameters["headingRate"] = parameters["area"] / parameters["durList"]
+            print "Imposed turn in degrees/frame is,", parameters["durList"] * parameters["headingRate"]
 
         print "\nDurlist is", parameters["durList"]
         print "Heading is", parameters["headingRate"]
-        print "Imposed turn in degrees/frame is,", parameters["durList"] * parameters["headingRate"]
 
         i = 0
         parameters["timeSeries"] = (np.zeros(int(parameters["interTrial"] * parameters["fps"])))
@@ -1194,40 +1195,22 @@ class MyApp(ShowBase):
     def bagControl(self):
         if (self.keyMap["startBag"] == 1):
             self.startBag()
-            self.frame=0#restart stim impose
-            self.bagger()
-            self.bagRecordingState = True
-            self.trial=0
-            file = open(__file__, 'r')
-            servo=open("servo.py",'r')
-            arduino=open("servoControl/servoControl.ino",'r')
-            world=open(self.worldFilename)
-
-            # obj = [parameters,file.read(),servo.read(),arduino.read(),world.read() ]
-            obj = {'parameters':parameters,'file':file.read(),
-                   'servo':servo.read(),'arduino':arduino.read(),'worldBam':world.read() }
-            self.pickler(obj, self.bagFilename)
 
         elif (self.keyMap["stopBag"] != 0):
             self.stopbag()
 
     def startBag(self):
-
+        self.frame=0
         self.bagRecordingState = True
         self.trial = 0
-        file = open(__file__, 'r')
-        servo = open("servo.py", 'r')
-        arduino = open("servoControl/servoControl.ino", 'r')
-        world = open(self.worldFilename)
-
-
-        obj = [parameters, file.read(), servo.read(), arduino.read(), world.read()]
 
         self.bagger("traj")
         self.bagger("full")
+
+        obj=self.metadataGen()
         self.pickler(obj, self.bagFilename)
 
-
+        time.sleep(0.15)
 
     def stopbag(self):
         # self.runBagCommand.send_signal(subprocess.signal.SIGINT) #send signal on stop command
@@ -1249,7 +1232,6 @@ class MyApp(ShowBase):
         # print self.bagCommand
         self.runBagCommand = subprocess.Popen(self.bagCommand, shell=True, stdout=subprocess.PIPE)
         rospy.loginfo("Bag recording started")
-        time.sleep(0.15)
 
     def bagFilenameGen(self,bagType):
         self.timeNow = str(datetime.now().strftime('%Y-%m-%d__%H:%M:%S'))
@@ -1278,19 +1260,28 @@ class MyApp(ShowBase):
             if (str.startswith(s)):
                 os.system("rosnode kill " + str)
 
+    def metadataGen(self):
+        file = open(__file__, 'r')
+        servo = open("servo.py", 'r')
+        arduino = open("servoControl/servoControl.ino", 'r')
+        bam= open(self.worldFilename)
+        obj= dict(parameters=parameters,world=file.read(),
+                  servo=servo.read(),arduino=arduino.read(),)
+                  #bam=bam.read().encode('utf-8').strip())
+        # obj = [parameters, file.read(), servo.read(), arduino.read(), world.read()]
+        return obj
+
     def addMetadata(self):
         print "allo " + self.bagFilename
         a = self.bagFilename + ".bag"
         time.sleep(5)  # so that bag file can be transfereed from memory
 
-        file = open(__file__, 'r')
-        servo = open("servo.py", 'r')
-        arduino = open("servoControl/servoControl.ino", 'r')
-        world = open(self.worldFilename)
-
-        obj = [parameters, file.read(), servo.read(), arduino.read(), world.read()]
-        metadata = String(json.dumps(obj))
-
+        obj=self.metadataGen()
+        # a.encode('utf-8').strip()
+        # obj=[122]
+        # print obj
+        metadata = (json.dumps(obj))
+        metadata=String(metadata)
         # print "metadata is:", metadata
 
         with rosbag.Bag(a, 'a') as bag:
@@ -1355,7 +1346,7 @@ class MyApp(ShowBase):
     def odourFieldGen(self):
         self.odourField = np.zeros([parameters["worldSize"], parameters["worldSize"]])
 
-        offset = (parameters["worldSize"] - 1) / 2
+        offset = int((parameters["worldSize"] - 1) / 2)
         world = parameters["worldSize"]
 
         parameters["odourQuadImage"] = parameters["odourQuad"]
@@ -1382,7 +1373,7 @@ class MyApp(ShowBase):
         plt.imshow(np.rot90(self.odourField))
         plt.gray()
         plt.show(block=False)
-        print parameters["odourField"]
+        # print "odour field",parameters["odourField"]
 
     def plumeStripGen(self, fieldWidth, fieldHeight, stripWidth, stripHeight, initX, initY):
         """
@@ -1399,6 +1390,13 @@ class MyApp(ShowBase):
             stripField :    An array with 1 where the plume exists, which is a
                             rectangular strip and 0 else where
         """
+        fieldWidth=int(fieldWidth)
+        fieldHeight=int(fieldHeight)
+        stripWidth=int(stripWidth)
+        stripHeight=int(stripHeight)
+        initX=int(initX)
+        initY=int(initY)
+
         stripField = np.zeros([fieldWidth, fieldHeight])
         stripField[initX:initX + stripWidth, initY:initY + stripHeight] = 1
 
@@ -1483,6 +1481,23 @@ class MyApp(ShowBase):
 
 
 app = MyApp()
-app.run()
+try:
+    app.run()
+finally:
+
+    PROCNAME = ['python', 'realTimePlotter.py']
+    import psutil
+    for proc in psutil.process_iter():
+        # check whether the process name matches and close plotter window
+        if proc.cmdline == PROCNAME:
+            proc.kill()
+
+    try:
+        servo.move(99, 0)  # close valve to prevent odour bleeding through
+    except serial.serialutil.SerialException:
+        print "arduino faulty"
+        pass  # arduino disconnected or faulty, let go
+    sys.exit()
+
 plt.show()  # for async plt plot window from closing
 print 2 + 3
