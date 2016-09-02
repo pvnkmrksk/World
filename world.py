@@ -120,8 +120,11 @@ class MyApp(ShowBase):
                         str(int(parameters["windowHeight"] / parameters["captureScale"])))  # set window size
 
         # loadPrcFileData('', 'fullscreen true')
+        loadPrcFileData('', 'want-pstats true')
 
         ShowBase.__init__(self)  # start the app
+
+        # PStatClient.connect()
         base.setFrameRateMeter(True)  # show frame rate monitor
 
         self.initParams()  # run this 1st. Loads all content and params.
@@ -387,9 +390,7 @@ class MyApp(ShowBase):
         if self.bagRecordingState:#if bag recording , close before exit
             self.stopbag()
 
-        if parameters["loadTrajectory"]:
-            pass
-            # self.plotter.kill()
+
         try:
             servo.move(99, 0)  # close valve to prevent odour bleeding through
         except serial.serialutil.SerialException:
@@ -610,10 +611,10 @@ class MyApp(ShowBase):
         mes.impose = self.stim  # imposed heading rate
         self.currentImposeResponse=-(self.player.getH()-self.prevH-self.stim )#send what the fly's motion caused on heading, negative for ease of view in rqtPlot
         mes.imposeResponse=self.currentImposeResponse
-        self.imposeResponseArr=np.append(self.imposeResponseArr,mes.imposeResponse)
+        # self.imposeResponseArr=np.append(self.imposeResponseArr,mes.imposeResponse)
         self.prevH=self.player.getH()
 
-        mes.imposeResponseSmooth=np.mean(self.imposeResponseArr[-self.bin:])
+        # mes.imposeResponseSmooth=np.mean(self.imposeResponseArr[-self.bin:])
 
 
         mes.imposeHeading = self.imposedCurrentH + self.stim
