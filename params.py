@@ -5,13 +5,20 @@ parameters = {
 
     "loadWind": False,
     "loadOdour": False,
+    "loadTrajectory": False,
     "loadNullModels":False,
-    "fly": "fly8",
+    "imposeStimulus": True,
+    "loadingString": "00",
+    "gain":14,
+
+    "DCoffset": 0.,
+    "DCoffsetIncrement": 0.012,
+
+    "fly": "fly13",
     "race": "colony apple",
-    "emergence": 20160507,
-    "age": 50,
+    "emergence": 20160817,
     "windQuad": [180, 180, -1, -1],  # -1 is open loop
-    "odourQuad":['s',0,'s',0], #0 is always off, 1 is always on, c is custom
+    "odourQuad":['c','c','c','c'], #0 is always off, 1 is always on, c is custom
     "odour1":"models/odour/1.png",
     "odour2":"models/odour/2.png",
     "odour3":"models/odour/3.png",
@@ -19,18 +26,14 @@ parameters = {
     "pulseMode":False,
     "packetFrequency":5,
 
-    "loadingString": "00",
-    "DCoffset": 0.216,
-    "DCoffsetIncrement": 0.002,
+
 
     "trialNo": 1,
 
-    "generateWorld": False,
-    "gain": 3.5,
+    "generateWorld": True,
     "maxSpeed": 3.5,
 
     "loadHUD": False,
-    "loadTrajectory": False,
     "loadWorld": True,
     "disabledFly": False,
 
@@ -86,7 +89,8 @@ parameters = {
     "camFOV": (180, 140),  # hfov, vfov,
 
     "worldSize": 257,  # relevant for world boundaries
-    "playerInitPos": (64, 32, 3), # start in quadrant 3
+    # "playerInitPos": (64, 32, 3), # start in quadrant 3
+    "playerInitPos": (64, 64, 3), # start in quadrant 3
     "playerInitH": 0,
     "windDirection": 190,
 
@@ -109,14 +113,13 @@ parameters = {
     "bagTrajTopics": "/kinefly/flystate /trajectory ",
 
 
-    "imposeStimulus":True,
-    "durList": [4, 4, 4,4,4,4],
-    "headingRate": [0.5,1,2, 4, 8,16],
+    "durList": [3, 3, 3,3,3,3],
+    "headingRate": [0.25,0.5,1,2, 4, 8],
 
     "fps": 165,  # repeats items with number of frames since all durations in seconds
 
-    "intraTrial": 4,  # duration between two imposed turns within a sweep
-    "interTrial": 12,  # duration between two sweeps
+    "intraTrial": 3,  # duration between two imposed turns within a sweep
+    "interTrial": 3,  # duration between two sweeps
     # "interTrial": 12,  # duration between two sweeps
     "startDur": 12,  # duration of the first turn
     "stopDur": 2,  # duration of the last turn
