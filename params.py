@@ -110,7 +110,7 @@ parameters = {
 
     "windowWidth": 4320,  # 1440,
     "windowHeight": 2560,
-    "bagTopics": "/rhag_camera/image_raw/compressed /kinefly/image_output /servo_camera/image_raw/compressed /kinefly/flystate /trajectory  ",#/vr_camera/image_raw
+    "bagFullTopics": "/rhag_camera/image_raw/compressed /kinefly/image_output /servo_camera/image_raw/compressed /kinefly/flystate /trajectory  ",#/vr_camera/image_raw
     "bagTrajTopics": "/kinefly/flystate /trajectory ",
 
 
