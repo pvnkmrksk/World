@@ -5,11 +5,11 @@ parameters = {
 
     "loadWind": False,
     "loadOdour": False,
-    "loadTrajectory": False,
+    "loadTrajectory": True,
     "loadNullModels":False,
-    "imposeStimulus": True,
-    "loadingString": "00",
-    "gain":14,
+    "imposeStimulus": False,
+    "loadingString": "rg",
+    "gain":10.5,
 
     "DCoffset": 0.,
     "DCoffsetIncrement": 0.012,
@@ -57,6 +57,7 @@ parameters = {
     "quad": True,
     "posL": (32, 64),
     "posR": (96, 64),
+    # "bboxDist": 6.5,
     "bboxDist": 7.5,
     "maxBoutDur": 9900,  # frames
 
@@ -83,14 +84,14 @@ parameters = {
     "trajectoryUpdateInterval": 165,  # frames between update,
 
     "sphereScale": 1.9,
-    "treeScale": 0.04,
+    "treeScale": 0.1,
 
-    "maxDistance": 65,
+    "maxDistance": 65,#90,#65,
     "camFOV": (180, 140),  # hfov, vfov,
 
     "worldSize": 257,  # relevant for world boundaries
-    # "playerInitPos": (64, 32, 3), # start in quadrant 3
-    "playerInitPos": (64, 64, 3), # start in quadrant 3
+    "playerInitPos": (64, 32, 3), # start in quadrant 3
+    # "playerInitPos": (64, 64, 3), # start in quadrant 3
     "playerInitH": 0,
     "windDirection": 190,
 
