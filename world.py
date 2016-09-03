@@ -1150,8 +1150,8 @@ class MyApp(ShowBase):
         self.quadrantIndex = random.choice(list(self.quadSet))
         self.quadSet.remove(self.quadrantIndex)
 
-        print "quadrant ndex is", self.quadrantIndex
-        print "set is", self.quadSet
+        # print "quadrant ndex is", self.quadrantIndex
+        # print "set is", self.quadSet
 
     def randIndex(self):
         if len(self.quadSet) > 0:
