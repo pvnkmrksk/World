@@ -4,20 +4,20 @@ parameters = {
     # bools
 
     "loadWind": False,
-    "loadOdour": False,
+    "loadOdour": True,
     "loadTrajectory": True,
     "loadNullModels":False,
     "imposeStimulus": False,
-    "loadingString": "rg",
-    "gain":10.5,
+    "loadingString": "rr",
+    "gain":7,
 
-    "DCoffset": 0.,
+    "DCoffset": 0.07,
     "DCoffsetIncrement": 0.012,
 
     "fly": "fly13",
     "race": "colony apple",
     "emergence": 20160817,
-    "windQuad": [180, 180, -1, -1],  # -1 is open loop
+    "windQuad": [-1, -1, -1, -1],  # -1 is open loop
     "odourQuad":['c','c','c','c'], #0 is always off, 1 is always on, c is custom
     "odour1":"models/odour/1.png",
     "odour2":"models/odour/2.png",
@@ -25,6 +25,7 @@ parameters = {
     "odour4":"models/odour/4.png",
     "pulseMode":False,
     "packetFrequency":5,
+    "odourDensity":0.4,
 
 
 
