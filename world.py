@@ -244,7 +244,7 @@ class MyApp(ShowBase):
         if parameters["loadWind"]:
             self.windFieldGen()
         if parameters["loadOdour"]:
-            self.odourFieldGen()
+            self.odourField=odourFieldGen()
 
     def initFeedback(self):
         '''
@@ -1254,65 +1254,6 @@ class MyApp(ShowBase):
         self.valve = int(self.odourField[int(self.player.getX()), int(self.player.getY())])
         servo.move(99, self.valve)
 
-    def odourFieldGen(self):
-        self.odourField = np.zeros([parameters["worldSize"], parameters["worldSize"]])
-
-        offset = int((parameters["worldSize"] - 1) / 2)
-        world = parameters["worldSize"]
-
-        parameters["odourQuadImage"] = parameters["odourQuad"]
-        quad = 0
-        for i in parameters["odourQuad"]:
-            from skimage.io import imread
-
-            if i == 'c':
-                parameters["odourQuadImage"][quad] = np.rot90(imread("models/odour/" + str(quad + 1) + ".png") / 255)
-                # py 0 index but non zero quadrants and the image is rotated to fix plt and array axes
-                print "odour image is", quad, parameters["odourQuadImage"][quad]
-            elif i == 's':
-                width = 15
-                strip = self.plumeStripGen(offset, offset, width, offset, offset / 2 - (width / 2), 0)
-                parameters["odourQuadImage"][quad] = strip
-
-            quad += 1
-
-        self.odourField[0:offset, 0:offset] = parameters["odourQuadImage"][2]
-        self.odourField[offset + 1:world, 0:offset] = parameters["odourQuadImage"][3]
-        self.odourField[0:offset, offset + 1:world] = parameters["odourQuadImage"][1]
-        self.odourField[offset + 1:world, offset + 1:world] = parameters["odourQuadImage"][0]
-        parameters["odourField"] = self.odourField
-        plt.imshow(np.rot90(self.odourField))
-        plt.gray()
-        plt.show(block=False)
-        # print "odour field",parameters["odourField"]
-
-    def plumeStripGen(self, fieldWidth, fieldHeight, stripWidth, stripHeight, initX, initY):
-        """
-
-        Args:
-            fieldWidth: width of array
-            fieldHeight: height of array
-            stripWidth:  width of the plume strip
-            stripHeight: height of the plume strip
-            initX:      starting X point of strip in numpy array
-            initY:      starting Y point of strip in numpy array
-
-        Returns:
-            stripField :    An array with 1 where the plume exists, which is a
-                            rectangular strip and 0 else where
-        """
-        fieldWidth=int(fieldWidth)
-        fieldHeight=int(fieldHeight)
-        stripWidth=int(stripWidth)
-        stripHeight=int(stripHeight)
-        initX=int(initX)
-        initY=int(initY)
-
-        stripField = np.zeros([fieldWidth, fieldHeight])
-        stripField[initX:initX + stripWidth, initY:initY + stripHeight] = 1
-
-        # print "stripfield is",stripField
-        return stripField
 
     # evals
     def dict2Var(self, dict):
@@ -1490,6 +1431,75 @@ class BagControl():
                 os.system("rosnode kill " + str)
 
 
+def plumeStripGen(fieldWidth, fieldHeight, stripWidth, stripHeight, initX, initY):
+    """
+
+    Args:
+        fieldWidth: width of array
+        fieldHeight: height of array
+        stripWidth:  width of the plume strip
+        stripHeight: height of the plume strip
+        initX:      starting X point of strip in numpy array
+        initY:      starting Y point of strip in numpy array
+
+    Returns:
+        stripField :    An array with 1 where the plume exists, which is a
+                        rectangular strip and 0 else where
+    """
+    fieldWidth = int(fieldWidth)
+    fieldHeight = int(fieldHeight)
+    stripWidth = int(stripWidth)
+    stripHeight = int(stripHeight)
+    initX = int(initX)
+    initY = int(initY)
+
+    stripField = np.zeros([fieldWidth, fieldHeight])
+    stripField[initX:initX + stripWidth, initY:initY + stripHeight] = 1
+
+    # print "stripfield is",stripField
+    return stripField
+
+
+def odourFieldGen():
+    odourField = np.zeros([parameters["worldSize"], parameters["worldSize"]])
+
+    offset = int((parameters["worldSize"] - 1) / 2)
+    world = parameters["worldSize"]
+
+    parameters["odourQuadImage"] = parameters["odourQuad"]
+    quad = 0
+    for i in parameters["odourQuad"]:
+        from skimage.io import imread
+
+        if i == 'c':
+            parameters["odourQuadImage"][quad] = np.rot90(imread("models/odour/" + str(quad + 1) + ".png") / 255)
+            # py 0 index but non zero quadrants and the image is rotated to fix plt and array axes
+            print "odour image is", quad, parameters["odourQuadImage"][quad]
+        elif i == 's':
+            width = 15
+            strip = plumeStripGen(offset, offset, width, offset, offset / 2 - (width / 2), 0)
+            parameters["odourQuadImage"][quad] = strip
+
+        quad += 1
+
+    odourField[0:offset, 0:offset] = parameters["odourQuadImage"][2]
+    odourField[offset + 1:world, 0:offset] = parameters["odourQuadImage"][3]
+    odourField[0:offset, offset + 1:world] = parameters["odourQuadImage"][1]
+    odourField[offset + 1:world, offset + 1:world] = parameters["odourQuadImage"][0]
+
+    thresh=parameters['odourDensity']
+    rand=(np.random.rand(odourField.shape[0],odourField.shape[1])<thresh)*1
+    odourField=np.logical_and(odourField,rand)
+    parameters["odourField"] = odourField
+
+
+    plt.imshow(np.rot90(odourField))
+    plt.gray()
+    plt.show(block=False)
+    # print "odour field",parameters["odourField"]
+    return odourField
+
+
 app = MyApp()
 try:
     app.run()
@@ -1504,6 +1514,8 @@ finally:
 
     try:
         servo.move(99, 0)  # close valve to prevent odour bleeding through
+        servo.move(1, 90)  # close valve to prevent odour bleeding through
+
     except serial.serialutil.SerialException:
         print "arduino faulty"
         pass  # arduino disconnected or faulty, let go
