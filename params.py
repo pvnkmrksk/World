@@ -4,17 +4,17 @@ parameters = {
     # bools
 
     "loadWind": False,
-    "loadOdour": True,
+    "loadOdour":False,
     "loadTrajectory": True,
     "loadNullModels":False,
     "imposeStimulus": False,
-    "loadingString": "rr",
+    "loadingString": "rg",
     "gain":7,
 
-    "DCoffset": 0.07,
+    "DCoffset": -0.002,
     "DCoffsetIncrement": 0.012,
 
-    "fly": "fly13",
+    "fly": "fly14",
     "race": "colony apple",
     "emergence": 20160817,
     "windQuad": [-1, -1, -1, -1],  # -1 is open loop
