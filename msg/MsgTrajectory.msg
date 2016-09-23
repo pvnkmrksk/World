@@ -1,0 +1,29 @@
+std_msgs/Header    header
+geometry_msgs/Vector3 position
+geometry_msgs/Vector3 orientation
+
+float64 wbad
+float64 wbas
+float64 speed
+float64 gain
+int16 closed
+
+int16 trial
+int16 servoAngle
+int16 valve
+int16 quadrant
+
+float64 DCoffset
+
+float64 impose
+float64 imposeResponse
+
+float64 imposeResponseSmooth
+float64 imposeHeading
+float64 imposeResponseHeading
+float64 compensation
+
+int16 reset
+
+string key
+
