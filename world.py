@@ -170,7 +170,8 @@ class MyApp(ShowBase):
         self.odd, self.even, quad = self.quadPositionGenerator(posL=parameters["posL"], posR=parameters["posR"])
 
         self.servoAngle = 90  #
-        servo.move(1, self.servoAngle)
+        if parameters["loadWind"] :
+            servo.move(1, self.servoAngle)
         self.quadrantIndex = 2  # starts in 3rd quadrant, index 2 based on init pos
         self.valve = 0
         self.trial = 1
@@ -388,7 +389,7 @@ class MyApp(ShowBase):
             self.plotter.kill()
         try:
             servo.move(99, 0)  # close valve to prevent odour bleeding through
-        except serial.serialutil.SerialException:
+        except NameError or serial.serialutil.SerialException:
             pass #arduino disconnected or faulty, let go
         sys.exit()
 
@@ -1332,7 +1333,8 @@ class MyApp(ShowBase):
 
     def odourTunnel(self):
         self.valve = int(self.odourField[int(self.player.getX()), int(self.player.getY())])
-        servo.move(99, self.valve)
+        if parameters["loadWind"]:
+            servo.move(99, self.valve)
 
     def odourFieldGen(self):
         self.odourField = np.zeros([parameters["worldSize"], parameters["worldSize"]])
