@@ -89,13 +89,13 @@ def applySettings(win, path):
 
     print "pre dump",settings #todo: remove (when not needed anymore)
 
-    global jsonFile
-    temp = ui.settingsFile.text()
+    # global jsonFile
+    # temp = ui.settingsFile.text()
 
-    if temp != jsonFile: #when new filename inserted (in lineEdit: settingsFile)
-        jsonFile = ui.settingsFile.text() #change string (filename.json)
+    # if temp != jsonFile: #when new filename inserted (in lineEdit: settingsFile)
+    #     jsonFile = ui.settingsFile.text() #change string (filename.json)
 
-    with open(path + jsonFile, 'w') as dictFile:#dump everything
+    with open(path, 'w') as dictFile:#dump everything
         json.dump(settings, dictFile)
 
     ui.statusbar.showMessage('Settings successfully saved to ' + path + jsonFile)
@@ -180,15 +180,17 @@ def showFileDialog(win, line):
 #prints filename in defined lineEdit
 
     global jsonFile
+    global filePath
     fname = str(QtGui.QFileDialog.getOpenFileName(win, 'Open file',
                                               'home/transire/catkin/src/beginner/'))
 
-    if '.json' in fname:
-        jsonFile = fname.replace('home/transire/catkin/src/beginner/GUI_VR/jsonFiles/', '')
-        lineText = jsonFile
-    else:
-        lineText = fname.replace('home/transire/catkin/src/beginner/', '')#todo: has to be a better way to replace
-    line.setText(lineText)
+    # if '.json' in fname:
+    #     #jsonFile = fname.replace('home/transire/catkin/src/beginner/GUI_VR/jsonFiles/', '')
+    #     lineText = jsonFile
+    # else:
+    #     lineText = fname.replace('home/transire/catkin/src/beginner/', '')#todo: has to be a better way to replace
+    filePath = fname
+    line.setText(fname)
 
 def caller(btn, fx, line):
     btn.clicked.connect(lambda: fx(window, line))
