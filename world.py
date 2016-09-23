@@ -34,7 +34,16 @@ import numpy as np
 import easygui
 import pandas as pd
 
-from params import *
+useGui=True
+from GUI_caller import VRjson
+
+if useGui:
+    with open(VRjson,'r') as jfile:
+        parameters=json.load(jfile)
+else:
+    from params import parameters
+
+
 
 """
 Replay world playsback position and orientation, can be additionally used for screen capturing
