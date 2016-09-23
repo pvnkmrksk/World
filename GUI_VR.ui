@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>3</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -182,7 +182,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>Select json File</string>
+       <string>Na</string>
       </property>
      </widget>
      <widget class="QDoubleSpinBox" name="maxSpeed">
@@ -636,6 +636,29 @@
       </property>
       <property name="text">
        <string>worldSize</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="fps">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>180</y>
+        <width>60</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_158">
+      <property name="geometry">
+       <rect>
+        <x>90</x>
+        <y>180</y>
+        <width>71</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>fps</string>
       </property>
      </widget>
     </widget>
@@ -2374,14 +2397,14 @@
    <widget class="QDialogButtonBox" name="buttonBox">
     <property name="geometry">
      <rect>
-      <x>230</x>
-      <y>560</y>
-      <width>501</width>
+      <x>140</x>
+      <y>540</y>
+      <width>586</width>
       <height>27</height>
      </rect>
     </property>
     <property name="standardButtons">
-     <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::Open|QDialogButtonBox::RestoreDefaults</set>
+     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::Open|QDialogButtonBox::Reset|QDialogButtonBox::RestoreDefaults|QDialogButtonBox::Save</set>
     </property>
    </widget>
   </widget>

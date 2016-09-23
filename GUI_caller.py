@@ -1,4 +1,4 @@
-import sys
+import sys, os
 import json
 from PyQt4.QtGui import QApplication, QMainWindow
 from GUI_VR import Ui_MainWindow
@@ -6,9 +6,12 @@ from PyQt4 import QtCore, QtGui
 import ast
 
 #todo: the file/path-management works, but is ugly and may cause bugs
-jsonFile = 'default.json' #default .json-file
-filePath = 'jsonFiles/' #path of .json-files
-
+runPath=os.path.abspath(os.path.split(sys.argv[0])[0]) #path of the runfile
+jsonFolder=runPath+'/jsonFiles/'
+defaultJson= jsonFolder+'default.json' #path of 'default.json' #default .json-file
+recentJson=jsonFolder+'recent.json'
+currentJson=recentJson#jsonFolder+'temp.json' #modify a temp json file
+VRjson=jsonFolder+'VR.json'
 def isfloat(s):#todo: prob not neccassary
 #helper function to check if a str is a float.
 #needed to convert str to float
@@ -20,11 +23,19 @@ def isfloat(s):#todo: prob not neccassary
     except ValueError:
         return False
 
-def applySettings(win, path):
-#collects attributes of all settings-objects
-#puts all objects in sereval lists
-#iterates through lists, puts object names with attribute in dictonary 'settings'
-#dumps dictionary in .json-file
+def saveSettings(win, path):
+    '''
+    collects attributes of all settings-objects
+    puts all objects in sereval lists
+    iterates through lists, puts object names with attribute in dictonary 'settings'
+    dumps dictionary in .json-file
+
+    :param win: Current window
+    :param path: File Path to which parameters of object to be dumped to
+    :return:
+
+    '''
+
 
     settings = {}
     box = win.findChildren(QtGui.QCheckBox)
@@ -98,14 +109,15 @@ def applySettings(win, path):
     with open(path, 'w') as dictFile:#dump everything
         json.dump(settings, dictFile)
 
-    ui.statusbar.showMessage('Settings successfully saved to ' + path + jsonFile)
+    ui.statusbar.showMessage('Settings successfully saved to ' + path )
 
-def loadSettings(win, path):
+def loadSettings(win,path):
     # collects attributes of all settings-objects
     # puts all objects in sereval lists
     # iterates through lists, sets attributes of objects to stored values
-    #applySettings reverse
-
+    #saveSettings reverse
+    global currentJson
+    currentJson=path
     load = {}
     box = win.findChildren(QtGui.QCheckBox)
     line = win.findChildren(QtGui.QLineEdit)
@@ -115,59 +127,104 @@ def loadSettings(win, path):
     spinFloat = win.findChildren(QtGui.QDoubleSpinBox)
     date = win.findChildren(QtGui.QDateEdit)
 
+
     with open(path, 'r') as dictFile:
         set = json.load(dictFile)
 
+
     for item in box:
-        name = item.objectName()
-        load[name] = item
-        temp = load[name]
-        temp.setChecked(set[str(name)])
-
+        try:
+            name = item.objectName()
+            load[name] = item
+            temp = load[name]
+            temp.setChecked(set[str(name)])
+        except KeyError:
+            pass
     for item in line:
-        name = item.objectName()
+        try:
+            name = item.objectName()
 
-        if str(name) == 'qt_spinbox_lineedit':
-            continue
+            if str(name) == 'qt_spinbox_lineedit':
+                continue
 
-        load[name] = item
-        temp = load[name]
-        temp.setText(str(set[str(name)]))
+            load[name] = item
+            temp = load[name]
+            temp.setText(str(set[str(name)]))
+        except KeyError:
+            pass
+
 
     for item in radio:
-        name = item.objectName()
-        load[name] = item
-        temp = load[name]
-        temp.setChecked(set[str(name)])
+        try:
+
+            name = item.objectName()
+            load[name] = item
+            temp = load[name]
+            temp.setChecked(set[str(name)])
+        except KeyError:
+            pass
+
 
     for item in slider:
-        name = item.objectName()
-        load[name] = item
-        temp = load[name]
-        temp.setValue(set[str(name)])
+        try:
+
+            name = item.objectName()
+            load[name] = item
+            temp = load[name]
+            temp.setValue(set[str(name)])
+        except KeyError:
+            pass
+
 
     for item in spinInt:
-        name = item.objectName()
-        load[name] = item
-        temp = load[name]
-        temp.setValue(set[str(name)])
+        try:
+
+            name = item.objectName()
+            load[name] = item
+            temp = load[name]
+            temp.setValue(set[str(name)])
+        except KeyError:
+            pass
+
 
     for item in spinFloat:
-        name = item.objectName()
-        load[name] = item
-        temp = load[name]
-        temp.setValue(set[str(name)])
+        try:
+
+            name = item.objectName()
+            load[name] = item
+            temp = load[name]
+            temp.setValue(set[str(name)])
+        except KeyError:
+            pass
+
 
     for item in date:
-        name = item.objectName()
-        load[name] = item
-        temp = load[name]
-        qtDate = QtCore.QDate.fromString(set[str(name)], 'yyyy-MM-dd')
-        temp.setDate(qtDate)
+        try:
+
+            name = item.objectName()
+            load[name] = item
+            temp = load[name]
+            qtDate = QtCore.QDate.fromString(set[str(name)], 'yyyy-MM-dd')
+            temp.setDate(qtDate)
+        except KeyError:
+            pass
+
 
     ui.statusbar.showMessage('Settings successfully loaded from ' +path)
 
+def openLoad(win):
+    '''
+    helper function to open a file and load the json
+    :param win: current window
+    :return:
+    '''
+    global currentJson
+    path=showFileDialog(win,ui.settingsFile)
+
+    loadSettings(win,path)
+    currentJson=path
 #
+
 # def updateParam():
 #     with open('dict.json', 'r') as f:
 #         data = json.load(f)
@@ -175,22 +232,20 @@ def loadSettings(win, path):
 
 
 def showFileDialog(win, line):
-#opens file dialog, returns selected file as string
-#if selected file is .json, changes jsonFile
-#prints filename in defined lineEdit
+    '''
+    opens file dialog, returns selected file as string
+    if selected file is .json, changes jsonFile
+    prints filename in defined lineEdit
 
-    global jsonFile
-    global filePath
-    fname = str(QtGui.QFileDialog.getOpenFileName(win, 'Open file',
-                                              'home/transire/catkin/src/beginner/'))
+    :param win:  current window
+    :param line: the line to be used to display the path
+    :return: the filepath selected
+    '''
+    fname = str(QtGui.QFileDialog.getOpenFileName(win, 'Open file',jsonFolder))
 
-    # if '.json' in fname:
-    #     #jsonFile = fname.replace('home/transire/catkin/src/beginner/GUI_VR/jsonFiles/', '')
-    #     lineText = jsonFile
-    # else:
-    #     lineText = fname.replace('home/transire/catkin/src/beginner/', '')#todo: has to be a better way to replace
-    filePath = fname
-    line.setText(fname)
+    if line: #set only if given a label to setText
+        line.setText(fname)
+    return fname
 
 def caller(btn, fx, line):
     btn.clicked.connect(lambda: fx(window, line))
@@ -210,6 +265,9 @@ def showError():
     error.setText('Error')
     error.exec_()
 
+def saveClose(win):
+    saveSettings(win, recentJson)
+    win.close()
 if __name__ == '__main__':
 #necessary for getting the GUI running
     app = QApplication(sys.argv)
@@ -217,7 +275,8 @@ if __name__ == '__main__':
     ui = Ui_MainWindow()
     ui.setupUi(window)
 
-    myDict={'jsonBtn':[ui.jsonBtn,showFileDialog,ui.settingsFile],
+    myDict={
+            # 'jsonBtn':[ui.jsonBtn,showFileDialog,ui.settingsFile],
             'bagFullTopicsBtn':[ui.bagFullTopicsBtn,showFileDialog,ui.bagFullTopics],
             'bagTrajTopicsBtn':[ui.bagTrajTopicsBtn,showFileDialog,ui.bagTrajTopics],
             'skyMapBtn':[ui.skyMapBtn,showFileDialog,ui.skyMap],
@@ -235,23 +294,38 @@ if __name__ == '__main__':
 
 #functions for several buttons
 #applying and loading settings, closing etc.
+
+
+
     okBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.Ok)#todo: Ok needs a function
+    okBtn.clicked.connect(lambda : saveSettings(window,VRjson))
     #okBtn.clicked.connect(ui.statusbar.showMessage('Ok has no function yet'))
 
     cancelBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.Cancel)
-    cancelBtn.clicked.connect(window.close)#todo: is closing the window smart?
-
-    applyBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.Apply)
-    applyBtn.clicked.connect(lambda: applySettings(window, filePath))
-
-    loadBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.Open)
-    loadBtn.setText("Load")
-    loadBtn.clicked.connect(lambda: loadSettings(window, filePath + jsonFile))
+    cancelBtn.clicked.connect(lambda: saveClose(window))#save to recent and close
+    app.aboutToQuit.connect(lambda :saveClose(window))
+    #todo: is closing the window smart?
 
     defaultBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.RestoreDefaults)
-    defaultBtn.clicked.connect(lambda: loadSettings(window, 'jsonFiles/default.json'))
+    defaultBtn.clicked.connect(lambda: loadSettings(window, defaultJson))
+
+    saveBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.Save)
+    saveBtn.clicked.connect(lambda: saveSettings(window, currentJson))
+
+    loadBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.Open)
+    loadBtn.setText("Load")#because it is actually open button
+    # loadBtn.clicked.connect(lambda: loadSettings(window, filePath + jsonFile))
+    loadBtn.clicked.connect(lambda: openLoad(window))
+
+    resetBtn=ui.buttonBox.button(QtGui.QDialogButtonBox.Reset)
+    resetBtn.clicked.connect(lambda: loadSettings(window,currentJson))
+
 
     callLooper(myDict)
+    try:
+        loadSettings(window,currentJson)#load the last run config
+    except ValueError:
+        pass
     window.show()
     sys.exit(app.exec_())#nothing shall be behind this line!
 #don"t even dare writing somethin here!
