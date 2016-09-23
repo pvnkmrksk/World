@@ -57,6 +57,7 @@ def applySettings(win, path):
                 text = ast.literal_eval(text)
         except:
             ui.statusbar.showMessage('Error')#todo: better message
+            showError()
 
         settings[str(name)] = text
 
@@ -195,6 +196,17 @@ def caller(btn, fx, line):
 def callLooper(myDict):
     for key, values in myDict.iteritems():
         caller(values[0], values[1], values[2])
+
+
+def fileError():
+    error = QtGui.QErrorMessage()
+    error.showMessage('Error')
+    error.exec_()
+
+def showError():
+    error = QtGui.QMessageBox()
+    error.setText('Error')
+    error.exec_()
 
 if __name__ == '__main__':
 #necessary for getting the GUI running
