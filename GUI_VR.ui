@@ -1,0 +1,2458 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>745</width>
+    <height>640</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QTabWidget" name="tabWidget">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>751</width>
+      <height>531</height>
+     </rect>
+    </property>
+    <property name="currentIndex">
+     <number>2</number>
+    </property>
+    <widget class="QWidget" name="tab">
+     <attribute name="title">
+      <string>General</string>
+     </attribute>
+     <widget class="QCheckBox" name="loadWind">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>20</y>
+        <width>99</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Wind</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="loadOdour">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>60</y>
+        <width>99</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Odour</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="loadTrajectory">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>100</y>
+        <width>99</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Trajectory</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="imposeStimulus">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>140</y>
+        <width>141</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Impose stimulus</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="loadingString">
+      <property name="geometry">
+       <rect>
+        <x>210</x>
+        <y>20</y>
+        <width>113</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label">
+      <property name="geometry">
+       <rect>
+        <x>330</x>
+        <y>20</y>
+        <width>101</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Loading String</string>
+      </property>
+     </widget>
+     <widget class="QSlider" name="gain">
+      <property name="geometry">
+       <rect>
+        <x>210</x>
+        <y>58</y>
+        <width>111</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="maximum">
+       <number>25</number>
+      </property>
+      <property name="value">
+       <number>7</number>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+     <widget class="QLCDNumber" name="lcdNumber">
+      <property name="geometry">
+       <rect>
+        <x>250</x>
+        <y>50</y>
+        <width>121</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
+      <property name="lineWidth">
+       <number>1</number>
+      </property>
+      <property name="midLineWidth">
+       <number>0</number>
+      </property>
+      <property name="intValue" stdset="0">
+       <number>7</number>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_2">
+      <property name="geometry">
+       <rect>
+        <x>380</x>
+        <y>60</y>
+        <width>68</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Gain</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="settingsFile">
+      <property name="geometry">
+       <rect>
+        <x>482</x>
+        <y>460</y>
+        <width>113</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>default.json</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="jsonBtn">
+      <property name="geometry">
+       <rect>
+        <x>610</x>
+        <y>460</y>
+        <width>111</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Na</string>
+      </property>
+     </widget>
+     <widget class="QDoubleSpinBox" name="maxSpeed">
+      <property name="geometry">
+       <rect>
+        <x>210</x>
+        <y>110</y>
+        <width>62</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_13">
+      <property name="geometry">
+       <rect>
+        <x>280</x>
+        <y>110</y>
+        <width>81</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>max speed</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="disabledFly">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>180</y>
+        <width>141</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>disable fly</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_155">
+      <property name="geometry">
+       <rect>
+        <x>280</x>
+        <y>150</y>
+        <width>81</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>speed</string>
+      </property>
+     </widget>
+     <widget class="QDoubleSpinBox" name="speed">
+      <property name="geometry">
+       <rect>
+        <x>210</x>
+        <y>150</y>
+        <width>62</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <zorder>lcdNumber</zorder>
+     <zorder>loadWind</zorder>
+     <zorder>loadOdour</zorder>
+     <zorder>loadTrajectory</zorder>
+     <zorder>imposeStimulus</zorder>
+     <zorder>loadingString</zorder>
+     <zorder>label</zorder>
+     <zorder>gain</zorder>
+     <zorder>label_2</zorder>
+     <zorder>settingsFile</zorder>
+     <zorder>jsonBtn</zorder>
+     <zorder>maxSpeed</zorder>
+     <zorder>label_13</zorder>
+     <zorder>disabledFly</zorder>
+     <zorder>label_155</zorder>
+     <zorder>speed</zorder>
+    </widget>
+    <widget class="QWidget" name="tab_2">
+     <attribute name="title">
+      <string>Race</string>
+     </attribute>
+     <widget class="QLineEdit" name="fly">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>30</y>
+        <width>113</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_5">
+      <property name="geometry">
+       <rect>
+        <x>150</x>
+        <y>30</y>
+        <width>68</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Fly</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_6">
+      <property name="geometry">
+       <rect>
+        <x>150</x>
+        <y>70</y>
+        <width>68</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Race</string>
+      </property>
+     </widget>
+     <widget class="QDateEdit" name="emergence">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>110</y>
+        <width>110</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_7">
+      <property name="geometry">
+       <rect>
+        <x>150</x>
+        <y>110</y>
+        <width>81</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Emergence</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="windQuad">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>150</y>
+        <width>113</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add &lt;span style=&quot; font-weight:600;&quot;&gt;4 &lt;/span&gt;items&lt;/p&gt;&lt;p&gt;[0, 0, 0, 0]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="text">
+       <string>[]</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_8">
+      <property name="geometry">
+       <rect>
+        <x>150</x>
+        <y>150</y>
+        <width>71</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>windQuad</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_9">
+      <property name="geometry">
+       <rect>
+        <x>150</x>
+        <y>190</y>
+        <width>81</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>odourQuad</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="odourQuad">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>190</y>
+        <width>113</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add &lt;span style=&quot; font-weight:600;&quot;&gt;4 &lt;/span&gt;items&lt;/p&gt;&lt;p&gt;[0, 0, 0, 0]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="text">
+       <string>[]</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="odour1">
+      <property name="geometry">
+       <rect>
+        <x>300</x>
+        <y>30</y>
+        <width>113</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="odourBtn1">
+      <property name="geometry">
+       <rect>
+        <x>430</x>
+        <y>30</y>
+        <width>111</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Select odour 1</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="odour2">
+      <property name="geometry">
+       <rect>
+        <x>300</x>
+        <y>70</y>
+        <width>113</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="odourBtn2">
+      <property name="geometry">
+       <rect>
+        <x>430</x>
+        <y>70</y>
+        <width>111</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Select odour 2</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="odour3">
+      <property name="geometry">
+       <rect>
+        <x>300</x>
+        <y>110</y>
+        <width>113</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="odourBtn3">
+      <property name="geometry">
+       <rect>
+        <x>430</x>
+        <y>110</y>
+        <width>111</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Select odour 3</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="odour4">
+      <property name="geometry">
+       <rect>
+        <x>300</x>
+        <y>150</y>
+        <width>113</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="odourBtn4">
+      <property name="geometry">
+       <rect>
+        <x>430</x>
+        <y>150</y>
+        <width>111</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Select odour 4</string>
+      </property>
+     </widget>
+     <widget class="QComboBox" name="race">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>70</y>
+        <width>111</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <item>
+       <property name="text">
+        <string>apple</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>hawthorn</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>unknown</string>
+       </property>
+      </item>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_4">
+     <attribute name="title">
+      <string>World</string>
+     </attribute>
+     <widget class="QCheckBox" name="generateWorld">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>20</y>
+        <width>141</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>generate world</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="loadHud">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>50</y>
+        <width>141</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>load HUD</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="loadWorld">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>80</y>
+        <width>141</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>load world</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="replayWorld">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>110</y>
+        <width>141</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>replay world</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="skyMap">
+      <property name="geometry">
+       <rect>
+        <x>220</x>
+        <y>10</y>
+        <width>113</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="skyMapNull">
+      <property name="geometry">
+       <rect>
+        <x>220</x>
+        <y>60</y>
+        <width>113</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="skyMapBtn">
+      <property name="geometry">
+       <rect>
+        <x>350</x>
+        <y>10</y>
+        <width>99</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>skyMap</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="skyMapNullBtn">
+      <property name="geometry">
+       <rect>
+        <x>350</x>
+        <y>60</y>
+        <width>99</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>skyMapNull</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="killWorldGen">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>140</y>
+        <width>121</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>killWorldGen</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="worldSize">
+      <property name="geometry">
+       <rect>
+        <x>220</x>
+        <y>140</y>
+        <width>61</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_149">
+      <property name="geometry">
+       <rect>
+        <x>290</x>
+        <y>140</y>
+        <width>71</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>worldSize</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="fps">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>180</y>
+        <width>60</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_158">
+      <property name="geometry">
+       <rect>
+        <x>90</x>
+        <y>180</y>
+        <width>71</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>fps</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_5">
+     <attribute name="title">
+      <string>Idk</string>
+     </attribute>
+     <widget class="QCheckBox" name="pulseMode">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>20</y>
+        <width>101</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>pulseMode</string>
+      </property>
+     </widget>
+     <widget class="QSlider" name="packetFrequency">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>10</y>
+        <width>131</width>
+        <height>29</height>
+       </rect>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_10">
+      <property name="geometry">
+       <rect>
+        <x>240</x>
+        <y>20</y>
+        <width>121</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>packetFrequency</string>
+      </property>
+     </widget>
+     <widget class="QLCDNumber" name="lcdNumber_2">
+      <property name="geometry">
+       <rect>
+        <x>300</x>
+        <y>10</y>
+        <width>131</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_11">
+      <property name="geometry">
+       <rect>
+        <x>90</x>
+        <y>60</y>
+        <width>101</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Odour density</string>
+      </property>
+     </widget>
+     <widget class="QDoubleSpinBox" name="odourDensity">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>60</y>
+        <width>62</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="trialNo">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>100</y>
+        <width>61</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_12">
+      <property name="geometry">
+       <rect>
+        <x>90</x>
+        <y>100</y>
+        <width>101</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Trial No.</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_14">
+      <property name="geometry">
+       <rect>
+        <x>90</x>
+        <y>140</y>
+        <width>101</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>capture scale</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="captureScale">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>140</y>
+        <width>61</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_15">
+      <property name="geometry">
+       <rect>
+        <x>90</x>
+        <y>180</y>
+        <width>101</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>capture start</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="captureStart">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>180</y>
+        <width>61</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_16">
+      <property name="geometry">
+       <rect>
+        <x>300</x>
+        <y>100</y>
+        <width>141</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>playback increment</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="playbackIncrement">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>100</y>
+        <width>61</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_17">
+      <property name="geometry">
+       <rect>
+        <x>300</x>
+        <y>140</y>
+        <width>111</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>record duration</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="recordDur">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>140</y>
+        <width>61</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_18">
+      <property name="geometry">
+       <rect>
+        <x>300</x>
+        <y>180</y>
+        <width>101</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>record fps</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="recordFps">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>180</y>
+        <width>61</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="hcp">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>220</y>
+        <width>101</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>hcp</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="quad">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>250</y>
+        <width>101</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>quad</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="posL">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>220</y>
+        <width>113</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add &lt;span style=&quot; font-weight:600;&quot;&gt;2 &lt;/span&gt;items&lt;/p&gt;&lt;p&gt;(0, 0)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="text">
+       <string>()</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_19">
+      <property name="geometry">
+       <rect>
+        <x>350</x>
+        <y>220</y>
+        <width>101</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>posL</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="posR">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>260</y>
+        <width>113</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add &lt;span style=&quot; font-weight:600;&quot;&gt;2 &lt;/span&gt;items&lt;/p&gt;&lt;p&gt;(0, 0)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="text">
+       <string>()</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_20">
+      <property name="geometry">
+       <rect>
+        <x>350</x>
+        <y>260</y>
+        <width>101</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>posR</string>
+      </property>
+     </widget>
+     <widget class="QDoubleSpinBox" name="bboxDist">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>280</y>
+        <width>62</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_21">
+      <property name="geometry">
+       <rect>
+        <x>90</x>
+        <y>280</y>
+        <width>101</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>bboxDist</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_22">
+      <property name="geometry">
+       <rect>
+        <x>90</x>
+        <y>320</y>
+        <width>101</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>maxBoutDur</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="maxBoutDur">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>320</y>
+        <width>61</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="modelHeightMap">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>390</y>
+        <width>113</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_45">
+      <property name="geometry">
+       <rect>
+        <x>150</x>
+        <y>360</y>
+        <width>121</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>modelSizeSuffix</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="modelSizeSuffix">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>360</y>
+        <width>113</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_46">
+      <property name="geometry">
+       <rect>
+        <x>150</x>
+        <y>390</y>
+        <width>121</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>modelHeightMap</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="modelTextureMapNull">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>450</y>
+        <width>113</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="modelTextureMap">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>420</y>
+        <width>113</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_71">
+      <property name="geometry">
+       <rect>
+        <x>150</x>
+        <y>420</y>
+        <width>131</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>modelTextureMap</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_72">
+      <property name="geometry">
+       <rect>
+        <x>150</x>
+        <y>450</y>
+        <width>161</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>modelTextureMapNull</string>
+      </property>
+     </widget>
+     <widget class="QDoubleSpinBox" name="lrGain">
+      <property name="geometry">
+       <rect>
+        <x>530</x>
+        <y>30</y>
+        <width>62</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_107">
+      <property name="geometry">
+       <rect>
+        <x>600</x>
+        <y>30</y>
+        <width>101</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>lrGain</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="lockFps">
+      <property name="geometry">
+       <rect>
+        <x>530</x>
+        <y>70</y>
+        <width>101</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>lockFps</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_108">
+      <property name="geometry">
+       <rect>
+        <x>540</x>
+        <y>100</y>
+        <width>191</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>trajectoryUpdateInterval</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="trajectoryUpdateInterval">
+      <property name="geometry">
+       <rect>
+        <x>460</x>
+        <y>100</y>
+        <width>61</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_111">
+      <property name="geometry">
+       <rect>
+        <x>540</x>
+        <y>130</y>
+        <width>91</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>maxDistance</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="maxDistance">
+      <property name="geometry">
+       <rect>
+        <x>460</x>
+        <y>130</y>
+        <width>61</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_147">
+      <property name="geometry">
+       <rect>
+        <x>610</x>
+        <y>200</y>
+        <width>101</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>camFOV</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="camFOV">
+      <property name="geometry">
+       <rect>
+        <x>490</x>
+        <y>200</y>
+        <width>113</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="playerInitPos">
+      <property name="geometry">
+       <rect>
+        <x>490</x>
+        <y>240</y>
+        <width>113</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add &lt;span style=&quot; font-weight:600;&quot;&gt;3 &lt;/span&gt;items&lt;/p&gt;&lt;p&gt;(0, 0, 0)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="text">
+       <string>()</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_150">
+      <property name="geometry">
+       <rect>
+        <x>620</x>
+        <y>240</y>
+        <width>101</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>playerInitPos</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_151">
+      <property name="geometry">
+       <rect>
+        <x>560</x>
+        <y>280</y>
+        <width>101</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>playerInitH</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="playerInitH">
+      <property name="geometry">
+       <rect>
+        <x>490</x>
+        <y>280</y>
+        <width>61</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_152">
+      <property name="geometry">
+       <rect>
+        <x>560</x>
+        <y>320</y>
+        <width>101</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>windDirection</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="windDirection">
+      <property name="geometry">
+       <rect>
+        <x>490</x>
+        <y>320</y>
+        <width>61</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="wbad">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>300</y>
+        <width>61</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_204">
+      <property name="geometry">
+       <rect>
+        <x>300</x>
+        <y>300</y>
+        <width>101</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>wbad</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="wbas">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>330</y>
+        <width>61</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_205">
+      <property name="geometry">
+       <rect>
+        <x>300</x>
+        <y>330</y>
+        <width>101</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>wbas</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="bagTrajTopics">
+      <property name="geometry">
+       <rect>
+        <x>290</x>
+        <y>410</y>
+        <width>113</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="bagTrajTopicsBtn">
+      <property name="geometry">
+       <rect>
+        <x>420</x>
+        <y>410</y>
+        <width>99</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>bagTrajTopics</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="bagFullTopics">
+      <property name="geometry">
+       <rect>
+        <x>290</x>
+        <y>370</y>
+        <width>113</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="bagFullTopicsBtn">
+      <property name="geometry">
+       <rect>
+        <x>420</x>
+        <y>370</y>
+        <width>99</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>bagFullTopics</string>
+      </property>
+     </widget>
+     <zorder>label_10</zorder>
+     <zorder>lcdNumber_2</zorder>
+     <zorder>pulseMode</zorder>
+     <zorder>packetFrequency</zorder>
+     <zorder>label_11</zorder>
+     <zorder>odourDensity</zorder>
+     <zorder>trialNo</zorder>
+     <zorder>label_12</zorder>
+     <zorder>label_14</zorder>
+     <zorder>captureScale</zorder>
+     <zorder>label_15</zorder>
+     <zorder>captureStart</zorder>
+     <zorder>label_16</zorder>
+     <zorder>playbackIncrement</zorder>
+     <zorder>label_17</zorder>
+     <zorder>recordDur</zorder>
+     <zorder>label_18</zorder>
+     <zorder>recordFps</zorder>
+     <zorder>hcp</zorder>
+     <zorder>quad</zorder>
+     <zorder>posL</zorder>
+     <zorder>label_19</zorder>
+     <zorder>posR</zorder>
+     <zorder>label_20</zorder>
+     <zorder>bboxDist</zorder>
+     <zorder>label_21</zorder>
+     <zorder>label_22</zorder>
+     <zorder>maxBoutDur</zorder>
+     <zorder>modelHeightMap</zorder>
+     <zorder>label_45</zorder>
+     <zorder>modelSizeSuffix</zorder>
+     <zorder>label_46</zorder>
+     <zorder>modelTextureMapNull</zorder>
+     <zorder>modelTextureMap</zorder>
+     <zorder>label_71</zorder>
+     <zorder>label_72</zorder>
+     <zorder>lrGain</zorder>
+     <zorder>label_107</zorder>
+     <zorder>lockFps</zorder>
+     <zorder>label_108</zorder>
+     <zorder>trajectoryUpdateInterval</zorder>
+     <zorder>label_111</zorder>
+     <zorder>maxDistance</zorder>
+     <zorder>label_147</zorder>
+     <zorder>camFOV</zorder>
+     <zorder>playerInitPos</zorder>
+     <zorder>label_150</zorder>
+     <zorder>label_151</zorder>
+     <zorder>playerInitH</zorder>
+     <zorder>label_152</zorder>
+     <zorder>windDirection</zorder>
+     <zorder>wbad</zorder>
+     <zorder>label_204</zorder>
+     <zorder>wbas</zorder>
+     <zorder>label_205</zorder>
+     <zorder>bagTrajTopics</zorder>
+     <zorder>bagTrajTopicsBtn</zorder>
+     <zorder>bagFullTopics</zorder>
+     <zorder>bagFullTopicsBtn</zorder>
+    </widget>
+    <widget class="QWidget" name="tab_64">
+     <attribute name="title">
+      <string>Idk2</string>
+     </attribute>
+     <widget class="QLabel" name="label_362">
+      <property name="geometry">
+       <rect>
+        <x>150</x>
+        <y>20</y>
+        <width>71</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>durList</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="durList">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>20</y>
+        <width>113</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add &lt;span style=&quot; font-weight:600;&quot;&gt;4 &lt;/span&gt;items&lt;/p&gt;&lt;p&gt;[0, 0, 0, 0]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="text">
+       <string>[]</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_363">
+      <property name="geometry">
+       <rect>
+        <x>150</x>
+        <y>60</y>
+        <width>91</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>headingRate</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="headingRate">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>60</y>
+        <width>113</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add &lt;span style=&quot; font-weight:600;&quot;&gt;4 &lt;/span&gt;items&lt;/p&gt;&lt;p&gt;[0, 0, 0, 0]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="text">
+       <string>[]</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="intraTrial">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>100</y>
+        <width>61</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_364">
+      <property name="geometry">
+       <rect>
+        <x>90</x>
+        <y>100</y>
+        <width>71</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>intraTrial</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="interTrial">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>140</y>
+        <width>61</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_365">
+      <property name="geometry">
+       <rect>
+        <x>90</x>
+        <y>140</y>
+        <width>71</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>interTrial</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="startDur">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>180</y>
+        <width>61</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_366">
+      <property name="geometry">
+       <rect>
+        <x>90</x>
+        <y>180</y>
+        <width>71</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>startDur</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="stopDur">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>220</y>
+        <width>61</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_367">
+      <property name="geometry">
+       <rect>
+        <x>90</x>
+        <y>220</y>
+        <width>71</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>stopDur</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="stepDur">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>260</y>
+        <width>61</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="minimum">
+       <number>-99</number>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_368">
+      <property name="geometry">
+       <rect>
+        <x>90</x>
+        <y>260</y>
+        <width>71</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>stepDur</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_369">
+      <property name="geometry">
+       <rect>
+        <x>90</x>
+        <y>310</y>
+        <width>81</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>factorDur</string>
+      </property>
+     </widget>
+     <widget class="QDoubleSpinBox" name="factorDur">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>300</y>
+        <width>62</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="nSteps">
+      <property name="geometry">
+       <rect>
+        <x>290</x>
+        <y>20</y>
+        <width>61</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_370">
+      <property name="geometry">
+       <rect>
+        <x>360</x>
+        <y>20</y>
+        <width>71</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>nSteps</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="nReps">
+      <property name="geometry">
+       <rect>
+        <x>290</x>
+        <y>60</y>
+        <width>61</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_371">
+      <property name="geometry">
+       <rect>
+        <x>360</x>
+        <y>60</y>
+        <width>71</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>nReps</string>
+      </property>
+     </widget>
+     <widget class="QDoubleSpinBox" name="startHeading">
+      <property name="geometry">
+       <rect>
+        <x>290</x>
+        <y>100</y>
+        <width>62</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="decimals">
+       <number>1</number>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_372">
+      <property name="geometry">
+       <rect>
+        <x>360</x>
+        <y>110</y>
+        <width>91</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>startHeading</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_373">
+      <property name="geometry">
+       <rect>
+        <x>360</x>
+        <y>140</y>
+        <width>71</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>area</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="area">
+      <property name="geometry">
+       <rect>
+        <x>290</x>
+        <y>140</y>
+        <width>61</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="stepMode">
+      <property name="geometry">
+       <rect>
+        <x>520</x>
+        <y>70</y>
+        <width>99</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>stepMode</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="durListGen">
+      <property name="geometry">
+       <rect>
+        <x>520</x>
+        <y>110</y>
+        <width>99</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>durListGen</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="gpMode">
+      <property name="geometry">
+       <rect>
+        <x>520</x>
+        <y>30</y>
+        <width>99</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>gpMode</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="areaMode">
+      <property name="geometry">
+       <rect>
+        <x>520</x>
+        <y>190</y>
+        <width>141</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>areaMode</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="headingListGen">
+      <property name="geometry">
+       <rect>
+        <x>520</x>
+        <y>150</y>
+        <width>141</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>headingListGen</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="orderFlip">
+      <property name="geometry">
+       <rect>
+        <x>520</x>
+        <y>270</y>
+        <width>99</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>orderFlip</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="mouseMode">
+      <property name="geometry">
+       <rect>
+        <x>520</x>
+        <y>310</y>
+        <width>141</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>mouseMode</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="humanDisplay">
+      <property name="geometry">
+       <rect>
+        <x>520</x>
+        <y>350</y>
+        <width>141</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>humanDisplay</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="signFlip">
+      <property name="geometry">
+       <rect>
+        <x>520</x>
+        <y>230</y>
+        <width>99</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>signFlip</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_7">
+     <attribute name="title">
+      <string>Objects</string>
+     </attribute>
+     <widget class="QLineEdit" name="redTexPath">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>100</y>
+        <width>113</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="spherePath">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>20</y>
+        <width>113</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="greenTexPath">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>60</y>
+        <width>113</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="spherePathBtn">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>20</y>
+        <width>111</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>spherePath</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="treePath">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>140</y>
+        <width>113</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="greenTexPathBtn">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>60</y>
+        <width>111</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>greenTexPath</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="redTexPathBtn">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>100</y>
+        <width>111</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>redTexPath</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="treePathBtn">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>140</y>
+        <width>111</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>treePath</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="treeTexPath">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>180</y>
+        <width>113</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="treeTexPathBtn">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>180</y>
+        <width>111</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>treeTexPath</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="heightObjects">
+      <property name="geometry">
+       <rect>
+        <x>360</x>
+        <y>20</y>
+        <width>61</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_73">
+      <property name="geometry">
+       <rect>
+        <x>440</x>
+        <y>16</y>
+        <width>101</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>heightObjects</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_74">
+      <property name="geometry">
+       <rect>
+        <x>440</x>
+        <y>50</y>
+        <width>101</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>widthObjects</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="widthObjects">
+      <property name="geometry">
+       <rect>
+        <x>360</x>
+        <y>54</y>
+        <width>61</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_75">
+      <property name="geometry">
+       <rect>
+        <x>440</x>
+        <y>90</y>
+        <width>101</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>lattice</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="lattice">
+      <property name="geometry">
+       <rect>
+        <x>360</x>
+        <y>94</y>
+        <width>61</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="origin">
+      <property name="geometry">
+       <rect>
+        <x>360</x>
+        <y>130</y>
+        <width>113</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add &lt;span style=&quot; font-weight:600;&quot;&gt;3 &lt;/span&gt;items&lt;/p&gt;&lt;p&gt;(0, 0, 0)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="text">
+       <string>()</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_76">
+      <property name="geometry">
+       <rect>
+        <x>490</x>
+        <y>130</y>
+        <width>101</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>origin</string>
+      </property>
+     </widget>
+     <widget class="QDoubleSpinBox" name="treeScale">
+      <property name="geometry">
+       <rect>
+        <x>360</x>
+        <y>210</y>
+        <width>62</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QDoubleSpinBox" name="sphereScale">
+      <property name="geometry">
+       <rect>
+        <x>360</x>
+        <y>170</y>
+        <width>62</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_109">
+      <property name="geometry">
+       <rect>
+        <x>430</x>
+        <y>170</y>
+        <width>101</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>sphereScale</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_110">
+      <property name="geometry">
+       <rect>
+        <x>430</x>
+        <y>210</y>
+        <width>101</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>treeScale</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_153">
+      <property name="geometry">
+       <rect>
+        <x>430</x>
+        <y>250</y>
+        <width>101</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>sphereZ</string>
+      </property>
+     </widget>
+     <widget class="QDoubleSpinBox" name="sphereZ">
+      <property name="geometry">
+       <rect>
+        <x>360</x>
+        <y>250</y>
+        <width>62</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_154">
+      <property name="geometry">
+       <rect>
+        <x>430</x>
+        <y>290</y>
+        <width>101</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>treeZ</string>
+      </property>
+     </widget>
+     <widget class="QDoubleSpinBox" name="treeZ">
+      <property name="geometry">
+       <rect>
+        <x>360</x>
+        <y>290</y>
+        <width>62</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_3">
+     <attribute name="title">
+      <string>Advanced</string>
+     </attribute>
+     <widget class="QDoubleSpinBox" name="DCoffset">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>14</y>
+        <width>71</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="decimals">
+       <number>3</number>
+      </property>
+      <property name="minimum">
+       <double>-99.989999999999995</double>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_3">
+      <property name="geometry">
+       <rect>
+        <x>110</x>
+        <y>10</y>
+        <width>68</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>DCoffset</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_4">
+      <property name="geometry">
+       <rect>
+        <x>110</x>
+        <y>56</y>
+        <width>101</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>DCoffset Incr.</string>
+      </property>
+     </widget>
+     <widget class="QDoubleSpinBox" name="DCoffsetIncrement">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>60</y>
+        <width>71</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="decimals">
+       <number>3</number>
+      </property>
+      <property name="minimum">
+       <double>-99.989999999999995</double>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="frameRecord">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>100</y>
+        <width>141</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>frameRecord</string>
+      </property>
+     </widget>
+     <widget class="QDoubleSpinBox" name="gainIncrement">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>180</y>
+        <width>62</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QDoubleSpinBox" name="speedIncrement">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>140</y>
+        <width>62</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_157">
+      <property name="geometry">
+       <rect>
+        <x>100</x>
+        <y>180</y>
+        <width>101</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>gainIncrement</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_156">
+      <property name="geometry">
+       <rect>
+        <x>100</x>
+        <y>140</y>
+        <width>111</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>speedIncrement</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="camHpr">
+      <property name="geometry">
+       <rect>
+        <x>260</x>
+        <y>10</y>
+        <width>113</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add &lt;span style=&quot; font-weight:600;&quot;&gt;3 &lt;/span&gt;items&lt;/p&gt;&lt;p&gt;(0, 0, 0)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="text">
+       <string>()</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_254">
+      <property name="geometry">
+       <rect>
+        <x>390</x>
+        <y>10</y>
+        <width>101</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>camHpr</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_255">
+      <property name="geometry">
+       <rect>
+        <x>340</x>
+        <y>46</y>
+        <width>101</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>frameNum</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="frameNum">
+      <property name="geometry">
+       <rect>
+        <x>260</x>
+        <y>50</y>
+        <width>61</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="windowWidth">
+      <property name="geometry">
+       <rect>
+        <x>260</x>
+        <y>84</y>
+        <width>61</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_256">
+      <property name="geometry">
+       <rect>
+        <x>340</x>
+        <y>80</y>
+        <width>101</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>windowWidth</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="windowHeight">
+      <property name="geometry">
+       <rect>
+        <x>260</x>
+        <y>124</y>
+        <width>61</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_257">
+      <property name="geometry">
+       <rect>
+        <x>340</x>
+        <y>120</y>
+        <width>101</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>windowHeight</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_6">
+     <attribute name="title">
+      <string>Live</string>
+     </attribute>
+    </widget>
+   </widget>
+   <widget class="QDialogButtonBox" name="buttonBox">
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>540</y>
+      <width>586</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="standardButtons">
+     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::Open|QDialogButtonBox::Reset|QDialogButtonBox::RestoreDefaults|QDialogButtonBox::Save</set>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>745</width>
+     <height>25</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>gain</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>lcdNumber</receiver>
+   <slot>display(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>267</x>
+     <y>130</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>267</x>
+     <y>166</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>packetFrequency</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>lcdNumber_2</receiver>
+   <slot>display(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>237</x>
+     <y>90</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>237</x>
+     <y>126</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

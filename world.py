@@ -34,7 +34,16 @@ import numpy as np
 import easygui
 import pandas as pd
 
-from params import *
+useGui=True
+from GUI_caller import VRjson
+
+if useGui:
+    with open(VRjson,'r') as jfile:
+        parameters=json.load(jfile)
+else:
+    from params import parameters
+
+
 
 """
 Replay world playsback position and orientation, can be additionally used for screen capturing
@@ -174,7 +183,8 @@ class MyApp(ShowBase):
         self.odd, self.even, quad = self.quadPositionGenerator(posL=parameters["posL"], posR=parameters["posR"])
 
         self.servoAngle = 90  #
-        servo.move(1, self.servoAngle)
+        if parameters["loadWind"] :
+            servo.move(1, self.servoAngle)
         self.quadrantIndex = 2  # starts in 3rd quadrant, index 2 based on init pos
         self.valve = 0
         self.trial = 1
@@ -393,7 +403,7 @@ class MyApp(ShowBase):
 
         try:
             servo.move(99, 0)  # close valve to prevent odour bleeding through
-        except serial.serialutil.SerialException:
+        except NameError or serial.serialutil.SerialException:
             pass #arduino disconnected or faulty, let go
         sys.exit()
 
@@ -1252,7 +1262,8 @@ class MyApp(ShowBase):
 
     def odourTunnel(self):
         self.valve = int(self.odourField[int(self.player.getX()), int(self.player.getY())])
-        servo.move(99, self.valve)
+        if parameters["loadWind"]:
+            servo.move(99, self.valve)
 
 
     # evals
