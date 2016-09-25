@@ -320,7 +320,7 @@ if __name__ == '__main__':
 
     resetBtn=ui.buttonBox.button(QtGui.QDialogButtonBox.Reset)
     resetBtn.clicked.connect(lambda: loadSettings(window,currentJson))
-
+    #todo. open the last tab on close
 
     callLooper(myDict)
     try:
