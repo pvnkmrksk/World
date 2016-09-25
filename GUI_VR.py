@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'GUI_VR.ui'
 #
-# Created: Fri Sep 23 21:03:25 2016
+# Created: Sun Sep 25 12:04:52 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -181,12 +181,14 @@ class Ui_MainWindow(object):
         self.killWorldGen.setObjectName(_fromUtf8("killWorldGen"))
         self.worldSize = QtGui.QSpinBox(self.tab_4)
         self.worldSize.setGeometry(QtCore.QRect(220, 140, 61, 27))
+        self.worldSize.setMaximum(999)
         self.worldSize.setObjectName(_fromUtf8("worldSize"))
         self.label_149 = QtGui.QLabel(self.tab_4)
         self.label_149.setGeometry(QtCore.QRect(290, 140, 71, 31))
         self.label_149.setObjectName(_fromUtf8("label_149"))
         self.fps = QtGui.QSpinBox(self.tab_4)
         self.fps.setGeometry(QtCore.QRect(30, 180, 60, 27))
+        self.fps.setMaximum(999)
         self.fps.setObjectName(_fromUtf8("fps"))
         self.label_158 = QtGui.QLabel(self.tab_4)
         self.label_158.setGeometry(QtCore.QRect(90, 180, 71, 31))
@@ -279,6 +281,7 @@ class Ui_MainWindow(object):
         self.label_22.setObjectName(_fromUtf8("label_22"))
         self.maxBoutDur = QtGui.QSpinBox(self.tab_5)
         self.maxBoutDur.setGeometry(QtCore.QRect(20, 320, 61, 27))
+        self.maxBoutDur.setMaximum(999)
         self.maxBoutDur.setObjectName(_fromUtf8("maxBoutDur"))
         self.modelHeightMap = QtGui.QLineEdit(self.tab_5)
         self.modelHeightMap.setGeometry(QtCore.QRect(20, 390, 113, 27))
@@ -345,12 +348,14 @@ class Ui_MainWindow(object):
         self.label_151.setObjectName(_fromUtf8("label_151"))
         self.playerInitH = QtGui.QSpinBox(self.tab_5)
         self.playerInitH.setGeometry(QtCore.QRect(490, 280, 61, 27))
+        self.playerInitH.setMaximum(360)
         self.playerInitH.setObjectName(_fromUtf8("playerInitH"))
         self.label_152 = QtGui.QLabel(self.tab_5)
         self.label_152.setGeometry(QtCore.QRect(560, 320, 101, 31))
         self.label_152.setObjectName(_fromUtf8("label_152"))
         self.windDirection = QtGui.QSpinBox(self.tab_5)
         self.windDirection.setGeometry(QtCore.QRect(490, 320, 61, 27))
+        self.windDirection.setMaximum(360)
         self.windDirection.setObjectName(_fromUtf8("windDirection"))
         self.wbad = QtGui.QSpinBox(self.tab_5)
         self.wbad.setGeometry(QtCore.QRect(230, 300, 61, 27))
@@ -609,12 +614,14 @@ class Ui_MainWindow(object):
         self.frameNum.setObjectName(_fromUtf8("frameNum"))
         self.windowWidth = QtGui.QSpinBox(self.tab_3)
         self.windowWidth.setGeometry(QtCore.QRect(260, 84, 61, 27))
+        self.windowWidth.setMaximum(9999)
         self.windowWidth.setObjectName(_fromUtf8("windowWidth"))
         self.label_256 = QtGui.QLabel(self.tab_3)
         self.label_256.setGeometry(QtCore.QRect(340, 80, 101, 31))
         self.label_256.setObjectName(_fromUtf8("label_256"))
         self.windowHeight = QtGui.QSpinBox(self.tab_3)
         self.windowHeight.setGeometry(QtCore.QRect(260, 124, 61, 27))
+        self.windowHeight.setMaximum(9999)
         self.windowHeight.setObjectName(_fromUtf8("windowHeight"))
         self.label_257 = QtGui.QLabel(self.tab_3)
         self.label_257.setGeometry(QtCore.QRect(340, 120, 101, 31))
@@ -637,7 +644,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(7)
         QtCore.QObject.connect(self.gain, QtCore.SIGNAL(_fromUtf8("valueChanged(int)")), self.lcdNumber.display)
         QtCore.QObject.connect(self.packetFrequency, QtCore.SIGNAL(_fromUtf8("valueChanged(int)")), self.lcdNumber_2.display)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)

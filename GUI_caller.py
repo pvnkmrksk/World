@@ -303,8 +303,9 @@ if __name__ == '__main__':
 
     cancelBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.Cancel)
     cancelBtn.clicked.connect(lambda: saveClose(window))#save to recent and close
-    app.aboutToQuit.connect(lambda :saveClose(window))
+    # app.aboutToQuit.connect(lambda :saveClose(window))
     #todo: is closing the window smart?
+    #todo: is saving last known config on cancel smart?
 
     defaultBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.RestoreDefaults)
     defaultBtn.clicked.connect(lambda: loadSettings(window, defaultJson))
