@@ -14,7 +14,7 @@ from datetime import datetime
 import sys, time, subprocess, os, serial  # ROS imports
 import json_tricks as json
 import rospy, rostopic, roslib, std_msgs.msg, rosbag
-from worlds.msg import MsgFlystate, MsgTrajectory
+from World.msg import MsgFlystate, MsgTrajectory
 from std_msgs.msg import String
 from rospy_message_converter import message_converter
 
@@ -22,9 +22,9 @@ from direct.showbase.ShowBase import ShowBase  # Panda imports
 from direct.task import Task
 from panda3d.core import AmbientLight, DirectionalLight, Vec4, Vec3, Fog, Camera, PerspectiveLens
 from panda3d.core import loadPrcFileData, NodePath, TextNode
-from pandac.PandaModules import CompassEffect, ClockObject
+from panda3d.core import CompassEffect, ClockObject
 from direct.gui.OnscreenText import OnscreenText
-from pandac.PandaModules import WindowProperties
+from panda3d.core import WindowProperties
 
 import matplotlib.pyplot as plt  # plotting imports
 from matplotlib.path import Path
@@ -35,7 +35,7 @@ import numpy as np
 import easygui
 import pandas as pd
 
-useGui = False
+useGui = True
 from GUI_caller import VRjson
 
 if useGui:
@@ -1474,6 +1474,32 @@ def odourFieldGen():
     return odourField
 
 
+def odourPacketGen(width=10, height=10, velocity=3, packetFrequency=10, packetDuration=0.02, scale=100):
+    '''
+
+    :param width: image width in pixels
+    :param height: image height in pixels
+    :param velocity: traversing velocity in pixels/second
+    :param packetFrequency: odour packets frequency in Hertz
+    :param packetDuration: duration of a single packet in seconds
+    :param scale: scale factor to do sub pixel localization
+    :return:
+    '''
+
+    p1 = scale * velocity * packetDuration  # on length in pixels
+    pt = scale * velocity * (1 / packetFrequency)  # total length in pixels
+    p0 = (pt - p1)  # off length in pixels
+
+    a1 = (np.zeros([int(pt), int(pt)]) != 0)  # basic tileable subunit of odourfield
+    oX = (pt - p1) / 2  # offset X to center, not critical but prettier and the least edge effect
+    oY = (pt - p1) / 2  # offset Y to center
+    a1[oX:oX + p1, oY:oY + p1] = True  # replace odour on region to True
+    a1 = np.tile(a1, (
+    int(scale * width / pt), int(scale * height / pt)))  # tile the subunit such that it is of size (w,h)*scale
+    # print a1
+    # plt.imshow(a1,interpolation='none',cmap='Greys_r') #don't interpolate and show the pixels as is with reverse grey cmap
+    # plt.show()
+    return a1
 app = MyApp()
 try:
     app.run()
