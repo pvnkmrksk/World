@@ -1,4 +1,4 @@
-from beginner.msg import MsgFlystate, MsgTrajectory
+from worlds.msg import MsgFlystate, MsgTrajectory
 import rospy, sys
 from std_msgs.msg import String
 from params import parameters
