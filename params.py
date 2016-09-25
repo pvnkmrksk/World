@@ -31,7 +31,7 @@ parameters = {
 
     "trialNo": 1,
 
-    "generateWorld": True,
+    "generateWorld": False,
     "maxSpeed": 3.5,
 
     "loadHUD": False,
@@ -80,7 +80,7 @@ parameters = {
     "origin": (0, 0, 0),
 
     "lrGain": 1.0,
-    "lockFps": True,  # False,
+    "lockFps": False,  # False,
     "fps": 165,
     "trajectoryUpdateInterval": 165,  # frames between update,
 
