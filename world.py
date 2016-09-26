@@ -1517,7 +1517,7 @@ finally:
         servo.move(99, 0)  # close valve to prevent odour bleeding through
         servo.move(1, 90)  # close valve to prevent odour bleeding through
 
-    except serial.serialutil.SerialException:
+    except  (serial.serialutil.SerialException, NameError):
         print "arduino faulty"
         pass  # arduino disconnected or faulty, let go
     sys.exit()
