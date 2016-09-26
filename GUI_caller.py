@@ -224,9 +224,12 @@ def openLoad(win):
     '''
     global currentJson
     path=showFileDialog(win,ui.settingsFile)
-
-    loadSettings(win,path)
-    currentJson=path
+    if path == '':
+        path = currentJson
+        loadSettings(win,path)
+    else:
+        loadSettings(win, path)
+        currentJson=path
 
 
 def showFileDialog(win, line):
