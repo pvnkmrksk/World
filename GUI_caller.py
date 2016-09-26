@@ -4,6 +4,7 @@ from PyQt4.QtGui import QApplication, QMainWindow
 from GUI_VR import Ui_MainWindow
 from PyQt4 import QtCore, QtGui
 import ast
+import subprocess
 
 #todo: the file/path-management works, but is ugly and may cause bugs
 pathRun=os.path.abspath(os.path.split(sys.argv[0])[0]) #path of the runfile
@@ -101,10 +102,10 @@ def saveSettings(win, path):
     print "pre dump",settings #todo: remove (when not needed anymore)
 
     # global jsonFile
-    # temp = ui.settingsFile.text()
+    # temp = ui.currentLabel.text()
 
-    # if temp != jsonFile: #when new filename inserted (in lineEdit: settingsFile)
-    #     jsonFile = ui.settingsFile.text() #change string (filename.json)
+    # if temp != jsonFile: #when new filename inserted (in lineEdit: currentLabel)
+    #     jsonFile = ui.currentLabel.text() #change string (filename.json)
 
     with open(path, 'w') as dictFile:#dump everything
         json.dump(settings, dictFile)
@@ -216,6 +217,7 @@ def loadSettings(win,path):
 
 
     ui.statusbar.showMessage('Settings successfully loaded from ' +path)
+    ui.currentLabel.setText(jsonCurrent)
 
 def openLoad(win):
     '''
@@ -225,7 +227,7 @@ def openLoad(win):
     :return:
     '''
     global jsonCurrent
-    path=showFileDialog(win, ui.settingsFile, pathJson)
+    path=showFileDialog(win, None, pathJson)
     if path == '':
         ui.statusbar.showMessage('Canceled')
         pass
@@ -236,7 +238,7 @@ def openLoad(win):
 def openSave(win):
 
     global jsonCurrent
-    path = showSaveDialog(win)
+    path = showSaveDialog(win, ui.currentLabel)
     if path == '':
         ui.statusbar.showMessage('Canceled')
         pass
@@ -262,9 +264,12 @@ def showFileDialog(win, line, pathStart):
         line.setText(fname)
     return fname
 
-def showSaveDialog(win):
+def showSaveDialog(win, line):
 
     fname = str(QtGui.QFileDialog.getSaveFileName(win, "Save file as", pathJson))
+
+    if line and fname != '': #set only if given a label to setText
+        line.setText(fname)
     return fname
 
 def caller(btn, fx, line):
@@ -283,6 +288,10 @@ def showError(message):
 def saveClose(win):
     saveSettings(win, jsonRecent)
     win.close()
+
+def startVR():
+    subprocess.call(['python', 'world.py'])
+
 if __name__ == '__main__':
 #necessary for getting the GUI running
     app = QApplication(sys.argv)
@@ -291,9 +300,9 @@ if __name__ == '__main__':
     ui.setupUi(window)
 
     myDict={
-            # 'jsonBtn':[ui.jsonBtn,showFileDialog,ui.settingsFile],
-            'bagFullTopicsBtn':[ui.bagFullTopicsBtn,showFileDialog,ui.bagFullTopics],
-            'bagTrajTopicsBtn':[ui.bagTrajTopicsBtn,showFileDialog,ui.bagTrajTopics],
+            # 'jsonBtn':[ui.jsonBtn,showFileDialog,ui.currentLabel],
+            # 'bagFullTopicsBtn':[ui.bagFullTopicsBtn,showFileDialog,ui.bagFullTopics],
+            # 'bagTrajTopicsBtn':[ui.bagTrajTopicsBtn,showFileDialog,ui.bagTrajTopics],
             'skyMapBtn':[ui.skyMapBtn,showFileDialog,ui.skyMap],
             'skyMapNullBtn':[ui.skyMapNullBtn,showFileDialog,ui.skyMapNull],
             'greenTexPath':[ui.greenTexPathBtn,showFileDialog,ui.greenTexPath],
@@ -305,6 +314,7 @@ if __name__ == '__main__':
             'odour2':[ui.odourBtn2, showFileDialog, ui.odour2],
             'odour3':[ui.odourBtn3, showFileDialog, ui.odour3],
             'odour4': [ui.odourBtn4, showFileDialog, ui.odour4],
+
             }
 
 #functions for several buttons
@@ -338,6 +348,10 @@ if __name__ == '__main__':
     resetBtn=ui.buttonBox.button(QtGui.QDialogButtonBox.Reset)
     resetBtn.clicked.connect(lambda: loadSettings(window, jsonCurrent))
     #todo. open the last tab on close
+
+
+    startVRBtn = ui.startVRBtn
+    startVRBtn.clicked.connect(lambda: startVR())
 
     callLooper(myDict)
     try:
