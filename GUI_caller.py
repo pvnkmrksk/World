@@ -12,17 +12,17 @@ defaultJson= jsonFolder+'default.json' #path of 'default.json' #default .json-fi
 recentJson=jsonFolder+'recent.json'
 currentJson=recentJson#jsonFolder+'temp.json' #modify a temp json file
 VRjson=jsonFolder+'VR.json'
-def isfloat(s):#todo: prob not neccassary
-#helper function to check if a str is a float.
-#needed to convert str to float
-#same as isdigit()
-
-    try:
-        s = float(s)
-        return True
-    except ValueError:
-        return False
-
+# def isfloat(s):#todo: prob not neccassary
+# #helper function to check if a str is a float.
+# #needed to convert str to float
+# #same as isdigit()
+#
+#     try:
+#         s = float(s)
+#         return True
+#     except ValueError:
+#         return False
+#
 def saveSettings(win, path):
     '''
     collects attributes of all settings-objects
@@ -60,9 +60,7 @@ def saveSettings(win, path):
         text = item.text()
         text = str(text)
         try:
-            if isfloat(text):#todo: prob not necassary
-                text = float(text)
-            elif ('[' and ']') in text: #if lineEdit returns [] convert to list
+            if ('[' and ']') in text: #if lineEdit returns [] convert to list
                 text = ast.literal_eval(text)
             elif ('(' and ')') in text:#if lineEdit returns () convert to list
                 text = ast.literal_eval(text)
@@ -127,9 +125,14 @@ def loadSettings(win,path):
     spinFloat = win.findChildren(QtGui.QDoubleSpinBox)
     date = win.findChildren(QtGui.QDateEdit)
 
+    try:
+        with open(path, 'r') as dictFile:
+            set = json.load(dictFile)
+    except IOError:
+            ui.statusbar.showMessage('.json-file not changed')
+            #showError('Please select .json-file')
 
-    with open(path, 'r') as dictFile:
-        set = json.load(dictFile)
+            return
 
 
     for item in box:
@@ -215,6 +218,7 @@ def loadSettings(win,path):
 def openLoad(win):
     '''
     helper function to open a file and load the json
+    opens a fileDialog
     :param win: current window
     :return:
     '''
@@ -223,12 +227,6 @@ def openLoad(win):
 
     loadSettings(win,path)
     currentJson=path
-#
-
-# def updateParam():
-#     with open('dict.json', 'r') as f:
-#         data = json.load(f)
-#         return data
 
 
 def showFileDialog(win, line):
@@ -241,9 +239,10 @@ def showFileDialog(win, line):
     :param line: the line to be used to display the path
     :return: the filepath selected
     '''
-    fname = str(QtGui.QFileDialog.getOpenFileName(win, 'Open file',jsonFolder))
+    #todo: when fname="", IOError for load and save, clean that
+    fname = str(QtGui.QFileDialog.getOpenFileName(win, 'Open file',jsonFolder))#
 
-    if line: #set only if given a label to setText
+    if line and fname != '': #set only if given a label to setText
         line.setText(fname)
     return fname
 
@@ -254,15 +253,10 @@ def callLooper(myDict):
     for key, values in myDict.iteritems():
         caller(values[0], values[1], values[2])
 
-
-def fileError():
-    error = QtGui.QErrorMessage()
-    error.showMessage('Error')
-    error.exec_()
-
-def showError():
+def showError(message):
     error = QtGui.QMessageBox()
-    error.setText('Error')
+    error.setWindowTitle('Error message')
+    error.setText(message)
     error.exec_()
 
 def saveClose(win):
@@ -294,8 +288,6 @@ if __name__ == '__main__':
 
 #functions for several buttons
 #applying and loading settings, closing etc.
-
-
 
     okBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.Ok)#todo: Ok needs a function
     okBtn.clicked.connect(lambda : saveSettings(window,VRjson))

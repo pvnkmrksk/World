@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -517,7 +517,7 @@
        <string>generate world</string>
       </property>
      </widget>
-     <widget class="QCheckBox" name="loadHud">
+     <widget class="QCheckBox" name="loadHUD">
       <property name="geometry">
        <rect>
         <x>20</x>
@@ -1870,6 +1870,19 @@
       </property>
       <property name="text">
        <string>signFlip</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="loadNullModels">
+      <property name="geometry">
+       <rect>
+        <x>520</x>
+        <y>380</y>
+        <width>97</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>loadNullModels</string>
       </property>
      </widget>
     </widget>

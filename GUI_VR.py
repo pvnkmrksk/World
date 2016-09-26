@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'GUI_VR.ui'
 #
-# Created: Sun Sep 25 12:04:52 2016
+# Created: Mon Sep 26 16:10:53 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -155,9 +155,9 @@ class Ui_MainWindow(object):
         self.generateWorld = QtGui.QCheckBox(self.tab_4)
         self.generateWorld.setGeometry(QtCore.QRect(20, 20, 141, 22))
         self.generateWorld.setObjectName(_fromUtf8("generateWorld"))
-        self.loadHud = QtGui.QCheckBox(self.tab_4)
-        self.loadHud.setGeometry(QtCore.QRect(20, 50, 141, 22))
-        self.loadHud.setObjectName(_fromUtf8("loadHud"))
+        self.loadHUD = QtGui.QCheckBox(self.tab_4)
+        self.loadHUD.setGeometry(QtCore.QRect(20, 50, 141, 22))
+        self.loadHUD.setObjectName(_fromUtf8("loadHUD"))
         self.loadWorld = QtGui.QCheckBox(self.tab_4)
         self.loadWorld.setGeometry(QtCore.QRect(20, 80, 141, 22))
         self.loadWorld.setObjectName(_fromUtf8("loadWorld"))
@@ -485,6 +485,9 @@ class Ui_MainWindow(object):
         self.signFlip = QtGui.QCheckBox(self.tab_64)
         self.signFlip.setGeometry(QtCore.QRect(520, 230, 99, 22))
         self.signFlip.setObjectName(_fromUtf8("signFlip"))
+        self.loadNullModels = QtGui.QCheckBox(self.tab_64)
+        self.loadNullModels.setGeometry(QtCore.QRect(520, 380, 97, 22))
+        self.loadNullModels.setObjectName(_fromUtf8("loadNullModels"))
         self.tabWidget.addTab(self.tab_64, _fromUtf8(""))
         self.tab_7 = QtGui.QWidget()
         self.tab_7.setObjectName(_fromUtf8("tab_7"))
@@ -644,7 +647,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(7)
+        self.tabWidget.setCurrentIndex(2)
         QtCore.QObject.connect(self.gain, QtCore.SIGNAL(_fromUtf8("valueChanged(int)")), self.lcdNumber.display)
         QtCore.QObject.connect(self.packetFrequency, QtCore.SIGNAL(_fromUtf8("valueChanged(int)")), self.lcdNumber_2.display)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -681,7 +684,7 @@ class Ui_MainWindow(object):
         self.race.setItemText(2, _translate("MainWindow", "unknown", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Race", None))
         self.generateWorld.setText(_translate("MainWindow", "generate world", None))
-        self.loadHud.setText(_translate("MainWindow", "load HUD", None))
+        self.loadHUD.setText(_translate("MainWindow", "load HUD", None))
         self.loadWorld.setText(_translate("MainWindow", "load world", None))
         self.replayWorld.setText(_translate("MainWindow", "replay world", None))
         self.skyMapBtn.setText(_translate("MainWindow", "skyMap", None))
@@ -753,6 +756,7 @@ class Ui_MainWindow(object):
         self.mouseMode.setText(_translate("MainWindow", "mouseMode", None))
         self.humanDisplay.setText(_translate("MainWindow", "humanDisplay", None))
         self.signFlip.setText(_translate("MainWindow", "signFlip", None))
+        self.loadNullModels.setText(_translate("MainWindow", "loadNullModels", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_64), _translate("MainWindow", "Idk2", None))
         self.spherePathBtn.setText(_translate("MainWindow", "spherePath", None))
         self.greenTexPathBtn.setText(_translate("MainWindow", "greenTexPath", None))
