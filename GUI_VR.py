@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'GUI_VR.ui'
 #
-# Created: Mon Sep 26 16:10:53 2016
+# Created: Mon Sep 26 17:54:35 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -486,7 +486,7 @@ class Ui_MainWindow(object):
         self.signFlip.setGeometry(QtCore.QRect(520, 230, 99, 22))
         self.signFlip.setObjectName(_fromUtf8("signFlip"))
         self.loadNullModels = QtGui.QCheckBox(self.tab_64)
-        self.loadNullModels.setGeometry(QtCore.QRect(520, 380, 97, 22))
+        self.loadNullModels.setGeometry(QtCore.QRect(520, 380, 131, 22))
         self.loadNullModels.setObjectName(_fromUtf8("loadNullModels"))
         self.tabWidget.addTab(self.tab_64, _fromUtf8(""))
         self.tab_7 = QtGui.QWidget()
@@ -634,8 +634,8 @@ class Ui_MainWindow(object):
         self.tab_6.setObjectName(_fromUtf8("tab_6"))
         self.tabWidget.addTab(self.tab_6, _fromUtf8(""))
         self.buttonBox = QtGui.QDialogButtonBox(self.centralwidget)
-        self.buttonBox.setGeometry(QtCore.QRect(140, 540, 586, 27))
-        self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok|QtGui.QDialogButtonBox.Open|QtGui.QDialogButtonBox.Reset|QtGui.QDialogButtonBox.RestoreDefaults|QtGui.QDialogButtonBox.Save)
+        self.buttonBox.setGeometry(QtCore.QRect(55, 540, 671, 27))
+        self.buttonBox.setStandardButtons(QtGui.QDialogButtonBox.Cancel|QtGui.QDialogButtonBox.Ok|QtGui.QDialogButtonBox.Open|QtGui.QDialogButtonBox.Reset|QtGui.QDialogButtonBox.RestoreDefaults|QtGui.QDialogButtonBox.Save|QtGui.QDialogButtonBox.SaveAll)
         self.buttonBox.setObjectName(_fromUtf8("buttonBox"))
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
@@ -647,7 +647,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(4)
         QtCore.QObject.connect(self.gain, QtCore.SIGNAL(_fromUtf8("valueChanged(int)")), self.lcdNumber.display)
         QtCore.QObject.connect(self.packetFrequency, QtCore.SIGNAL(_fromUtf8("valueChanged(int)")), self.lcdNumber_2.display)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)

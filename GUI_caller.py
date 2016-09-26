@@ -6,12 +6,14 @@ from PyQt4 import QtCore, QtGui
 import ast
 
 #todo: the file/path-management works, but is ugly and may cause bugs
-runPath=os.path.abspath(os.path.split(sys.argv[0])[0]) #path of the runfile
-jsonFolder=runPath+'/jsonFiles/'
-defaultJson= jsonFolder+'default.json' #path of 'default.json' #default .json-file
-recentJson=jsonFolder+'recent.json'
-currentJson=recentJson#jsonFolder+'temp.json' #modify a temp json file
-VRjson=jsonFolder+'VR.json'
+pathRun=os.path.abspath(os.path.split(sys.argv[0])[0]) #path of the runfile
+pathJson= pathRun + '/jsonFiles/'
+pathModel = pathRun + '/models/'
+jsonDefault= pathJson + 'default.json' #path of 'default.json' #default .json-file
+jsonRecent= pathJson + 'recent.json'
+jsonCurrent=jsonRecent#pathJson+'temp.json' #modify a temp json file
+jsonVR= pathJson + 'VR.json'
+
 # def isfloat(s):#todo: prob not neccassary
 # #helper function to check if a str is a float.
 # #needed to convert str to float
@@ -114,8 +116,8 @@ def loadSettings(win,path):
     # puts all objects in sereval lists
     # iterates through lists, sets attributes of objects to stored values
     #saveSettings reverse
-    global currentJson
-    currentJson=path
+    global jsonCurrent
+    jsonCurrent=path
     load = {}
     box = win.findChildren(QtGui.QCheckBox)
     line = win.findChildren(QtGui.QLineEdit)
@@ -222,17 +224,28 @@ def openLoad(win):
     :param win: current window
     :return:
     '''
-    global currentJson
-    path=showFileDialog(win,ui.settingsFile)
+    global jsonCurrent
+    path=showFileDialog(win, ui.settingsFile, pathJson)
     if path == '':
-        path = currentJson
-        loadSettings(win,path)
+        ui.statusbar.showMessage('Canceled')
+        pass
     else:
         loadSettings(win, path)
-        currentJson=path
+        jsonCurrent=path
+
+def openSave(win):
+
+    global jsonCurrent
+    path = showSaveDialog(win)
+    if path == '':
+        ui.statusbar.showMessage('Canceled')
+        pass
+    else:
+        saveSettings(win, path)
+        jsonCurrent=path
 
 
-def showFileDialog(win, line):
+def showFileDialog(win, line, pathStart):
     '''
     opens file dialog, returns selected file as string
     if selected file is .json, changes jsonFile
@@ -242,15 +255,20 @@ def showFileDialog(win, line):
     :param line: the line to be used to display the path
     :return: the filepath selected
     '''
-    #todo: when fname="", IOError for load and save, clean that
-    fname = str(QtGui.QFileDialog.getOpenFileName(win, 'Open file',jsonFolder))#
+
+    fname = str(QtGui.QFileDialog.getOpenFileName(win, 'Open file', pathStart))
 
     if line and fname != '': #set only if given a label to setText
         line.setText(fname)
     return fname
 
+def showSaveDialog(win):
+
+    fname = str(QtGui.QFileDialog.getSaveFileName(win, "Save file as", pathJson))
+    return fname
+
 def caller(btn, fx, line):
-    btn.clicked.connect(lambda: fx(window, line))
+    btn.clicked.connect(lambda: fx(window, line, pathModel))
 
 def callLooper(myDict):
     for key, values in myDict.iteritems():
@@ -263,7 +281,7 @@ def showError(message):
     error.exec_()
 
 def saveClose(win):
-    saveSettings(win, recentJson)
+    saveSettings(win, jsonRecent)
     win.close()
 if __name__ == '__main__':
 #necessary for getting the GUI running
@@ -293,7 +311,7 @@ if __name__ == '__main__':
 #applying and loading settings, closing etc.
 
     okBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.Ok)#todo: Ok needs a function
-    okBtn.clicked.connect(lambda : saveSettings(window,VRjson))
+    okBtn.clicked.connect(lambda : saveSettings(window, jsonVR))
     #okBtn.clicked.connect(ui.statusbar.showMessage('Ok has no function yet'))
 
     cancelBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.Cancel)
@@ -303,10 +321,14 @@ if __name__ == '__main__':
     #todo: is saving last known config on cancel smart?
 
     defaultBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.RestoreDefaults)
-    defaultBtn.clicked.connect(lambda: loadSettings(window, defaultJson))
+    defaultBtn.clicked.connect(lambda: loadSettings(window, jsonDefault))
 
     saveBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.Save)
-    saveBtn.clicked.connect(lambda: saveSettings(window, currentJson))
+    saveBtn.clicked.connect(lambda: saveSettings(window, jsonCurrent))
+
+    saveAsBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.SaveAll)
+    saveAsBtn.setText("Save as")
+    saveAsBtn.clicked.connect(lambda: openSave(window))
 
     loadBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.Open)
     loadBtn.setText("Load")#because it is actually open button
@@ -314,12 +336,12 @@ if __name__ == '__main__':
     loadBtn.clicked.connect(lambda: openLoad(window))
 
     resetBtn=ui.buttonBox.button(QtGui.QDialogButtonBox.Reset)
-    resetBtn.clicked.connect(lambda: loadSettings(window,currentJson))
+    resetBtn.clicked.connect(lambda: loadSettings(window, jsonCurrent))
     #todo. open the last tab on close
 
     callLooper(myDict)
     try:
-        loadSettings(window,currentJson)#load the last run config
+        loadSettings(window, jsonCurrent)#load the last run config
     except ValueError:
         pass
     window.show()
