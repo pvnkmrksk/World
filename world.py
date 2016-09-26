@@ -36,10 +36,10 @@ import easygui
 import pandas as pd
 
 useGui = True
-from GUI_caller import VRjson
+from GUI_caller import jsonVR
 
 if useGui:
-    with open(VRjson, 'r') as jfile:
+    with open(jsonVR, 'r') as jfile:
         parameters = json.load(jfile)
 else:
     from params import parameters
