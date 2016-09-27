@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'GUI_VR.ui'
 #
-# Created: Mon Sep 26 18:32:07 2016
+# Created: Tue Sep 27 14:27:19 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -329,7 +329,6 @@ class Ui_MainWindow(object):
         self.label_147.setObjectName(_fromUtf8("label_147"))
         self.camFOV = QtGui.QLineEdit(self.tab_5)
         self.camFOV.setGeometry(QtCore.QRect(490, 200, 113, 27))
-        self.camFOV.setText(_fromUtf8(""))
         self.camFOV.setObjectName(_fromUtf8("camFOV"))
         self.playerInitPos = QtGui.QLineEdit(self.tab_5)
         self.playerInitPos.setGeometry(QtCore.QRect(490, 240, 113, 27))
@@ -650,7 +649,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(4)
         QtCore.QObject.connect(self.gain, QtCore.SIGNAL(_fromUtf8("valueChanged(int)")), self.lcdNumber.display)
         QtCore.QObject.connect(self.packetFrequency, QtCore.SIGNAL(_fromUtf8("valueChanged(int)")), self.lcdNumber_2.display)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -722,6 +721,8 @@ class Ui_MainWindow(object):
         self.label_108.setText(_translate("MainWindow", "trajectoryUpdateInterval", None))
         self.label_111.setText(_translate("MainWindow", "maxDistance", None))
         self.label_147.setText(_translate("MainWindow", "camFOV", None))
+        self.camFOV.setToolTip(_translate("MainWindow", "<html><head/><body><p>Add <span style=\" font-weight:600;\">2 </span>items</p><p>(0, 0)</p></body></html>", None))
+        self.camFOV.setText(_translate("MainWindow", "()", None))
         self.playerInitPos.setToolTip(_translate("MainWindow", "<html><head/><body><p>Add <span style=\" font-weight:600;\">3 </span>items</p><p>(0, 0, 0)</p></body></html>", None))
         self.playerInitPos.setText(_translate("MainWindow", "()", None))
         self.label_150.setText(_translate("MainWindow", "playerInitPos", None))
@@ -733,10 +734,10 @@ class Ui_MainWindow(object):
         self.label_48.setText(_translate("MainWindow", "bagTrajTopics", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_5), _translate("MainWindow", "Idk", None))
         self.label_362.setText(_translate("MainWindow", "durList", None))
-        self.durList.setToolTip(_translate("MainWindow", "<html><head/><body><p>Add <span style=\" font-weight:600;\">4 </span>items</p><p>[0, 0, 0, 0]</p></body></html>", None))
+        self.durList.setToolTip(_translate("MainWindow", "<html><head/><body><p>Add <span style=\" font-weight:600;\">x </span>items</p><p>[]</p></body></html>", None))
         self.durList.setText(_translate("MainWindow", "[]", None))
         self.label_363.setText(_translate("MainWindow", "headingRate", None))
-        self.headingRate.setToolTip(_translate("MainWindow", "<html><head/><body><p>Add <span style=\" font-weight:600;\">4 </span>items</p><p>[0, 0, 0, 0]</p></body></html>", None))
+        self.headingRate.setToolTip(_translate("MainWindow", "<html><head/><body><p>Add <span style=\" font-weight:600;\">x </span>items</p><p>[]</p></body></html>", None))
         self.headingRate.setText(_translate("MainWindow", "[]", None))
         self.label_364.setText(_translate("MainWindow", "intraTrial", None))
         self.label_365.setText(_translate("MainWindow", "interTrial", None))
