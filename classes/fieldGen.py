@@ -1,12 +1,32 @@
+from __future__ import division
+import numpy as np
+import matplotlib.pyplot as plt
+
 class FieldGen():
     # generate odour, plumes and wind
-    # def __init__(self):
-    #     pass
+    def __init__(self):
+        import numpy as np
+        import matplotlib.pyplot as plt
 
     def toPlot(self, obj, plot):
         if plot:
             plt.imshow(obj, interpolation='none', cmap='Greys_r')
             plt.show
+
+    def windField(self,width,height,wq,plot=False):
+        windField = np.zeros([width, height])
+
+        offset = (width - 1) / 2
+
+        windField[0:offset, 0:offset] = wq[2]
+        windField[offset + 1:width, 0:offset] = wq[3]
+        windField[0:offset, offset + 1:width] = wq[1]
+        windField[offset + 1:width, offset + 1:width] = wq[0]
+
+        self.toPlot(windField,plot=plot)
+        return windField
+
+
 
     def plumeStrip(self, fieldWidth=128, fieldHeight=128, stripWidth=20, stripHeight=100, initX=54, initY=9,
                    plot=False):
