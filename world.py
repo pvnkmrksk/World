@@ -35,7 +35,7 @@ import numpy as np
 import easygui
 import pandas as pd
 
-useGui = True
+useGui = False
 from GUI_caller import jsonVR
 
 if useGui:
@@ -1405,101 +1405,122 @@ class BagControl():
             if (str.startswith(s)):
                 os.system("rosnode kill " + str)
 
+#
+# class FieldGen():
+#     #generate odour, plumes and wind
+#     def __init__(self):
+#         pass
+#
+#     def plumeStrip(self,fieldWidth, fieldHeight, stripWidth, stripHeight, initX, initY):
+#         """
+#
+#         Args:
+#             fieldWidth: width of array
+#             fieldHeight: height of array
+#             stripWidth:  width of the plume strip
+#             stripHeight: height of the plume strip
+#             initX:      starting X point of strip in numpy array
+#             initY:      starting Y point of strip in numpy array
+#
+#         Returns:
+#             stripField :    An array with 1 where the plume exists, which is a
+#                             rectangular strip and 0 else where
+#         """
+#         fieldWidth = int(fieldWidth)
+#         fieldHeight = int(fieldHeight)
+#         stripWidth = int(stripWidth)
+#         stripHeight = int(stripHeight)
+#         initX = int(initX)
+#         initY = int(initY)
+#
+#         stripField = np.zeros([fieldWidth, fieldHeight])
+#         stripField[initX:initX + stripWidth, initY:initY + stripHeight] = 1
+#
+#         # print "stripfield is",stripField
+#         return stripField
+#
+#
+#     def odourField(self,w,h,oq):
+#
+#         odourField = np.zeros([w,h])
+#         offset = int((w - 1) / 2)
+#
+#         oqi=oq
+#         quad = 0
+#         for i in oq:
+#             from skimage.io import imread
+#
+#             if i == 'c':
+#                 oqi[quad] = (np.rot90(imread("models/odour/" + str(quad + 1) + ".png")))!=0
+#                 # py 0 index but non zero quadrants and the image is rotated to fix plt and array axes
+#                 print "odour image is", quad, oqi[quad]
+#             elif i == 's':
+#                 width = 15
+#                 strip = self.plumeStripGen(offset, offset, width, offset, offset / 2 - (width / 2), 0)
+#                 oqi[quad] = strip
+#
+#             quad += 1
+#
+#         odourField[0:offset, 0:offset] = parameters["odourQuadImage"][2]
+#         odourField[offset + 1:world, 0:offset] = parameters["odourQuadImage"][3]
+#         odourField[0:offset, offset + 1:world] = parameters["odourQuadImage"][1]
+#         odourField[offset + 1:world, offset + 1:world] = parameters["odourQuadImage"][0]
+#
+#         thresh = parameters['odourDensity']
+#         rand = (np.random.rand(odourField.shape[0], odourField.shape[1]) < thresh) * 1
+#         odourField = np.logical_and(odourField, rand)
+#         parameters["odourField"] = odourField
+#
+#         plt.imshow(np.rot90(odourField))
+#         plt.gray()
+#         plt.show(block=False)
+#         # print "odour field",parameters["odourField"]
+#         return odourField
+#
+#
+#     def odourPacket(self,width=10, height=10, velocity=3, packetFrequency=10, packetDuration=0.02, scale=100):
+#         '''
+#
+#         :param width: image width in pixels
+#         :param height: image height in pixels
+#         :param velocity: traversing velocity in pixels/second
+#         :param packetFrequency: odour packets frequency in Hertz
+#         :param packetDuration: duration of a single packet in seconds
+#         :param scale: scale factor to do sub pixel localization
+#
+#         :return packetField: An array of size (w*scale, h*scale) with packets such that,
+#         when traversing through the matrix at velocity(px/s), one would encounter the packets at a frequency
+#         packetFrequency(Hz) and each packet would last for packetDuration(s)
+#
+#         '''
+#
+#         packetOnPixels = scale * velocity * packetDuration  # on length in pixels
+#         packetTotalPixels = scale * velocity * (1 / packetFrequency)  # total length in pixels
+#         packetOffPixels = (packetTotalPixels - packetOnPixels)  # off length in pixels
+#
+#         # offset X and Y to center, not critical but prettier and the least edge effect
+#         offsetX = (packetTotalPixels - packetOnPixels) / 2  # offset X to center
+#         offsetY = (packetTotalPixels - packetOnPixels) / 2  # offset Y to center
+#
+#         packetFieldSubunit = np.zeros([int(packetTotalPixels), int(packetTotalPixels)]) != 0  # basic tileable subunit of odourfield
+#         packetFieldSubunit[offsetX:offsetX + packetOnPixels, offsetY:offsetY + packetOnPixels] = True  # replace odour on region to True
+#
+#         packetField = np.tile(packetFieldSubunit, (
+#         int(scale * width / packetTotalPixels), int(scale * height / packetTotalPixels)))  # tile the subunit such that it is of size (w,h)*scale
+#         # print packetField#don't do for large images
+#         # plt.imshow(packetField,interpolation='none',cmap='Greys_r') #don't interpolate and show the pixels as is with reverse grey cmap
+#         # plt.show()
+#         return packetField
+#
 
-def plumeStripGen(fieldWidth, fieldHeight, stripWidth, stripHeight, initX, initY):
-    """
-
-    Args:
-        fieldWidth: width of array
-        fieldHeight: height of array
-        stripWidth:  width of the plume strip
-        stripHeight: height of the plume strip
-        initX:      starting X point of strip in numpy array
-        initY:      starting Y point of strip in numpy array
-
-    Returns:
-        stripField :    An array with 1 where the plume exists, which is a
-                        rectangular strip and 0 else where
-    """
-    fieldWidth = int(fieldWidth)
-    fieldHeight = int(fieldHeight)
-    stripWidth = int(stripWidth)
-    stripHeight = int(stripHeight)
-    initX = int(initX)
-    initY = int(initY)
-
-    stripField = np.zeros([fieldWidth, fieldHeight])
-    stripField[initX:initX + stripWidth, initY:initY + stripHeight] = 1
-
-    # print "stripfield is",stripField
-    return stripField
 
 
-def odourFieldGen():
-    odourField = np.zeros([parameters["worldSize"], parameters["worldSize"]])
-
-    offset = int((parameters["worldSize"] - 1) / 2)
-    world = parameters["worldSize"]
-
-    parameters["odourQuadImage"] = parameters["odourQuad"]
-    quad = 0
-    for i in parameters["odourQuad"]:
-        from skimage.io import imread
-
-        if i == 'c':
-            parameters["odourQuadImage"][quad] = np.rot90(imread("models/odour/" + str(quad + 1) + ".png") / 255)
-            # py 0 index but non zero quadrants and the image is rotated to fix plt and array axes
-            print "odour image is", quad, parameters["odourQuadImage"][quad]
-        elif i == 's':
-            width = 15
-            strip = plumeStripGen(offset, offset, width, offset, offset / 2 - (width / 2), 0)
-            parameters["odourQuadImage"][quad] = strip
-
-        quad += 1
-
-    odourField[0:offset, 0:offset] = parameters["odourQuadImage"][2]
-    odourField[offset + 1:world, 0:offset] = parameters["odourQuadImage"][3]
-    odourField[0:offset, offset + 1:world] = parameters["odourQuadImage"][1]
-    odourField[offset + 1:world, offset + 1:world] = parameters["odourQuadImage"][0]
-
-    thresh = parameters['odourDensity']
-    rand = (np.random.rand(odourField.shape[0], odourField.shape[1]) < thresh) * 1
-    odourField = np.logical_and(odourField, rand)
-    parameters["odourField"] = odourField
-
-    plt.imshow(np.rot90(odourField))
-    plt.gray()
-    plt.show(block=False)
-    # print "odour field",parameters["odourField"]
-    return odourField
 
 
-def odourPacketGen(width=10, height=10, velocity=3, packetFrequency=10, packetDuration=0.02, scale=100):
-    '''
 
-    :param width: image width in pixels
-    :param height: image height in pixels
-    :param velocity: traversing velocity in pixels/second
-    :param packetFrequency: odour packets frequency in Hertz
-    :param packetDuration: duration of a single packet in seconds
-    :param scale: scale factor to do sub pixel localization
-    :return:
-    '''
 
-    p1 = scale * velocity * packetDuration  # on length in pixels
-    pt = scale * velocity * (1 / packetFrequency)  # total length in pixels
-    p0 = (pt - p1)  # off length in pixels
 
-    a1 = (np.zeros([int(pt), int(pt)]) != 0)  # basic tileable subunit of odourfield
-    oX = (pt - p1) / 2  # offset X to center, not critical but prettier and the least edge effect
-    oY = (pt - p1) / 2  # offset Y to center
-    a1[oX:oX + p1, oY:oY + p1] = True  # replace odour on region to True
-    a1 = np.tile(a1, (
-    int(scale * width / pt), int(scale * height / pt)))  # tile the subunit such that it is of size (w,h)*scale
-    # print a1
-    # plt.imshow(a1,interpolation='none',cmap='Greys_r') #don't interpolate and show the pixels as is with reverse grey cmap
-    # plt.show()
-    return a1
+
 app = MyApp()
 try:
     app.run()
