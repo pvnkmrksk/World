@@ -36,6 +36,7 @@ def saveSettings(win, path):
     spinInt = win.findChildren(QtGui.QSpinBox)
     date = win.findChildren(QtGui.QDateEdit)
     spinFloat = win.findChildren(QtGui.QDoubleSpinBox)
+    combo = win.findChildren(QtGui.QComboBox)
 
     for item in radio:
         box.append(item)
@@ -43,6 +44,11 @@ def saveSettings(win, path):
         slider.append(item)
     for item in spinFloat:
         slider.append(item)
+
+    for item in combo:
+        name = item.objectName()
+        text = str(item.currentText())
+        settings[str(name)] = text
 
     for item in box: #checkboxes
         name = item.objectName()
@@ -83,6 +89,9 @@ def saveSettings(win, path):
 
     with open(path, 'w') as dictFile:#dump everything
         json.dump(settings, dictFile)
+        print dictFile
+
+    print "post dump:", settings
 
     ui.statusbar.showMessage('Settings successfully saved to ' + path )
 
@@ -101,6 +110,7 @@ def loadSettings(win,path):
     spinInt = win.findChildren(QtGui.QSpinBox)
     spinFloat = win.findChildren(QtGui.QDoubleSpinBox)
     date = win.findChildren(QtGui.QDateEdit)
+    combo = win.findChildren(QtGui.QComboBox)
 
     for item in radio:
         box.append(item)
@@ -125,7 +135,17 @@ def loadSettings(win,path):
             temp.setChecked(set[str(name)])
         except KeyError:
             pass
-        
+
+    for item in combo:
+        try:
+            name = item.objectName()
+            load[name] = item
+            temp = load[name]
+            index = temp.findText(set[str(name)], QtCore.Qt.MatchFixedString)
+            temp.setCurrentIndex(index)
+        except:
+            pass
+
     for item in line:
         try:
             name = item.objectName()
