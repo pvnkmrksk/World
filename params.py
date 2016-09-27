@@ -5,7 +5,7 @@ parameters = {
 
     "loadWind": False,
     "loadOdour":False,
-    "loadTrajectory": True,
+    "loadTrajectory": False,
     "loadNullModels":False,
     "imposeStimulus": False,
     "loadingString": "rg",
