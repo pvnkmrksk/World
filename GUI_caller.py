@@ -15,17 +15,6 @@ jsonRecent= pathJson + 'recent.json'
 jsonCurrent=jsonRecent#pathJson+'temp.json' #modify a temp json file
 jsonVR= pathJson + 'VR.json'
 
-# def isfloat(s):#todo: prob not neccassary
-# #helper function to check if a str is a float.
-# #needed to convert str to float
-# #same as isdigit()
-#
-#     try:
-#         s = float(s)
-#         return True
-#     except ValueError:
-#         return False
-#
 def saveSettings(win, path):
     '''
     collects attributes of all settings-objects
@@ -39,7 +28,6 @@ def saveSettings(win, path):
 
     '''
 
-
     settings = {}
     box = win.findChildren(QtGui.QCheckBox)
     line = win.findChildren(QtGui.QLineEdit)
@@ -48,6 +36,13 @@ def saveSettings(win, path):
     spinInt = win.findChildren(QtGui.QSpinBox)
     date = win.findChildren(QtGui.QDateEdit)
     spinFloat = win.findChildren(QtGui.QDoubleSpinBox)
+
+    for item in radio:
+        box.append(item)
+    for item in spinInt:
+        slider.append(item)
+    for item in spinFloat:
+        slider.append(item)
 
     for item in box: #checkboxes
         name = item.objectName()
@@ -73,17 +68,7 @@ def saveSettings(win, path):
 
         settings[str(name)] = text
 
-    for item in radio: #radioButtons
-        name = item.objectName()
-        state = item.isChecked()
-        settings[str(name)] = state
-
     for item in slider: #sliders
-        name = item.objectName()
-        value = item.value()
-        settings[str(name)] = value
-
-    for item in spinInt: #spinBoxes
         name = item.objectName()
         value = item.value()
         settings[str(name)] = value
@@ -94,18 +79,7 @@ def saveSettings(win, path):
         #value = value.replace('-', '')
         settings[str(name)] = value
 
-    for item in spinFloat: #doubleSpinBocxes
-        name = item.objectName()
-        value = item.value()
-        settings[str(name)] = value
-
     print "pre dump",settings #todo: remove (when not needed anymore)
-
-    # global jsonFile
-    # temp = ui.currentLabel.text()
-
-    # if temp != jsonFile: #when new filename inserted (in lineEdit: currentLabel)
-    #     jsonFile = ui.currentLabel.text() #change string (filename.json)
 
     with open(path, 'w') as dictFile:#dump everything
         json.dump(settings, dictFile)
@@ -128,15 +102,20 @@ def loadSettings(win,path):
     spinFloat = win.findChildren(QtGui.QDoubleSpinBox)
     date = win.findChildren(QtGui.QDateEdit)
 
+    for item in radio:
+        box.append(item)
+    for item in spinInt:
+        slider.append(item)
+    for item in spinFloat:
+        slider.append(item)
+
     try:
         with open(path, 'r') as dictFile:
             set = json.load(dictFile)
     except IOError:
             ui.statusbar.showMessage('.json-file not changed')
-            #showError('Please select .json-file')
 
             return
-
 
     for item in box:
         try:
@@ -146,6 +125,7 @@ def loadSettings(win,path):
             temp.setChecked(set[str(name)])
         except KeyError:
             pass
+        
     for item in line:
         try:
             name = item.objectName()
@@ -159,18 +139,6 @@ def loadSettings(win,path):
         except KeyError:
             pass
 
-
-    for item in radio:
-        try:
-
-            name = item.objectName()
-            load[name] = item
-            temp = load[name]
-            temp.setChecked(set[str(name)])
-        except KeyError:
-            pass
-
-
     for item in slider:
         try:
 
@@ -180,29 +148,6 @@ def loadSettings(win,path):
             temp.setValue(set[str(name)])
         except KeyError:
             pass
-
-
-    for item in spinInt:
-        try:
-
-            name = item.objectName()
-            load[name] = item
-            temp = load[name]
-            temp.setValue(set[str(name)])
-        except KeyError:
-            pass
-
-
-    for item in spinFloat:
-        try:
-
-            name = item.objectName()
-            load[name] = item
-            temp = load[name]
-            temp.setValue(set[str(name)])
-        except KeyError:
-            pass
-
 
     for item in date:
         try:
@@ -290,7 +235,7 @@ def saveClose(win):
     win.close()
 
 def startVR():
-    subprocess.call(['python', 'world.py'])
+    subprocess.Popen(['python', 'world.py'])
 
 if __name__ == '__main__':
 #necessary for getting the GUI running
