@@ -1,12 +1,11 @@
 import sys, os
-import json
+import json_tricks as json
 from PyQt4.QtGui import QApplication, QMainWindow
 from GUI_VR import Ui_MainWindow
 from PyQt4 import QtCore, QtGui
 import ast
 import subprocess
 
-#todo: the file/path-management works, but is ugly and may cause bugs
 pathRun=os.path.abspath(os.path.split(sys.argv[0])[0]) #path of the runfile
 pathJson= pathRun + '/jsonFiles/'
 pathModel = pathRun + '/models/'
@@ -79,10 +78,17 @@ def saveSettings(win, path):
         #value = value.replace('-', '')
         settings[str(name)] = value
 
-    print "pre dump",settings #todo: remove (when not needed anymore)
+
+    tupleList=[]
+    for key, value in settings.iteritems():
+        if type(value)==tuple:
+            tupleList.append(key)
+
+    settings['toTuplify']=tupleList
 
     with open(path, 'w') as dictFile:#dump everything
-        json.dump(settings, dictFile)
+        json.dump(settings, dictFile, sort_keys=True)
+        print json.dumps(settings, sort_keys=True)
 
     ui.statusbar.showMessage('Settings successfully saved to ' + path )
 
@@ -112,6 +118,10 @@ def loadSettings(win,path):
     try:
         with open(path, 'r') as dictFile:
             set = json.load(dictFile)
+            for item in set['toTuplify']:
+                set[item]=tuple(set[item])
+            print set
+
     except IOError:
             ui.statusbar.showMessage('.json-file not changed')
 
@@ -235,7 +245,8 @@ def saveClose(win):
     win.close()
 
 def startVR():
-    subprocess.Popen(['python', 'main.py'])
+#     subprocess.Popen(['python', 'main.py'])
+    showError("VR is not available")
 
 if __name__ == '__main__':
 #necessary for getting the GUI running
@@ -245,9 +256,6 @@ if __name__ == '__main__':
     ui.setupUi(window)
 
     myDict={
-            # 'jsonBtn':[ui.jsonBtn,showFileDialog,ui.currentLabel],
-            # 'bagFullTopicsBtn':[ui.bagFullTopicsBtn,showFileDialog,ui.bagFullTopics],
-            # 'bagTrajTopicsBtn':[ui.bagTrajTopicsBtn,showFileDialog,ui.bagTrajTopics],
             'skyMapBtn':[ui.skyMapBtn,showFileDialog,ui.skyMap],
             'skyMapNullBtn':[ui.skyMapNullBtn,showFileDialog,ui.skyMapNull],
             'greenTexPath':[ui.greenTexPathBtn,showFileDialog,ui.greenTexPath],
