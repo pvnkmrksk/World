@@ -245,8 +245,8 @@ def saveClose(win):
     win.close()
 
 def startVR():
-#     subprocess.Popen(['python', 'main.py'])
-    showError("VR is not available")
+    subprocess.Popen(['python', 'main.py'])
+    #showError("VR is not available")
 
 if __name__ == '__main__':
 #necessary for getting the GUI running
