@@ -19,6 +19,9 @@ class ExceptionHandlers():
         if useGui:
             with open(jsonVR, 'r') as jfile:
                 self.parameters = json.load(jfile)
+                for item in self.parameters['toTuplify']:
+                    self.parameters[item]=tuple(self.parameters[item])
+                    
     def exceptionReplay(self):
         """
         Replay world playsback position and orientation, can be additionally used for screen capturing
