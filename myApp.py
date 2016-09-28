@@ -1,20 +1,12 @@
-#!/usr/bin/env python
-# system imports
-"""
-Imports for file handling, datetime, json reading
-Followed by ROS and messages type for wbad
-Then Panda3d direct for visual stimuli
-matplotlib, numpy , pandas, pickle
+from World.msg import MsgFlystate, MsgTrajectory
+from classes.bagControl import BagControl
+from classes.fieldGen import FieldGen
+from classes.exceptionHandlers import ExceptionHandlers
 
-Finally parmeters stored as dictionary in params
-
-"""
-from __future__ import division
 from datetime import datetime
 import sys, time, subprocess, os, serial  # ROS imports
 import json_tricks as json
 import rospy, rostopic, roslib, std_msgs.msg, rosbag
-from World.msg import MsgFlystate, MsgTrajectory
 from std_msgs.msg import String
 from rospy_message_converter import message_converter
 
@@ -35,75 +27,8 @@ import numpy as np
 import easygui
 import pandas as pd
 
-useGui = True
-from GUI_caller import jsonVR
+from params import parameters
 
-if useGui:
-    with open(jsonVR, 'r') as jfile:
-        parameters = json.load(jfile)
-else:
-    from params import parameters
-
-"""
-Replay world playsback position and orientation, can be additionally used for screen capturing
-Servo instantiates the servo object
-next check for if ROS is running in the background, else start ros and the kinefly for WBAD
-"""
-# If replay world for playback old data, copy existing params to prevent overwrite from the saved state of previous run
-if parameters["replayWorld"]:
-
-    # save params from current instance as backup toload back into the playback file
-    replay = parameters["replayWorld"]
-    scale = parameters["captureScale"]
-    start = parameters["captureStart"]
-    increment = parameters["playbackIncrement"]
-
-    # replayPath = easygui.fileopenbox(multiple=False, filetypes=["*.pickle"])
-    replayPath = "/home/behaviour/catkin/src/beginner/scripts/panda/world/bags/fly4/fly4_quad_rg_gain7.0_speed_3.5_" \
-                 "trial_1_2016-04-13__23:31:35.bag_df.pickle"
-
-    print replayPath
-    df = pd.read_pickle(replayPath)
-
-    # slice pos and orientation and remove nans heading,pitch,roll, x,y,z and drop na which is from camera message time
-    traj = df.loc[:, "trajectory__orientation_x":"trajectory__position_z"].dropna()
-    cols = traj.columns.tolist()  # list of colums
-    cols = cols[-3:] + cols[:-3]  # reorder colums. hprpos to poshpr by python splicing
-    traj = traj[cols]  # reassign with this order
-
-    # //todo change current parameters to parameters saved in dataframe
-    parameters = None
-
-    try:
-        parameters = json.loads(df.metadata__data.values[1])
-
-    except:
-        parameters = json.loads(df.metadata__data.values[0])
-        print "using exceprion to load params"
-
-    # dump back params from vars
-    parameters["replayWorld"] = replay
-    parameters["captureScale"] = scale
-    parameters["captureStart"] = start
-    parameters["playbackIncrement"] = increment
-
-# check if arduino servo is connected
-try:
-    import servo
-except serial.serialutil.SerialException:
-    parameters["loadWind"] = False
-    print ("\n \n \n servo disabled \n \n \n")
-
-# Checkif rosmaster is running else run roscore
-try:
-    rostopic.get_topic_class('/rosout')  # is_rosmaster_running = True
-except rostopic.ROSTopicIOException as e:
-    roscore = subprocess.Popen('roscore')  # then start roscore yourself
-    time.sleep(1)  # wait a bit to be sure the roscore is really launched
-    subprocess.Popen(["roslaunch", "Kinefly", "main.launch"])  # start kinefly
-
-
-# World class definition
 class MyApp(ShowBase):
     """
     Initialize windows, params, I/O and feedback, taskUpdate
@@ -234,25 +159,25 @@ class MyApp(ShowBase):
         '''
 
         self.initPlot()  # load the plot 1st so that the active window is panda
-
-        # loadPrcFileData("", "win-size " + str(parameters["windowWidth"]) + " " + str(
-        #     parameters["windowHeight"]))  # set window size
         self.modelLoader()
         if not parameters['humanDisplay']:
             self.initDisplayRegion()
 
         self.createEnvironment()
-        self.makeLabels()
-        # THis is to set the window title so that I can captur in CCSM for pinning to visible workspace
+        # self.makeLabels()
 
+        # THis is to set the window title so that I can captur in CCSM for pinning to visible workspace
         props = WindowProperties()
         props.setTitle('RhagVR')
         base.win.requestProperties(props)
 
+
         if parameters["loadWind"]:
-            self.windFieldGen()
+            # self.windFieldGen()
+            self.windField=FieldGen.windField()
         if parameters["loadOdour"]:
-            self.odourField = odourFieldGen()
+            # self.odourField = odourFieldGen()
+            self.odourField = FieldGen.odourField()
 
     def initFeedback(self):
         '''
@@ -1216,19 +1141,19 @@ class MyApp(ShowBase):
 
         # print "servoangle is", self.servoAngle
         servo.move(1, self.servoAngle)
-
-    def windFieldGen(self):
-        self.windField = np.zeros([parameters["worldSize"], parameters["worldSize"]])
-
-        offset = (parameters["worldSize"] - 1) / 2
-        world = parameters["worldSize"]
-        self.windField[0:offset, 0:offset] = parameters["windQuad"][2]
-        self.windField[offset + 1:world, 0:offset] = parameters["windQuad"][3]
-        self.windField[0:offset, offset + 1:world] = parameters["windQuad"][1]
-        self.windField[offset + 1:world, offset + 1:world] = parameters["windQuad"][0]
-        parameters["windField"] = self.windField
-
-        # print "windfield is", parameters["windField"]
+    #
+    # def windFieldGen(self):
+    #     self.windField = np.zeros([parameters["worldSize"], parameters["worldSize"]])
+    #
+    #     offset = (parameters["worldSize"] - 1) / 2
+    #     world = parameters["worldSize"]
+    #     self.windField[0:offset, 0:offset] = parameters["windQuad"][2]
+    #     self.windField[offset + 1:world, 0:offset] = parameters["windQuad"][3]
+    #     self.windField[0:offset, offset + 1:world] = parameters["windQuad"][1]
+    #     self.windField[offset + 1:world, offset + 1:world] = parameters["windQuad"][0]
+    #     parameters["windField"] = self.windField
+    #
+    #     # print "windfield is", parameters["windField"]
 
     def odourTunnel(self):
         self.valve = int(self.odourField[int(self.player.getX()), int(self.player.getY())])
@@ -1308,219 +1233,3 @@ class MyApp(ShowBase):
             return maxn
         else:
             return n
-
-
-class BagControl():
-    def __init__(self, bagType, topics):
-        self.bagType = bagType
-        self.topics = topics
-        self.startBag()
-
-    def startBag(self):
-        self.bagger()
-        obj = self.metadataGen()
-        app.pickler(obj, self.bagFilename)
-
-        with open(self.bagFilename + ".json", 'w') as outfile:
-            json.dump(obj, outfile, indent=4, sort_keys=True, separators=(',', ':'))
-        time.sleep(0.15)  # sleep to prevent multiple instatntiations for a single keypress
-
-    def stopbag(self):
-        # self.runBagCommand.send_signal(subprocess.signal.SIGINT) #send signal on stop command
-        self.terminate_ros_node("/record")
-        rospy.loginfo("\n \n \n Bag recording stopped \n \n \n ")
-        self.addMetadata()
-        print "metadata added \n \n "
-        print "\n \n bagfilename is", self.bagFilename
-
-    def bagger(self):
-        self.bagFilename = self.bagFilenameGen()
-        self.bagCommand = "rosbag record --lz4 --output-name=" + self.bagFilename + " " \
-                          + self.topics
-        # print self.bagCommand
-        self.runBagCommand = subprocess.Popen(self.bagCommand, shell=True, stdout=subprocess.PIPE)
-        rospy.loginfo("Bag recording started")
-
-    def bagFilenameGen(self):
-        self.timeNow = str(datetime.now().strftime('%Y-%m-%d__%H:%M:%S'))
-        mode = ""
-        if parameters["hcp"]:
-            mode += "hcp_"
-        if parameters["loadWind"]:
-            mode += "wind_"
-        if parameters["imposeStimulus"]:
-            mode += "impose_"
-        if parameters["quad"]:
-            mode += "quad_"
-
-        bagDir = "bags/" + str(datetime.now().strftime('%Y_%m_%d'))  # make a directory of current date
-        if not os.path.exists(bagDir):
-            os.makedirs(bagDir)  # create dir if non existent
-
-        fileName = bagDir + "/" + self.timeNow + "_" + parameters["fly"] + "_" \
-                   + mode + parameters["loadingString"] \
-                   + "_gain" + str(parameters["gain"]) \
-                   + "_trial_" + str(parameters["trialNo"]) + "_" + self.bagType
-        print fileName
-        return fileName
-
-    def addMetadata(self):
-        print "allo " + self.bagFilename
-        bagName = self.bagFilename + ".bag"
-        if self.bagType == 'full':
-            time.sleep(5)  # so that bag file can be transfereed from memory
-
-        obj = self.metadataGen()
-        metadata = (json.dumps(obj))
-        metadata = String(metadata)
-        # print "metadata is:", metadata
-
-        with rosbag.Bag(bagName, 'a') as bag:
-            i = 0
-            for _, _, t in bag.read_messages():
-                if i == 0:
-                    tstamp = t
-                i += 1
-                break
-            bag.write('/metadata', metadata, tstamp)
-            # datasave
-
-    def metadataGen(self):
-        file = open(__file__, 'r')
-        servo = open("servo.py", 'r')
-        arduino = open("servoControl/servoControl.ino", 'r')
-        bam = open(app.worldFilename)
-        obj = dict(parameters=parameters, world=file.read(),
-                   servo=servo.read(), arduino=arduino.read(), )
-        # bam=bam.read().encode('utf-8').strip())
-        # obj = [parameters, file.read(), servo.read(), arduino.read(), world.read()]
-        return obj
-
-    def terminate_ros_node(self, s):
-        list_cmd = subprocess.Popen("rosnode list", shell=True, stdout=subprocess.PIPE)
-        list_output = list_cmd.stdout.read()
-        retcode = list_cmd.wait()
-        assert retcode == 0, "List command returned %d" % retcode
-        for str in list_output.split("\n"):
-            if (str.startswith(s)):
-                os.system("rosnode kill " + str)
-
-
-def plumeStripGen(fieldWidth, fieldHeight, stripWidth, stripHeight, initX, initY):
-    """
-
-    Args:
-        fieldWidth: width of array
-        fieldHeight: height of array
-        stripWidth:  width of the plume strip
-        stripHeight: height of the plume strip
-        initX:      starting X point of strip in numpy array
-        initY:      starting Y point of strip in numpy array
-
-    Returns:
-        stripField :    An array with 1 where the plume exists, which is a
-                        rectangular strip and 0 else where
-    """
-    fieldWidth = int(fieldWidth)
-    fieldHeight = int(fieldHeight)
-    stripWidth = int(stripWidth)
-    stripHeight = int(stripHeight)
-    initX = int(initX)
-    initY = int(initY)
-
-    stripField = np.zeros([fieldWidth, fieldHeight])
-    stripField[initX:initX + stripWidth, initY:initY + stripHeight] = 1
-
-    # print "stripfield is",stripField
-    return stripField
-
-
-def odourFieldGen():
-    odourField = np.zeros([parameters["worldSize"], parameters["worldSize"]])
-
-    offset = int((parameters["worldSize"] - 1) / 2)
-    world = parameters["worldSize"]
-
-    parameters["odourQuadImage"] = parameters["odourQuad"]
-    quad = 0
-    for i in parameters["odourQuad"]:
-        from skimage.io import imread
-
-        if i == 'c':
-            parameters["odourQuadImage"][quad] = np.rot90(imread("models/odour/" + str(quad + 1) + ".png") / 255)
-            # py 0 index but non zero quadrants and the image is rotated to fix plt and array axes
-            print "odour image is", quad, parameters["odourQuadImage"][quad]
-        elif i == 's':
-            width = 15
-            strip = plumeStripGen(offset, offset, width, offset, offset / 2 - (width / 2), 0)
-            parameters["odourQuadImage"][quad] = strip
-
-        quad += 1
-
-    odourField[0:offset, 0:offset] = parameters["odourQuadImage"][2]
-    odourField[offset + 1:world, 0:offset] = parameters["odourQuadImage"][3]
-    odourField[0:offset, offset + 1:world] = parameters["odourQuadImage"][1]
-    odourField[offset + 1:world, offset + 1:world] = parameters["odourQuadImage"][0]
-
-    thresh = parameters['odourDensity']
-    rand = (np.random.rand(odourField.shape[0], odourField.shape[1]) < thresh) * 1
-    odourField = np.logical_and(odourField, rand)
-    parameters["odourField"] = odourField
-
-    plt.imshow(np.rot90(odourField))
-    plt.gray()
-    plt.show(block=False)
-    # print "odour field",parameters["odourField"]
-    return odourField
-
-
-def odourPacketGen(width=10, height=10, velocity=3, packetFrequency=10, packetDuration=0.02, scale=100):
-    '''
-
-    :param width: image width in pixels
-    :param height: image height in pixels
-    :param velocity: traversing velocity in pixels/second
-    :param packetFrequency: odour packets frequency in Hertz
-    :param packetDuration: duration of a single packet in seconds
-    :param scale: scale factor to do sub pixel localization
-    :return:
-    '''
-
-    p1 = scale * velocity * packetDuration  # on length in pixels
-    pt = scale * velocity * (1 / packetFrequency)  # total length in pixels
-    p0 = (pt - p1)  # off length in pixels
-
-    a1 = (np.zeros([int(pt), int(pt)]) != 0)  # basic tileable subunit of odourfield
-    oX = (pt - p1) / 2  # offset X to center, not critical but prettier and the least edge effect
-    oY = (pt - p1) / 2  # offset Y to center
-    a1[oX:oX + p1, oY:oY + p1] = True  # replace odour on region to True
-    a1 = np.tile(a1, (
-    int(scale * width / pt), int(scale * height / pt)))  # tile the subunit such that it is of size (w,h)*scale
-    # print a1
-    # plt.imshow(a1,interpolation='none',cmap='Greys_r') #don't interpolate and show the pixels as is with reverse grey cmap
-    # plt.show()
-    return a1
-app = MyApp()
-try:
-    app.run()
-finally:
-
-    PROCNAME = ['python', 'realTimePlotter.py']
-    import psutil
-
-    for proc in psutil.process_iter():
-        # check whether the process name matches and close plotter window
-        if proc.cmdline == PROCNAME:
-            proc.kill()
-
-    try:
-        servo.move(99, 0)  # close valve to prevent odour bleeding through
-        servo.move(1, 90)  # close valve to prevent odour bleeding through
-
-    except  (serial.serialutil.SerialException, NameError):
-        print "arduino faulty"
-        pass  # arduino disconnected or faulty, let go
-    sys.exit()
-
-plt.show()  # for async plt plot window from closing
-print 2 + 3
