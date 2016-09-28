@@ -93,15 +93,9 @@ def saveSettings(win, path):
     settings['toTuplify']=tupleList
 
     with open(path, 'w') as dictFile:#dump everything
-<<<<<<< HEAD
         json.dump(settings, dictFile, sort_keys=True)
         print json.dumps(settings, sort_keys=True)
-=======
-        json.dump(settings, dictFile)
-        print dictFile
 
-    print "post dump:", settings
->>>>>>> GUI
 
     ui.statusbar.showMessage('Settings successfully saved to ' + path )
 
