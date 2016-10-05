@@ -1,3 +1,12 @@
+from helper import Helper
+import json, time, datetime, subprocess, os
+import rospy, rosbag
+from std_msgs.msg import String
+from params import parameters
+
+helpme = Helper()
+
+
 class BagControl():
     def __init__(self, bagType, topics):
         self.bagType = bagType
@@ -7,7 +16,7 @@ class BagControl():
     def startBag(self):
         self.bagger()
         obj = self.metadataGen()
-        app.pickler(obj, self.bagFilename)
+        helpme.pickler(obj, self.bagFilename)
 
         with open(self.bagFilename + ".json", 'w') as outfile:
             json.dump(obj, outfile, indent=4, sort_keys=True, separators=(',', ':'))
