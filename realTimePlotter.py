@@ -2,13 +2,15 @@ from World.msg import MsgFlystate, MsgTrajectory
 import rospy, sys
 from std_msgs.msg import String
 from params import parameters
+from classes.fieldGen import FieldGen
 # modules
 # ------------------------------------------------------------------------------
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import animation
 from worldGen import WorldGen
-
+f=FieldGen()
+scale=20
 def callback( data):
     """ Returns Wing Beat Amplitude Difference from received data"""
     global x,y,frame
@@ -24,10 +26,19 @@ def listener():
 
 
 def initPlot():
-    plt.axis([0,255,0,255])
+    # plt.axis([0,255,0,255])
     # if parameters['loadOdour']:
     #     from world import odourFieldGen, plumeStripGen
     #     odourFieldGen()
+
+    odourField = f.odourPacket(width=257, height=257, scale=scale,
+                                             packetFrequency=15, plot=False,
+                                             packetDuration=.02)
+
+
+    plt.imshow(odourField,cmap='Greys',interpolation=None,alpha=.1,aspect='auto')
+    plt.tight_layout()
+
     initPlot=WorldGen()
     initPlot.initPositions()
     initPlot.plotPositions()
@@ -36,16 +47,17 @@ def initPlot():
 
 rospy.init_node('plot')
 dur=200000
-dt=30/165.
+dt=30./parameters['fps']
 x=np.zeros(dur)
 y=np.zeros(dur)
 frame=0
 
 listener()
 plt.close('all')  # close all previous plots
-fig = plt.figure(1)
-ax = plt.axes(xlim=(0, 255), ylim=(0, 255))
-scat = ax.scatter([], [], s=.1)
+fig = plt.figure(1, figsize=(12,12))
+ax = plt.axes()
+# ax = plt.axes(xlim=(0, 255), ylim=(0, 255))
+scat = ax.scatter([], [], s=.1,c='r')
 
 
 def press(event):
@@ -68,9 +80,9 @@ def init():
     return scat,
 
 def animate(i):
-    global frame
+    global frame,scale
     frame=i
-    data = np.hstack((x[:i,np.newaxis], y[:i, np.newaxis]))
+    data = np.hstack((scale*x[:i,np.newaxis], scale*y[:i, np.newaxis]))
     scat.set_offsets(data)
     return scat,
 
