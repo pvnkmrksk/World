@@ -1,27 +1,18 @@
 import sys, os
-import json
+import json_tricks as json
 from PyQt4.QtGui import QApplication, QMainWindow
 from GUI_VR import Ui_MainWindow
 from PyQt4 import QtCore, QtGui
 import ast
+import subprocess
 
-#todo: the file/path-management works, but is ugly and may cause bugs
-runPath=os.path.abspath(os.path.split(sys.argv[0])[0]) #path of the runfile
-jsonFolder=runPath+'/jsonFiles/'
-defaultJson= jsonFolder+'default.json' #path of 'default.json' #default .json-file
-recentJson=jsonFolder+'recent.json'
-currentJson=recentJson#jsonFolder+'temp.json' #modify a temp json file
-VRjson=jsonFolder+'VR.json'
-def isfloat(s):#todo: prob not neccassary
-#helper function to check if a str is a float.
-#needed to convert str to float
-#same as isdigit()
-
-    try:
-        s = float(s)
-        return True
-    except ValueError:
-        return False
+pathRun=os.path.abspath(os.path.split(sys.argv[0])[0]) #path of the runfile
+pathJson= pathRun + '/jsonFiles/'
+pathModel = pathRun + '/models/'
+jsonDefault= pathJson + 'default.json' #path of 'default.json' #default .json-file
+jsonRecent= pathJson + 'recent.json'
+jsonCurrent=jsonRecent#pathJson+'temp.json' #modify a temp json file
+jsonVR= pathJson + 'VR.json'
 
 def saveSettings(win, path):
     '''
@@ -36,7 +27,6 @@ def saveSettings(win, path):
 
     '''
 
-
     settings = {}
     box = win.findChildren(QtGui.QCheckBox)
     line = win.findChildren(QtGui.QLineEdit)
@@ -45,6 +35,19 @@ def saveSettings(win, path):
     spinInt = win.findChildren(QtGui.QSpinBox)
     date = win.findChildren(QtGui.QDateEdit)
     spinFloat = win.findChildren(QtGui.QDoubleSpinBox)
+    combo = win.findChildren(QtGui.QComboBox)
+
+    for item in radio:
+        box.append(item)
+    for item in spinInt:
+        slider.append(item)
+    for item in spinFloat:
+        slider.append(item)
+
+    for item in combo:
+        name = item.objectName()
+        text = str(item.currentText())
+        settings[str(name)] = text
 
     for item in box: #checkboxes
         name = item.objectName()
@@ -60,9 +63,7 @@ def saveSettings(win, path):
         text = item.text()
         text = str(text)
         try:
-            if isfloat(text):#todo: prob not necassary
-                text = float(text)
-            elif ('[' and ']') in text: #if lineEdit returns [] convert to list
+            if ('[' and ']') in text: #if lineEdit returns [] convert to list
                 text = ast.literal_eval(text)
             elif ('(' and ')') in text:#if lineEdit returns () convert to list
                 text = ast.literal_eval(text)
@@ -72,17 +73,7 @@ def saveSettings(win, path):
 
         settings[str(name)] = text
 
-    for item in radio: #radioButtons
-        name = item.objectName()
-        state = item.isChecked()
-        settings[str(name)] = state
-
     for item in slider: #sliders
-        name = item.objectName()
-        value = item.value()
-        settings[str(name)] = value
-
-    for item in spinInt: #spinBoxes
         name = item.objectName()
         value = item.value()
         settings[str(name)] = value
@@ -93,21 +84,18 @@ def saveSettings(win, path):
         #value = value.replace('-', '')
         settings[str(name)] = value
 
-    for item in spinFloat: #doubleSpinBocxes
-        name = item.objectName()
-        value = item.value()
-        settings[str(name)] = value
 
-    print "pre dump",settings #todo: remove (when not needed anymore)
+    tupleList=[]
+    for key, value in settings.iteritems():
+        if type(value)==tuple:
+            tupleList.append(key)
 
-    # global jsonFile
-    # temp = ui.settingsFile.text()
-
-    # if temp != jsonFile: #when new filename inserted (in lineEdit: settingsFile)
-    #     jsonFile = ui.settingsFile.text() #change string (filename.json)
+    settings['toTuplify']=tupleList
 
     with open(path, 'w') as dictFile:#dump everything
-        json.dump(settings, dictFile)
+        json.dump(settings, dictFile, sort_keys=True)
+        print json.dumps(settings, sort_keys=True)
+
 
     ui.statusbar.showMessage('Settings successfully saved to ' + path )
 
@@ -116,8 +104,8 @@ def loadSettings(win,path):
     # puts all objects in sereval lists
     # iterates through lists, sets attributes of objects to stored values
     #saveSettings reverse
-    global currentJson
-    currentJson=path
+    global jsonCurrent
+    jsonCurrent=path
     load = {}
     box = win.findChildren(QtGui.QCheckBox)
     line = win.findChildren(QtGui.QLineEdit)
@@ -126,11 +114,26 @@ def loadSettings(win,path):
     spinInt = win.findChildren(QtGui.QSpinBox)
     spinFloat = win.findChildren(QtGui.QDoubleSpinBox)
     date = win.findChildren(QtGui.QDateEdit)
+    combo = win.findChildren(QtGui.QComboBox)
 
+    for item in radio:
+        box.append(item)
+    for item in spinInt:
+        slider.append(item)
+    for item in spinFloat:
+        slider.append(item)
 
-    with open(path, 'r') as dictFile:
-        set = json.load(dictFile)
+    try:
+        with open(path, 'r') as dictFile:
+            set = json.load(dictFile)
+            for item in set['toTuplify']:
+                set[item]=tuple(set[item])
+            print set
 
+    except IOError:
+            ui.statusbar.showMessage('.json-file not changed')
+
+            return
 
     for item in box:
         try:
@@ -140,6 +143,17 @@ def loadSettings(win,path):
             temp.setChecked(set[str(name)])
         except KeyError:
             pass
+
+    for item in combo:
+        try:
+            name = item.objectName()
+            load[name] = item
+            temp = load[name]
+            index = temp.findText(set[str(name)], QtCore.Qt.MatchFixedString)
+            temp.setCurrentIndex(index)
+        except:
+            pass
+
     for item in line:
         try:
             name = item.objectName()
@@ -153,18 +167,6 @@ def loadSettings(win,path):
         except KeyError:
             pass
 
-
-    for item in radio:
-        try:
-
-            name = item.objectName()
-            load[name] = item
-            temp = load[name]
-            temp.setChecked(set[str(name)])
-        except KeyError:
-            pass
-
-
     for item in slider:
         try:
 
@@ -174,29 +176,6 @@ def loadSettings(win,path):
             temp.setValue(set[str(name)])
         except KeyError:
             pass
-
-
-    for item in spinInt:
-        try:
-
-            name = item.objectName()
-            load[name] = item
-            temp = load[name]
-            temp.setValue(set[str(name)])
-        except KeyError:
-            pass
-
-
-    for item in spinFloat:
-        try:
-
-            name = item.objectName()
-            load[name] = item
-            temp = load[name]
-            temp.setValue(set[str(name)])
-        except KeyError:
-            pass
-
 
     for item in date:
         try:
@@ -211,27 +190,37 @@ def loadSettings(win,path):
 
 
     ui.statusbar.showMessage('Settings successfully loaded from ' +path)
+    ui.currentLabel.setText(jsonCurrent)
 
 def openLoad(win):
     '''
     helper function to open a file and load the json
+    opens a fileDialog
     :param win: current window
     :return:
     '''
-    global currentJson
-    path=showFileDialog(win,ui.settingsFile)
+    global jsonCurrent
+    path=showFileDialog(win, None, pathJson)
+    if path == '':
+        ui.statusbar.showMessage('Canceled')
+        pass
+    else:
+        loadSettings(win, path)
+        jsonCurrent=path
 
-    loadSettings(win,path)
-    currentJson=path
-#
+def openSave(win):
 
-# def updateParam():
-#     with open('dict.json', 'r') as f:
-#         data = json.load(f)
-#         return data
+    global jsonCurrent
+    path = showSaveDialog(win, ui.currentLabel)
+    if path == '':
+        ui.statusbar.showMessage('Canceled')
+        pass
+    else:
+        saveSettings(win, path)
+        jsonCurrent=path
 
 
-def showFileDialog(win, line):
+def showFileDialog(win, line, pathStart):
     '''
     opens file dialog, returns selected file as string
     if selected file is .json, changes jsonFile
@@ -241,33 +230,42 @@ def showFileDialog(win, line):
     :param line: the line to be used to display the path
     :return: the filepath selected
     '''
-    fname = str(QtGui.QFileDialog.getOpenFileName(win, 'Open file',jsonFolder))
 
-    if line: #set only if given a label to setText
+    fname = str(QtGui.QFileDialog.getOpenFileName(win, 'Open file', pathStart))
+
+    if line and fname != '': #set only if given a label to setText
+        line.setText(fname)
+    return fname
+
+def showSaveDialog(win, line):
+
+    fname = str(QtGui.QFileDialog.getSaveFileName(win, "Save file as", pathJson))
+
+    if line and fname != '': #set only if given a label to setText
         line.setText(fname)
     return fname
 
 def caller(btn, fx, line):
-    btn.clicked.connect(lambda: fx(window, line))
+    btn.clicked.connect(lambda: fx(window, line, pathModel))
 
 def callLooper(myDict):
     for key, values in myDict.iteritems():
         caller(values[0], values[1], values[2])
 
-
-def fileError():
-    error = QtGui.QErrorMessage()
-    error.showMessage('Error')
-    error.exec_()
-
-def showError():
+def showError(message):
     error = QtGui.QMessageBox()
-    error.setText('Error')
+    error.setWindowTitle('Error message')
+    error.setText(message)
     error.exec_()
 
 def saveClose(win):
-    saveSettings(win, recentJson)
+    saveSettings(win, jsonRecent)
     win.close()
+
+def startVR():
+    subprocess.Popen(['python', 'main.py'])
+    #showError("VR is not available")
+
 if __name__ == '__main__':
 #necessary for getting the GUI running
     app = QApplication(sys.argv)
@@ -276,9 +274,6 @@ if __name__ == '__main__':
     ui.setupUi(window)
 
     myDict={
-            # 'jsonBtn':[ui.jsonBtn,showFileDialog,ui.settingsFile],
-            'bagFullTopicsBtn':[ui.bagFullTopicsBtn,showFileDialog,ui.bagFullTopics],
-            'bagTrajTopicsBtn':[ui.bagTrajTopicsBtn,showFileDialog,ui.bagTrajTopics],
             'skyMapBtn':[ui.skyMapBtn,showFileDialog,ui.skyMap],
             'skyMapNullBtn':[ui.skyMapNullBtn,showFileDialog,ui.skyMapNull],
             'greenTexPath':[ui.greenTexPathBtn,showFileDialog,ui.greenTexPath],
@@ -290,27 +285,31 @@ if __name__ == '__main__':
             'odour2':[ui.odourBtn2, showFileDialog, ui.odour2],
             'odour3':[ui.odourBtn3, showFileDialog, ui.odour3],
             'odour4': [ui.odourBtn4, showFileDialog, ui.odour4],
+
             }
 
 #functions for several buttons
 #applying and loading settings, closing etc.
 
-
-
     okBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.Ok)#todo: Ok needs a function
-    okBtn.clicked.connect(lambda : saveSettings(window,VRjson))
+    okBtn.clicked.connect(lambda : saveSettings(window, jsonVR))
     #okBtn.clicked.connect(ui.statusbar.showMessage('Ok has no function yet'))
 
     cancelBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.Cancel)
     cancelBtn.clicked.connect(lambda: saveClose(window))#save to recent and close
-    app.aboutToQuit.connect(lambda :saveClose(window))
+    # app.aboutToQuit.connect(lambda :saveClose(window))
     #todo: is closing the window smart?
+    #todo: is saving last known config on cancel smart?
 
     defaultBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.RestoreDefaults)
-    defaultBtn.clicked.connect(lambda: loadSettings(window, defaultJson))
+    defaultBtn.clicked.connect(lambda: loadSettings(window, jsonDefault))
 
     saveBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.Save)
-    saveBtn.clicked.connect(lambda: saveSettings(window, currentJson))
+    saveBtn.clicked.connect(lambda: saveSettings(window, jsonCurrent))
+
+    saveAsBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.SaveAll)
+    saveAsBtn.setText("Save as")
+    saveAsBtn.clicked.connect(lambda: openSave(window))
 
     loadBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.Open)
     loadBtn.setText("Load")#because it is actually open button
@@ -318,12 +317,16 @@ if __name__ == '__main__':
     loadBtn.clicked.connect(lambda: openLoad(window))
 
     resetBtn=ui.buttonBox.button(QtGui.QDialogButtonBox.Reset)
-    resetBtn.clicked.connect(lambda: loadSettings(window,currentJson))
+    resetBtn.clicked.connect(lambda: loadSettings(window, jsonCurrent))
+    #todo. open the last tab on close
 
+
+    startVRBtn = ui.startVRBtn
+    startVRBtn.clicked.connect(lambda: startVR())
 
     callLooper(myDict)
     try:
-        loadSettings(window,currentJson)#load the last run config
+        loadSettings(window, jsonCurrent)#load the last run config
     except ValueError:
         pass
     window.show()
