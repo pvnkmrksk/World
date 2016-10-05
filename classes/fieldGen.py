@@ -148,3 +148,14 @@ class FieldGen():
 
         return packetField
 
+if __name__=='main':
+    f=FieldGen()
+    from params import parameters
+    odourField = f.odourPacket(width=parameters['worldSize'],
+                                             height=parameters['worldSize'],
+                                             scale=parameters['fieldRescale'],
+                                             packetFrequency=parameters['packetFrequency'],
+                                             plot=True,
+                                           velocity=parameters['maxSpeed'],
+
+                               packetDuration=parameters['packetDuration'])
