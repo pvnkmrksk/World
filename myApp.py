@@ -130,6 +130,10 @@ class MyApp(ShowBase):
             servo.move(1, self.servoAngle)
         self.quadrantIndex = 2  # starts in 3rd quadrant, index 2 based on init pos
         self.valve = 0
+        self.valvePast = 0
+        self.valveNow = 0
+        self.valveFrame=0
+
         self.trial = 1
         self.reset = False
         self.bagRecordingState = False
@@ -193,17 +197,21 @@ class MyApp(ShowBase):
 
         self.beep= self.loader.loadSfx("beep.wav")
         myFieldGen=FieldGen()
-        self.scale=1
+        parameters['fieldRescale']=1
         if parameters["loadWind"]:
             # self.windFieldGen()
             self.windField=myFieldGen.windField()
         if parameters["loadOdour"]:
             # self.odourField = odourFieldGen()
-            self.scale=20
+            parameters['fieldRescale']=20
 
-            self.odourField = myFieldGen.odourPacket(width=257,height=257,scale=self.scale,
-                                                     packetFrequency=20,plot=False,
-                                                     packetDuration=.02)
+            self.odourField = myFieldGen.odourPacket(width=parameters['worldSize'],
+                                                     height=parameters['worldSize'],
+                                                     scale=parameters['fieldRescale'],
+                                                     velocity=parameters['maxSpeed'],
+                                                     packetFrequency=parameters['packetFrequency'],
+                                                     plot=False,
+                                                     packetDuration=parameters['packetDuration'])
             # self.odourField = myFieldGen.odourField(oq=parameters['odourQuad'],plot=True)
 
 
@@ -1191,15 +1199,34 @@ class MyApp(ShowBase):
         # print self.valve
         # self.valve = int(self.odourField[int(self.player.getX()), int(self.player.getY())])
 #        self.valve = int(self.odourField[int(self.player.getX()), int(self.player.getY())])
-        self.valve = int(self.odourField[int(self.player.getX()*self.scale), int(self.player.getY()*self.scale)])
-        if self.valve:
-            if self.beep.status()!=self.beep.PLAYING:
-                self.beep.play()
+        self.valveNow = int(self.odourField[int(self.player.getX()*parameters['fieldRescale']), int(self.player.getY()*parameters['fieldRescale'])])
+        if self.valvePast:
+            if (self.valveFrame<(parameters['packetDuration']*parameters['fps'])):
+                self.valve=1
+                self.valveFrame+=1
+                self.valvePast=1
+            else:
+                self.valve=0
+                self.valveFrame=0
+                self.valvePast=0
         else:
-            if self.beep.status()==self.beep.PLAYING:
-                self.beep.stop()
+            self.valve=self.valveNow
+
+
+        servo.move(99, self.valve)
+        if self.valve:
+            # if self.beep.status()!=self.beep.PLAYING:
+                # self.beep.play()
+            self.beep.setVolume(1)
+        else:
+            # if self.beep.status()==self.beep.PLAYING:
+                # self.beep.stop()
+            self.beep.setVolume(0)
+
         # if parameters["loadWind"]:
         #     servo.move(99, self.valve)
+
+        self.valvePast=self.valve
 
     # testing functions not stable
     # screen capture
