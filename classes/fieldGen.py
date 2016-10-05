@@ -11,7 +11,7 @@ class FieldGen():
     def toPlot(self, obj, plot):
         if plot:
             plt.imshow(obj, interpolation='none', cmap='Greys_r')
-            plt.show
+            plt.show(block=False)
 
     def windField(self,width,height,wq,plot=False):
         windField = np.zeros([width, height])
@@ -28,7 +28,8 @@ class FieldGen():
 
 
 
-    def plumeStrip(self, fieldWidth=128, fieldHeight=128, stripWidth=20, stripHeight=100, initX=54, initY=9,
+    def plumeStrip(self, fieldWidth=128, fieldHeight=128,
+                   stripWidth=20, stripHeight=100, initX=54, initY=9,
                    plot=False):
 
         """
@@ -51,13 +52,14 @@ class FieldGen():
         initX = int(initX)
         initY = int(initY)
 
-        stripField = np.zeros([fieldWidth, fieldHeight]) != 0
-        stripField[initX:initX + stripWidth, initY:initY + stripHeight] = True
+        stripField = np.zeros([fieldWidth, fieldHeight])
+        stripField[initX:initX + stripWidth, initY:initY + stripHeight] = 1
 
         # print "stripfield is",stripField
         self.toPlot(stripField, plot)
+        return  stripField
 
-    def odourField(self, w=255, h=255, oq=['s', 0, 's', 0], plot=False):
+    def odourField(self, w=255, h=255, oq=['s', 1, 'p', 0], plot=False):
 
         odourField = np.zeros([w, h])
         offset = int((w - 1) / 2)
@@ -74,8 +76,14 @@ class FieldGen():
             #                 print "odour image is", quad, oqi[quad]
             elif i == 's':
                 width = 15
-                strip = self.plumeStrip(offset, offset, width, offset, offset / 2 - (width / 2), 0)
+                # strip = self.plumeStrip()
+                strip = self.plumeStrip(offset, offset, width, offset, (offset / 2 - (width / 2)), 0)
+                # print strip
                 oqi[quad] = strip
+
+            elif i=='p':
+                packet=self.odourPacket(width=127,height=127,velocity=1,packetFrequency=0.5,packetDuration=1,scale=1)
+                oqi[quad] = packet
 
             quad += 1
 
@@ -84,24 +92,13 @@ class FieldGen():
         odourField[0:offset, offset + 1:w] = oqi[1]
         odourField[offset + 1:w, offset + 1:w] = oqi[0]
 
-        #         thresh = parameters['odourDensity']
-        #         rand = (np.random.rand(odourField.shape[0], odourField.shape[1]) < thresh) * 1
-        #         odourField = np.logical_and(odourField, rand)
-        #         parameters["odourField"] = odourField
 
-        #         if plot:
-        #             plt.imshow(np.rot90(odourField))
-        #             plt.gray()
-        #     #         plt.show(block=False)
-        #             plt.show()
-
-        #         plt.show(block=False)
-        # print "odour field",parameters["odourField"]
         self.toPlot(np.rot90(odourField), plot)
 
         return odourField
 
-    def odourPacket(self, width=10, height=10, velocity=3, packetFrequency=10, packetDuration=0.02, scale=100,
+    def odourPacket(self, width=10, height=10, velocity=3,
+                    packetFrequency=10, packetDuration=0.02, scale=10,
                     plot=False):
         '''
 
@@ -118,23 +115,36 @@ class FieldGen():
 
         '''
 
-        packetOnPixels = scale * velocity * packetDuration  # on length in pixels
-        packetTotalPixels = scale * velocity * (1.0 / packetFrequency)  # total length in pixels
-        packetOffPixels = (packetTotalPixels - packetOnPixels)  # off length in pixels
+        # on length in pixels
+        packetOnPixels = scale * velocity * packetDuration
+
+        # total length in pixels
+        packetTotalPixels = scale * velocity * (1.0 / packetFrequency)
+
+        # off length in pixels
+        # packetOffPixels = (packetTotalPixels - packetOnPixels)
+
         # offset X and Y to center, not critical but prettier and the least edge effect
         offsetX = (packetTotalPixels - packetOnPixels) / 2  # offset X to center
         offsetY = (packetTotalPixels - packetOnPixels) / 2  # offset Y to center
 
-        packetFieldSubunit = np.zeros(
-            [int(packetTotalPixels), int(packetTotalPixels)])  # != 0  # basic tileable subunit of odourfield
+
+        # basic tileable subunit of odourfield
+        packetFieldSubunit = np.zeros([int(packetTotalPixels), int(packetTotalPixels)],dtype=bool)  # != 0
         packetFieldSubunit[offsetX:offsetX + packetOnPixels,
         offsetY:offsetY + packetOnPixels] = 1  # replace odour on region to True
 
+        # tile the subunit such that it is of size (w,h)*scale
         packetField = np.tile(packetFieldSubunit, (int(scale * width / packetTotalPixels), int(
-            scale * height / packetTotalPixels)))  # tile the subunit such that it is of size (w,h)*scale
+            scale * height / packetTotalPixels)))
+
+        wd=scale*width-packetField.shape[0]
+        hd=scale*height-packetField.shape[1]
+        packetField=np.lib.pad(packetField,((0,hd),(0,wd)),'constant',constant_values=(0,0))
         # print packetField#don't do for large images
         # plt.imshow(packetField,interpolation='none',cmap='Greys_r') #don't interpolate and show the pixels as is with reverse grey cmap
         # plt.show()
         self.toPlot(packetField, plot)
+
         return packetField
 

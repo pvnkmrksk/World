@@ -4,8 +4,8 @@ parameters = {
     # bools
 
     "loadWind": False,
-    "loadOdour":False,
-    "loadTrajectory": False,
+    "loadOdour":True,
+    "loadTrajectory": True,
     "loadNullModels":False,
     "imposeStimulus": False,
     "loadingString": "rg",
@@ -18,7 +18,8 @@ parameters = {
     "race": "colony apple",
     "emergence": 20160817,
     "windQuad": [-1, -1, -1, -1],  # -1 is open loop
-    "odourQuad":['c','c','c','c'], #0 is always off, 1 is always on, c is custom
+    "odourQuad":[1,1,1,1], #0 is always off, 1 is always on, c is custom
+    # "odourQuad":['s','c','c','c'], #0 is always off, 1 is always on, c is custom
     "odour1":"models/odour/1.png",
     "odour2":"models/odour/2.png",
     "odour3":"models/odour/3.png",
@@ -80,8 +81,8 @@ parameters = {
     "origin": (0, 0, 0),
 
     "lrGain": 1.0,
-    "lockFps": False,  # False,
-    "fps": 165,
+    "lockFps": True,  # False,
+    "fps": 30,
     "trajectoryUpdateInterval": 165,  # frames between update,
 
     "sphereScale": 1.9,
@@ -111,7 +112,8 @@ parameters = {
 
     "windowWidth": 4320,  # 1440,
     "windowHeight": 2560,
-    "bagFullTopics": "/rhag_camera/image_raw/compressed /kinefly/image_output /servo_camera/image_raw/compressed /kinefly/flystate /trajectory  ",#/vr_camera/image_raw
+    "bagFullTopics": "/rhag_camera/image_raw/compressed /kinefly/image_output /servo_camera/image_raw/compressed /kinefly/flystate /trajectory  ",
+    #/vr_camera/image_raw
     "bagTrajTopics": "/kinefly/flystate /trajectory ",
 
 

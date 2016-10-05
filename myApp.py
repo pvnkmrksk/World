@@ -1,7 +1,25 @@
+#!/usr/bin/env python
+# system imports
+"""
+Imports for file handling, datetime, json reading
+Followed by ROS and messages type for wbad
+Then Panda3d direct for visual stimuli
+matplotlib, numpy , pandas, pickle
+
+Finally parmeters stored as dictionary in params
+
+"""
+from __future__ import division
+
+from params import parameters
 from World.msg import MsgFlystate, MsgTrajectory
 from classes.bagControl import BagControl
 from classes.fieldGen import FieldGen
+from classes.helper import Helper
 from classes.exceptionHandlers import ExceptionHandlers
+import servo
+# from myApp import MyApp
+
 
 from datetime import datetime
 import sys, time, subprocess, os, serial  # ROS imports
@@ -27,8 +45,10 @@ import numpy as np
 import easygui
 import pandas as pd
 
-from params import parameters
+e=ExceptionHandlers(parameters)
+from importHelper import * #file with just a bunch of imports
 
+helpMe=Helper()
 class MyApp(ShowBase):
     """
     Initialize windows, params, I/O and feedback, taskUpdate
@@ -58,7 +78,7 @@ class MyApp(ShowBase):
         ShowBase.__init__(self)  # start the app
 
         # PStatClient.connect()
-        base.setFrameRateMeter(True)  # show frame rate monitor
+        self.setFrameRateMeter(True)  # show frame rate monitor
 
         self.initParams()  # run this 1st. Loads all content and params.
         self.initInput()
@@ -169,15 +189,24 @@ class MyApp(ShowBase):
         # THis is to set the window title so that I can captur in CCSM for pinning to visible workspace
         props = WindowProperties()
         props.setTitle('RhagVR')
-        base.win.requestProperties(props)
+        self.win.requestProperties(props)
 
-
+        self.beep= self.loader.loadSfx("beep.wav")
+        myFieldGen=FieldGen()
+        self.scale=1
         if parameters["loadWind"]:
             # self.windFieldGen()
-            self.windField=FieldGen.windField()
+            self.windField=myFieldGen.windField()
         if parameters["loadOdour"]:
             # self.odourField = odourFieldGen()
-            self.odourField = FieldGen.odourField()
+            self.scale=20
+
+            self.odourField = myFieldGen.odourPacket(width=257,height=257,scale=self.scale,
+                                                     packetFrequency=15,plot=False,
+                                                     packetDuration=.02)
+            # self.odourField = myFieldGen.odourField(oq=parameters['odourQuad'],plot=True)
+
+
 
     def initFeedback(self):
         '''
@@ -297,7 +326,7 @@ class MyApp(ShowBase):
         self.accept("c", self.setKey, ["valve-off", 1])
         self.accept("c-up", self.setKey, ["valve-off", 0])
 
-        base.disableMouse()  # or updateCamera will fail!
+        self.disableMouse()  # or updateCamera will fail!
 
     def setKey(self, key, value):
         '''
@@ -397,7 +426,7 @@ class MyApp(ShowBase):
         expfog.setColor(*colour)
         expfog.setExpDensity(0.004)
         render.setFog(expfog)
-        base.setBackgroundColor(*colour)
+        self.setBackgroundColor(*colour)
 
         # Our sky
         if parameters["loadNullModels"]:  # if null, then create uniform back and sky
@@ -435,7 +464,7 @@ class MyApp(ShowBase):
 
         """
 
-        dr = base.camNode.getDisplayRegion(0)
+        dr = self.camNode.getDisplayRegion(0)
         dr.setActive(0)
 
         lens = PerspectiveLens(120, 140)  # tuple(parameters["camFOV"]))
@@ -670,12 +699,12 @@ class MyApp(ShowBase):
             """
 
             if parameters["mouseMode"]:
-                if base.mouseWatcherNode.hasMouse():
-                    # x = base.mouseWatcherNode.getMouseX()
+                if self.mouseWatcherNode.hasMouse():
+                    # x = self.mouseWatcherNode.getMouseX()
                     # sets wbad to a clamped value of mouseY pos*gain
                     clamp = 0.5
                     parameters["wbad"] = self.clamp(1 *
-                                                    parameters["gain"] * base.mouseWatcherNode.getMouseX(), -clamp,
+                                                    parameters["gain"] * self.mouseWatcherNode.getMouseX(), -clamp,
                                                     clamp)
 
             if (self.keyMap["closed"] != 0):
@@ -1113,22 +1142,22 @@ class MyApp(ShowBase):
 
             self.bagRecordingState = False
 
-    def pickler(self, obj, path):
-        """
-        Pickle a Python object
-        """
-        with open(path, "wb") as pfile:
-            pickle.dump(obj, pfile)
-
-            # ----------------------------------------------------------------------
-
-    def depickler(self, path):
-        """
-        Extracts a pickled Python object and returns it
-        """
-        with open(path, "rb") as pfile:
-            data = pickle.load(pfile)
-        return data
+    # def pickler(self, obj, path):
+    #     """
+    #     Pickle a Python object
+    #     """
+    #     with open(path, "wb") as pfile:
+    #         pickle.dump(obj, pfile)
+    #
+    #         # ----------------------------------------------------------------------
+    #
+    # def depickler(self, path):
+    #     """
+    #     Extracts a pickled Python object and returns it
+    #     """
+    #     with open(path, "rb") as pfile:
+    #         data = pickle.load(pfile)
+    #     return data
 
     # wind control
     def windTunnel(self, windDirection):
@@ -1156,23 +1185,21 @@ class MyApp(ShowBase):
     #     # print "windfield is", parameters["windField"]
 
     def odourTunnel(self):
-        self.valve = int(self.odourField[int(self.player.getX()), int(self.player.getY())])
-        if parameters["loadWind"]:
-            servo.move(99, self.valve)
-
-    # evals
-    def dict2Var(self, dict):
-        """converts a dict to a variable using exec for assignment
-            use it with caution"""
-        for key, val in dict.items():
-            exec (key + '=val')
-
-    def list2Exec(self, list):
-        """
-        Converts the list items to eval statement
-        """
-        for key in list:
-            exec (key)
+        # pass
+        # print int(self.odourField[int(self.player.getX()), int(self.player.getY())])
+        # self.valve = (self.odourField[1,1])
+        # print self.valve
+        # self.valve = int(self.odourField[int(self.player.getX()), int(self.player.getY())])
+#        self.valve = int(self.odourField[int(self.player.getX()), int(self.player.getY())])
+        self.valve = int(self.odourField[int(self.player.getX()*self.scale), int(self.player.getY()*self.scale)])
+        if self.valve:
+            if self.beep.status()!=self.beep.PLAYING:
+                self.beep.play()
+        else:
+            if self.beep.status()==self.beep.PLAYING:
+                self.beep.stop()
+        # if parameters["loadWind"]:
+        #     servo.move(99, self.valve)
 
     # testing functions not stable
     # screen capture
@@ -1185,51 +1212,66 @@ class MyApp(ShowBase):
         globalClock.setFrameRate(fps)
 
         # to be implemented functions fully unstable
+        #
+        # # evals
+        # def dict2Var(self, dict):
+        #     """converts a dict to a variable using exec for assignment
+        #         use it with caution"""
+        #     for key, val in dict.items():
+        #         exec (key + '=val')
+        #
+        # def list2Exec(self, list):
+        #     """
+        #     Converts the list items to eval statement
+        #     """
+        #     for key in list:
+        #         exec (key)
 
-    # labels
-    def makeStatusLabel(self, i):
-        return OnscreenText(style=2, fg=(0, 0, 0, 0.12), bg=(0.4, 0.4, 0.4, 0.18),
-                            scale=0.04, pos=(0.5, 0.5 - (.04 * i)), mayChange=1)
-
-    def makeLabels(self):
-        self.positionLabel = self.makeStatusLabel(0)
-        self.orientationLabel = self.makeStatusLabel(1)
-        self.speedLabel = self.makeStatusLabel(2)
-        self.gainLabel = self.makeStatusLabel(3)
-        self.servoLabel = self.makeStatusLabel(4)
-        self.closedLabel = self.makeStatusLabel(5)
-        self.bagRecordingLabel = self.makeStatusLabel(6)
-
-    def updateLabel(self):
-        self.positionLabel.setText(self.vec32String(self.player.getPos(), "x", "y", "z"))
-        self.orientationLabel.setText(self.vec32String(self.player.getHpr(), "H", "P", "R"))
-        self.speedLabel.setText("Speed: " + str(parameters["speed"]))
-        self.gainLabel.setText("Gain: " + str(parameters["gain"]))
-
-        self.servoLabel.setText("Servo Angle: " + str(self.servoAngle))
-        self.closedLabel.setText("Closed Loop: " + str(bool(self.keyMap["closed"])))
-        self.bagRecordingLabel.setText("Recording Bag: " + str(bool(self.bagRecordingState)))
-
-    # content handlers
-    def vec32String(self, vector, a, b, c):
-        """returns a rounded string of vec 3 interspersed with a,b,c as headings"""
-        return a + ":" + str(round(vector[0])) + " " + b + ":" + str(round(vector[1])) + " " + c + ":" + str(
-            round(vector[2]))
-
-    def clamp(self, n, minn, maxn):
-        """
-        clamps values to lie between min and max
-        Args:
-            n: value to be clamped
-            minn: min value of clamp
-            maxn: max value of clamp
-
-        Returns:
-            Clamped value of n
-        """
-        if n < minn:
-            return minn
-        elif n > maxn:
-            return maxn
-        else:
-            return n
+                # # labels
+    # def makeStatusLabel(self, i):
+    #     return OnscreenText(style=2, fg=(0, 0, 0, 0.12), bg=(0.4, 0.4, 0.4, 0.18),
+    #                         scale=0.04, pos=(0.5, 0.5 - (.04 * i)), mayChange=1)
+    #
+    # def makeLabels(self):
+    #     self.positionLabel = self.makeStatusLabel(0)
+    #     self.orientationLabel = self.makeStatusLabel(1)
+    #     self.speedLabel = self.makeStatusLabel(2)
+    #     self.gainLabel = self.makeStatusLabel(3)
+    #     self.servoLabel = self.makeStatusLabel(4)
+    #     self.closedLabel = self.makeStatusLabel(5)
+    #     self.bagRecordingLabel = self.makeStatusLabel(6)
+    #
+    # def updateLabel(self):
+    #     self.positionLabel.setText(self.vec32String(self.player.getPos(), "x", "y", "z"))
+    #     self.orientationLabel.setText(self.vec32String(self.player.getHpr(), "H", "P", "R"))
+    #     self.speedLabel.setText("Speed: " + str(parameters["speed"]))
+    #     self.gainLabel.setText("Gain: " + str(parameters["gain"]))
+    #
+    #     self.servoLabel.setText("Servo Angle: " + str(self.servoAngle))
+    #     self.closedLabel.setText("Closed Loop: " + str(bool(self.keyMap["closed"])))
+    #     self.bagRecordingLabel.setText("Recording Bag: " + str(bool(self.bagRecordingState)))
+    #
+    # # content handlers
+    # def vec32String(self, vector, a, b, c):
+    #     """returns a rounded string of vec 3 interspersed with a,b,c as headings"""
+    #     return a + ":" + str(round(vector[0])) + " " + b + ":" + str(round(vector[1])) + " " + c + ":" + str(
+    #         round(vector[2]))
+    #
+    # def clamp(self, n, minn, maxn):
+    #     """
+    #     clamps values to lie between min and max
+    #     Args:
+    #         n: value to be clamped
+    #         minn: min value of clamp
+    #         maxn: max value of clamp
+    #
+    #     Returns:
+    #         Clamped value of n
+    #     """
+    #     if n < minn:
+    #         return minn
+    #     elif n > maxn:
+    #         return maxn
+    #     else:
+    #         return n
+    #
