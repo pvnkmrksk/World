@@ -5,7 +5,7 @@ parameters = {
 
     "loadWind": False,
     "loadOdour":True,
-    "loadTrajectory": True,
+    "loadTrajectory": False,
     "loadNullModels":False,
     "imposeStimulus": False,
     "loadingString": "rg",
@@ -25,7 +25,6 @@ parameters = {
     "odour3":"models/odour/3.png",
     "odour4":"models/odour/4.png",
     "pulseMode":False,
-    "packetFrequency":5,
     "odourDensity":0.4,
 
 
@@ -33,7 +32,7 @@ parameters = {
     "trialNo": 1,
 
     "generateWorld": False,
-    "maxSpeed": 3.5,
+    "maxSpeed": 3,
 
     "loadHUD": False,
     "loadWorld": True,
@@ -96,6 +95,10 @@ parameters = {
     # "playerInitPos": (64, 64, 3), # start in quadrant 3
     "playerInitH": 0,
     "windDirection": 190,
+
+    "packetFrequency": 10,
+    "packetDuration": 0.02,
+    "fieldRescale":20,
 
     "sphereZ": 4.9,
     "treeZ": 0,

@@ -31,10 +31,17 @@ def initPlot():
     #     from world import odourFieldGen, plumeStripGen
     #     odourFieldGen()
 
-    odourField = f.odourPacket(width=257, height=257, scale=scale,
-                                             packetFrequency=20, plot=False,
-                                             packetDuration=.02)
+    # odourField = f.odourPacket(width=257, height=257, scale=scale,
+    #                                          packetFrequency=20, plot=False,
+    #                                          packetDuration=.02)
+    odourField = f.odourPacket(width=parameters['worldSize'],
+                                             height=parameters['worldSize'],
+                                             scale=parameters['fieldRescale'],
+                                             packetFrequency=parameters['packetFrequency'],
+                                             plot=False,
+                                           velocity=parameters['maxSpeed'],
 
+                               packetDuration=parameters['packetDuration'])
 
     plt.imshow(odourField,cmap='Greys',interpolation=None,alpha=.1,aspect='auto')
     plt.tight_layout()
@@ -82,6 +89,7 @@ def init():
 def animate(i):
     global frame,scale
     frame=i
+
     data = np.hstack((scale*x[:i,np.newaxis], scale*y[:i, np.newaxis]))
     scat.set_offsets(data)
     return scat,
