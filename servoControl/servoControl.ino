@@ -106,7 +106,7 @@ void loop()
         case 99:
           if (pos == 1) {
             pinState = HIGH;
-            tone(buzzerPin,500);
+            tone(buzzerPin,1000);
           }
           if (pos == 0) {
             pinState = LOW;
