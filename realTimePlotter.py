@@ -32,7 +32,7 @@ def initPlot():
     #     odourFieldGen()
 
     odourField = f.odourPacket(width=257, height=257, scale=scale,
-                                             packetFrequency=15, plot=False,
+                                             packetFrequency=20, plot=False,
                                              packetDuration=.02)
 
 
