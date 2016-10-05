@@ -20,11 +20,11 @@
       <x>0</x>
       <y>0</y>
       <width>751</width>
-      <height>531</height>
+      <height>521</height>
      </rect>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>4</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -159,32 +159,6 @@
        <string>Gain</string>
       </property>
      </widget>
-     <widget class="QLineEdit" name="settingsFile">
-      <property name="geometry">
-       <rect>
-        <x>482</x>
-        <y>460</y>
-        <width>113</width>
-        <height>27</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>default.json</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="jsonBtn">
-      <property name="geometry">
-       <rect>
-        <x>610</x>
-        <y>460</y>
-        <width>111</width>
-        <height>27</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Na</string>
-      </property>
-     </widget>
      <widget class="QDoubleSpinBox" name="maxSpeed">
       <property name="geometry">
        <rect>
@@ -253,8 +227,6 @@
      <zorder>label</zorder>
      <zorder>gain</zorder>
      <zorder>label_2</zorder>
-     <zorder>settingsFile</zorder>
-     <zorder>jsonBtn</zorder>
      <zorder>maxSpeed</zorder>
      <zorder>label_13</zorder>
      <zorder>disabledFly</zorder>
@@ -517,7 +489,7 @@
        <string>generate world</string>
       </property>
      </widget>
-     <widget class="QCheckBox" name="loadHud">
+     <widget class="QCheckBox" name="loadHUD">
       <property name="geometry">
        <rect>
         <x>20</x>
@@ -624,6 +596,9 @@
         <height>27</height>
        </rect>
       </property>
+      <property name="maximum">
+       <number>999</number>
+      </property>
      </widget>
      <widget class="QLabel" name="label_149">
       <property name="geometry">
@@ -646,6 +621,9 @@
         <width>60</width>
         <height>27</height>
        </rect>
+      </property>
+      <property name="maximum">
+       <number>999</number>
       </property>
      </widget>
      <widget class="QLabel" name="label_158">
@@ -1008,6 +986,9 @@
         <height>27</height>
        </rect>
       </property>
+      <property name="maximum">
+       <number>999</number>
+      </property>
      </widget>
      <widget class="QLineEdit" name="modelHeightMap">
       <property name="geometry">
@@ -1211,8 +1192,11 @@
         <height>27</height>
        </rect>
       </property>
+      <property name="toolTip">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add &lt;span style=&quot; font-weight:600;&quot;&gt;2 &lt;/span&gt;items&lt;/p&gt;&lt;p&gt;(0, 0)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <property name="text">
-       <string/>
+       <string>()</string>
       </property>
      </widget>
      <widget class="QLineEdit" name="playerInitPos">
@@ -1266,6 +1250,9 @@
         <height>27</height>
        </rect>
       </property>
+      <property name="maximum">
+       <number>360</number>
+      </property>
      </widget>
      <widget class="QLabel" name="label_152">
       <property name="geometry">
@@ -1288,6 +1275,9 @@
         <width>61</width>
         <height>27</height>
        </rect>
+      </property>
+      <property name="maximum">
+       <number>360</number>
       </property>
      </widget>
      <widget class="QSpinBox" name="wbad">
@@ -1346,19 +1336,6 @@
        </rect>
       </property>
      </widget>
-     <widget class="QPushButton" name="bagTrajTopicsBtn">
-      <property name="geometry">
-       <rect>
-        <x>420</x>
-        <y>410</y>
-        <width>99</width>
-        <height>27</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>bagTrajTopics</string>
-      </property>
-     </widget>
      <widget class="QLineEdit" name="bagFullTopics">
       <property name="geometry">
        <rect>
@@ -1369,17 +1346,30 @@
        </rect>
       </property>
      </widget>
-     <widget class="QPushButton" name="bagFullTopicsBtn">
+     <widget class="QLabel" name="label_47">
       <property name="geometry">
        <rect>
-        <x>420</x>
+        <x>410</x>
         <y>370</y>
-        <width>99</width>
-        <height>27</height>
+        <width>121</width>
+        <height>31</height>
        </rect>
       </property>
       <property name="text">
        <string>bagFullTopics</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_48">
+      <property name="geometry">
+       <rect>
+        <x>410</x>
+        <y>410</y>
+        <width>121</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>bagTrajTopics</string>
       </property>
      </widget>
      <zorder>label_10</zorder>
@@ -1438,9 +1428,9 @@
      <zorder>wbas</zorder>
      <zorder>label_205</zorder>
      <zorder>bagTrajTopics</zorder>
-     <zorder>bagTrajTopicsBtn</zorder>
      <zorder>bagFullTopics</zorder>
-     <zorder>bagFullTopicsBtn</zorder>
+     <zorder>label_47</zorder>
+     <zorder>label_48</zorder>
     </widget>
     <widget class="QWidget" name="tab_64">
      <attribute name="title">
@@ -1469,7 +1459,7 @@
        </rect>
       </property>
       <property name="toolTip">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add &lt;span style=&quot; font-weight:600;&quot;&gt;4 &lt;/span&gt;items&lt;/p&gt;&lt;p&gt;[0, 0, 0, 0]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add &lt;span style=&quot; font-weight:600;&quot;&gt;x &lt;/span&gt;items&lt;/p&gt;&lt;p&gt;[]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="text">
        <string>[]</string>
@@ -1498,7 +1488,7 @@
        </rect>
       </property>
       <property name="toolTip">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add &lt;span style=&quot; font-weight:600;&quot;&gt;4 &lt;/span&gt;items&lt;/p&gt;&lt;p&gt;[0, 0, 0, 0]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add &lt;span style=&quot; font-weight:600;&quot;&gt;x &lt;/span&gt;items&lt;/p&gt;&lt;p&gt;[]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="text">
        <string>[]</string>
@@ -1855,6 +1845,19 @@
       </property>
       <property name="text">
        <string>signFlip</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="loadNullModels">
+      <property name="geometry">
+       <rect>
+        <x>520</x>
+        <y>380</y>
+        <width>131</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>loadNullModels</string>
       </property>
      </widget>
     </widget>
@@ -2350,6 +2353,9 @@
         <height>27</height>
        </rect>
       </property>
+      <property name="maximum">
+       <number>9999</number>
+      </property>
      </widget>
      <widget class="QLabel" name="label_256">
       <property name="geometry">
@@ -2372,6 +2378,9 @@
         <width>61</width>
         <height>27</height>
        </rect>
+      </property>
+      <property name="maximum">
+       <number>9999</number>
       </property>
      </widget>
      <widget class="QLabel" name="label_257">
@@ -2397,14 +2406,46 @@
    <widget class="QDialogButtonBox" name="buttonBox">
     <property name="geometry">
      <rect>
-      <x>140</x>
-      <y>540</y>
-      <width>586</width>
+      <x>55</x>
+      <y>530</y>
+      <width>671</width>
       <height>27</height>
      </rect>
     </property>
     <property name="standardButtons">
-     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::Open|QDialogButtonBox::Reset|QDialogButtonBox::RestoreDefaults|QDialogButtonBox::Save</set>
+     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::Open|QDialogButtonBox::Reset|QDialogButtonBox::RestoreDefaults|QDialogButtonBox::Save|QDialogButtonBox::SaveAll</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="currentLabel">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>560</y>
+      <width>481</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Plain</enum>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="startVRBtn">
+    <property name="geometry">
+     <rect>
+      <x>550</x>
+      <y>560</y>
+      <width>181</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>START VR</string>
     </property>
    </widget>
   </widget>

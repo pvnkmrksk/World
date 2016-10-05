@@ -1,6 +1,7 @@
-from beginner.msg import MsgFlystate, MsgTrajectory
+from World.msg import MsgFlystate, MsgTrajectory
 import rospy, sys
 from std_msgs.msg import String
+from params import parameters
 # modules
 # ------------------------------------------------------------------------------
 import numpy as np
@@ -23,17 +24,19 @@ def listener():
 
 
 def initPlot():
-
+    plt.axis([0,255,0,255])
+    # if parameters['loadOdour']:
+    #     from world import odourFieldGen, plumeStripGen
+    #     odourFieldGen()
     initPlot=WorldGen()
     initPlot.initPositions()
     initPlot.plotPositions()
-    plt.axis([0,255,0,255])
 
 
 
 rospy.init_node('plot')
 dur=200000
-dt=10/165.
+dt=30/165.
 x=np.zeros(dur)
 y=np.zeros(dur)
 frame=0

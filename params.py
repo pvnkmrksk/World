@@ -4,33 +4,37 @@ parameters = {
     # bools
 
     "loadWind": False,
-    "loadOdour": False,
+    "loadOdour":False,
+    "loadTrajectory": False,
     "loadNullModels":False,
-    "fly": "fly8",
+    "imposeStimulus": False,
+    "loadingString": "rg",
+    "gain":7,
+
+    "DCoffset": -0.002,
+    "DCoffsetIncrement": 0.012,
+
+    "fly": "fly14",
     "race": "colony apple",
-    "emergence": 20160507,
-    "age": 50,
-    "windQuad": [180, 180, -1, -1],  # -1 is open loop
-    "odourQuad":['s',0,'s',0], #0 is always off, 1 is always on, c is custom
+    "emergence": 20160817,
+    "windQuad": [-1, -1, -1, -1],  # -1 is open loop
+    "odourQuad":['c','c','c','c'], #0 is always off, 1 is always on, c is custom
     "odour1":"models/odour/1.png",
     "odour2":"models/odour/2.png",
     "odour3":"models/odour/3.png",
     "odour4":"models/odour/4.png",
     "pulseMode":False,
     "packetFrequency":5,
+    "odourDensity":0.4,
 
-    "loadingString": "rg",
-    "DCoffset": 0.216,
-    "DCoffsetIncrement": 0.002,
+
 
     "trialNo": 1,
 
-    "generateWorld": True,
-    "gain": 3.5,
+    "generateWorld": False,
     "maxSpeed": 3.5,
 
     "loadHUD": False,
-    "loadTrajectory": True,
     "loadWorld": True,
     "disabledFly": False,
 
@@ -54,6 +58,7 @@ parameters = {
     "quad": True,
     "posL": (32, 64),
     "posR": (96, 64),
+    # "bboxDist": 6.5,
     "bboxDist": 7.5,
     "maxBoutDur": 9900,  # frames
 
@@ -75,18 +80,19 @@ parameters = {
     "origin": (0, 0, 0),
 
     "lrGain": 1.0,
-    "lockFps": True,  # False,
+    "lockFps": False,  # False,
     "fps": 165,
     "trajectoryUpdateInterval": 165,  # frames between update,
 
     "sphereScale": 1.9,
-    "treeScale": 0.04,
+    "treeScale": 0.1,
 
-    "maxDistance": 65,
+    "maxDistance": 65,#90,#65,
     "camFOV": (180, 140),  # hfov, vfov,
 
     "worldSize": 257,  # relevant for world boundaries
-    "playerInitPos": (200, 170, 3), # start in quadrant 3
+    "playerInitPos": (64, 32, 3), # start in quadrant 3
+    # "playerInitPos": (64, 64, 3), # start in quadrant 3
     "playerInitH": 0,
     "windDirection": 190,
 
@@ -105,18 +111,17 @@ parameters = {
 
     "windowWidth": 4320,  # 1440,
     "windowHeight": 2560,
-    "bagTopics": "/rhag_camera/image_raw/compressed /kinefly/image_output /kinefly/flystate /trajectory /vr_camera/image_raw /servo_camera/image_raw/compressed",
+    "bagFullTopics": "/rhag_camera/image_raw/compressed /kinefly/image_output /servo_camera/image_raw/compressed /kinefly/flystate /trajectory  ",#/vr_camera/image_raw
     "bagTrajTopics": "/kinefly/flystate /trajectory ",
 
 
-    "imposeStimulus":True,
-    "durList": [4, 2, 1],
-    "headingRate": [2, 4, 8],
+    "durList": [3, 3, 3,3,3,3],
+    "headingRate": [0.25,0.5,1,2, 4, 8],
 
     "fps": 165,  # repeats items with number of frames since all durations in seconds
 
-    "intraTrial": 4,  # duration between two imposed turns within a sweep
-    "interTrial": 12,  # duration between two sweeps
+    "intraTrial": 3,  # duration between two imposed turns within a sweep
+    "interTrial": 3,  # duration between two sweeps
     # "interTrial": 12,  # duration between two sweeps
     "startDur": 12,  # duration of the first turn
     "stopDur": 2,  # duration of the last turn
@@ -130,13 +135,15 @@ parameters = {
 
     "gpMode": True,  # uses GP instead of AP for durations list gen
     "stepMode": True,  # uses number steps instead of using start and end
-    "durListGen": True,  # Generate dur list instead of manually entered
-    "headingListGen": True,  # generate heading List ,else use manully entered list
+    "durListGen": False,  # Generate dur list instead of manually entered
+    "headingListGen": False,  # generate heading List ,else use manully entered list
     "areaMode": True,  # Area mode if true, will genreate heading based on given value instead of startHeading
     "signFlip": True,  # flip direction between each turn
     "orderFlip": True,  # flip entire order of sweep
 
-    "mouseMode":False
+    "mouseMode":False,
+    "humanDisplay":False
 
 }
+
 
