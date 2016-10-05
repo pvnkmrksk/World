@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'GUI_VR.ui'
+# Form implementation generated from reading ui file 'makeGUI.ui'
 #
 # Created: Tue Sep 27 14:27:19 2016
 #      by: PyQt4 UI code generator 4.10.4

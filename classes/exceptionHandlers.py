@@ -21,7 +21,6 @@ class ExceptionHandlers():
                 self.parameters = json.load(jfile)
                 for item in self.parameters['toTuplify']:
                     self.parameters[item]=tuple(self.parameters[item])
-                    
     def exceptionReplay(self):
         """
         Replay world playsback position and orientation, can be additionally used for screen capturing
@@ -80,3 +79,25 @@ class ExceptionHandlers():
             roscore = subprocess.Popen('roscore')  # then start roscore yourself
         time.sleep(1)  # wait a bit to be sure the roscore is really launched
         subprocess.Popen(["roslaunch", "Kinefly", "main.launch"])  # start kinefly
+
+    def exceptionFinally(self):
+        PROCNAME = ['python', 'realTimePlotter.py']
+        import psutil
+        import sys
+
+        for proc in psutil.process_iter():
+            # check whether the process name matches and close plotter window
+            if proc.cmdline == PROCNAME:
+                proc.kill()
+
+        try:
+            servo.move(99, 0)  # close valve to prevent odour bleeding through
+            servo.move(1, 90)  # close valve to prevent odour bleeding through
+
+        except  (serial.serialutil.SerialException, NameError):
+            print "arduino faulty"
+            pass  # arduino disconnected or faulty, let go
+
+        print "\n\n\nQuitting Now\n"
+
+        sys.exit()

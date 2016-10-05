@@ -1,7 +1,7 @@
 import sys, os
 import json_tricks as json
 from PyQt4.QtGui import QApplication, QMainWindow
-from GUI_VR import Ui_MainWindow
+from makeGUI import Ui_MainWindow
 from PyQt4 import QtCore, QtGui
 import ast
 import subprocess
