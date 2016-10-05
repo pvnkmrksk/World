@@ -202,7 +202,7 @@ class MyApp(ShowBase):
             self.scale=20
 
             self.odourField = myFieldGen.odourPacket(width=257,height=257,scale=self.scale,
-                                                     packetFrequency=15,plot=False,
+                                                     packetFrequency=20,plot=False,
                                                      packetDuration=.02)
             # self.odourField = myFieldGen.odourField(oq=parameters['odourQuad'],plot=True)
 
