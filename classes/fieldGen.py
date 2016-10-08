@@ -14,6 +14,15 @@ class FieldGen():
             plt.show(block=False)
 
     def windField(self,width,height,wq,plot=False):
+        '''
+
+        :param width: width of the wind field
+        :param height: height of the wind field
+        :param wq: wind quad. A list of 4 items setting the angle of that quadrant
+        :param plot: whether to plot the image
+        :return:
+            windField: a matrix filled with 4 quads of particular windDirection
+        '''
         windField = np.zeros([width, height])
 
         offset = (width - 1) / 2
