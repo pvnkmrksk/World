@@ -34,17 +34,17 @@ def initPlot():
     # odourField = f.odourPacket(width=257, height=257, scale=scale,
     #                                          packetFrequency=20, plot=False,
     #                                          packetDuration=.02)
-    odourField = f.odourPacket(width=parameters['worldSize'],
-                                             height=parameters['worldSize'],
-                                             scale=parameters['fieldRescale'],
-                                             packetFrequency=parameters['packetFrequency'],
-                                             plot=False,
-                                           velocity=parameters['maxSpeed'],
-
-                               packetDuration=parameters['packetDuration'])
-
-    plt.imshow(odourField,cmap='Greys',interpolation=None,alpha=.1,aspect='auto')
-    plt.tight_layout()
+    # odourField = f.odourPacket(width=parameters['worldSize'],
+    #                                          height=parameters['worldSize'],
+    #                                          scale=parameters['fieldRescale'],
+    #                                          packetFrequency=parameters['packetFrequency'],
+    #                                          plot=False,
+    #                                        velocity=parameters['maxSpeed'],
+    #
+    #                            packetDuration=parameters['packetDuration'])
+    #
+    # plt.imshow(odourField,cmap='Greys',interpolation=None,alpha=.1,aspect='auto')
+    # plt.tight_layout()
 
     initPlot=WorldGen()
     initPlot.initPositions()
@@ -53,13 +53,18 @@ def initPlot():
 
 
 rospy.init_node('plot')
-dur=200000
+dur=1
+# dur=200000
 dt=30./parameters['fps']
 x=np.zeros(dur)
 y=np.zeros(dur)
 frame=0
 
 listener()
+for i in range(1000):
+    print x,y
+    import time
+    time.sleep(0.1)
 plt.close('all')  # close all previous plots
 fig = plt.figure(1, figsize=(12,12))
 ax = plt.axes()

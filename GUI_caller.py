@@ -1,11 +1,18 @@
-import sys, os
+import sys, os, rospy
 import json_tricks as json
 from PyQt4.QtGui import QApplication, QMainWindow
 from makeGUI import Ui_MainWindow
 from PyQt4 import QtCore, QtGui
+from PyQt4.QtCore import QTimer
+from PyQt4.Qwt5 import Qwt
 import ast
 import subprocess
+from PyQt4.Qwt5.Qwt import QwtCompass, QwtDial
+import pyqtgraph as pg
+from World.msg import MsgTrajectory
+from classes.rosSubscriber import RosSubscriber
 
+import numpy as np
 pathRun=os.path.abspath(os.path.split(sys.argv[0])[0]) #path of the runfile
 pathJson= pathRun + '/jsonFiles/'
 pathModel = pathRun + '/models/'
@@ -13,6 +20,10 @@ jsonDefault= pathJson + 'default.json' #path of 'default.json' #default .json-fi
 jsonRecent= pathJson + 'recent.json'
 jsonCurrent=jsonRecent#pathJson+'temp.json' #modify a temp json file
 jsonVR= pathJson + 'VR.json'
+
+
+
+
 
 def saveSettings(win, path):
     '''
@@ -94,7 +105,7 @@ def saveSettings(win, path):
 
     with open(path, 'w') as dictFile:#dump everything
         json.dump(settings, dictFile, sort_keys=True)
-        print json.dumps(settings, sort_keys=True)
+        # print json.dumps(settings, sort_keys=True)
 
 
     ui.statusbar.showMessage('Settings successfully saved to ' + path )
@@ -128,7 +139,8 @@ def loadSettings(win,path):
             set = json.load(dictFile)
             for item in set['toTuplify']:
                 set[item]=tuple(set[item])
-            print set
+            # print set
+
 
     except IOError:
             ui.statusbar.showMessage('.json-file not changed')
@@ -190,7 +202,8 @@ def loadSettings(win,path):
 
 
     ui.statusbar.showMessage('Settings successfully loaded from ' +path)
-    ui.currentLabel.setText(jsonCurrent)
+    # ui.currentLabel.setText(jsonCurrent)
+
 
 def openLoad(win):
     '''
@@ -263,8 +276,18 @@ def saveClose(win):
     win.close()
 
 def startVR():
-    subprocess.Popen(['python', 'main.py'])
+    global procVR
+    procVR=subprocess.Popen(['python', 'main.py'])
     #showError("VR is not available")
+def stopVR():
+    procVR.kill()
+
+def startRoscore():
+    subprocess.Popen(['roscore'])
+
+def startWbad():
+    subprocess.Popen(["roslaunch", "Kinefly", "main.launch"])  # start kinefly
+
 
 if __name__ == '__main__':
 #necessary for getting the GUI running
@@ -318,11 +341,46 @@ if __name__ == '__main__':
 
     resetBtn=ui.buttonBox.button(QtGui.QDialogButtonBox.Reset)
     resetBtn.clicked.connect(lambda: loadSettings(window, jsonCurrent))
+
+
     #todo. open the last tab on close
 
 
-    startVRBtn = ui.startVRBtn
-    startVRBtn.clicked.connect(lambda: startVR())
+    ui.startVRBtn.clicked.connect(lambda: startVR())
+    ui.stopVRBtn.clicked.connect(lambda: stopVR())
+    ui.roscoreBtn.clicked.connect(lambda: startRoscore())
+    ui.wbadBtn.clicked.connect(lambda: startWbad())
+    ui.Compass.setNeedle(Qwt.QwtDialSimpleNeedle(Qwt.QwtDialSimpleNeedle.Arrow))
+    ui.Compass.setOrigin(270)
+
+    traj = 0
+    def clbk(data):
+        global traj
+        traj = data
+        return traj
+
+    RosSubscriber('GUI', '/trajectory', MsgTrajectory, clbk)
+    my_plot = pg.PlotWidget()
+    ui.gridLayout_5.addWidget(my_plot)
+    s1 = pg.ScatterPlotItem(size=2, pen=pg.mkPen(None), brush=pg.mkBrush(255, 255, 255, 120))
+    my_plot.setRange(xRange=(0,255),yRange=(0,255))
+    def tick():
+        ui.Compass.setValue(traj.orientation.x)
+        spots = [{'pos': np.array([traj.position.x,traj.position.y])
+                     , 'data': 1} ]
+        #todo.add reset range and clear data
+
+        s1.addPoints(spots)
+        my_plot.addItem(s1)
+
+
+    timer = QTimer()
+    timer.timeout.connect(tick)
+    timer.start(100)
+
+    # run event loop so python doesn't exit
+    # print sub.
+    # print sub/trajectory/orientation/x
 
     callLooper(myDict)
     try:

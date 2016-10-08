@@ -17,7 +17,6 @@ from classes.bagControl import BagControl
 from classes.fieldGen import FieldGen
 from classes.helper import Helper
 from classes.exceptionHandlers import ExceptionHandlers
-import servo
 # from myApp import MyApp
 
 
@@ -45,10 +44,14 @@ import numpy as np
 import easygui
 import pandas as pd
 
-e=ExceptionHandlers(parameters)
-from importHelper import * #file with just a bunch of imports
+e = ExceptionHandlers(parameters)
+from importHelper import *  # file with just a bunch of imports
+if parameters['loadWind']:
+    import servo
 
-helpMe=Helper()
+helpMe = Helper()
+
+
 class MyApp(ShowBase):
     """
     Initialize windows, params, I/O and feedback, taskUpdate
@@ -73,7 +76,7 @@ class MyApp(ShowBase):
                         str(int(parameters["windowHeight"] / parameters["captureScale"])))  # set window size
 
         # loadPrcFileData('', 'fullscreen true')
-        loadPrcFileData('', 'want-pstats true')
+        # loadPrcFileData('', 'want-pstats true')
 
         ShowBase.__init__(self)  # start the app
 
@@ -155,7 +158,7 @@ class MyApp(ShowBase):
         self.bin = 60
         self.imposeResponseArr = np.zeros(self.bin)
 
-        self.phase=0
+        self.phase = 0
 
     def initInput(self):
         '''
@@ -193,38 +196,28 @@ class MyApp(ShowBase):
         props.setTitle('RhagVR')
         self.win.requestProperties(props)
 
-        myFieldGen=FieldGen()
-        self.scale=1
+        myFieldGen = FieldGen()
+        self.scale = 1
         if parameters["loadWind"]:
             # self.windFieldGen()
-            self.windField=myFieldGen.windField()
+            self.windField = myFieldGen.windField()
         if parameters["loadOdour"]:
-            self.beep = self.loader.loadSfx("beep.wav")
+            self.beep = self.loader.loadSfx("models/sounds/beep.wav")
             self.beep.setLoop(1)
             self.beep.play()  # start playing the sound seamlessly
+            self.scale = 1
 
-            # self.odourField = odourFieldGen()
-            self.scale=1
-
-            # self.odourField=self.packetFrequencyGen()
             from skimage.io import imread
-            self.odourField=(np.rot90(imread(
-                '/home/pavan/catkin/src/world/models/odour/s.png'),3))/25.5
-            plt.imshow(self.odourField,cmap='Greys')
-            plt.show(block=False)
+            self.odourField = (np.rot90(imread(
+                '/home/pavan/catkin/src/world/models/odour/s.png'), 3)) / 25.5
+            # plt.imshow(self.odourField, cmap='Greys')
+            # plt.show(block=False)
             # self.odourField = myFieldGen.odourPacket(width=257,height=257,scale=self.scale,
             #                                          packetFrequency=20,plot=False,
             #                                          packetDuration=.02)
             #
             #
             # self.odourField = myFieldGen.odourField(oq=parameters['odourQuad'],plot=True)
-
-
-    def packetFrequencyGen(self,width=257,height=257,frequency=5 ):
-        field=np.ones([width,height])*frequency
-        return field
-
-
 
     def initFeedback(self):
         '''
@@ -408,10 +401,8 @@ class MyApp(ShowBase):
             None
         """
         # global plotter
-        self.worldFilename = "models/world_" + "size:" + str(parameters["modelSizeSuffix"]) + "_obj:" \
-                             + str(parameters["loadingString"]) + "_num:" + str(parameters["widthObjects"]) \
-                             + "x" + str(parameters["heightObjects"]) + "_lattice:" \
-                             + str(parameters["lattice"]) + ".bam"
+        self.worldFilename = "models/world_" + "size:" + parameters["modelSizeSuffix"] \
+                             + "_obj:" + parameters["loadingString"] + ".bam"
 
         print "model file exists:", os.path.isfile(self.worldFilename)
 
@@ -531,10 +522,6 @@ class MyApp(ShowBase):
         """
         self.wbad = data.left.angles[0] - data.right.angles[0] + parameters["DCoffset"]
         self.wbas = data.left.angles[0] + data.right.angles[0]
-        self.scaledWbad = parameters["lrGain"] * data.left.angles[0] - data.right.angles[0]
-        # todo.scrap remove disabled fly
-        if parameters["disabledFly"]:
-            self.wbad = self.scaledWbad
         return self.wbad
 
     def publisher(self, data):
@@ -843,7 +830,7 @@ class MyApp(ShowBase):
                 if parameters["quad"]:
                     self.resetPosition("rand")
                 else:
-                    self.player.setX(parameters["worldSize"]-1)
+                    self.player.setX(parameters["worldSize"] - 1)
 
             if (self.player.getY() < 0):
                 if parameters["quad"]:
@@ -855,7 +842,7 @@ class MyApp(ShowBase):
                 if parameters["quad"]:
                     self.resetPosition("rand")
                 else:
-                    self.player.setY(parameters["worldSize"]-1)
+                    self.player.setY(parameters["worldSize"] - 1)
 
             # todo.fix what is gthis? respect quad boundary and time reset
             if parameters["quad"]:
@@ -865,7 +852,7 @@ class MyApp(ShowBase):
                 if (self.player.getY() > parameters["offset"] and
                             self.player.getY() < (parameters["offset"] + 1)):
                     self.resetPosition("rand")
-            #todo.fix document and clean the timer
+            # todo.fix document and clean the timer
             if self.decayTime > 60:
                 parameters["speed"] = 0
                 self.keyMap["closed"] = 0
@@ -1187,6 +1174,7 @@ class MyApp(ShowBase):
 
         # print "servoangle is", self.servoAngle
         servo.move(1, self.servoAngle)
+
     #
     # def windFieldGen(self):
     #     self.windField = np.zeros([parameters["worldSize"], parameters["worldSize"]])
@@ -1207,39 +1195,40 @@ class MyApp(ShowBase):
         # self.valve = (self.odourField[1,1])
         # print self.valve
         # self.valve = int(self.odourField[int(self.player.getX()), int(self.player.getY())])
-#        self.valve = int(self.odourField[int(self.player.getX()), int(self.player.getY())])
+        #        self.valve = int(self.odourField[int(self.player.getX()), int(self.player.getY())])
 
         # self.valve = int(self.odourField[int(self.player.getX()*self.scale), int(self.player.getY()*self.scale)])
 
 
-        self.currentPf = int(self.odourField[int(self.player.getX()*self.scale), int(self.player.getY()*self.scale)])
-        if self.currentPf>0:
-            self.currentTau = parameters['fps']/self.currentPf
+        self.currentPf = int(
+            self.odourField[int(self.player.getX() * self.scale), int(self.player.getY() * self.scale)])
+        if self.currentPf > 0:
+            self.currentTau = parameters['fps'] / self.currentPf
         else:
             self.currentTau = None
 
-        if self.currentPf>0:
-            if (self.phase % self.currentTau)< (parameters['fps']*parameters['packetDur']):
-                self.valve=1
+        if self.currentPf > 0:
+            if (self.phase % self.currentTau) < (parameters['fps'] * parameters['packetDur']):
+                self.valve = 1
             else:
-                self.valve=0
+                self.valve = 0
 
         else:
-            self.valve=0
+            self.valve = 0
 
-        self.phase+=1
+        self.phase += 1
 
         if self.valve:
             # if self.beep.status()!=self.beep.PLAYING:
-                # self.beep.play()
+            # self.beep.play()
             self.beep.setVolume(1)
         else:
             # if self.beep.status()==self.beep.PLAYING:
-                # self.beep.stop()
+            # self.beep.stop()
             self.beep.setVolume(0)
 
-        # if parameters["loadWind"]:
-        #     servo.move(99, self.valve)
+            # if parameters["loadWind"]:
+            #     servo.move(99, self.valve)
 
     # testing functions not stable
     # screen capture
@@ -1267,51 +1256,51 @@ class MyApp(ShowBase):
         #     for key in list:
         #         exec (key)
 
-                # # labels
-    # def makeStatusLabel(self, i):
-    #     return OnscreenText(style=2, fg=(0, 0, 0, 0.12), bg=(0.4, 0.4, 0.4, 0.18),
-    #                         scale=0.04, pos=(0.5, 0.5 - (.04 * i)), mayChange=1)
-    #
-    # def makeLabels(self):
-    #     self.positionLabel = self.makeStatusLabel(0)
-    #     self.orientationLabel = self.makeStatusLabel(1)
-    #     self.speedLabel = self.makeStatusLabel(2)
-    #     self.gainLabel = self.makeStatusLabel(3)
-    #     self.servoLabel = self.makeStatusLabel(4)
-    #     self.closedLabel = self.makeStatusLabel(5)
-    #     self.bagRecordingLabel = self.makeStatusLabel(6)
-    #
-    # def updateLabel(self):
-    #     self.positionLabel.setText(self.vec32String(self.player.getPos(), "x", "y", "z"))
-    #     self.orientationLabel.setText(self.vec32String(self.player.getHpr(), "H", "P", "R"))
-    #     self.speedLabel.setText("Speed: " + str(parameters["speed"]))
-    #     self.gainLabel.setText("Gain: " + str(parameters["gain"]))
-    #
-    #     self.servoLabel.setText("Servo Angle: " + str(self.servoAngle))
-    #     self.closedLabel.setText("Closed Loop: " + str(bool(self.keyMap["closed"])))
-    #     self.bagRecordingLabel.setText("Recording Bag: " + str(bool(self.bagRecordingState)))
-    #
-    # # content handlers
-    # def vec32String(self, vector, a, b, c):
-    #     """returns a rounded string of vec 3 interspersed with a,b,c as headings"""
-    #     return a + ":" + str(round(vector[0])) + " " + b + ":" + str(round(vector[1])) + " " + c + ":" + str(
-    #         round(vector[2]))
-    #
-    # def clamp(self, n, minn, maxn):
-    #     """
-    #     clamps values to lie between min and max
-    #     Args:
-    #         n: value to be clamped
-    #         minn: min value of clamp
-    #         maxn: max value of clamp
-    #
-    #     Returns:
-    #         Clamped value of n
-    #     """
-    #     if n < minn:
-    #         return minn
-    #     elif n > maxn:
-    #         return maxn
-    #     else:
-    #         return n
-    #
+        # # labels
+        # def makeStatusLabel(self, i):
+        #     return OnscreenText(style=2, fg=(0, 0, 0, 0.12), bg=(0.4, 0.4, 0.4, 0.18),
+        #                         scale=0.04, pos=(0.5, 0.5 - (.04 * i)), mayChange=1)
+        #
+        # def makeLabels(self):
+        #     self.positionLabel = self.makeStatusLabel(0)
+        #     self.orientationLabel = self.makeStatusLabel(1)
+        #     self.speedLabel = self.makeStatusLabel(2)
+        #     self.gainLabel = self.makeStatusLabel(3)
+        #     self.servoLabel = self.makeStatusLabel(4)
+        #     self.closedLabel = self.makeStatusLabel(5)
+        #     self.bagRecordingLabel = self.makeStatusLabel(6)
+        #
+        # def updateLabel(self):
+        #     self.positionLabel.setText(self.vec32String(self.player.getPos(), "x", "y", "z"))
+        #     self.orientationLabel.setText(self.vec32String(self.player.getHpr(), "H", "P", "R"))
+        #     self.speedLabel.setText("Speed: " + str(parameters["speed"]))
+        #     self.gainLabel.setText("Gain: " + str(parameters["gain"]))
+        #
+        #     self.servoLabel.setText("Servo Angle: " + str(self.servoAngle))
+        #     self.closedLabel.setText("Closed Loop: " + str(bool(self.keyMap["closed"])))
+        #     self.bagRecordingLabel.setText("Recording Bag: " + str(bool(self.bagRecordingState)))
+        #
+        # # content handlers
+        # def vec32String(self, vector, a, b, c):
+        #     """returns a rounded string of vec 3 interspersed with a,b,c as headings"""
+        #     return a + ":" + str(round(vector[0])) + " " + b + ":" + str(round(vector[1])) + " " + c + ":" + str(
+        #         round(vector[2]))
+        #
+        # def clamp(self, n, minn, maxn):
+        #     """
+        #     clamps values to lie between min and max
+        #     Args:
+        #         n: value to be clamped
+        #         minn: min value of clamp
+        #         maxn: max value of clamp
+        #
+        #     Returns:
+        #         Clamped value of n
+        #     """
+        #     if n < minn:
+        #         return minn
+        #     elif n > maxn:
+        #         return maxn
+        #     else:
+        #         return n
+        #

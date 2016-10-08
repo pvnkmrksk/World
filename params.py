@@ -10,6 +10,7 @@ parameters = {
     "imposeStimulus": False,
     "loadingString": "rg",
     "gain":7,
+    "generateWorld": False,
 
     "DCoffset": -0.002,
     "DCoffsetIncrement": 0.012,
@@ -24,21 +25,15 @@ parameters = {
     "odour2":"models/odour/2.png",
     "odour3":"models/odour/3.png",
     "odour4":"models/odour/4.png",
-    "pulseMode":False,
-
-    "packetFrequency":1,
-    "odourDensity":0.4,
-    "packetDur":4,
-
-
     "trialNo": 1,
 
-    "generateWorld": False,
+    "packetFrequency":1,
+    "packetDur":4,
+
     "maxSpeed": 7,
 
     "loadHUD": False,
     "loadWorld": True,
-    "disabledFly": False,
 
     "frameRecord": False,
     "replayWorld": False,
@@ -56,30 +51,22 @@ parameters = {
     "treePath": "models/treeHighB.egg",
     "treeTexPath": "models/BarkBrown.tga",
 
-    "hcp": False,
-    "quad": False,
+    "beepPath":"models/sounds/beep.wav",
+
+    "quad": True,
     "resetObject" : True,
     "posL": (32, 64),
     "posR": (96, 64),
-    # "bboxDist": 6.5,
     "bboxDist": 7.5,
     "maxBoutDur": 9900,  # frames
 
     "modelSizeSuffix": "257",
     "modelHeightMap": "models/height" + "257" + "0.png",
-    # "modelTextureMap": "models/texture_green_" + "257" + ".png",
     "modelTextureMap": "models/texture" + "257" + "_quadrant_t2_sym.png",
     "modelTextureMapNull": "models/texture" + "257" + "_quadrant_t2_sym_null.png",
     "skyMap":'models/sky.egg',
     "skyMapNull":'models/sky_null.egg',
-    # "modelHeightMap": "models/height" + "257" + "0.png",
-    # "modelTextureMap": "models/texture" + "257" + "s.png",rqtpl
 
-    "killWorldGen": True,
-
-    "heightObjects": 10,
-    "widthObjects": 10,
-    "lattice": 25,
     "origin": (0, 0, 0),
 
     "lrGain": 1.0,
