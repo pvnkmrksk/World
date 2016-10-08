@@ -32,7 +32,6 @@ try :
 
 except:
     print "moving on"
-    pass
 # except serial.SerialException:
 #     try:
 #         ser = serial.Serial(usbport1, 9600)

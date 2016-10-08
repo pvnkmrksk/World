@@ -1,4 +1,3 @@
-import json
 import pandas as pd
 import serial
 import rostopic
@@ -11,12 +10,13 @@ class ExceptionHandlers():
         self.exceptionGUI()
         self.exceptionReplay()
         self.exceptionArduino()
-        # self.exceptionROS()
+        self.exceptionROS()
 
     def exceptionGUI(self):
         useGui = False
-        from GUI_caller import jsonVR
         if useGui:
+            from GUI_caller import jsonVR
+
             with open(jsonVR, 'r') as jfile:
                 self.parameters = json.load(jfile)
                 for item in self.parameters['toTuplify']:
@@ -77,8 +77,10 @@ class ExceptionHandlers():
             rostopic.get_topic_class('/rosout')  # is_rosmaster_running = True
         except rostopic.ROSTopicIOException as e:
             roscore = subprocess.Popen('roscore')  # then start roscore yourself
-        time.sleep(1)  # wait a bit to be sure the roscore is really launched
-        subprocess.Popen(["roslaunch", "Kinefly", "main.launch"])  # start kinefly
+            time.sleep(1)  # wait a bit to be sure the roscore is really launched
+
+            subprocess.Popen(["roslaunch", "Kinefly", "main.launch"])  # start kinefly
+
 
     def exceptionFinally(self):
         PROCNAME = ['python', 'realTimePlotter.py']

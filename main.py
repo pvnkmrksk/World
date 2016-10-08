@@ -2,6 +2,7 @@
 from classes.exceptionHandlers import ExceptionHandlers
 from myApp import MyApp
 from params import parameters
+
 e=ExceptionHandlers(parameters)
 
 app = MyApp()
