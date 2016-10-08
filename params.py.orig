@@ -25,16 +25,19 @@ parameters = {
     "odour3":"models/odour/3.png",
     "odour4":"models/odour/4.png",
     "pulseMode":False,
+<<<<<<< Updated upstream
+=======
 
-    "packetFrequency":1,
+    "packetFrequency":5,
+>>>>>>> Stashed changes
     "odourDensity":0.4,
-    "packetDur":4,
+    "packetDur":.1,
 
 
     "trialNo": 1,
 
     "generateWorld": False,
-    "maxSpeed": 7,
+    "maxSpeed": 3,
 
     "loadHUD": False,
     "loadWorld": True,
@@ -57,8 +60,7 @@ parameters = {
     "treeTexPath": "models/BarkBrown.tga",
 
     "hcp": False,
-    "quad": False,
-    "resetObject" : True,
+    "quad": True,
     "posL": (32, 64),
     "posR": (96, 64),
     # "bboxDist": 6.5,
@@ -99,6 +101,10 @@ parameters = {
     "playerInitH": 0,
     "windDirection": 190,
 
+    "packetFrequency": 10,
+    "packetDuration": 0.02,
+    "fieldRescale":20,
+
     "sphereZ": 4.9,
     "treeZ": 0,
 
@@ -122,7 +128,7 @@ parameters = {
     "durList": [3, 3, 3,3,3,3],
     "headingRate": [0.25,0.5,1,2, 4, 8],
 
-    "fps": 60,  # repeats items with number of frames since all durations in seconds
+    "fps": 165,  # repeats items with number of frames since all durations in seconds
 
     "intraTrial": 3,  # duration between two imposed turns within a sweep
     "interTrial": 3,  # duration between two sweeps
