@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 import json_tricks as json
 import sys
 
-from params import parameters
-
+from helping.helper import paramsFromGUI
+parameters=paramsFromGUI()
 if parameters["replayWorld"]:
     import easygui
     import pandas as pd

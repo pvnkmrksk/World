@@ -1,7 +1,7 @@
 import sys, os, rospy
 import json_tricks as json
 from PyQt4.QtGui import QApplication, QMainWindow
-from makeGUI import Ui_MainWindow
+from makeGUI import Ui_RhagGUI
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import QTimer
 from PyQt4.Qwt5 import Qwt
@@ -11,6 +11,12 @@ from PyQt4.Qwt5.Qwt import QwtCompass, QwtDial
 import pyqtgraph as pg
 from World.msg import MsgTrajectory
 from classes.rosSubscriber import RosSubscriber
+#
+# try:
+#     fromUtf8 = QtCore.QString.fromUtf8
+# except AttributeError:
+#     def _fromUtf8(s):
+#         return s
 
 import numpy as np
 pathRun=os.path.abspath(os.path.split(sys.argv[0])[0]) #path of the runfile
@@ -20,6 +26,7 @@ jsonDefault= pathJson + 'default.json' #path of 'default.json' #default .json-fi
 jsonRecent= pathJson + 'recent.json'
 jsonCurrent=jsonRecent#pathJson+'temp.json' #modify a temp json file
 jsonVR= pathJson + 'VR.json'
+traj = 0
 
 
 
@@ -37,6 +44,8 @@ def saveSettings(win, path):
     :return:
 
     '''
+    #todo. rebase repetitive settings
+
 
     settings = {}
     box = win.findChildren(QtGui.QCheckBox)
@@ -278,6 +287,8 @@ def saveClose(win):
 def startVR():
     global procVR
     procVR=subprocess.Popen(['python', 'main.py'])
+    ui.tabWidget.setCurrentIndex(5)
+
     #showError("VR is not available")
 def stopVR():
     procVR.kill()
@@ -289,30 +300,45 @@ def startWbad():
     subprocess.Popen(["roslaunch", "Kinefly", "main.launch"])  # start kinefly
 
 
+def clbk(data):
+    global traj
+    traj = data
+    return traj
+
+
+def tick():
+    try:
+        ui.Compass.setValue(traj.orientation.x)
+        if not ui.pausePlot.isChecked():
+            spots = [{'pos': np.array([traj.position.x, traj.position.y])
+                         , 'data': 1}]
+
+            # todo.add reset range and clear data
+            s1.addPoints(spots)
+            my_plot.addItem(s1)
+    except AttributeError:
+        pass
+
+def resetView():
+    my_plot.setRange(xRange=(0,255),yRange=(0,255))
+
+def clearPlot():
+    # s1.points()
+    s1.clear()
+    my_plot.clear()
+
+    # my_plot.removeItem(s1)
+    #todo. clear plot os not working
 if __name__ == '__main__':
 #necessary for getting the GUI running
     app = QApplication(sys.argv)
     window = QMainWindow()
-    ui = Ui_MainWindow()
+    ui = Ui_RhagGUI()
     ui.setupUi(window)
 
-    myDict={
-            'skyMapBtn':[ui.skyMapBtn,showFileDialog,ui.skyMap],
-            'skyMapNullBtn':[ui.skyMapNullBtn,showFileDialog,ui.skyMapNull],
-            'greenTexPath':[ui.greenTexPathBtn,showFileDialog,ui.greenTexPath],
-            'redTexPath':[ui.redTexPathBtn, showFileDialog, ui.redTexPath],
-            'spherePath':[ui.spherePathBtn, showFileDialog, ui.spherePath],
-            'treePath':[ui.treePathBtn, showFileDialog, ui.treePath],
-            'treeTexPath':[ui.treeTexPathBtn, showFileDialog, ui.treeTexPath],
-            'odour1':[ui.odourBtn1, showFileDialog, ui.odour1],
-            'odour2':[ui.odourBtn2, showFileDialog, ui.odour2],
-            'odour3':[ui.odourBtn3, showFileDialog, ui.odour3],
-            'odour4': [ui.odourBtn4, showFileDialog, ui.odour4],
 
-            }
-
-#functions for several buttons
-#applying and loading settings, closing etc.
+    #functions for several buttons
+    #applying and loading settings, closing etc.
 
     okBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.Ok)#todo: Ok needs a function
     okBtn.clicked.connect(lambda : saveSettings(window, jsonVR))
@@ -350,43 +376,51 @@ if __name__ == '__main__':
     ui.stopVRBtn.clicked.connect(lambda: stopVR())
     ui.roscoreBtn.clicked.connect(lambda: startRoscore())
     ui.wbadBtn.clicked.connect(lambda: startWbad())
+    ui.resetView.clicked.connect(lambda :resetView())
+    ui.clearPlot.clicked.connect(lambda :clearPlot())
+
     ui.Compass.setNeedle(Qwt.QwtDialSimpleNeedle(Qwt.QwtDialSimpleNeedle.Arrow))
-    ui.Compass.setOrigin(270)
-
-    traj = 0
-    def clbk(data):
-        global traj
-        traj = data
-        return traj
-
+    ui.Compass.setOrigin(270)# to set north as north
+    # ui.Compass.connect(ui.lcdNumber_3.display,QtCore.SIGNAL(("valueChanged(double)")))
+    def setHeadingLcd():
+        ui.lcdNumber_3.display(ui.Compass.value()-90)#offset origin to E and not North
+    ui.Compass.valueChanged.connect(lambda:setHeadingLcd())
+    # QtCore.QObject.connect(ui.Compass, QtCore.SIGNAL(("valueChanged(double)")), ui.lcdNumber_3.display)  #always start rosnode inside main else imports end in loop
     RosSubscriber('GUI', '/trajectory', MsgTrajectory, clbk)
     my_plot = pg.PlotWidget()
-    ui.gridLayout_5.addWidget(my_plot)
+    ui.trajectoryLayout.addWidget(my_plot)
     s1 = pg.ScatterPlotItem(size=2, pen=pg.mkPen(None), brush=pg.mkBrush(255, 255, 255, 120))
-    my_plot.setRange(xRange=(0,255),yRange=(0,255))
-    def tick():
-        ui.Compass.setValue(traj.orientation.x)
-        spots = [{'pos': np.array([traj.position.x,traj.position.y])
-                     , 'data': 1} ]
-        #todo.add reset range and clear data
-
-        s1.addPoints(spots)
-        my_plot.addItem(s1)
+    resetView()
 
 
     timer = QTimer()
     timer.timeout.connect(tick)
     timer.start(100)
 
-    # run event loop so python doesn't exit
-    # print sub.
-    # print sub/trajectory/orientation/x
+    myDict = {
+        'greenTexPath': [ui.greenTexPathBtn, showFileDialog, ui.greenTexPath],
+        'redTexPath': [ui.redTexPathBtn, showFileDialog, ui.redTexPath],
+        'spherePath': [ui.spherePathBtn, showFileDialog, ui.spherePath],
+        'treePath': [ui.treePathBtn, showFileDialog, ui.treePath],
+        'treeTexPath': [ui.treeTexPathBtn, showFileDialog, ui.treeTexPath],
+        'skyMapBtn': [ui.skyMapBtn, showFileDialog, ui.skyMap],
+        'skyMapNullBtn': [ui.skyMapNullBtn, showFileDialog, ui.skyMapNull],
+        'modelHeightMap': [ui.modelHeightMapBtn, showFileDialog, ui.modelHeightMap],
+        'modelTextureMap': [ui.modelTextureMapBtn, showFileDialog, ui.modelTextureMap],
+        'modelTextureMapNull': [ui.modelTextureMapNullBtn, showFileDialog, ui.modelTextureMapNull],
 
+        'odour1': [ui.odourBtn1, showFileDialog, ui.odour1],
+        'odour2': [ui.odourBtn2, showFileDialog, ui.odour2],
+        'odour3': [ui.odourBtn3, showFileDialog, ui.odour3],
+        'odour4': [ui.odourBtn4, showFileDialog, ui.odour4],
+    }
     callLooper(myDict)
+
     try:
         loadSettings(window, jsonCurrent)#load the last run config
     except ValueError:
         pass
+
     window.show()
     sys.exit(app.exec_())#nothing shall be behind this line!
 #don"t even dare writing somethin here!
