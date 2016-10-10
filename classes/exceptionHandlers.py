@@ -3,20 +3,22 @@ import serial
 import rostopic
 import subprocess
 import time
+import json
+
 class ExceptionHandlers():
 
     def __init__(self,parameters):
         self.parameters=parameters
-        self.exceptionGUI()
+        # self.exceptionGUI()
         self.exceptionReplay()
         self.exceptionArduino()
         self.exceptionROS()
 
     def exceptionGUI(self):
-        useGui = False
+        useGui = True
         if useGui:
             from GUI_caller import jsonVR
-
+            print "using GUI"
             with open(jsonVR, 'r') as jfile:
                 self.parameters = json.load(jfile)
                 for item in self.parameters['toTuplify']:
