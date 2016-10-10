@@ -83,8 +83,11 @@
             </item>
             <item row="8" column="0" colspan="7">
              <widget class="QTabWidget" name="tabWidget">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
               <property name="currentIndex">
-               <number>1</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="tabWidgetPage1">
                <attribute name="title">
@@ -94,7 +97,7 @@
                 <item row="0" column="0">
                  <widget class="QGroupBox" name="groupBox_3">
                   <property name="enabled">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <property name="title">
                    <string>Control Odour</string>
@@ -105,20 +108,10 @@
                      <x>10</x>
                      <y>30</y>
                      <width>516</width>
-                     <height>130</height>
+                     <height>196</height>
                     </rect>
                    </property>
                    <layout class="QGridLayout" name="gridLayout_19">
-                    <item row="2" column="0">
-                     <widget class="QLineEdit" name="odour3"/>
-                    </item>
-                    <item row="2" column="1">
-                     <widget class="QPushButton" name="odourBtn3">
-                      <property name="text">
-                       <string>Select odour 3</string>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="1" column="3" colspan="2">
                      <widget class="QPushButton" name="odourBtn1">
                       <property name="text">
@@ -202,6 +195,49 @@
                       </property>
                      </widget>
                     </item>
+                    <item row="2" column="1">
+                     <widget class="QPushButton" name="odourBtn3">
+                      <property name="text">
+                       <string>Select odour 3</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="0">
+                     <widget class="QLineEdit" name="odour3"/>
+                    </item>
+                    <item row="4" column="0">
+                     <widget class="QLineEdit" name="beepPath"/>
+                    </item>
+                    <item row="4" column="1">
+                     <widget class="QPushButton" name="beepPathBtn">
+                      <property name="text">
+                       <string>Select Beep sound</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="2">
+                     <widget class="QDoubleSpinBox" name="packetDur">
+                      <property name="accelerated">
+                       <bool>true</bool>
+                      </property>
+                      <property name="decimals">
+                       <number>3</number>
+                      </property>
+                      <property name="maximum">
+                       <double>10.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.010000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="3">
+                     <widget class="QLabel" name="label_11">
+                      <property name="text">
+                       <string>packetDur</string>
+                      </property>
+                     </widget>
+                    </item>
                    </layout>
                   </widget>
                  </widget>
@@ -216,7 +252,7 @@
                 <item row="0" column="0">
                  <widget class="QGroupBox" name="groupBox_5">
                   <property name="enabled">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <property name="title">
                    <string>Control Wind</string>
@@ -234,7 +270,7 @@
                     <item row="0" column="0">
                      <widget class="QLineEdit" name="windQuad">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="toolTip">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add &lt;span style=&quot; font-weight:600;&quot;&gt;4 &lt;/span&gt;items&lt;/p&gt;&lt;p&gt;[0, 0, 0, 0]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -247,7 +283,7 @@
                     <item row="0" column="1">
                      <widget class="QLabel" name="label_8">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="text">
                        <string>windQuad</string>
@@ -375,7 +411,7 @@
            </rect>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>2</number>
           </property>
           <widget class="QWidget" name="tab_11">
            <attribute name="title">
@@ -507,7 +543,7 @@
              <item row="2" column="0">
               <widget class="QSpinBox" name="maxBoutDur">
                <property name="maximum">
-                <number>999</number>
+                <number>99999</number>
                </property>
               </widget>
              </item>
@@ -919,70 +955,59 @@
            </widget>
           </widget>
          </widget>
-         <widget class="QCheckBox" name="loadWorld">
+         <widget class="QWidget" name="">
           <property name="geometry">
            <rect>
             <x>11</x>
-            <y>11</y>
-            <width>101</width>
-            <height>22</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>load world</string>
-          </property>
-         </widget>
-         <widget class="QCheckBox" name="generateWorld">
-          <property name="geometry">
-           <rect>
-            <x>118</x>
-            <y>11</y>
-            <width>133</width>
-            <height>22</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>generate world</string>
-          </property>
-         </widget>
-         <widget class="QCheckBox" name="quad">
-          <property name="geometry">
-           <rect>
-            <x>257</x>
-            <y>11</y>
-            <width>64</width>
-            <height>22</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>quad</string>
-          </property>
-         </widget>
-         <widget class="QCheckBox" name="lockFps">
-          <property name="geometry">
-           <rect>
-            <x>327</x>
-            <y>11</y>
-            <width>81</width>
-            <height>22</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>lockFps</string>
-          </property>
-         </widget>
-         <widget class="QCheckBox" name="loadNullModels">
-          <property name="geometry">
-           <rect>
-            <x>430</x>
             <y>10</y>
-            <width>135</width>
-            <height>22</height>
+            <width>657</width>
+            <height>24</height>
            </rect>
           </property>
-          <property name="text">
-           <string>loadNullModels</string>
-          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <item>
+            <widget class="QCheckBox" name="loadWorld">
+             <property name="text">
+              <string>load world</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="generateWorld">
+             <property name="text">
+              <string>generate world</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="quad">
+             <property name="text">
+              <string>quad</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="lockFps">
+             <property name="text">
+              <string>lockFps</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="loadNullModels">
+             <property name="text">
+              <string>loadNullModels</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="resetObject">
+             <property name="text">
+              <string>resetObject</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </widget>
         </widget>
         <widget class="QWidget" name="tab_64">
@@ -1255,8 +1280,8 @@
            <rect>
             <x>20</x>
             <y>10</y>
-            <width>252</width>
-            <height>195</height>
+            <width>281</width>
+            <height>291</height>
            </rect>
           </property>
           <property name="title">
@@ -1284,9 +1309,6 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="0" colspan="2">
-            <widget class="QLineEdit" name="bagTrajTopics"/>
-           </item>
            <item row="2" column="0" colspan="2">
             <widget class="QComboBox" name="race">
              <item>
@@ -1312,13 +1334,6 @@
            <item row="0" column="0" colspan="2">
             <widget class="QLineEdit" name="bagFullTopics"/>
            </item>
-           <item row="1" column="2">
-            <widget class="QLabel" name="label_48">
-             <property name="text">
-              <string>bagTrajTopics</string>
-             </property>
-            </widget>
-           </item>
            <item row="3" column="2">
             <widget class="QLabel" name="label_7">
              <property name="text">
@@ -1328,6 +1343,26 @@
            </item>
            <item row="3" column="0" colspan="2">
             <widget class="QDateEdit" name="emergence"/>
+           </item>
+           <item row="1" column="0" colspan="2">
+            <widget class="QLineEdit" name="bagTrajTopics"/>
+           </item>
+           <item row="1" column="2">
+            <widget class="QLabel" name="label_48">
+             <property name="text">
+              <string>bagTrajTopics</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLineEdit" name="fly"/>
+           </item>
+           <item row="5" column="2">
+            <widget class="QLabel" name="label_49">
+             <property name="text">
+              <string>fly</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -1722,7 +1757,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>106</x>
-     <y>357</y>
+     <y>377</y>
     </hint>
     <hint type="destinationlabel">
      <x>391</x>

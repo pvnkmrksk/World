@@ -62,7 +62,7 @@ frame=0
 
 listener()
 for i in range(1000):
-    print x,y
+    # print x,y
     import time
     time.sleep(0.1)
 plt.close('all')  # close all previous plots
