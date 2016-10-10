@@ -1,25 +1,12 @@
-#!/usr/bin/env python
-# system imports
-"""
-Imports for file handling, datetime, json reading
-Followed by ROS and messages type for wbad
-Then Panda3d direct for visual stimuli
-matplotlib, numpy , pandas, pickle
-
-Finally parmeters stored as dictionary in params
-
-"""
 from __future__ import division
 
-from params import parameters
+# from params import parameters
 from World.msg import MsgFlystate, MsgTrajectory
 from classes.bagControl import BagControl
 from classes.fieldGen import FieldGen
-from classes.helper import Helper
+# from classes.helper import Helper
 from classes.exceptionHandlers import ExceptionHandlers
-
-# from myApp import MyApp
-
+import servo
 
 from datetime import datetime
 import sys, time, subprocess, os, serial  # ROS imports
