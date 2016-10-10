@@ -166,7 +166,7 @@ class MyApp(ShowBase):
 
             from skimage.io import imread
             self.odourField = (np.rot90(imread(
-                '/home/pavan/catkin/src/world/models/odour/s.png'), 3)) / 25.5
+                'models/odour/s.png'), 3)) / 25.5
 
 
             # plt.imshow(self.odourField, cmap='Greys')
