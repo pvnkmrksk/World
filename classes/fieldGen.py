@@ -4,16 +4,13 @@ import matplotlib.pyplot as plt
 
 class FieldGen():
     # generate odour, plumes and wind
-    def __init__(self):
-        import numpy as np
-        import matplotlib.pyplot as plt
 
     def toPlot(self, obj, plot):
         if plot:
             plt.imshow(obj, interpolation='none', cmap='Greys_r')
             plt.show(block=False)
 
-    def windField(self,width,height,wq,plot=False):
+    def windField(self,width=257,height=257,wq=[-1,0,180,270],plot=False):
         '''
 
         :param width: width of the wind field
@@ -23,18 +20,17 @@ class FieldGen():
         :return:
             windField: a matrix filled with 4 quads of particular windDirection
         '''
-        windField = np.zeros([width, height])
+        wind_field = np.zeros([width, height])
 
         offset = (width - 1) / 2
 
-        windField[0:offset, 0:offset] = wq[2]
-        windField[offset + 1:width, 0:offset] = wq[3]
-        windField[0:offset, offset + 1:width] = wq[1]
-        windField[offset + 1:width, offset + 1:width] = wq[0]
+        wind_field[0:offset, 0:offset] = wq[2]
+        wind_field[offset + 1:width, 0:offset] = wq[3]
+        wind_field[0:offset, offset + 1:width] = wq[1]
+        wind_field[offset + 1:width, offset + 1:width] = wq[0]
 
-        self.toPlot(windField,plot=plot)
-        return windField
-
+        self.toPlot(wind_field,plot=plot)
+        return wind_field
 
 
     def plumeStrip(self, fieldWidth=128, fieldHeight=128,
@@ -61,50 +57,13 @@ class FieldGen():
         initX = int(initX)
         initY = int(initY)
 
-        stripField = np.zeros([fieldWidth, fieldHeight])
-        stripField[initX:initX + stripWidth, initY:initY + stripHeight] = 1
+        strip_field = np.zeros([fieldWidth, fieldHeight])
+        strip_field[initX:initX + stripWidth, initY:initY + stripHeight] = 1
 
         # print "stripfield is",stripField
-        self.toPlot(stripField, plot)
-        return  stripField
+        self.toPlot(strip_field, plot)
+        return  strip_field
 
-    def odourField(self, w=255, h=255, oq=['s', 1, 'p', 0], plot=False):
-
-        odourField = np.zeros([w, h])
-        offset = int((w - 1) / 2)
-
-        oqi = oq
-        quad = 0
-
-        for i in oq:
-            from skimage.io import imread
-
-            if i == 'c':
-                oqi[quad] = (np.rot90(imread("models/odour/" + str(quad + 1) + ".png"))) != 0
-                # py 0 index but non zero quadrants and the image is rotated to fix plt and array axes
-            #                 print "odour image is", quad, oqi[quad]
-            elif i == 's':
-                width = 15
-                # strip = self.plumeStrip()
-                strip = self.plumeStrip(offset, offset, width, offset, (offset / 2 - (width / 2)), 0)
-                # print strip
-                oqi[quad] = strip
-
-            elif i=='p':
-                packet=self.odourPacket(width=127,height=127,velocity=1,packetFrequency=0.5,packetDuration=1,scale=1)
-                oqi[quad] = packet
-
-            quad += 1
-
-        odourField[0:offset, 0:offset] = oqi[2]
-        odourField[offset + 1:w, 0:offset] = oqi[3]
-        odourField[0:offset, offset + 1:w] = oqi[1]
-        odourField[offset + 1:w, offset + 1:w] = oqi[0]
-
-
-        self.toPlot(np.rot90(odourField), plot)
-
-        return odourField
 
     def odourPacket(self, width=10, height=10, velocity=3,
                     packetFrequency=10, packetDuration=0.02, scale=10,
@@ -144,18 +103,56 @@ class FieldGen():
         offsetY:offsetY + packetOnPixels] = 1  # replace odour on region to True
 
         # tile the subunit such that it is of size (w,h)*scale
-        packetField = np.tile(packetFieldSubunit, (int(scale * width / packetTotalPixels), int(
+        packet_field = np.tile(packetFieldSubunit, (int(scale * width / packetTotalPixels), int(
             scale * height / packetTotalPixels)))
 
-        wd=scale*width-packetField.shape[0]
-        hd=scale*height-packetField.shape[1]
-        packetField=np.lib.pad(packetField,((0,hd),(0,wd)),'constant',constant_values=(0,0))
+        wd=scale*width-packet_field.shape[0]
+        hd=scale*height-packet_field.shape[1]
+        packet_field=np.lib.pad(packet_field,((0,hd),(0,wd)),'constant',constant_values=(0,0))
         # print packetField#don't do for large images
         # plt.imshow(packetField,interpolation='none',cmap='Greys_r') #don't interpolate and show the pixels as is with reverse grey cmap
         # plt.show()
-        self.toPlot(packetField, plot)
+        self.toPlot(packet_field, plot)
 
-        return packetField
+        return packet_field
+
+    def odourField(self, w=255, h=255, oq=['s', 1, 'p', 0], plot=False):
+
+        odour_field = np.zeros([w, h])
+        offset = int((w - 1) / 2)
+
+        oqi = oq
+        quad = 0
+
+        for i in oq:
+            from skimage.io import imread
+
+            if i == 'c':
+                oqi[quad] = (np.rot90(imread("models/odour/" + str(quad + 1) + ".png"))) != 0
+                # py 0 index but non zero quadrants and the image is rotated to fix plt and array axes
+            #                 print "odour image is", quad, oqi[quad]
+            elif i == 's':
+                width = 15
+                # strip = self.plumeStrip()
+                strip = self.plumeStrip(offset, offset, width, offset, (offset / 2 - (width / 2)), 0)
+                # print strip
+                oqi[quad] = strip
+
+            elif i=='p':
+                packet=self.odourPacket(width=127,height=127,velocity=1,packetFrequency=0.5,packetDuration=1,scale=1)
+                oqi[quad] = packet
+
+            quad += 1
+
+        odour_field[0:offset, 0:offset] = oqi[2]
+        odour_field[offset + 1:w, 0:offset] = oqi[3]
+        odour_field[0:offset, offset + 1:w] = oqi[1]
+        odour_field[offset + 1:w, offset + 1:w] = oqi[0]
+
+
+        self.toPlot(np.rot90(odour_field), plot)
+
+        return odour_field
 
 if __name__=='main':
     f=FieldGen()

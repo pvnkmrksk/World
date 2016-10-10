@@ -159,17 +159,19 @@ class MyApp(ShowBase):
             # self.windFieldGen()
             self.windField = myFieldGen.windField()
         if parameters["loadOdour"]:
-            self.beep = self.loader.loadSfx("models/sounds/beep.wav")
-            self.beep.setLoop(1)
+            self.beep = self.loader.loadSfx(parameters['beepPath'])
+            self.beep.setLoop(1)#loop COntinuously
             self.beep.play()  # start playing the sound seamlessly
             self.scale = 1
 
             from skimage.io import imread
             self.odourField = (np.rot90(imread(
                 '/home/pavan/catkin/src/world/models/odour/s.png'), 3)) / 25.5
+
+
             # plt.imshow(self.odourField, cmap='Greys')
             # plt.show(block=False)
-            # self.odourField = myFieldGen.odourPacket(width=257,height=257,scale=self.scale,
+            # self.odourField = myFieldGen.odourPacket(width=257,height=257,scale=,
             #                                          packetFrequency=20,plot=False,
             #                                          packetDuration=.02)
             #
@@ -345,7 +347,7 @@ class MyApp(ShowBase):
         Returns:
         None
         """
-        if parameters["loadWorld"]:
+        if parameters["loadWorld"]:#todo.remove this useless bool
             self.worldLoader()
 
     def worldLoader(self):
@@ -572,8 +574,7 @@ class MyApp(ShowBase):
         self.updateCamera()
         self.bagControl()
 
-        if parameters["loadHUD"]:
-            self.updateLabel()
+        # self.updateLabel()
 
         if parameters["loadWind"]:
             x, y, z = self.player.getPos()
@@ -606,25 +607,8 @@ class MyApp(ShowBase):
         Returns:
             None
         """
-        if parameters["replayWorld"]:
-            """
-            Replay world sets the current frame poshpr from the dataframe loaded from file
-            If current frame exceeds dataframe, Indexerror catches and finishes playback cleanly
-            Finally it updates the current frame number by playbackIncrement which can be used to speed up playback
-            """
+        if not parameters["replayWorld"]:
 
-            try:
-                poshpr = traj.ix[self.replayFrame, :].values
-                print "frame is", self.replayFrame
-            except IndexError:
-                print "Finished playback"
-                self.winClose()
-            # print poshpr
-            self.player.setPosHpr(tuple(poshpr[0:3]), tuple(poshpr[3:]))
-            # self.player.setPosHpr(traj.ix[self.replayFrame,:].values)
-
-            self.replayFrame += parameters["playbackIncrement"]
-        else:
 
             """
             the factors are essentially keyboard gains. On user input via keyboard, the gain with which the action
@@ -639,6 +623,7 @@ class MyApp(ShowBase):
             parameters["wbad"] = self.wbad
             parameters["wbas"] = self.wbas
 
+            #impose stimulus and exit once out of bounds
             if parameters["imposeStimulus"]:
                 try:
                     self.stim = self.stimList[self.frame]
@@ -659,21 +644,21 @@ class MyApp(ShowBase):
             One has to constantly osscilate up down to keep heading steady.
 
             """
-
-            if parameters["mouseMode"]:
-                if self.mouseWatcherNode.hasMouse():
-                    # x = self.mouseWatcherNode.getMouseX()
-                    # sets wbad to a clamped value of mouseY pos*gain
-                    clamp = 0.5
-                    parameters["wbad"] = self.clamp(1 *
-                                                    parameters["gain"] * self.mouseWatcherNode.getMouseX(), -clamp,
-                                                    clamp)
+            #
+            # if parameters["mouseMode"]:
+            #     if self.mouseWatcherNode.hasMouse():
+            #         # x = self.mouseWatcherNode.getMouseX()
+            #         # sets wbad to a clamped value of mouseY pos*gain
+            #         clamp = 0.5
+            #         parameters["wbad"] = self.clamp(1 *
+            #                                         parameters["gain"] * self.mouseWatcherNode.getMouseX(), -clamp,
+            #                                         clamp)
 
             if (self.keyMap["closed"] != 0):
                 self.player.setH(self.player.getH() - parameters["wbad"] * parameters["gain"])
 
-            if (self.keyMap["human"] != 0):
-                self.player.setH(self.player.getH() + self.keyMap["hRight"] * parameters["gain"])
+            # if (self.keyMap["human"] != 0):
+            #     self.player.setH(self.player.getH() + self.keyMap["hRight"] * parameters["gain"])
 
             # Left and Right
             """
@@ -691,11 +676,11 @@ class MyApp(ShowBase):
             """
             if (self.keyMap["climb"] != 0):  # and parameters["speed"] > 0.00):
                 self.player.setZ(self.player.getZ() + climbfactor)
-                print "z is ", self.player.getZ()
+                # print "z is ", self.player.getZ()
 
             elif (self.keyMap["fall"] != 0):  # and parameters["speed"] > 0.00):
                 self.player.setZ(self.player.getZ() - climbfactor)
-                print "z is ", self.player.getZ()
+                # print "z is ", self.player.getZ()
 
             # throttle control
             """
@@ -713,11 +698,7 @@ class MyApp(ShowBase):
             if (self.keyMap["handBrake"] != 0):
                 parameters["speed"] = 0
 
-            # todo.scrap reverse gear
-
             # todo.fix latency of one frame move forwards
-
-
             """
             This finally updates the position of the player, there is adelay of one frame in speed update.
 
@@ -776,39 +757,26 @@ class MyApp(ShowBase):
             elif (self.player.getZ() < 0):
                 self.player.setZ(0)
 
-            # and now the X/Y world boundaries:
-            if (self.player.getX() < 0):
-                if parameters["quad"]:
-                    self.resetPosition("rand")
-                else:
-                    self.player.setX(0)
 
-            elif (self.player.getX() > parameters["worldSize"]):
-                if parameters["quad"]:
-                    self.resetPosition("rand")
-                else:
-                    self.player.setX(parameters["worldSize"] - 1)
+            # if in quad mode, teleport to one random quadrant when you hit boundary
+            # else stay where you are
 
-            if (self.player.getY() < 0):
-                if parameters["quad"]:
-                    self.resetPosition("rand")
-                else:
-                    self.player.setY(0)
+            if  (self.player.getX() < 0) or (self.player.getX() > parameters["worldSize"]) or \
+                (self.player.getY() < 0) or (self.player.getY() > parameters["worldSize"]):
 
-            elif (self.player.getY() > parameters["worldSize"]):
-                if parameters["quad"]:
+                if parameters['quad']:
                     self.resetPosition("rand")
-                else:
-                    self.player.setY(parameters["worldSize"] - 1)
+                # else:
+                #     self.player.setX(self.player.getX)
+                #     self.player.setY(self.player.setY)
+                #todo. fix out of bounds
 
-            # todo.fix what is gthis? respect quad boundary and time reset
-            if parameters["quad"]:
-                if (self.player.getX() > parameters["offset"] and
-                            self.player.getX() < (parameters["offset"] + 1)):
+            #if hitting the midway mark, reset in quad mode, else carry on
+            if parameters['quad']:
+                if  (self.player.getX() > parameters["offset"] and self.player.getX() < (parameters["offset"] + 1)) or \
+                    (self.player.getY() > parameters["offset"] and self.player.getY() < (parameters["offset"] + 1)):
                     self.resetPosition("rand")
-                if (self.player.getY() > parameters["offset"] and
-                            self.player.getY() < (parameters["offset"] + 1)):
-                    self.resetPosition("rand")
+
             # todo.fix document and clean the timer
             if self.decayTime > 60:
                 parameters["speed"] = 0
@@ -835,20 +803,30 @@ class MyApp(ShowBase):
             if parameters["imposeStimulus"]:
                 self.player.setH(self.player.getH() + self.stim)
 
-            # todo.scrap update new init position
-
-            # todo.scrap update newTopSpeed
-
-            # todo.scrap update left by right gain for diabled flies
-            if (self.keyMap["lrGain-up"] != 0):
-                parameters["lrGain"] += parameters["gainIncrement"]
-                print "lrGain is ", parameters["lrGain"]
-
             # if imposing turns, don't change quad after too long a bout
             if not parameters["imposeStimulus"]:
                 self.tooLongBoutReset()
 
             self.frame += 1
+        else:
+
+            """
+            Replay world sets the current frame poshpr from the dataframe loaded from file
+            If current frame exceeds dataframe, Indexerror catches and finishes playback cleanly
+            Finally it updates the current frame number by playbackIncrement which can be used to speed up playback
+            """
+
+            try:
+                poshpr = traj.ix[self.replayFrame, :].values
+                print "frame is", self.replayFrame
+            except IndexError:
+                print "Finished playback"
+                self.winClose()
+            # print poshpr
+            self.player.setPosHpr(tuple(poshpr[0:3]), tuple(poshpr[3:]))
+            # self.player.setPosHpr(traj.ix[self.replayFrame,:].values)
+
+            self.replayFrame += parameters["playbackIncrement"]
 
     def stimulusListGen(self, ):
         """
@@ -1058,14 +1036,6 @@ class MyApp(ShowBase):
             self.randChoice()
 
     def updateCamera(self):
-        # see issue content for how we calculated these:
-        #
-        # if parameters["replayWorld"]:
-        #     self.camera.setPos()
-
-        # self.camera.setPos(self.player, 0, 0, 0)
-        # self.camera.setHpr(self.player, tuple(parameters["camHpr"]))
-
 
         if parameters['humanDisplay']:
             self.camera.setPos(self.player, 0, 0, 0)
@@ -1103,91 +1073,43 @@ class MyApp(ShowBase):
 
             self.bagRecordingState = False
 
-    # def pickler(self, obj, path):
-    #     """
-    #     Pickle a Python object
-    #     """
-    #     with open(path, "wb") as pfile:
-    #         pickle.dump(obj, pfile)
-    #
-    #         # ----------------------------------------------------------------------
-    #
-    # def depickler(self, path):
-    #     """
-    #     Extracts a pickled Python object and returns it
-    #     """
-    #     with open(path, "rb") as pfile:
-    #         data = pickle.load(pfile)
-    #     return data
-
-    # wind control
     def windTunnel(self, windDirection):
         if windDirection != -1:  # -1 is open loop in wind direction
             self.servoAngle = int((90 - (self.player.getH()) + windDirection - 180) % 360)
-            # self.servoAngle = int((90 - (self.player.getH()) + windDirection - 180) % 360)
         else:
             self.servoAngle = 90
             # print "wind in open loop"
-
-        # print "servoangle is", self.servoAngle
         servo.move(1, self.servoAngle)
 
-    #
-    # def windFieldGen(self):
-    #     self.windField = np.zeros([parameters["worldSize"], parameters["worldSize"]])
-    #
-    #     offset = (parameters["worldSize"] - 1) / 2
-    #     world = parameters["worldSize"]
-    #     self.windField[0:offset, 0:offset] = parameters["windQuad"][2]
-    #     self.windField[offset + 1:world, 0:offset] = parameters["windQuad"][3]
-    #     self.windField[0:offset, offset + 1:world] = parameters["windQuad"][1]
-    #     self.windField[offset + 1:world, offset + 1:world] = parameters["windQuad"][0]
-    #     parameters["windField"] = self.windField
-    #
-    #     # print "windfield is", parameters["windField"]
-
     def odourTunnel(self):
-        # pass
-        # print int(self.odourField[int(self.player.getX()), int(self.player.getY())])
-        # self.valve = (self.odourField[1,1])
-        # print self.valve
-        # self.valve = int(self.odourField[int(self.player.getX()), int(self.player.getY())])
-        #        self.valve = int(self.odourField[int(self.player.getX()), int(self.player.getY())])
+        # current packet frequency from odour field
+        self.currentPf = self.odourField\
+                             [int(self.player.getX()), int(self.player.getY() )]
 
-        # self.valve = int(self.odourField[int(self.player.getX()*self.scale), int(self.player.getY()*self.scale)])
+        #calculate Tau=Time period ,
+        #if pf>0, if in the packet on time, turn on valve else off
+        #else turn off valve
+        #set the volume to high or low and send command to arduino to set valve state
+        #finally increment the phase
 
-
-        self.currentPf = int(
-            self.odourField[int(self.player.getX() * self.scale), int(self.player.getY() * self.scale)])
         if self.currentPf > 0:
             self.currentTau = parameters['fps'] / self.currentPf
-        else:
-            self.currentTau = None
-
-        if self.currentPf > 0:
             if (self.phase % self.currentTau) < (parameters['fps'] * parameters['packetDur']):
                 self.valve = 1
             else:
                 self.valve = 0
-
         else:
             self.valve = 0
 
-        self.phase += 1
 
         if self.valve:
-            # if self.beep.status()!=self.beep.PLAYING:
-            # self.beep.play()
             self.beep.setVolume(1)
         else:
-            # if self.beep.status()==self.beep.PLAYING:
-            # self.beep.stop()
             self.beep.setVolume(0)
 
-            # if parameters["loadWind"]:
-            #     servo.move(99, self.valve)
+        servo.move(99, self.valve)
+        self.phase += 1
 
-    # testing functions not stable
     # screen capture
     def record(self, dur, fps):
         self.movie('frames/movie', dur, fps=fps, format='jpg', sd=7)

@@ -314,8 +314,6 @@ def tick():
         if not ui.pausePlot.isChecked():
             spots = [{'pos': np.array([traj.position.x, traj.position.y])
                          , 'data': 1}]
-
-            # todo.add reset range and clear data
             s1.addPoints(spots)
             my_plot.addItem(s1)
     except AttributeError:
@@ -323,6 +321,11 @@ def tick():
 
 def resetView():
     my_plot.setRange(xRange=(0,255),yRange=(0,255))
+
+
+def setHeadingLcd():
+    ui.lcdNumber_3.display(ui.Compass.value() - 90)  # offset origin to E and not North
+
 
 def clearPlot():
     # s1.points()
@@ -384,8 +387,6 @@ if __name__ == '__main__':
     ui.Compass.setNeedle(Qwt.QwtDialSimpleNeedle(Qwt.QwtDialSimpleNeedle.Arrow))
     ui.Compass.setOrigin(270)# to set north as north
     # ui.Compass.connect(ui.lcdNumber_3.display,QtCore.SIGNAL(("valueChanged(double)")))
-    def setHeadingLcd():
-        ui.lcdNumber_3.display(ui.Compass.value()-90)#offset origin to E and not North
     ui.Compass.valueChanged.connect(lambda:setHeadingLcd())
     # QtCore.QObject.connect(ui.Compass, QtCore.SIGNAL(("valueChanged(double)")), ui.lcdNumber_3.display)  #always start rosnode inside main else imports end in loop
     RosSubscriber('GUI', '/trajectory', MsgTrajectory, clbk)
@@ -415,6 +416,8 @@ if __name__ == '__main__':
         'odour2': [ui.odourBtn2, showFileDialog, ui.odour2],
         'odour3': [ui.odourBtn3, showFileDialog, ui.odour3],
         'odour4': [ui.odourBtn4, showFileDialog, ui.odour4],
+        'beepPath': [ui.beepPathBtn,showFileDialog,ui.beepPath]
+
     }
     callLooper(myDict)
 
@@ -424,7 +427,13 @@ if __name__ == '__main__':
         pass
 
     window.show()
-    sys.exit(app.exec_())#nothing shall be behind this line!
+
+    try:
+        (app.exec_())
+    except KeyboardInterrupt:
+        sys.exit()
+
+#nothing shall be behind this line!
 #don"t even dare writing somethin here!
 
 __Version__ = '3.2'
