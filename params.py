@@ -28,7 +28,7 @@ parameters = {
     "trialNo": 1,
 
     "packetFrequency":1,
-    "packetDur":4,
+    "packetDur":0.05,
 
     "maxSpeed": 7,
 
