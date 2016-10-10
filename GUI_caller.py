@@ -146,15 +146,17 @@ def loadSettings(win,path):
     try:
         with open(path, 'r') as dictFile:
             set = json.load(dictFile)
-            for item in set['toTuplify']:
-                set[item]=tuple(set[item])
-            # print set
-
+            try:
+                for item in set['toTuplify']:
+                    set[item]=tuple(set[item])
+                # print set
+            except KeyError:
+                pass
 
     except IOError:
             ui.statusbar.showMessage('.json-file not changed')
-
             return
+
 
     for item in box:
         try:
