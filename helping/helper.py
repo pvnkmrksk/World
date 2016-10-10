@@ -19,7 +19,7 @@ def depickler(path):
     return data
 
 def paramsFromGUI():
-    useGUI=False
+    useGUI=True
     if useGUI:
         from GUI_caller import jsonVR
         print "using GUI"
