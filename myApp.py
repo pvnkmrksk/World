@@ -1,11 +1,6 @@
 #!/usr/bin/env python
 from __future__ import division #odd issue. Must be on first line else it fails
 from importHelper import *  # file with just a bunch of imports
-from helping import helper
-parameters=helper.paramsFromGUI()
-useGui = True
-
-# print parameters
 e=ExceptionHandlers(parameters)
 
 
@@ -154,20 +149,19 @@ class MyApp(ShowBase):
         self.win.requestProperties(props)
 
         myFieldGen = FieldGen()
-        self.scale = 1
         if parameters["loadWind"]:
-            # self.windFieldGen()
-            self.windField = myFieldGen.windField()
+            self.windField = myFieldGen.windField(wq=parameters['windQuad'])
         if parameters["loadOdour"]:
             self.beep = self.loader.loadSfx(parameters['beepPath'])
             self.beep.setLoop(1)#loop COntinuously
             self.beep.play()  # start playing the sound seamlessly
-            self.scale = 1
+            self.beep.setVolume(0) #mute until unmuted later once init of all items complete
 
-            from skimage.io import imread
-            self.odourField = (np.rot90(imread(
-                '/home/pavan/catkin/src/world/models/odour/s.png'), 3)) / 25.5
-
+            # self.odourField = (np.rot90(imread(
+            #     '/home/pavan/catkin/src/world/models/odour/s.png'), 3)) / 25.5
+            self.odourField = myFieldGen.odourField(parameters['worldSize'],
+                                                    parameters['worldSize'],
+                                                    oq=parameters['odourQuad'],plot=parameters['plotOdourQuad'])
 
             # plt.imshow(self.odourField, cmap='Greys')
             # plt.show(block=False)
@@ -578,7 +572,7 @@ class MyApp(ShowBase):
 
         if parameters["loadWind"]:
             x, y, z = self.player.getPos()
-            windDir = parameters["windField"][x, y]
+            windDir = self.windField[x, y]
             self.windTunnel(windDir)
             # self.windTunnel(parameters["windDirection"])
 
@@ -1076,6 +1070,10 @@ class MyApp(ShowBase):
     def windTunnel(self, windDirection):
         if windDirection != -1:  # -1 is open loop in wind direction
             self.servoAngle = int((90 - (self.player.getH()) + windDirection - 180) % 360)
+            if 180<self.servoAngle<270:
+                self.servoAngle=180
+            elif self.servoAngle>270:
+                self.servoAngle=0
         else:
             self.servoAngle = 90
             # print "wind in open loop"
@@ -1118,68 +1116,3 @@ class MyApp(ShowBase):
         globalClock = ClockObject.getGlobalClock()
         globalClock.setMode(ClockObject.MLimited)
         globalClock.setFrameRate(fps)
-
-        # to be implemented functions fully unstable
-        #
-        # # evals
-        # def dict2Var(self, dict):
-        #     """converts a dict to a variable using exec for assignment
-        #         use it with caution"""
-        #     for key, val in dict.items():
-        #         exec (key + '=val')
-        #
-        # def list2Exec(self, list):
-        #     """
-        #     Converts the list items to eval statement
-        #     """
-        #     for key in list:
-        #         exec (key)
-
-        # # labels
-        # def makeStatusLabel(self, i):
-        #     return OnscreenText(style=2, fg=(0, 0, 0, 0.12), bg=(0.4, 0.4, 0.4, 0.18),
-        #                         scale=0.04, pos=(0.5, 0.5 - (.04 * i)), mayChange=1)
-        #
-        # def makeLabels(self):
-        #     self.positionLabel = self.makeStatusLabel(0)
-        #     self.orientationLabel = self.makeStatusLabel(1)
-        #     self.speedLabel = self.makeStatusLabel(2)
-        #     self.gainLabel = self.makeStatusLabel(3)
-        #     self.servoLabel = self.makeStatusLabel(4)
-        #     self.closedLabel = self.makeStatusLabel(5)
-        #     self.bagRecordingLabel = self.makeStatusLabel(6)
-        #
-        # def updateLabel(self):
-        #     self.positionLabel.setText(self.vec32String(self.player.getPos(), "x", "y", "z"))
-        #     self.orientationLabel.setText(self.vec32String(self.player.getHpr(), "H", "P", "R"))
-        #     self.speedLabel.setText("Speed: " + str(parameters["speed"]))
-        #     self.gainLabel.setText("Gain: " + str(parameters["gain"]))
-        #
-        #     self.servoLabel.setText("Servo Angle: " + str(self.servoAngle))
-        #     self.closedLabel.setText("Closed Loop: " + str(bool(self.keyMap["closed"])))
-        #     self.bagRecordingLabel.setText("Recording Bag: " + str(bool(self.bagRecordingState)))
-        #
-        # # content handlers
-        # def vec32String(self, vector, a, b, c):
-        #     """returns a rounded string of vec 3 interspersed with a,b,c as headings"""
-        #     return a + ":" + str(round(vector[0])) + " " + b + ":" + str(round(vector[1])) + " " + c + ":" + str(
-        #         round(vector[2]))
-        #
-        # def clamp(self, n, minn, maxn):
-        #     """
-        #     clamps values to lie between min and max
-        #     Args:
-        #         n: value to be clamped
-        #         minn: min value of clamp
-        #         maxn: max value of clamp
-        #
-        #     Returns:
-        #         Clamped value of n
-        #     """
-        #     if n < minn:
-        #         return minn
-        #     elif n > maxn:
-        #         return maxn
-        #     else:
-        #         return n
-        #

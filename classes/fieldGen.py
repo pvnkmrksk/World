@@ -1,7 +1,7 @@
 from __future__ import division
+from importHelper import *
 import numpy as np
 import matplotlib.pyplot as plt
-
 class FieldGen():
     # generate odour, plumes and wind
 
@@ -116,39 +116,50 @@ class FieldGen():
 
         return packet_field
 
-    def odourField(self, w=255, h=255, oq=['s', 1, 'p', 0], plot=False):
+    def odourField(self, w=257, h=257, oq=['s', 1, 'p', 0], plot=False):
+        '''
+        GIves an array filley with 4 arrays as quadrants with packets or strips or custom images to be used as odourfield
+
+        :param w: array width
+        :param h: array height
+        :param oq: a list with 4 items,
+        's' is strip,
+        'p' is packet,
+        'c' is integers of odour images path in models/odour/(1,2,3,4).png,
+         a float, will be used as packet frequency at that region
+         an array of size (w-1)/2
+        :param plot: bool, will plot the final image
+        :return: final odorrquad image as an np array
+
+        '''
 
         odour_field = np.zeros([w, h])
-        offset = int((w - 1) / 2)
+        offsetW = int((w - 1) / 2)
+        offsetH = int((h - 1) / 2)
 
-        oqi = oq
         quad = 0
 
         for i in oq:
-            from skimage.io import imread
 
-            if i == 'c':
-                oqi[quad] = (np.rot90(imread("models/odour/" + str(quad + 1) + ".png"))) != 0
+            if i == 'c':#custom image in models/odour/1,2,3,4.png
+                oq[quad] = (np.rot90(imread("models/odour/" + str(quad + 1) + ".png"))) != 0
                 # py 0 index but non zero quadrants and the image is rotated to fix plt and array axes
-            #                 print "odour image is", quad, oqi[quad]
-            elif i == 's':
+            elif i == 's': #strip of solid one
                 width = 15
-                # strip = self.plumeStrip()
-                strip = self.plumeStrip(offset, offset, width, offset, (offset / 2 - (width / 2)), 0)
-                # print strip
-                oqi[quad] = strip
 
-            elif i=='p':
+                strip = self.plumeStrip(offsetW, offsetH, width, offsetH, (offsetW / 2 - (width / 2)), 0)
+                oq[quad] = strip
+
+            elif i=='p': #packet field of
                 packet=self.odourPacket(width=127,height=127,velocity=1,packetFrequency=0.5,packetDuration=1,scale=1)
-                oqi[quad] = packet
+                oq[quad] = packet
 
             quad += 1
 
-        odour_field[0:offset, 0:offset] = oqi[2]
-        odour_field[offset + 1:w, 0:offset] = oqi[3]
-        odour_field[0:offset, offset + 1:w] = oqi[1]
-        odour_field[offset + 1:w, offset + 1:w] = oqi[0]
-
+        odour_field[0:offsetW, 0:offsetH] = oq[2]
+        odour_field[offsetW + 1:w, 0:offsetH] = oq[3]
+        odour_field[0:offsetW, offsetH + 1:h] = oq[1]
+        odour_field[offsetW + 1:w, offsetH + 1:h] = oq[0]
 
         self.toPlot(np.rot90(odour_field), plot)
 
