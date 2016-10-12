@@ -11,12 +11,7 @@ from PyQt4.Qwt5.Qwt import QwtCompass, QwtDial
 import pyqtgraph as pg
 from World.msg import MsgTrajectory
 from classes.rosSubscriber import RosSubscriber
-#
-# try:
-#     fromUtf8 = QtCore.QString.fromUtf8
-# except AttributeError:
-#     def _fromUtf8(s):
-#         return s
+from helping.helper import clamp
 
 import numpy as np
 pathRun=os.path.abspath(os.path.split(sys.argv[0])[0]) #path of the runfile
@@ -310,12 +305,18 @@ def clbk(data):
 
 def tick():
     try:
-        ui.Compass.setValue(traj.orientation.x)
+        ui.compassServo.setValue(traj.servoAngle+90)
+        ui.compassHeading.setValue(traj.orientation.x)
+
+        ui.lcdServoAngle.display(traj.servoAngle)
+        ui.lcdHeadingAngle.display(traj.orientation.x%360)
+
         if not ui.pausePlot.isChecked():
             spots = [{'pos': np.array([traj.position.x, traj.position.y])
                          , 'data': 1}]
             s1.addPoints(spots)
             my_plot.addItem(s1)
+
     except AttributeError:
         pass
 
@@ -324,7 +325,7 @@ def resetView():
 
 
 def setHeadingLcd():
-    ui.lcdNumber_3.display(ui.Compass.value() - 90)  # offset origin to E and not North
+    ui.lcdNumber_3.display(ui.compassHeading.value() - 90)  # offset origin to E and not North
 
 
 def clearPlot():
@@ -384,11 +385,14 @@ if __name__ == '__main__':
     ui.resetView.clicked.connect(lambda :resetView())
     ui.clearPlot.clicked.connect(lambda :clearPlot())
 
-    ui.Compass.setNeedle(Qwt.QwtDialSimpleNeedle(Qwt.QwtDialSimpleNeedle.Arrow))
-    ui.Compass.setOrigin(270)# to set north as north
-    # ui.Compass.connect(ui.lcdNumber_3.display,QtCore.SIGNAL(("valueChanged(double)")))
-    ui.Compass.valueChanged.connect(lambda:setHeadingLcd())
-    # QtCore.QObject.connect(ui.Compass, QtCore.SIGNAL(("valueChanged(double)")), ui.lcdNumber_3.display)  #always start rosnode inside main else imports end in loop
+    ui.compassServo.setNeedle(Qwt.QwtDialSimpleNeedle(Qwt.QwtDialSimpleNeedle.Arrow))
+    ui.compassServo.setOrigin(270)
+    # to set north as north
+    # always start rosnode inside main else imports end in loop
+
+    ui.compassHeading.setNeedle(Qwt.QwtDialSimpleNeedle(Qwt.QwtDialSimpleNeedle.Arrow))
+    ui.compassHeading.setOrigin(270)# to set north as north
+
     RosSubscriber('GUI', '/trajectory', MsgTrajectory, clbk)
     my_plot = pg.PlotWidget()
     ui.trajectoryLayout.addWidget(my_plot)
