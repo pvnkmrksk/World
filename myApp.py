@@ -435,7 +435,8 @@ class MyApp(ShowBase):
         dr = self.camNode.getDisplayRegion(0)
         dr.setActive(0)
 
-        lens = PerspectiveLens(120, 140)  # tuple(parameters["camFOV"]))
+        #lens = PerspectiveLens(120, 140)  # tuple(parameters["camFOV"]))
+        lens = PerspectiveLens(parameters['camFOV'][0], parameters['camFOV'][1])  # tuple(parameters["camFOV"]))
 
         displayLeft = self.win.makeDisplayRegion(0, 1 / 3, 0, 1)
         camL = Camera('Lcam')
