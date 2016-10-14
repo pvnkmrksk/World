@@ -123,7 +123,7 @@ class WorldGen(ShowBase):  # our 'class'
 
         # print offset
         # print "even is ",odd
-        # print "even is ", even
+        print "even is ", even
         return odd,even
 
     def loadingStringParser(self, loadingString):

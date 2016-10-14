@@ -256,6 +256,7 @@ class Ui_RhagGUI(object):
         self.gridLayout_3.addWidget(self.label_256, 10, 2, 1, 1)
         self.maxDistance = QtGui.QSpinBox(self.groupBox_4)
         self.maxDistance.setObjectName(_fromUtf8("maxDistance"))
+        self.maxDistance.setMaximum(999)
         self.gridLayout_3.addWidget(self.maxDistance, 4, 0, 1, 1)
         self.playerInitPos = QtGui.QLineEdit(self.groupBox_4)
         self.playerInitPos.setObjectName(_fromUtf8("playerInitPos"))
