@@ -31,3 +31,21 @@ def paramsFromGUI():
     else:
         from params import parameters
     return parameters
+
+def clamp(n, minn, maxn):
+    """
+    clamps values to lie between min and max
+    Args:
+        n: value to be clamped
+        minn: min value of clamp
+        maxn: max value of clamp
+
+    Returns:
+        Clamped value of n
+    """
+    if n <= minn:
+        return minn
+    elif n >= maxn:
+        return maxn
+    else:
+        return n
