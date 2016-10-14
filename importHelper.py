@@ -7,6 +7,8 @@ from classes.fieldGen import FieldGen
 # from classes.helper import Helper
 from classes.exceptionHandlers import ExceptionHandlers
 import servo
+from helping import helper
+
 
 from datetime import datetime
 import sys, time, subprocess, os, serial  # ROS imports
@@ -31,3 +33,6 @@ import random
 import numpy as np
 import easygui
 import pandas as pd
+from skimage.io import imread
+
+parameters=helper.paramsFromGUI()

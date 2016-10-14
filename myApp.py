@@ -156,18 +156,18 @@ class MyApp(ShowBase):
         myFieldGen = FieldGen()
         self.scale = 1
         if parameters["loadWind"]:
-            # self.windFieldGen()
-            self.windField = myFieldGen.windField()
+            self.windField = myFieldGen.windField(wq=parameters['windQuad'])
         if parameters["loadOdour"]:
             self.beep = self.loader.loadSfx(parameters['beepPath'])
             self.beep.setLoop(1)#loop COntinuously
             self.beep.play()  # start playing the sound seamlessly
-            self.scale = 1
+            self.beep.setVolume(0) #mute until unmuted later once init of all items complete
 
-            from skimage.io import imread
-            self.odourField = (np.rot90(imread(
-                'models/odour/s.png'), 3)) / 25.5
-
+            # self.odourField = (np.rot90(imread(
+            #     '/home/pavan/catkin/src/world/models/odour/s.png'), 3)) / 25.5
+            self.odourField = myFieldGen.odourField(parameters['worldSize'],
+                                                    parameters['worldSize'],
+                                                    oq=parameters['odourQuad'],plot=parameters['plotOdourQuad'])
 
             # plt.imshow(self.odourField, cmap='Greys')
             # plt.show(block=False)
@@ -579,7 +579,7 @@ class MyApp(ShowBase):
 
         if parameters["loadWind"]:
             x, y, z = self.player.getPos()
-            windDir = parameters["windField"][x, y]
+            windDir = self.windField[x, y]
             self.windTunnel(windDir)
             # self.windTunnel(parameters["windDirection"])
 
