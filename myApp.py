@@ -412,14 +412,23 @@ class MyApp(ShowBase):
             skysphere.reparentTo(self.cameraCenter)
 
         # Our lighting
-        ambientLight = AmbientLight("ambientLight")
-        ambientLight.setColor(Vec4(.6, .6, .6, 1))
+        # ambientLight = AmbientLight("ambientLight")
+        # ambientLight.setColor(Vec4(.6, .6, .6, 1))
         directionalLight = DirectionalLight("directionalLight")
-        directionalLight.setDirection(Vec3(0, -10, -10))
+        directionalLight.setDirection(Vec3(-10, -10, -10))
         directionalLight.setColor(Vec4(1, 1, 1, 1))
         directionalLight.setSpecularColor(Vec4(1, 1, 1, 1))
-        render.setLight(render.attachNewNode(ambientLight))
+
+        directionalLight2 = DirectionalLight("directionalLight")
+        directionalLight2.setDirection(Vec3(10, 10, 10))
+        directionalLight2.setColor(Vec4(1, 1, 1, 1))
+        directionalLight2.setSpecularColor(Vec4(1, 1, 1, 1))
+
+        # render.setLight(render.attachNewNode(ambientLight))
         render.setLight(render.attachNewNode(directionalLight))
+        render.setLight(render.attachNewNode(directionalLight2))
+        # directionalLight.setShadowCaster(True, 512, 512)
+        # render.setShaderAuto()
 
     # display regions
     def initDisplayRegion(self):
