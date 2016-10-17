@@ -1,5 +1,6 @@
 from __future__ import division
 from importHelper import *
+from skimage.io import imread
 import numpy as np
 import matplotlib.pyplot as plt
 class FieldGen():
@@ -8,6 +9,7 @@ class FieldGen():
     def toPlot(self, obj, plot):
         if plot:
             plt.imshow(obj, interpolation='none', cmap='Greys_r')
+            plt.colorbar()
             plt.show(block=False)
 
     def windField(self,width=257,height=257,wq=[-1,0,180,270],plot=False):
@@ -116,12 +118,14 @@ class FieldGen():
 
         return packet_field
 
-    def odourField(self, w=257, h=257, oq=['s', 1, 'p', 0], plot=False):
+    def odourField(self, w=257, h=257, oq=['s', 1, 'p', 0],
+                   oqp=["models/odour/1.jpg","models/odour/2.jpg","models/odour/3.jpg","models/odour/4.jpg"],
+                   valueScale=10,plot=False):
         '''
         GIves an array filley with 4 arrays as quadrants with packets or strips or custom images to be used as odourfield
 
-        :param w: array width
-        :param h: array height
+        :param w: array width 2^n + 1
+        :param h: array height 2^n + 1
         :param oq: a list with 4 items,
         's' is strip,
         'p' is packet,
@@ -142,7 +146,7 @@ class FieldGen():
         for i in oq:
 
             if i == 'c':#custom image in models/odour/1,2,3,4.png
-                oq[quad] = (np.rot90(imread("models/odour/" + str(quad + 1) + ".png"))) != 0
+                oq[quad] = (np.rot90(imread("models/odour/" + str(quad + 1) + ".jpg")))/valueScale
                 # py 0 index but non zero quadrants and the image is rotated to fix plt and array axes
             elif i == 's': #strip of solid one
                 width = 15
