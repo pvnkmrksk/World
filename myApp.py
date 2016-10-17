@@ -2,6 +2,7 @@
 from __future__ import division #odd issue. Must be on first line else it fails
 from importHelper import *  # file with just a bunch of imports
 from helping import helper
+from skimage.io import imread
 parameters=helper.paramsFromGUI()
 useGui = True
 
@@ -925,11 +926,12 @@ class MyApp(ShowBase):
         # plt.plot(sums)
 
     def tooLongBoutReset(self):
-        if self.boutFrame > parameters["maxBoutDur"]:
-            self.resetPosition("rand")
-            print "bout longer than max duration", parameters["maxBoutDur"]
-        else:
-            self.boutFrame += 1
+        if parameters["maxBoutDur"]!=-1:#if -1 run forever
+            if self.boutFrame > parameters["maxBoutDur"]:
+                self.resetPosition("rand")
+                print "bout longer than max duration", parameters["maxBoutDur"]
+            else:
+                self.boutFrame += 1
 
     def reachedDestination(self):
         oddeven = np.append(self.odd, self.even, axis=0)
@@ -1086,13 +1088,13 @@ class MyApp(ShowBase):
         # current packet frequency from odour field
         self.currentPf = self.odourField\
                              [int(self.player.getX()), int(self.player.getY() )]
-
-        #calculate Tau=Time period ,
-        #if pf>0, if in the packet on time, turn on valve else off
-        #else turn off valve
-        #set the volume to high or low and send command to arduino to set valve state
-        #finally increment the phase
-
+        '''
+        calculate Tau=Time period ,
+        if pf>0, if in the packet on time, turn on valve else off
+        else turn off valve
+        set the volume to high or low and send command to arduino to set valve state
+        finally increment the phase
+        '''
         if self.currentPf > 0:
             self.currentTau = parameters['fps'] / self.currentPf
             if (self.phase % self.currentTau) < (parameters['fps'] * parameters['packetDur']):
