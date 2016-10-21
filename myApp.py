@@ -413,14 +413,34 @@ class MyApp(ShowBase):
             skysphere.reparentTo(self.cameraCenter)
 
         # Our lighting
-        ambientLight = AmbientLight("ambientLight")
-        ambientLight.setColor(Vec4(.6, .6, .6, 1))
+        # ambientLight = AmbientLight("ambientLight")
+        # ambientLight.setColor(Vec4(.6, .6, .6, 1))
         directionalLight = DirectionalLight("directionalLight")
-        directionalLight.setDirection(Vec3(0, -10, -10))
+        directionalLight.setDirection(Vec3(-1,-1,-1))
         directionalLight.setColor(Vec4(1, 1, 1, 1))
         directionalLight.setSpecularColor(Vec4(1, 1, 1, 1))
-        render.setLight(render.attachNewNode(ambientLight))
+
+        directionalLight2 = DirectionalLight("directionalLight")
+        directionalLight2.setDirection(Vec3(-1,1,-1))
+        directionalLight2.setColor(Vec4(1, 1, 1, 1))
+        directionalLight2.setSpecularColor(Vec4(1, 1, 1, 1))
+        directionalLight3 = DirectionalLight("directionalLight")
+        directionalLight3.setDirection(Vec3(1,-1,-1))
+        directionalLight3.setColor(Vec4(1, 1, 1, 1))
+        directionalLight3.setSpecularColor(Vec4(1, 1, 1, 1))
+
+        directionalLight4 = DirectionalLight("directionalLight")
+        directionalLight4.setDirection(Vec3(1,1,-1))
+        directionalLight4.setColor(Vec4(1, 1, 1, 1))
+        directionalLight4.setSpecularColor(Vec4(1, 1, 1, 1))
+
+        # render.setLight(render.attachNewNode(ambientLight))
         render.setLight(render.attachNewNode(directionalLight))
+        render.setLight(render.attachNewNode(directionalLight2))
+        render.setLight(render.attachNewNode(directionalLight3))
+        render.setLight(render.attachNewNode(directionalLight4))
+        # directionalLight.setShadowCaster(True, 512, 512)
+        # render.setShaderAuto()
 
     # display regions
     def initDisplayRegion(self):
@@ -1104,6 +1124,7 @@ class MyApp(ShowBase):
         else:
             self.valve = 0
 
+        # self.valve = not self.valve
 
         if self.valve:
             self.beep.setVolume(1)

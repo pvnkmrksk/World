@@ -1,7 +1,7 @@
 from __future__ import division
 
 from direct.showbase.ShowBase import ShowBase  # import the bits of panda
-from panda3d.core import GeoMipTerrain  # that we need
+from panda3d.core import GeoMipTerrain, SamplerState  # that we need
 import numpy as np
 import matplotlib.pyplot as plt
 import json_tricks as json
@@ -68,7 +68,20 @@ class WorldGen(ShowBase):  # our 'class'
         if parameters["loadNullModels"]:#if null, then create uniform back and sky
             self.terrain.setColorMap(parameters["modelTextureMapNull"])  # set the colour map
         else:
-            self.terrain.setColorMap(parameters["modelTextureMap"])  # set the colour map
+                self.terrain.setColorMap(parameters['modelTextureMap'])
+            # try:
+            #     self.tex = self.loader.loadTexture(parameters["modelTextureMap"])
+            #     # self.tex.setMinfilter(SamplerState.FT_linear)
+            #     # self.tex.setMinfilter(SamplerState.FT_linear_mipmap_linear)
+            #     print "texture successfully loaded"
+            #
+            # except:
+            #     print "Texture loading failed"
+            # try:
+            #     self.terrain.setColorMap(self.tex)  # set the colour map
+            #     print "Texture successfully applied"
+            # except:
+            #     print "Applying texture failed"
         self.terrain.setBruteforce(True)  # level of detail
         self.root = self.terrain.getRoot()  # capture root
         self.root.reparentTo(self.render)  # render from root
