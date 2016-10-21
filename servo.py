@@ -30,22 +30,25 @@ try :
     ser = serial.Serial(usbport0, 9600)
     print "Arduino connected via port 0 \n \n"
 
-except:
-    print "moving on"
-# except serial.SerialException:
-#     try:
-#         ser = serial.Serial(usbport1, 9600)
-#         print "Arduino connected via port 1 \n \n"
-#
-#     except serial.SerialException:
-#         try:
-#             ser = serial.Serial(usbport2, 9600)
-#             print "Arduino connected via port 2 \n \n"
-#
-#         except serial.SerialException:
-#             ser = serial.Serial(usbport3, 9600)
-#             print "Arduino connected via port 3 \n \n"
-#
+# except:
+#     print "moving on"
+except serial.SerialException:
+    try:
+        ser = serial.Serial(usbport1, 9600)
+        print "Arduino connected via port 1 \n \n"
+
+    except serial.SerialException:
+        try:
+            ser = serial.Serial(usbport2, 9600)
+            print "Arduino connected via port 2 \n \n"
+
+        except serial.SerialException:
+            ser = serial.Serial(usbport3, 9600)
+            print "Arduino connected via port 3 \n \n"
+
+        except:
+            pass
+
 
 frame=0
 
