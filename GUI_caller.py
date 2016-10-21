@@ -8,7 +8,7 @@ from PyQt4.Qwt5 import Qwt
 import ast
 import subprocess
 from PyQt4.Qwt5.Qwt import QwtCompass, QwtDial
-import pyqtgraph as pg
+#import pyqtgraph as pg
 from World.msg import MsgTrajectory
 from classes.rosSubscriber import RosSubscriber
 from helping.helper import clamp
@@ -393,11 +393,11 @@ if __name__ == '__main__':
     ui.compassHeading.setNeedle(Qwt.QwtDialSimpleNeedle(Qwt.QwtDialSimpleNeedle.Arrow))
     ui.compassHeading.setOrigin(270)# to set north as north
 
-    RosSubscriber('GUI', '/trajectory', MsgTrajectory, clbk)
-    my_plot = pg.PlotWidget()
-    ui.trajectoryLayout.addWidget(my_plot)
-    s1 = pg.ScatterPlotItem(size=2, pen=pg.mkPen(None), brush=pg.mkBrush(255, 255, 255, 120))
-    resetView()
+    # RosSubscriber('GUI', '/trajectory', MsgTrajectory, clbk)
+    # my_plot = pg.PlotWidget()
+    # ui.trajectoryLayout.addWidget(my_plot)
+    # s1 = pg.ScatterPlotItem(size=2, pen=pg.mkPen(None), brush=pg.mkBrush(255, 255, 255, 120))
+    # resetView()
 
 
     timer = QTimer()
