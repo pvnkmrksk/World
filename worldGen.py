@@ -103,9 +103,9 @@ class WorldGen(ShowBase):  # our 'class'
                 self.evenTex = self.oddTex = self.evenLoad = self.oddLoad =self.evenZ=self.oddZ= \
                 self.evenPlotColor=self.oddPlotColor=self.evenPlotMarker=self.oddPlotMarker=None
 
-        if parameters["quad"]:
+        # if parameters["quad"]:
 
-            self.odd,self.even=self.quadPositionGenerator()
+        self.odd,self.even=self.quadPositionGenerator()
 
         # print "odd is",self.odd
         # print "even is ", self.even
