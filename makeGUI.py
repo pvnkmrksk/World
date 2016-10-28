@@ -386,7 +386,7 @@ class Ui_RhagGUI(object):
         self.gridLayout_8 = QtGui.QGridLayout()
         self.gridLayout_8.setObjectName(_fromUtf8("gridLayout_8"))
         self.worldSize = QtGui.QSpinBox(self.groupBox_7)
-        self.worldSize.setMaximum(999)
+        self.worldSize.setMaximum(9999)
         self.worldSize.setObjectName(_fromUtf8("worldSize"))
         self.gridLayout_8.addWidget(self.worldSize, 0, 0, 1, 1)
         self.gridLayout_14.addLayout(self.gridLayout_8, 8, 2, 1, 2)
