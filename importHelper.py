@@ -6,7 +6,9 @@ from classes.bagControl import BagControl
 from classes.fieldGen import FieldGen
 # from classes.helper import Helper
 from classes.exceptionHandlers import ExceptionHandlers
-import servo
+from classes.valveHandler import ValveHandler
+from classes.tunnel import OdourTunnel
+# import servo
 from helping import helper
 
 
