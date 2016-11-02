@@ -43,9 +43,9 @@ except serial.SerialException:
             print "Arduino connected via port 2 \n \n"
 
         except serial.SerialException:
-            ser = serial.Serial(usbport3, 9600)
+            #ser = serial.Serial(usbport3, 9600)
             print "Arduino connected via port 3 \n \n"
-
+            pass
         except:
             pass
 

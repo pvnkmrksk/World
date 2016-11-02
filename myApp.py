@@ -2,6 +2,7 @@
 from __future__ import division #odd issue. Must be on first line else it fails
 from importHelper import *  # file with just a bunch of imports
 from helping import helper
+import math
 from skimage.io import imread
 parameters=helper.paramsFromGUI()
 useGui = True
@@ -298,6 +299,15 @@ class MyApp(ShowBase):
         self.accept("c-up", self.setKey, ["valve-off", 0])
 
         self.disableMouse()  # or updateCamera will fail!
+
+    def setCircPos(self, obj, teta, r):
+        x = parameters['playerInitPos'][0] + (math.sin(math.radians(teta))*r)
+        y = parameters['playerInitPos'][1] + (math.cos(math.radians(teta))*r)
+        pos = (x,y,parameters["sphereZ"])
+        obj.setPos(tuple(parameters['origin']))
+        placeholder = self.render.attach_new_node("holder")
+        placeholder.setPos(pos)
+        obj.instanceTo(placeholder)
 
     def setKey(self, key, value):
         '''
