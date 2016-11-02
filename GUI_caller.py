@@ -230,7 +230,8 @@ def openLoad(win):
 def openSave(win):
 
     global jsonCurrent
-    path = showSaveDialog(win, ui.currentLabel)
+    path = showSaveDialog(win, pathJson)
+    print path
     if path == '':
         ui.statusbar.showMessage('Canceled')
         pass
@@ -260,9 +261,12 @@ def showSaveDialog(win, line):
 
     fname = str(QtGui.QFileDialog.getSaveFileName(win, "Save file as", pathJson))
 
-    if line and fname != '': #set only if given a label to setText
-        line.setText(fname)
-    return fname
+    try:
+        if line and fname != '': #set only if given a label to setText
+            line.setText(fname)
+        return fname
+    except AttributeError:
+        return fname
 
 def caller(btn, fx, line):
     btn.clicked.connect(lambda: fx(window, line, pathModel))
