@@ -27,25 +27,25 @@ usbport3 = '/dev/ttyACM3'
 # Set up serial baud rate
 
 try :
-    ser = serial.Serial(usbport0, 9600)
+    ser = serial.Serial(usbport0, 1200)
     print "Arduino connected via port 0 \n \n"
 
 # except:
 #     print "moving on"
 except serial.SerialException:
     try:
-        ser = serial.Serial(usbport1, 9600)
+        ser = serial.Serial(usbport1, 1200)
         print "Arduino connected via port 1 \n \n"
 
     except serial.SerialException:
         try:
-            ser = serial.Serial(usbport2, 9600)
+            ser = serial.Serial(usbport2, 1200)
             print "Arduino connected via port 2 \n \n"
 
         except serial.SerialException:
-            #ser = serial.Serial(usbport3, 9600)
+            ser = serial.Serial(usbport3, 1200)
             print "Arduino connected via port 3 \n \n"
-            pass
+
         except:
             pass
 
@@ -53,8 +53,7 @@ except serial.SerialException:
 frame=0
 
 
-def move(servo, angle):
-    global prevValve,currValve, frame
+def move(servo, angle, anglePrev):
     '''Moves the specified servo to the supplied angle.
 
     Arguments:
@@ -66,30 +65,17 @@ def move(servo, angle):
     (e.g.) >>> servo.move(2, 90)
            ... # "move servo #2 to 90 degrees"'''
 
-    try:
-        ser.write(chr(255))
-        ser.write(chr(servo))
-        ser.write((chr(int(angle))))
-    except:
-        pass
-    #
-    # lb=0
-    # ub=180
+    if angle!=anglePrev: #update only of different
+        try:
+            ser.write(chr(255))
+            ser.write(chr(servo))
+            ser.write((chr(int(angle))))
+        except:
+            print "something reallly bad"
 
-    # elif (lb < angle <= ub) :
-    #     # ser.write(chr(255))
-    #     # ser.write(chr(servo))
-    #     ser.write(chr(angle))
-    #
-    # elif (ub<angle<=240):
-    #     ser.write(chr(ub))
-    #
-    # elif (300<angle<=360) or angle <lb:
-    #     ser.write(chr(lb))
-    #60 degrees of buffer space to handle noise in turning. Will only bounce to other side if 30 degrees away from
-        #end point like. Will bounce to 0 if it is 300 to 360. Will bounce to 180 only if between 180 and 240
-    # else:
-    #     print "Servo angle must be an integer between 0 and 180.\n"
+
+
+
 
 
 if __name__ =="__main__":

@@ -4,12 +4,12 @@ import math
 parameters=paramsFromGUI()
 
 class ObjectControl():
+
     def __init__(self,showbase):
         self.sb=showbase
-        self.getObjects()
-
 
     def getObjects(self):
+
         if len(parameters['loadingString']) == 2:
             if parameters['loadingString'][0] == "1":
                 self.obj1 = self.sb.loader.loadModel(parameters["spherePath"])
@@ -27,21 +27,28 @@ class ObjectControl():
             else:
                 self.obj2 = None
                 print "obj2 None"
-            return self.obj1, self.obj2
-        else: #  parameters['loadingString'] == "circ":
+            self.objTup = (self.obj1, self.obj2)
+            return self.objTup
+        else:
             self.obj1 = self.sb.loader.loadModel(parameters["spherePath"])
             self.greenTex = self.sb.loader.loadTexture(parameters["greenTexPath"])
             self.obj1.setTexture(self.greenTex)
             self.obj1.setScale(parameters['sphereScale'])
-            print "circ successfull"
-            return self.obj1
+            print "loading circ successful"
+            self.objTup = (self.obj1,)
+            return self.objTup
+
 
     def setObjPositions(self):
         if len(parameters['loadingString']) == 2:
-            self.setTwoPos(self.obj1, self.obj2)
+            pos = self.setTwoPos(self.obj1, self.obj2)
             print "setTwoPos successful"
+            return pos
         elif parameters['loadingString'] == "circ":
-            self.setCircPos(obj=self.obj1, teta=0, r=50)
+            pos = self.setCircPos(obj=self.obj1, teta=0, r=50)
+            return pos
+
+
 
     def setTwoPos(self, obj1, obj2):
         offset = ((int(parameters["worldSize"]) - 1) / 2) + 1
@@ -60,6 +67,7 @@ class ObjectControl():
 
         self.pos1 = np.array([quad1PosR,quad2PosL,quad3PosL,quad3PosR])
         self.pos2 = np.array([quad1PosL,quad2PosR,quad4PosL,quad4PosR])
+
         if not obj1:
             pass
         else:
@@ -77,13 +85,27 @@ class ObjectControl():
                 placeholder2 = self.sb.render.attach_new_node("holder2")
                 placeholder2.setPos(self.pos2[i][0], self.pos2[i][1], parameters["treeZ"])
                 obj2.instanceTo(placeholder2)
-
+        self.pos = np.append(self.pos1, self.pos2, axis=0)
+        return self.pos
 
     def setCircPos(self, obj, teta, r):
         x = parameters['playerInitPos'][0] + (math.sin(math.radians(teta))*r)
         y = parameters['playerInitPos'][1] + (math.cos(math.radians(teta))*r)
-        pos = (x,y,parameters["sphereZ"])
+        self.temp = (x,y,parameters["sphereZ"])
+        self.pos = np.array([self.temp])
         obj.setPos(tuple(parameters['origin']))
-        placeholder = self.sb.render.attach_new_node("holder")
-        placeholder.setPos(pos)
-        obj.instanceTo(placeholder)
+        self.placeholder = self.sb.render.attach_new_node("holder")
+        self.placeholder.setPos(self.pos[0][0],self.pos[0][1],self.pos[0][2])
+        obj.instanceTo(self.placeholder)
+        return self.pos
+
+    def moveObj(self, obj, teta):
+        x = parameters['playerInitPos'][0] + (math.sin(math.radians(teta)) * 50)
+        y = parameters['playerInitPos'][1] + (math.cos(math.radians(teta)) * 50)
+        self.temp = (x, y, parameters["sphereZ"])
+        self.pos = np.array([self.temp])
+        obj.setPos(tuple(parameters['origin']))
+        self.placeholder.setPos(self.pos[0][0], self.pos[0][1], self.pos[0][2])
+        obj.instanceTo(self.placeholder)
+        return self.pos
+
