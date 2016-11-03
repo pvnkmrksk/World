@@ -254,7 +254,6 @@ def showFileDialog(win, line, pathStart):
     '''
 
     fname = str(QtGui.QFileDialog.getOpenFileName(win, 'Open file', pathStart))
-
     if line and fname != '': #set only if given a label to setText
         line.setText(fname)
     return fname
