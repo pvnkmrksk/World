@@ -7,6 +7,8 @@ from PyQt4.QtCore import QTimer
 from PyQt4.Qwt5 import Qwt
 import ast
 import subprocess
+import signal
+
 from PyQt4.Qwt5.Qwt import QwtCompass, QwtDial
 #import pyqtgraph as pg
 from World.msg import MsgTrajectory
@@ -22,6 +24,7 @@ jsonRecent= pathJson + 'recent.json'
 jsonCurrent=jsonRecent#pathJson+'temp.json' #modify a temp json file
 jsonVR= pathJson + 'VR.json'
 traj = 0
+signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 
 
@@ -252,7 +255,6 @@ def showFileDialog(win, line, pathStart):
     '''
 
     fname = str(QtGui.QFileDialog.getOpenFileName(win, 'Open file', pathStart))
-
     if line and fname != '': #set only if given a label to setText
         line.setText(fname)
     return fname
@@ -424,7 +426,12 @@ if __name__ == '__main__':
         'odour2': [ui.odourBtn2, showFileDialog, ui.odour2],
         'odour3': [ui.odourBtn3, showFileDialog, ui.odour3],
         'odour4': [ui.odourBtn4, showFileDialog, ui.odour4],
-        'beepPath': [ui.beepPathBtn,showFileDialog,ui.beepPath]
+        'odour1Mask': [ui.odour1MaskBtn, showFileDialog, ui.odour1Mask],
+        'odour2Mask': [ui.odour2MaskBtn, showFileDialog, ui.odour2Mask],
+        'odour3Mask': [ui.odour3MaskBtn, showFileDialog, ui.odour3Mask],
+        'odour4Mask': [ui.odour4MaskBtn, showFileDialog, ui.odour4Mask],
+        'beepPath': [ui.beepPathBtn,showFileDialog,ui.beepPath],
+
 
     }
     callLooper(myDict)
