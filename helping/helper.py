@@ -30,6 +30,8 @@ def paramsFromGUI():
                 parameters[item] = tuple(parameters[item])
     else:
         from params import parameters
+        print "using old parms file"
+
     return parameters
 
 def clamp(n, minn, maxn):
@@ -49,3 +51,6 @@ def clamp(n, minn, maxn):
         return maxn
     else:
         return n
+
+def round_down(num, divisor):
+    return num - (num%divisor)
