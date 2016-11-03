@@ -48,12 +48,14 @@ int pos;             // servo angle 0-180
 int i;               // iterator
 
 // LED on Pin 13 for digital on/off demo
-int ledPin = 13;
+
 int valveLedPin=2;
 int buzzerPin=8;
 int pinState = LOW;
 int s1=6;           //servo 1 pin
-
+int valve1 =9;
+int valve2 =10;
+int valve3 =13;
 void setup() 
 { 
   // Attach each Servo object to a digital pin
@@ -64,10 +66,12 @@ servo1.attach(s1);
   //   etc...
 
   // Valve and LED on Pin 13 for digital on/off demo
-  pinMode(ledPin, OUTPUT);
-
-  // Open the serial connection, 9600 baud
-  Serial.begin(9600);
+  pinMode(valve1,OUTPUT);
+  pinMode(valve2,OUTPUT);
+  pinMode(valve3,OUTPUT);
+  
+  // Open the serial connection, 115200 baud
+  Serial.begin(115200);
 } 
 
 void loop() 
@@ -86,6 +90,8 @@ void loop()
       servo = userInput[0];
       // Second byte = which position?
       pos = userInput[1];
+//      Serial.println(pos);
+
       // Packet error checking and recovery
       if (pos == 255) { servo = 255; }
 
@@ -102,18 +108,49 @@ void loop()
    //       break;
    // etc...
 
+        
         // LED and Valve on Pin 13 for digital on/off demo
-        case 99:
+        case 97:
           if (pos == 1) {
-            pinState = HIGH;
-            tone(buzzerPin,1000);
+            digitalWrite(valve1, HIGH);
+            //pinState = HIGH;
+            
+            //tone(buzzerPin,1000);
           }
           if (pos == 0) {
-            pinState = LOW;
-            noTone(buzzerPin);
+            digitalWrite(valve1, LOW);
+//            pinState = LOW;
+            //noTone(buzzerPin);
           }
-          digitalWrite(ledPin, pinState);
-          digitalWrite(valveLedPin, pinState);
+          break;
+
+          
+        case 98:
+          if (pos == 1) {
+            digitalWrite(valve2, HIGH);
+            //pinState = HIGH;
+            
+            //tone(buzzerPin,1000);
+          }
+          if (pos == 0) {
+            digitalWrite(valve2, LOW);
+//            pinState = LOW;
+            //noTone(buzzerPin);
+          }
+          break;
+
+        case 99:
+          if (pos == 1) {
+            digitalWrite(valve3, HIGH);
+            //pinState = HIGH;
+            
+            //tone(buzzerPin,1000);
+          }
+          if (pos == 0) {
+            digitalWrite(valve3, LOW);
+//            pinState = LOW;
+            //noTone(buzzerPin);
+          }
           break;
       }
     }
