@@ -10,7 +10,9 @@ int16 closed
 
 int16 trial
 int16 servoAngle
-int16 valve
+int16 valve1
+int16 valve2
+int16 valve3
 int16 quadrant
 
 float64 DCoffset
