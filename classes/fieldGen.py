@@ -116,7 +116,7 @@ class FieldGen():
 
         return packet_field
 
-    def odourField(self, w=257, h=257, oq=['s', 1, 'p', 0], plot=False):
+    def odourField(self, w=257, h=257, oq=['s', 1, 'p', 0],plot=False):
         '''
         GIves an array filley with 4 arrays as quadrants with packets or strips or custom images to be used as odourfield
 
@@ -155,15 +155,33 @@ class FieldGen():
                 oq[quad] = packet
 
             quad += 1
+        #
+        # odour_field[0:offsetW, 0:offsetH] = oq[2]
+        # odour_field[offsetW + 1:w, 0:offsetH] = oq[3]
+        # odour_field[0:offsetW, offsetH + 1:h] = oq[1]
+        # odour_field[offsetW + 1:w, offsetH + 1:h] = oq[0]
 
-        odour_field[0:offsetW, 0:offsetH] = oq[2]
-        odour_field[offsetW + 1:w, 0:offsetH] = oq[3]
-        odour_field[0:offsetW, offsetH + 1:h] = oq[1]
-        odour_field[offsetW + 1:w, offsetH + 1:h] = oq[0]
-
+        odour_field=self.gen(odour_field,oq,w,h)
         self.toPlot(np.rot90(odour_field), plot)
 
         return odour_field
+
+    def gen(self,field,quad,w,h):
+        offsetW = int((w - 1) / 2)
+        offsetH = int((h - 1) / 2)
+
+
+        field[0:offsetW, 0:offsetH] = quad[2]
+        field[offsetW + 1:w, 0:offsetH] = quad[3]
+        field[0:offsetW, offsetH + 1:h] = quad[1]
+        field[offsetW + 1:w, offsetH + 1:h] = quad[0]
+        return field
+
+
+    def maskField(self, mq, w=257, h=257):
+        mask_field = np.zeros([w, h])
+        mask_field =self.gen(mask_field,mq,w,h)
+        return mask_field
 
 if __name__=='main':
     f=FieldGen()
