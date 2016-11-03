@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 from __future__ import division #odd issue. Must be on first line else it fails
 from importHelper import *  # file with just a bunch of imports
+import objectControl as oc
 from helping import helper
-from direct.showbase.ShowBase import ShowBase
-from skimage.io import imread
 parameters=helper.paramsFromGUI()
 useGui = True
+objectPosition = None
 
 # print parameters
 e=ExceptionHandlers(parameters)
@@ -36,7 +36,8 @@ class MyApp(ShowBase):
                         str(int(parameters["windowHeight"] / parameters["captureScale"])))  # set window size
 
         # loadPrcFileData('', 'fullscreen true')
-        # loadPrcFileData('', 'want-pstats true')
+        loadPrcFileData('', 'want-pstats true')
+        loadPrcFileData('', 'pstats-gpu-timing 1')
 
         ShowBase.__init__(self)  # start the app
 
@@ -91,7 +92,9 @@ class MyApp(ShowBase):
         if parameters["loadWind"]:
             servo.move(1, self.servoAngle)
         self.quadrantIndex = 2  # starts in 3rd quadrant, index 2 based on init pos
-        self.valve = 0
+        self.valve1State = 0
+        self.valve2State = 0
+        self.valve3State = 0
         self.trial = 1
         self.reset = False
         self.bagRecordingState = False
@@ -104,6 +107,7 @@ class MyApp(ShowBase):
         self.wbas = 0
         self.quadSet = set(range(0, 4))
         self.quadSetCopy = self.quadSet.copy()
+        self.packetDur=parameters['packetDur']
         self.headingMod = 0
         self.headingResponseMod = 0
 
@@ -118,6 +122,8 @@ class MyApp(ShowBase):
         self.imposeResponseArr = np.zeros(self.bin)
 
         self.phase = 0
+        self.valve1Port=97
+        self.valve2Port=98
 
     def initInput(self):
         '''
@@ -129,6 +135,8 @@ class MyApp(ShowBase):
         self.keyboardSetup()
         self.stimList = self.stimulusListGen()
         parameters["stimList"] = self.stimList
+
+
 
     def initOutput(self):
         '''
@@ -142,43 +150,42 @@ class MyApp(ShowBase):
 
         '''
 
-        self.initPlot()  # load the plot 1st so that the active window is panda
+        # self.initPlot()  # load the plot 1st so that the active window is panda
         self.modelLoader()
         if not parameters['humanDisplay']:
             self.initDisplayRegion()
-
+        #
         self.createEnvironment()
-        # self.makeLabels()
 
         # THis is to set the window title so that I can captur in CCSM for pinning to visible workspace
         props = WindowProperties()
         props.setTitle('RhagVR')
         self.win.requestProperties(props)
 
+
         myFieldGen = FieldGen()
-        self.scale = 1
         if parameters["loadWind"]:
             self.windField = myFieldGen.windField(wq=parameters['windQuad'])
         if parameters["loadOdour"]:
-            self.beep = self.loader.loadSfx(parameters['beepPath'])
-            self.beep.setLoop(1)#loop COntinuously
-            self.beep.play()  # start playing the sound seamlessly
-            self.beep.setVolume(0) #mute until unmuted later once init of all items complete
 
-            # self.odourField = (np.rot90(imread(
-            #     '/home/pavan/catkin/src/world/models/odour/s.png'), 3)) / 25.5
+            # self.beep = self.loader.loadSfx(parameters['beepPath'])
+            # self.beep.setLoop(1)#loop COntinuously
+            # self.beep.play()  # start playing the sound seamlessly
+            # self.beep.setVolume(0) #mute until unmuted later once init of all items complete
+
             self.odourField = myFieldGen.odourField(parameters['worldSize'],
                                                     parameters['worldSize'],
                                                     oq=parameters['odourQuad'],plot=parameters['plotOdourQuad'])
 
-            # plt.imshow(self.odourField, cmap='Greys')
-            # plt.show(block=False)
-            # self.odourField = myFieldGen.odourPacket(width=257,height=257,scale=,
-            #                                          packetFrequency=20,plot=False,
-            #                                          packetDuration=.02)
-            #
-            #
-            # self.odourField = myFieldGen.odourField(oq=parameters['odourQuad'],plot=True)
+        self.valve1=ValveHandler(valvePort=97)
+        self.valve2=ValveHandler(valvePort=98)
+        self.valve3=ValveHandler(valvePort=99)
+
+        # self.haw= OdourTunnel(self.odourField,self.player,parameters=parameters,phase=150)
+        # self.apple= OdourTunnel(self.odourField,self.player,parameters=parameters)
+
+
+
 
     def initFeedback(self):
         '''
@@ -197,8 +204,8 @@ class MyApp(ShowBase):
         '''
         Setup the keybindings to actions
         Esc: Exit
-        a   : climb
-        z   : fall
+        q   : climb
+        a   : fall
         up  : accelerate
         down: decelerate
         left:head Counter clockwise
@@ -219,6 +226,12 @@ class MyApp(ShowBase):
         h   : Increase DC offset
         v   : valve on
         c   : valve off
+        x   : valve on
+        Z   : valve off
+
+        [   : packetDur down
+        ]   : packetDur up
+
 
         # //todo q,w,t  discard key funcs
 
@@ -231,16 +244,16 @@ class MyApp(ShowBase):
                        "accelerate": 0, "decelerate": 0, "handBrake": 0, "reverse": 0,
                        "closed": 0, "gain-up": 0, "gain-down": 0, "lrGain-up": 0,
                        "lrGain-down": 0,
-                       "init": 0, "newInit": 0, "newTopSpeed": 0, "clf": 0, "saveFig": 0,
+                       "init": 0, "packetDur-up": 0, "packetDur-down": 0, "newTopSpeed": 0, "clf": 0, "saveFig": 0,
                        "startBag": 0, "stopBag": 0, "quad1": 0, "quad2": 0, "quad3": 0, "quad4": 0, "human": 0,
                        "hRight": 0, "DCoffset-up": 0, "DCoffset-down": 0,
-                       "valve-on": 0, "valve-off": 0}
+                       "valve1-on": 0, "valve1-off": 0,"valve2-on": 0, "valve2-off": 0}
 
         self.accept("escape", self.winClose)
-        self.accept("a", self.setKey, ["climb", 1])
-        self.accept("a-up", self.setKey, ["climb", 0])
-        self.accept("z", self.setKey, ["fall", 1])
-        self.accept("z-up", self.setKey, ["fall", 0])
+        self.accept("q", self.setKey, ["climb", 1])
+        self.accept("q-up", self.setKey, ["climb", 0])
+        self.accept("a", self.setKey, ["fall", 1])
+        self.accept("a-up", self.setKey, ["fall", 0])
         self.accept("arrow_left", self.setKey, ["left", 1])
         self.accept("arrow_left-up", self.setKey, ["left", 0])
         self.accept("arrow_right", self.setKey, ["right", 1])
@@ -261,8 +274,10 @@ class MyApp(ShowBase):
         self.accept("u-up", self.setKey, ["gain-up", 0])
         self.accept("y", self.setKey, ["gain-down", 1])
         self.accept("y-up", self.setKey, ["gain-down", 0])
-        self.accept("]", self.setKey, ["newInit", 1])
-        self.accept("]-up", self.setKey, ["newInit", 0])
+        self.accept("[", self.setKey, ["packetDur-down", 1])
+        self.accept("[-up", self.setKey, ["packetDur-down", 0])
+        self.accept("]", self.setKey, ["packetDur-up", 1])
+        self.accept("]-up", self.setKey, ["packetDur-up", 0])
         self.accept("q", self.setKey, ["clf", 1])
         self.accept("q-up", self.setKey, ["clf", 0])
         self.accept("w", self.setKey, ["saveFig", 1])
@@ -273,10 +288,6 @@ class MyApp(ShowBase):
         self.accept("d-up", self.setKey, ["stopBag", 0])
         self.accept("t", self.setKey, ["newTopSpeed", 1])
         self.accept("t-up", self.setKey, ["newTopSpeed", 0])
-        # self.accept("v", self.setKey, ["lrGain-down", 1])
-        # self.accept("v-up", self.setKey, ["lrGain-down", 0])
-        # self.accept("b", self.setKey, ["lrGain-up", 1])
-        # self.accept("b-up", self.setKey, ["lrGain-up", 0])
         self.accept("1", self.setKey, ["quad1", 1])
         self.accept("1-up", self.setKey, ["quad1", 0])
         self.accept("2", self.setKey, ["quad2", 1])
@@ -293,10 +304,14 @@ class MyApp(ShowBase):
         self.accept("g-up", self.setKey, ["DCoffset-down", 0])
         self.accept("h", self.setKey, ["DCoffset-up", 1])
         self.accept("h-up", self.setKey, ["DCoffset-up", 0])
-        self.accept("v", self.setKey, ["valve-on", 1])
-        self.accept("v-up", self.setKey, ["valve-on", 0])
-        self.accept("c", self.setKey, ["valve-off", 1])
-        self.accept("c-up", self.setKey, ["valve-off", 0])
+        self.accept("v", self.setKey, ["valve2-on", 1])
+        self.accept("v-up", self.setKey, ["valve2-on", 0])
+        self.accept("c", self.setKey, ["valve2-off", 1])
+        self.accept("c-up", self.setKey, ["valve2-off", 0])
+        self.accept("x", self.setKey, ["valve1-on", 1])
+        self.accept("x-up", self.setKey, ["valve1-on", 0])
+        self.accept("z", self.setKey, ["valve1-off", 1])
+        self.accept("z-up", self.setKey, ["valve1-off", 0])
 
         self.disableMouse()  # or updateCamera will fail!
 
@@ -351,6 +366,7 @@ class MyApp(ShowBase):
         """
         if parameters["loadWorld"]:#todo.remove this useless bool
             self.worldLoader()
+            self.playerLoader()
 
     def worldLoader(self):
         """
@@ -362,6 +378,7 @@ class MyApp(ShowBase):
             None
         """
         # global plotter
+        global objectPosition
         self.worldFilename = "models/world_" + "size:" + parameters["modelSizeSuffix"] \
                              + "_obj:" + parameters["loadingString"] + ".bam"
 
@@ -377,7 +394,18 @@ class MyApp(ShowBase):
         self.world = self.loader.loadModel(self.worldFilename)  # loads the world_size
         self.world.reparentTo(self.render)  # render the world
 
-        # the Player
+        self.obj = oc.ObjectControl(self)
+        self.objTup = self.obj.getObjects()
+
+        try:
+            self.obj1 = self.objTup[0]
+            self.obj2 = self.objTup[1]
+        except IndexError:
+            pass
+        
+        objectPosition = self.obj.setObjPositions()
+
+    def playerLoader(self):
         self.player = NodePath("player")
         self.player.setPos(self.world, tuple(parameters["playerInitPos"]))
         self.player.setH(self.world, (parameters["playerInitH"]))  # heading angle is 0
@@ -544,7 +572,9 @@ class MyApp(ShowBase):
 
         mes.trial = self.trial  # trial number. increments after every reset
         mes.servoAngle = self.servoAngle  # servo angle command, may not complete if out of bounds
-        mes.valve = self.valve  # odour valve state
+        mes.valve1 = self.valve1State  # odour valve state
+        mes.valve2 = self.valve2State  # odour valve state
+        mes.valve3 = self.valve3State  # odour valve state
         mes.quadrant = self.quadrantIndex + 1  # 0 indexing of python +1 to real qorld quadrant naming
         mes.reset = self.reset  # boolean flag on quad change
 
@@ -598,22 +628,48 @@ class MyApp(ShowBase):
         self.updateCamera()
         self.bagControl()
 
-        # self.updateLabel()
 
         if parameters["loadWind"]:
             x, y, z = self.player.getPos()
             windDir = self.windField[x, y]
             self.windTunnel(windDir)
-            # self.windTunnel(parameters["windDirection"])
+            self.windTunnel(parameters["windDirection"])
+        #
+        if parameters["loadOdour"]:
+            self.valve1State=self.haw.update(self.packetDur)
+            self.valve2State=self.apple.update(self.packetDur)
 
-        if not (self.keyMap["valve-on"] or self.keyMap["valve-off"]):  # if key down for override, don't use odourtunnel
-            if parameters["loadOdour"]:
-                self.odourTunnel()
+
+        self.keyHandler()
+        self.valve1.move(self.valve1State)
+        self.valve2.move(self.valve2State)
 
         self.publisher(self.message())
         self.reset = False
 
         return Task.cont
+
+    def keyHandler(self):
+        if self.keyMap["packetDur-down"] != 0:
+            self.packetDur -= 0.0001
+            print "packetDur is now", self.packetDur
+        if self.keyMap["packetDur-up"] != 0:
+            self.packetDur += 0.0001
+            print "packetDur is now", self.packetDur
+
+        # update user controlled valve state
+        """
+        The valve is controlled via servo code itself. The servo 99 case changes digital state of pin 13
+
+        """
+        if (self.keyMap["valve1-on"] != 0):
+            self.valve1State = 1
+        if (self.keyMap["valve1-off"] != 0):
+            self.valve1State = 0
+        if (self.keyMap["valve2-on"] != 0):
+            self.valve2State = 1
+        if (self.keyMap["valve2-off"] != 0):
+            self.valve2State = 0
 
     def updatePlayer(self):
         """
@@ -642,7 +698,7 @@ class MyApp(ShowBase):
 
             # global prevPos, currentPos, ax, fig, treePos, redPos Global Clock by default, panda runs as fast as it can frame to frame
             scalefactor = parameters["speed"] * (globalClock.getDt())
-            climbfactor = 0.01
+            climbfactor = 0.08
             bankfactor = 1
             parameters["wbad"] = self.wbad
             parameters["wbas"] = self.wbas
@@ -760,19 +816,6 @@ class MyApp(ShowBase):
                 parameters["DCoffset"] -= parameters["DCoffsetIncrement"]
                 print "ofset is ", parameters["DCoffset"]
 
-            # update user controlled valve state
-            """
-            The valve is controlled via servo code itself. The servo 99 case changes digital state of pin 13
-
-            """
-            if (self.keyMap["valve-on"] != 0):
-                self.valve = 1
-                servo.move(99, self.valve)
-
-                # print "valve is ", self.valve
-            if (self.keyMap["valve-off"] != 0):
-                self.valve = 0
-                servo.move(99, self.valve)
 
             # respect max camera distance else you cannot see the floor post loop the loop!
             if (self.player.getZ() > parameters["maxDistance"]):
@@ -823,6 +866,9 @@ class MyApp(ShowBase):
                 if (self.keyMap["quad" + str(i + 1)] != 0):
                     self.resetPosition(i + 1)
                     time.sleep(0.15)
+
+
+
 
             if parameters["imposeStimulus"]:
                 self.player.setH(self.player.getH() + self.stim)
@@ -948,20 +994,20 @@ class MyApp(ShowBase):
         # plt.plot(sums)
 
     def tooLongBoutReset(self):
-        if parameters["maxBoutDur"]!=-1:#if -1 run forever
-            if self.boutFrame > parameters["maxBoutDur"]:
-                self.resetPosition("rand")
-                print "bout longer than max duration", parameters["maxBoutDur"]
-            else:
-                self.boutFrame += 1
+        if self.boutFrame > parameters["maxBoutDur"]:
+            self.resetPosition("rand")
+            print "bout longer than max duration", parameters["maxBoutDur"]
+        else:
+            self.boutFrame += 1
 
     def reachedDestination(self):
-        oddeven = np.append(self.odd, self.even, axis=0)
-        for i in (oddeven):
-
+        global objectPosition
+        # oddeven = np.append(self.odd, self.even, axis=0)
+        for i in (objectPosition):
             if self.isInsideTarget(i):
                 return True
                 break
+
 
     def quadPositionGenerator(self, posL, posR):
 
@@ -1007,26 +1053,36 @@ class MyApp(ShowBase):
             tl: top left coordinate.
             br: bottom right coordinate
         """
+
         tl = (target[0] - distance, target[1] + distance)
         br = (target[0] + distance, target[1] - distance)
+
 
         return tl, br
 
     def resetPosition(self, quad):
 
-        if quad == "rand":
-            self.randIndex()
-            newPos = parameters["initPosList"][self.quadrantIndex]
-            print "random quadrant is ", self.quadrantIndex + 1, "\n"
 
-            # index = random.randrange(len(parameters["initPosList"]))
-            # newPos = parameters["initPosList"][index]
-            # print "random quadrant is ", index + 1, "\n"
+        if len(parameters["loadingString"]) == 2:
+            if quad == "rand":
+                self.randIndex()
+                newPos = parameters["initPosList"][self.quadrantIndex]
+                print "random quadrant is ", self.quadrantIndex + 1, "\n"
 
+                # index = random.randrange(len(parameters["initPosList"]))
+                # newPos = parameters["initPosList"][index]
+                # print "random quadrant is ", index + 1, "\n"
+
+            else:
+                newPos = parameters["initPosList"][quad - 1]
+                self.quadrantIndex = quad - 1
+                print "Your quadrant is", (self.quadrantIndex), "\n"
         else:
-            newPos = parameters["initPosList"][quad - 1]
-            self.quadrantIndex = quad - 1
-            print "Your quadrant is", (self.quadrantIndex), "\n"
+            global objectPosition
+            newPos = parameters["playerInitPos"]
+            ranNum = np.random.randint(0,6)
+            teta = ranNum * 60
+            objectPosition = self.obj.moveObj(self.obj1, teta)
 
         self.player.setPos(newPos)
         self.player.setH(parameters["playerInitH"])
@@ -1097,46 +1153,7 @@ class MyApp(ShowBase):
             self.fullBagger.stopbag()
 
             self.bagRecordingState = False
-
-    def windTunnel(self, windDirection):
-        if windDirection != -1:  # -1 is open loop in wind direction
-            self.servoAngle = int((90 - (self.player.getH()) + windDirection - 180) % 360)
-        else:
-            self.servoAngle = 90
-            # print "wind in open loop"
-        servo.move(1, self.servoAngle)
-
-    def odourTunnel(self):
-        # current packet frequency from odour field
-        self.currentPf = self.odourField\
-                             [int(self.player.getX()), int(self.player.getY() )]
-        '''
-        calculate Tau=Time period ,
-        if pf>0, if in the packet on time, turn on valve else off
-        else turn off valve
-        set the volume to high or low and send command to arduino to set valve state
-        finally increment the phase
-        '''
-        if self.currentPf > 0:
-            self.currentTau = parameters['fps'] / self.currentPf
-            if (self.phase % self.currentTau) < (parameters['fps'] * parameters['packetDur']):
-                self.valve = 1
-            else:
-                self.valve = 0
-        else:
-            self.valve = 0
-
-        # self.valve = not self.valve
-
-        if self.valve:
-            self.beep.setVolume(1)
-        else:
-            self.beep.setVolume(0)
-
-        servo.move(99, self.valve)
-        self.phase += 1
-
-    # screen capture
+   # screen capture
     def record(self, dur, fps):
         self.movie('frames/movie', dur, fps=fps, format='jpg', sd=7)
 

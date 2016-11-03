@@ -2,7 +2,6 @@ from __future__ import division
 
 from direct.showbase.ShowBase import ShowBase  # import the bits of panda
 from panda3d.core import GeoMipTerrain, SamplerState  # that we need
-#from myApp import MyApp
 import numpy as np
 import matplotlib.pyplot as plt
 import json_tricks as json
@@ -45,13 +44,14 @@ class WorldGen(ShowBase):  # our 'class'
         ShowBase.__init__(self)  # initialise
 
         self.initTerrain()
+        self.generate()
 
-        self.quadPositionGenerator()
+        # self.quadPositionGenerator()
         #self.initModels()
         # self.getObjects()
         #self.initPositions()
         # self.setObjPositions()
-        self.generate()
+
         # if parameters["loadingString"] == 'circ':
         #     # self.setObjects()
         #     for i in range(0,360,30):
@@ -71,12 +71,13 @@ class WorldGen(ShowBase):  # our 'class'
 
 
 
+
         # print "kill is ", parameters["killWorldGen"]
         # parameters["killWorldGen"]=False
         print " \n \n \n World Generate is about to exit \n \n \n"
         sys.exit()
 
-    def initTerrain(self):
+    def initTerrain(self):#todo fix grass problem
         self.terrain = GeoMipTerrain("worldTerrain")  # create a self.terrain
         self.terrain.setHeightfield(parameters["modelHeightMap"])  # set the height map
         if parameters["loadNullModels"]:#if null, then create uniform back and sky
@@ -112,46 +113,46 @@ class WorldGen(ShowBase):  # our 'class'
     #     self.redTex = self.loader.loadTexture(parameters["redTexPath"])
 
 
-    def initPositions(self):
-        self.evenObj = self.oddObj = self.evenScale = self.oddScale = \
-                self.evenTex = self.oddTex = self.evenLoad = self.oddLoad =self.evenZ=self.oddZ= \
-                self.evenPlotColor=self.oddPlotColor=self.evenPlotMarker=self.oddPlotMarker=None
-
-        if parameters["quad"]:
-
-            self.odd,self.even=self.quadPositionGenerator()#todo: ???
+    # def initPositions(self):
+    #     self.evenObj = self.oddObj = self.evenScale = self.oddScale = \
+    #             self.evenTex = self.oddTex = self.evenLoad = self.oddLoad =self.evenZ=self.oddZ= \
+    #             self.evenPlotColor=self.oddPlotColor=self.evenPlotMarker=self.oddPlotMarker=None
+    #
+    #     if parameters["quad"]:
+    #
+    #         self.odd,self.even=self.quadPositionGenerator()
 
         # print "odd is",self.odd
         # print "even is ", self.even
 
 
-    def quadPositionGenerator(self):
-        offset=((int(parameters["worldSize"])-1)/2)+1
-
-        quad3PosL=parameters["posL"]
-        quad3PosR=parameters["posR"]
-
-        quad4PosL=(parameters["posL"][0]+offset,parameters["posL"][1])
-        quad4PosR=(parameters["posR"][0]+offset,parameters["posR"][1])
-
-        quad2PosL=(parameters["posL"][0],parameters["posL"][1]+offset)
-        quad2PosR=(parameters["posR"][0],parameters["posR"][1]+offset)
-
-        quad1PosL=(parameters["posL"][0]+offset,parameters["posL"][1]+offset)
-        quad1PosR=(parameters["posR"][0]+offset,parameters["posR"][1]+offset)
-
-        #identical visual stim
-
-        # odd=np.array([quad1PosR,quad2PosR,quad3PosR,quad4PosR])
-        # even=np.array([quad1PosL,quad2PosL,quad3PosL,quad4PosL])
-
-        odd=np.array([quad1PosR,quad2PosL,quad3PosL,quad3PosR])
-        even=np.array([quad1PosL,quad2PosR,quad4PosL,quad4PosR])
-
-        # print offset
-        # print "even is ",odd
-        print "even is ", even
-        return odd,even
+    # def quadPositionGenerator(self):
+    #     offset=((int(parameters["worldSize"])-1)/2)+1
+    #
+    #     quad3PosL=parameters["posL"]
+    #     quad3PosR=parameters["posR"]
+    #
+    #     quad4PosL=(parameters["posL"][0]+offset,parameters["posL"][1])
+    #     quad4PosR=(parameters["posR"][0]+offset,parameters["posR"][1])
+    #
+    #     quad2PosL=(parameters["posL"][0],parameters["posL"][1]+offset)
+    #     quad2PosR=(parameters["posR"][0],parameters["posR"][1]+offset)
+    #
+    #     quad1PosL=(parameters["posL"][0]+offset,parameters["posL"][1]+offset)
+    #     quad1PosR=(parameters["posR"][0]+offset,parameters["posR"][1]+offset)
+    #
+    #     #identical visual stim
+    #
+    #     # odd=np.array([quad1PosR,quad2PosR,quad3PosR,quad4PosR])
+    #     # even=np.array([quad1PosL,quad2PosL,quad3PosL,quad4PosL])
+    #
+    #     odd=np.array([quad1PosR,quad2PosL,quad3PosL,quad3PosR])
+    #     even=np.array([quad1PosL,quad2PosR,quad4PosL,quad4PosR])
+    #
+    #     # print offset
+    #     # print "even is ",odd
+    #     print "even is ", even
+    #     return odd,even
 
     # def loadingStringParser(self, loadingString):
     #     """
@@ -331,21 +332,25 @@ class WorldGen(ShowBase):  # our 'class'
     #     placeholder.setPos(pos)
     #     obj.instanceTo(placeholder)
 
-    def plotPositions(self):
+    def plotPositions(self):#todo: take care of that
         self.tree=self.greenSphere=self.redSphere=self.treeTex=self.greenTex=self.redTex=None
         self.loadingStringParser(parameters["loadingString"])
         plt.scatter(self.odd[:,0],self.odd[:,1],color=self.oddPlotColor,marker=self.oddPlotMarker,s=80)
         plt.scatter(self.even[:,0],self.even[:,1],color=self.evenPlotColor,marker=self.evenPlotMarker,s=80)#,marker='|',color='g')
 
 
-    def worldNameGen(self):
-        self.worldFilename = "models/world_" + "size:" + parameters["modelSizeSuffix"] \
-                             + "_obj:"   + parameters["loadingString"] + ".bam"
-        print "world file name is ",self.worldFilename
+
+    # def worldNameGen(self):
+    #     self.worldFilename = "models/world_" + "size:" + parameters["modelSizeSuffix"] \
+    #                          + "_obj:"   + parameters["loadingString"] + ".bam"
+    #     print "world file name is ",self.worldFilename
 
     def generate(self):
 
-        self.worldNameGen()
+        # self.worldNameGen()
+        self.worldFilename = "models/world_" + "size:" + parameters["modelSizeSuffix"] \
+                             + "_obj:" + parameters["loadingString"] + ".bam"
+        print "world file name is ", self.worldFilename
         self.render.writeBamFile(self.worldFilename)
             # create 3D model
 
