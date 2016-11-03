@@ -155,7 +155,7 @@
                </attribute>
                <widget class="QGroupBox" name="groupBox_3">
                 <property name="enabled">
-                 <bool>false</bool>
+                 <bool>true</bool>
                 </property>
                 <property name="geometry">
                  <rect>
@@ -174,9 +174,6 @@
                  </item>
                  <item row="3" column="2">
                   <widget class="QLineEdit" name="odour4"/>
-                 </item>
-                 <item row="4" column="0">
-                  <widget class="QLineEdit" name="beepPath"/>
                  </item>
                  <item row="2" column="3">
                   <widget class="QPushButton" name="odourBtn1">
@@ -304,13 +301,6 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="4" column="2">
-                  <widget class="QPushButton" name="beepPathBtn">
-                   <property name="text">
-                    <string>Select Beep sound</string>
-                   </property>
-                  </widget>
-                 </item>
                  <item row="1" column="2">
                   <widget class="QDoubleSpinBox" name="packetDur">
                    <property name="accelerated">
@@ -370,10 +360,23 @@
                  </item>
                  <item row="5" column="0">
                   <widget class="QCheckBox" name="useOdourMask">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
                    <property name="text">
                     <string>Use Odour Masks</string>
                    </property>
                   </widget>
+                 </item>
+                 <item row="4" column="3">
+                  <widget class="QPushButton" name="beepPathBtn">
+                   <property name="text">
+                    <string>Select Beep sound</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="0" colspan="3">
+                  <widget class="QLineEdit" name="beepPath"/>
                  </item>
                 </layout>
                </widget>
@@ -484,7 +487,7 @@
            </rect>
           </property>
           <property name="currentIndex">
-           <number>2</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="tab_11">
            <attribute name="title">
@@ -615,8 +618,14 @@
              </item>
              <item row="2" column="0">
               <widget class="QSpinBox" name="maxBoutDur">
+               <property name="minimum">
+                <number>-9999</number>
+               </property>
                <property name="maximum">
                 <number>99999</number>
+               </property>
+               <property name="singleStep">
+                <number>0</number>
                </property>
               </widget>
              </item>

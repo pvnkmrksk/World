@@ -1,5 +1,6 @@
 from __future__ import division
 from helping import helper
+import numpy as np
 
 class WindTunnel():
     def __init__(self, windDirection,fps=165):
@@ -13,8 +14,10 @@ class WindTunnel():
 
 class OdourTunnel():
     # current packet frequency from odour field
-    def __init__(self,odourField,player,parameters,phase=0):
+    def __init__(self,odourField,player,parameters,odourMask=None,phase=0):
         self.of=odourField
+        self.om=odourMask
+        self.mask=True
         self.player=player
         self.parameters=parameters
         self.phase=phase
@@ -28,7 +31,13 @@ class OdourTunnel():
         Returns:
             state of the valve object
         '''
-        self.pf = self.of[int(self.player.getX()), int(self.player.getY())]
+        x=int(self.player.getX())
+        y=int(self.player.getY())
+        self.pf = self.of[x,y]
+        if self.om:
+            self.mask = self.om[x,y]
+            self.pf=np.logical_and(self.mask,self.pf)
+
 
         '''calculate Tau=Time period ,
         if pf>0, if in the packet on time, turn on valve else off
