@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>730</width>
-    <height>640</height>
+    <width>736</width>
+    <height>772</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -159,124 +159,226 @@
                 </property>
                 <property name="geometry">
                  <rect>
-                  <x>9</x>
+                  <x>-1</x>
                   <y>9</y>
-                  <width>664</width>
-                  <height>273</height>
+                  <width>681</width>
+                  <height>421</height>
                  </rect>
                 </property>
                 <property name="title">
                  <string>Control Odour</string>
                 </property>
-                <widget class="QWidget" name="layoutWidget">
-                 <property name="geometry">
-                  <rect>
-                   <x>10</x>
-                   <y>30</y>
-                   <width>651</width>
-                   <height>231</height>
-                  </rect>
-                 </property>
-                 <layout class="QGridLayout" name="gridLayout_19">
-                  <item row="3" column="2">
-                   <widget class="QLineEdit" name="odour4"/>
-                  </item>
-                  <item row="2" column="0">
-                   <widget class="QLineEdit" name="odour2"/>
-                  </item>
-                  <item row="2" column="2">
-                   <widget class="QLineEdit" name="odour1"/>
-                  </item>
-                  <item row="2" column="1">
-                   <widget class="QPushButton" name="odourBtn2">
+                <layout class="QGridLayout" name="gridLayout_5">
+                 <item row="2" column="2">
+                  <widget class="QLineEdit" name="odour1"/>
+                 </item>
+                 <item row="3" column="2">
+                  <widget class="QLineEdit" name="odour4"/>
+                 </item>
+                 <item row="2" column="3">
+                  <widget class="QPushButton" name="odourBtn1">
+                   <property name="text">
+                    <string>Select odour 1</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="0">
+                  <widget class="QLineEdit" name="odour2"/>
+                 </item>
+                 <item row="6" column="0" colspan="4">
+                  <widget class="QGroupBox" name="groupBox_6">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="title">
+                    <string>Odour Masks</string>
+                   </property>
+                   <widget class="QLineEdit" name="odour3Mask">
+                    <property name="geometry">
+                     <rect>
+                      <x>17</x>
+                      <y>48</y>
+                      <width>137</width>
+                      <height>22</height>
+                     </rect>
+                    </property>
+                   </widget>
+                   <widget class="QPushButton" name="odour3MaskBtn">
+                    <property name="geometry">
+                     <rect>
+                      <x>160</x>
+                      <y>48</y>
+                      <width>153</width>
+                      <height>22</height>
+                     </rect>
+                    </property>
                     <property name="text">
-                     <string>Select odour 2</string>
+                     <string>Select odour 3 Mask</string>
                     </property>
                    </widget>
-                  </item>
-                  <item row="1" column="3">
-                   <widget class="QLabel" name="label_9">
+                   <widget class="QLineEdit" name="odour4Mask">
+                    <property name="geometry">
+                     <rect>
+                      <x>319</x>
+                      <y>48</y>
+                      <width>129</width>
+                      <height>22</height>
+                     </rect>
+                    </property>
+                   </widget>
+                   <widget class="QLineEdit" name="odour2Mask">
+                    <property name="geometry">
+                     <rect>
+                      <x>17</x>
+                      <y>20</y>
+                      <width>137</width>
+                      <height>22</height>
+                     </rect>
+                    </property>
+                   </widget>
+                   <widget class="QLineEdit" name="odour1Mask">
+                    <property name="geometry">
+                     <rect>
+                      <x>319</x>
+                      <y>20</y>
+                      <width>129</width>
+                      <height>22</height>
+                     </rect>
+                    </property>
+                   </widget>
+                   <widget class="QPushButton" name="odour1MaskBtn">
+                    <property name="geometry">
+                     <rect>
+                      <x>454</x>
+                      <y>20</y>
+                      <width>153</width>
+                      <height>22</height>
+                     </rect>
+                    </property>
                     <property name="text">
-                     <string>odourQuad</string>
+                     <string>Select odour 1 Mask</string>
                     </property>
                    </widget>
-                  </item>
-                  <item row="1" column="0" colspan="3">
-                   <widget class="QLineEdit" name="odourQuad">
-                    <property name="toolTip">
-                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add &lt;span style=&quot; font-weight:600;&quot;&gt;4 &lt;/span&gt;items&lt;/p&gt;&lt;p&gt;[0, 0, 0, 0]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   <widget class="QPushButton" name="odour4MaskBtn">
+                    <property name="geometry">
+                     <rect>
+                      <x>454</x>
+                      <y>48</y>
+                      <width>153</width>
+                      <height>22</height>
+                     </rect>
                     </property>
                     <property name="text">
-                     <string>[]</string>
+                     <string>Select odour 4 Mask</string>
                     </property>
                    </widget>
-                  </item>
-                  <item row="4" column="2">
-                   <widget class="QDoubleSpinBox" name="packetDur">
-                    <property name="accelerated">
-                     <bool>true</bool>
+                   <widget class="QPushButton" name="odour2MaskBtn">
+                    <property name="geometry">
+                     <rect>
+                      <x>160</x>
+                      <y>20</y>
+                      <width>153</width>
+                      <height>22</height>
+                     </rect>
                     </property>
-                    <property name="decimals">
-                     <number>3</number>
-                    </property>
-                    <property name="maximum">
-                     <double>10.000000000000000</double>
-                    </property>
-                    <property name="singleStep">
-                     <double>0.010000000000000</double>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="1">
-                   <widget class="QPushButton" name="odourBtn3">
                     <property name="text">
-                     <string>Select odour 3</string>
+                     <string>Select odour 2 Mask</string>
                     </property>
                    </widget>
-                  </item>
-                  <item row="2" column="3">
-                   <widget class="QPushButton" name="odourBtn1">
-                    <property name="text">
-                     <string>Select odour 1</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="0">
-                   <widget class="QLineEdit" name="odour3"/>
-                  </item>
-                  <item row="4" column="3">
-                   <widget class="QLabel" name="label_11">
-                    <property name="text">
-                     <string>packetDur</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="4" column="0">
-                   <widget class="QLineEdit" name="beepPath"/>
-                  </item>
-                  <item row="4" column="1">
-                   <widget class="QPushButton" name="beepPathBtn">
-                    <property name="text">
-                     <string>Select Beep sound</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="3">
-                   <widget class="QPushButton" name="odourBtn4">
-                    <property name="text">
-                     <string>Select odour 4</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="0">
-                   <widget class="QCheckBox" name="plotOdourQuad">
-                    <property name="text">
-                     <string>Plot odourQuad</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </widget>
+                  </widget>
+                 </item>
+                 <item row="2" column="1">
+                  <widget class="QPushButton" name="odourBtn2">
+                   <property name="text">
+                    <string>Select odour 2</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="0">
+                  <widget class="QCheckBox" name="plotOdourQuad">
+                   <property name="text">
+                    <string>Plot odourQuad</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="2">
+                  <widget class="QDoubleSpinBox" name="packetDur">
+                   <property name="accelerated">
+                    <bool>true</bool>
+                   </property>
+                   <property name="decimals">
+                    <number>3</number>
+                   </property>
+                   <property name="maximum">
+                    <double>10.000000000000000</double>
+                   </property>
+                   <property name="singleStep">
+                    <double>0.010000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QLabel" name="label_9">
+                   <property name="text">
+                    <string>odourQuad</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="3">
+                  <widget class="QPushButton" name="odourBtn4">
+                   <property name="text">
+                    <string>Select odour 4</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="1">
+                  <widget class="QPushButton" name="odourBtn3">
+                   <property name="text">
+                    <string>Select odour 3</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="0">
+                  <widget class="QLineEdit" name="odour3"/>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLineEdit" name="odourQuad">
+                   <property name="toolTip">
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add &lt;span style=&quot; font-weight:600;&quot;&gt;4 &lt;/span&gt;items&lt;/p&gt;&lt;p&gt;[0, 0, 0, 0]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
+                   <property name="text">
+                    <string>[]</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="3">
+                  <widget class="QLabel" name="label_11">
+                   <property name="text">
+                    <string>packetDur</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="0">
+                  <widget class="QCheckBox" name="useOdourMask">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="text">
+                    <string>Use Odour Masks</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="3">
+                  <widget class="QPushButton" name="beepPathBtn">
+                   <property name="text">
+                    <string>Select Beep sound</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="0" colspan="3">
+                  <widget class="QLineEdit" name="beepPath"/>
+                 </item>
+                </layout>
                </widget>
               </widget>
               <widget class="QWidget" name="tabWidgetPage2">
@@ -286,26 +388,29 @@
                <layout class="QGridLayout" name="gridLayout_13">
                 <item row="0" column="0">
                  <widget class="QGroupBox" name="groupBox_5">
-                  <property name="enabled">
-                   <bool>true</bool>
-                  </property>
                   <property name="title">
-                   <string>Control Wind</string>
+                   <string/>
                   </property>
-                  <widget class="QWidget" name="layoutWidget">
+                  <widget class="QGroupBox" name="groupBox_10">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
                    <property name="geometry">
                     <rect>
                      <x>10</x>
-                     <y>30</y>
-                     <width>232</width>
-                     <height>62</height>
+                     <y>0</y>
+                     <width>256</width>
+                     <height>96</height>
                     </rect>
                    </property>
-                   <layout class="QGridLayout" name="gridLayout_18">
+                   <property name="title">
+                    <string>Control Wind</string>
+                   </property>
+                   <layout class="QGridLayout" name="gridLayout_7">
                     <item row="0" column="0">
                      <widget class="QLineEdit" name="windQuad">
                       <property name="enabled">
-                       <bool>true</bool>
+                       <bool>false</bool>
                       </property>
                       <property name="toolTip">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add &lt;span style=&quot; font-weight:600;&quot;&gt;4 &lt;/span&gt;items&lt;/p&gt;&lt;p&gt;[0, 0, 0, 0]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -318,7 +423,7 @@
                     <item row="0" column="1">
                      <widget class="QLabel" name="label_8">
                       <property name="enabled">
-                       <bool>true</bool>
+                       <bool>false</bool>
                       </property>
                       <property name="text">
                        <string>windQuad</string>
@@ -327,6 +432,9 @@
                     </item>
                     <item row="1" column="0">
                      <widget class="QSpinBox" name="windDirection">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
                       <property name="maximum">
                        <number>360</number>
                       </property>
@@ -334,6 +442,9 @@
                     </item>
                     <item row="1" column="1">
                      <widget class="QLabel" name="label_152">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
                       <property name="text">
                        <string>windDirection</string>
                       </property>
@@ -376,7 +487,7 @@
            </rect>
           </property>
           <property name="currentIndex">
-           <number>2</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="tab_11">
            <attribute name="title">
@@ -507,8 +618,14 @@
              </item>
              <item row="2" column="0">
               <widget class="QSpinBox" name="maxBoutDur">
+               <property name="minimum">
+                <number>-9999</number>
+               </property>
                <property name="maximum">
                 <number>99999</number>
+               </property>
+               <property name="singleStep">
+                <number>0</number>
                </property>
               </widget>
              </item>
@@ -538,7 +655,7 @@
            </attribute>
            <widget class="QGroupBox" name="groupBox_7">
             <property name="enabled">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
             <property name="geometry">
              <rect>
@@ -1468,8 +1585,8 @@
            <widget class="QLCDNumber" name="lcdServoAngle">
             <property name="geometry">
              <rect>
-              <x>-40</x>
-              <y>270</y>
+              <x>80</x>
+              <y>320</y>
               <width>111</width>
               <height>41</height>
              </rect>
@@ -1528,8 +1645,8 @@
            <widget class="QLabel" name="label_5">
             <property name="geometry">
              <rect>
-              <x>0</x>
-              <y>50</y>
+              <x>200</x>
+              <y>20</y>
               <width>121</width>
               <height>21</height>
              </rect>
@@ -1541,7 +1658,7 @@
            <widget class="QLabel" name="label_23">
             <property name="geometry">
              <rect>
-              <x>0</x>
+              <x>200</x>
               <y>320</y>
               <width>121</width>
               <height>21</height>
@@ -1554,7 +1671,7 @@
            <widget class="QLCDNumber" name="lcdHeadingAngle">
             <property name="geometry">
              <rect>
-              <x>-20</x>
+              <x>80</x>
               <y>10</y>
               <width>111</width>
               <height>41</height>
@@ -1609,44 +1726,6 @@
              </item>
             </layout>
            </widget>
-           <widget class="QLCDNumber" name="lcdPacketFrequency">
-            <property name="geometry">
-             <rect>
-              <x>220</x>
-              <y>270</y>
-              <width>111</width>
-              <height>41</height>
-             </rect>
-            </property>
-            <property name="frameShape">
-             <enum>QFrame::NoFrame</enum>
-            </property>
-            <property name="smallDecimalPoint">
-             <bool>true</bool>
-            </property>
-            <property name="numDigits">
-             <number>3</number>
-            </property>
-            <property name="segmentStyle">
-             <enum>QLCDNumber::Flat</enum>
-            </property>
-            <property name="value" stdset="0">
-             <double>0.100000000000000</double>
-            </property>
-           </widget>
-           <widget class="QLabel" name="label_24">
-            <property name="geometry">
-             <rect>
-              <x>240</x>
-              <y>320</y>
-              <width>121</width>
-              <height>21</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Packet Frequency</string>
-            </property>
-           </widget>
           </widget>
           <widget class="QWidget" name="tab_4">
            <attribute name="title">
@@ -1673,7 +1752,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>730</width>
+     <width>736</width>
      <height>25</height>
     </rect>
    </property>
@@ -1743,54 +1822,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>loadWind</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>windQuad</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>91</x>
-     <y>131</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>105</x>
-     <y>253</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>loadWind</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>label_8</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>69</x>
-     <y>125</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>193</x>
-     <y>253</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>loadWind</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>groupBox_5</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>85</x>
-     <y>130</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>247</x>
-     <y>260</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>loadOdour</sender>
    <signal>clicked(bool)</signal>
    <receiver>groupBox_3</receiver>
@@ -1819,6 +1850,118 @@
     <hint type="destinationlabel">
      <x>123</x>
      <y>181</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>useOdourMask</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>groupBox_6</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>112</x>
+     <y>406</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>85</x>
+     <y>430</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>loadWind</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>groupBox_10</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>89</x>
+     <y>129</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>117</x>
+     <y>237</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>loadWind</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>windQuad</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>93</x>
+     <y>126</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>136</x>
+     <y>246</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>loadWind</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>windDirection</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>70</x>
+     <y>120</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>164</x>
+     <y>292</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>loadWind</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>label_8</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>80</x>
+     <y>125</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>237</x>
+     <y>245</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>loadWind</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>label_152</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>61</x>
+     <y>127</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>276</x>
+     <y>284</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>gain</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>lcdGain</receiver>
+   <slot>display(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>347</x>
+     <y>115</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>511</x>
+     <y>122</y>
     </hint>
    </hints>
   </connection>
