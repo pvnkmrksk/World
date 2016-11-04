@@ -4,9 +4,10 @@ import math
 parameters=paramsFromGUI()
 
 class ObjectControl():
-
+    # class of experiment-class
     def __init__(self,showbase):
         self.sb=showbase
+        self.objectPosition = None
 
     def getObjects(self):
 
@@ -34,21 +35,17 @@ class ObjectControl():
             self.greenTex = self.sb.loader.loadTexture(parameters["greenTexPath"])
             self.obj1.setTexture(self.greenTex)
             self.obj1.setScale(parameters['sphereScale'])
-            print "loading circ successful"
             self.objTup = (self.obj1,)
             return self.objTup
 
 
-    def setObjPositions(self):
+    def setObjPositions(self, fac):
         if len(parameters['loadingString']) == 2:
-            pos = self.setTwoPos(self.obj1, self.obj2)
+            self.setTwoPos(self.obj1, self.obj2)
             print "setTwoPos successful"
-            return pos
         elif parameters['loadingString'] == "circ":
-            pos = self.setCircPos(obj=self.obj1, teta=0, r=50)
-            return pos
-
-
+            self.setCircPos(obj=self.obj1, fac=fac)
+            print "setCirc successful"
 
     def setTwoPos(self, obj1, obj2):
         offset = ((int(parameters["worldSize"]) - 1) / 2) + 1
@@ -86,26 +83,34 @@ class ObjectControl():
                 placeholder2.setPos(self.pos2[i][0], self.pos2[i][1], parameters["treeZ"])
                 obj2.instanceTo(placeholder2)
         self.pos = np.append(self.pos1, self.pos2, axis=0)
-        return self.pos
+        self.objectPosition = self.pos
 
-    def setCircPos(self, obj, teta, r):
-        x = parameters['playerInitPos'][0] + (math.sin(math.radians(teta))*r)
-        y = parameters['playerInitPos'][1] + (math.cos(math.radians(teta))*r)
+    def setCircPos(self, obj, fac):
+
+        r = parameters["radius"]
+        teta = 360 / parameters["numObj"]
+        phi = parameters["phi"]
+        x = parameters['playerInitPos'][0] + (math.sin(math.radians(teta * fac+phi)) * r)
+        y = parameters['playerInitPos'][1] + (math.cos(math.radians(teta * fac+phi)) * r)
         self.temp = (x,y,parameters["sphereZ"])
         self.pos = np.array([self.temp])
         obj.setPos(tuple(parameters['origin']))
         self.placeholder = self.sb.render.attach_new_node("holder")
         self.placeholder.setPos(self.pos[0][0],self.pos[0][1],self.pos[0][2])
         obj.instanceTo(self.placeholder)
-        return self.pos
+        self.objectPosition = self.pos
 
-    def moveObj(self, obj, teta):
-        x = parameters['playerInitPos'][0] + (math.sin(math.radians(teta)) * 50)
-        y = parameters['playerInitPos'][1] + (math.cos(math.radians(teta)) * 50)
+    def moveObj(self, obj, fac):
+
+        r = parameters["radius"]
+        teta = 360/parameters["numObj"]
+        phi=parameters["phi"]
+        x = parameters['playerInitPos'][0] + (math.sin(math.radians(teta*fac+phi)) * r)
+        y = parameters['playerInitPos'][1] + (math.cos(math.radians(teta*fac+phi)) * r)
         self.temp = (x, y, parameters["sphereZ"])
         self.pos = np.array([self.temp])
         obj.setPos(tuple(parameters['origin']))
         self.placeholder.setPos(self.pos[0][0], self.pos[0][1], self.pos[0][2])
         obj.instanceTo(self.placeholder)
-        return self.pos
+        self.objectPosition = self.pos#todo: maybe one step too much, but is this more explicit?
 

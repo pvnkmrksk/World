@@ -5,7 +5,7 @@ import objectControl as oc
 from helping import helper
 parameters=helper.paramsFromGUI()
 useGui = True
-objectPosition = None
+
 
 # print parameters
 e=ExceptionHandlers(parameters)
@@ -32,6 +32,9 @@ class MyApp(ShowBase):
         initialize init function for params, I/O, feedback and TaskManager
         """
 
+        self.indexArray = self.randIndexArray()
+        self.firstRun = True
+        print "indexArray: " + str(self.indexArray)
         loadPrcFileData("", "win-size " + str(int(parameters["windowWidth"] / parameters["captureScale"])) + " " +
                         str(int(parameters["windowHeight"] / parameters["captureScale"])))  # set window size
 
@@ -378,7 +381,6 @@ class MyApp(ShowBase):
             None
         """
         # global plotter
-        global objectPosition
         self.worldFilename = "models/world_" + "size:" + parameters["modelSizeSuffix"] \
                              + "_obj:" + parameters["loadingString"] + ".bam"
 
@@ -402,8 +404,9 @@ class MyApp(ShowBase):
             self.obj2 = self.objTup[1]
         except IndexError:
             pass
-        
-        objectPosition = self.obj.setObjPositions()
+
+        self.obj.setObjPositions(fac=self.indexArray[0])
+
 
     def playerLoader(self):
         self.player = NodePath("player")
@@ -688,6 +691,7 @@ class MyApp(ShowBase):
             None
         """
         if not parameters["replayWorld"]:
+
 
 
             """
@@ -1001,9 +1005,8 @@ class MyApp(ShowBase):
             self.boutFrame += 1
 
     def reachedDestination(self):
-        global objectPosition
         # oddeven = np.append(self.odd, self.even, axis=0)
-        for i in (objectPosition):
+        for i in (self.obj.objectPosition):
             if self.isInsideTarget(i):
                 return True
                 break
@@ -1061,7 +1064,7 @@ class MyApp(ShowBase):
         return tl, br
 
     def resetPosition(self, quad):
-
+#method of experiment-class
 
         if len(parameters["loadingString"]) == 2:
             if quad == "rand":
@@ -1078,11 +1081,25 @@ class MyApp(ShowBase):
                 self.quadrantIndex = quad - 1
                 print "Your quadrant is", (self.quadrantIndex), "\n"
         else:
-            global objectPosition
             newPos = parameters["playerInitPos"]
-            ranNum = np.random.randint(0,6)
-            teta = ranNum * 60
-            objectPosition = self.obj.moveObj(self.obj1, teta)
+            print "trial: " + str(self.trial)
+
+            try:
+                if self.firstRun == True:
+                    self.fac = self.indexArray[self.trial]
+                    print "first trial"
+                else:
+                    self.fac = self.indexArray[self.trial -1]
+                    print "other trial"
+            except IndexError:
+                self.trial = 1
+                self.indexArray = self.randIndexArray()
+                self.firstRun=False
+                print "new run"
+                print "indexArray: " + str(self.indexArray)
+                self.fac = self.indexArray[self.trial - 1]
+
+            self.obj.moveObj(self.obj1, fac=self.fac)
 
         self.player.setPos(newPos)
         self.player.setH(parameters["playerInitH"])
@@ -1107,6 +1124,13 @@ class MyApp(ShowBase):
 
         # print "quadrant ndex is", self.quadrantIndex
         # print "set is", self.quadSet
+
+    def randIndexArray(self):
+        # method of experiment-class
+        arr = np.arange(parameters["numObj"])
+        if parameters["randPos"] == True:
+            np.random.shuffle(arr)
+        return arr
 
     def randIndex(self):
         if len(self.quadSet) > 0:
