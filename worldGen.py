@@ -102,6 +102,7 @@ class WorldGen(ShowBase):  # our 'class'
         self.root.reparentTo(self.render)  # render from root
         self.root.setSz(0.2)  # maximum height
         self.terrain.generate()  # generate
+
     #
     # def initModels(self):
     #     self.tree = self.loader.loadModel(parameters["treePath"])

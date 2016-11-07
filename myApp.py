@@ -6,6 +6,8 @@ from helping import helper
 parameters=helper.paramsFromGUI()
 useGui = True
 
+if parameters["loadingString"] == "circ":
+    from circ import Circ as experiment
 
 # print parameters
 e=ExceptionHandlers(parameters)
@@ -32,9 +34,8 @@ class MyApp(ShowBase):
         initialize init function for params, I/O, feedback and TaskManager
         """
 
-        self.indexArray = self.randIndexArray()
         self.firstRun = True
-        print "indexArray: " + str(self.indexArray)
+        #print "indexArray: " + str(self.indexArray)
         loadPrcFileData("", "win-size " + str(int(parameters["windowWidth"] / parameters["captureScale"])) + " " +
                         str(int(parameters["windowHeight"] / parameters["captureScale"])))  # set window size
 
@@ -47,6 +48,12 @@ class MyApp(ShowBase):
         # PStatClient.connect()
         self.setFrameRateMeter(True)  # show frame rate monitor
 
+        self.ex = experiment(self, parameters["spherePath"], parameters["sphereScale"], parameters["greenTexPath"],
+                             parameters["origin"], parameters["modelHeightMap"], parameters["modelTextureMapNull"],
+                             parameters["modelTextureMap"], parameters["loadNullModels"], parameters["modelSizeSuffix"],
+                             parameters["loadingString"],parameters["skyMapNull"],parameters["skyMap"],
+                             parameters["maxDistance"],parameters["humanDisplay"])
+        self.indexArray = self.ex.idxArr
         self.initParams()  # run this 1st. Loads all content and params.
         self.initInput()
         self.initOutput()
@@ -381,37 +388,37 @@ class MyApp(ShowBase):
             None
         """
         # global plotter
-        self.worldFilename = "models/world_" + "size:" + parameters["modelSizeSuffix"] \
-                             + "_obj:" + parameters["loadingString"] + ".bam"
+        # self.worldFilename = "models/world_" + "size:" + parameters["modelSizeSuffix"] \
+        #                      + "_obj:" + parameters["loadingString"] + ".bam"
+        #
+        # print "model file exists:", os.path.isfile(self.worldFilename)
+        #
+        # print "open worldgen?", (not os.path.isfile(self.worldFilename)) or parameters["generateWorld"]
+        # print "\n \n \n"
+        #
+        # if ((not os.path.isfile(self.worldFilename)) or parameters["generateWorld"]):
+        #     subprocess.Popen(["python", "worldGen.py"])
+        #     time.sleep(3)
+        #
+        # self.world = self.loader.loadModel(self.worldFilename)  # loads the world_size
+        # self.world.reparentTo(self.render)  # render the world
 
-        print "model file exists:", os.path.isfile(self.worldFilename)
+        #self.obj = oc.ObjectControl(self)
+        #self.objTup = self.obj.getObjects()
 
-        print "open worldgen?", (not os.path.isfile(self.worldFilename)) or parameters["generateWorld"]
-        print "\n \n \n"
-
-        if ((not os.path.isfile(self.worldFilename)) or parameters["generateWorld"]):
-            subprocess.Popen(["python", "worldGen.py"])
-            time.sleep(3)
-
-        self.world = self.loader.loadModel(self.worldFilename)  # loads the world_size
-        self.world.reparentTo(self.render)  # render the world
-
-        self.obj = oc.ObjectControl(self)
-        self.objTup = self.obj.getObjects()
-
-        try:
-            self.obj1 = self.objTup[0]
-            self.obj2 = self.objTup[1]
-        except IndexError:
-            pass
-
-        self.obj.setObjPositions(fac=self.indexArray[0])
-
+        # try:
+        #     self.obj1 = self.objTup[0]
+        #     self.obj2 = self.objTup[1]
+        # except IndexError:
+        #     pass
+        #
+        # self.obj.setObjPositions(fac=self.indexArray[0])
+        pass
 
     def playerLoader(self):
         self.player = NodePath("player")
-        self.player.setPos(self.world, tuple(parameters["playerInitPos"]))
-        self.player.setH(self.world, (parameters["playerInitH"]))  # heading angle is 0
+        self.player.setPos(self.ex.world, tuple(parameters["playerInitPos"]))
+        self.player.setH(self.ex.world, (parameters["playerInitH"]))  # heading angle is 0
 
     # sky load
     def createEnvironment(self):
