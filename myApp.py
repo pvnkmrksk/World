@@ -8,6 +8,8 @@ useGui = True
 
 if parameters["loadingString"] == "circ":
     from circ import Circ as experiment
+elif len(parameters["loadingString"]) == 2:
+    from lr import Lr as experiment
 
 # print parameters
 e=ExceptionHandlers(parameters)
@@ -48,11 +50,7 @@ class MyApp(ShowBase):
         # PStatClient.connect()
         self.setFrameRateMeter(True)  # show frame rate monitor
 
-        self.ex = experiment(self, parameters["spherePath"], parameters["sphereScale"], parameters["greenTexPath"],
-                             parameters["origin"], parameters["modelHeightMap"], parameters["modelTextureMapNull"],
-                             parameters["modelTextureMap"], parameters["loadNullModels"], parameters["modelSizeSuffix"],
-                             parameters["loadingString"],parameters["skyMapNull"],parameters["skyMap"],
-                             parameters["maxDistance"],parameters["humanDisplay"])
+        self.ex = experiment(self)
         self.indexArray = self.ex.idxArr
         self.initParams()  # run this 1st. Loads all content and params.
         self.initInput()
@@ -580,7 +578,7 @@ class MyApp(ShowBase):
         mes.wbad = parameters["wbad"]  # set wing beat amplitude difference
         mes.wbas = parameters["wbas"]  # set wing beat amplitude sum
 
-        mes.trial = self.trial  # trial number. increments after every reset
+        mes.trial = self.trial  # trial number. increments after every reset, todo: change to self.ex.trial
         mes.servoAngle = self.servoAngle  # servo angle command, may not complete if out of bounds
         mes.valve1 = self.valve1State  # odour valve state
         mes.valve2 = self.valve2State  # odour valve state
@@ -869,8 +867,8 @@ class MyApp(ShowBase):
                 parameters["speed"] = self.speedMemory
                 self.decayTime -= 1
             if parameters['resetObject']:
-                if self.reachedDestination():
-                    self.resetPosition("rand")
+                if self.ex.reachedDestination():
+                    self.ex.resetPosition("rand")
 
             # reset position by user input
             for i in range(4):
@@ -1011,14 +1009,14 @@ class MyApp(ShowBase):
         else:
             self.boutFrame += 1
 
-    def reachedDestination(self):
-        # oddeven = np.append(self.odd, self.even, axis=0)
-        for i in (self.obj.objectPosition):
-            if self.isInsideTarget(i):
-                return True
-                break
-
-
+    # def reachedDestination(self):
+    #     # oddeven = np.append(self.odd, self.even, axis=0)
+    #     for i in (self.ex.objectPosition):
+    #         if self.isInsideTarget(i):
+    #             return True
+    #             break
+    #
+    #
     def quadPositionGenerator(self, posL, posR):
 
         offset = (int(parameters["worldSize"]) - 1) / 2
@@ -1043,32 +1041,32 @@ class MyApp(ShowBase):
         # print "even is ", odd
         # print "even is ", even
         return odd, even, quad
-
-    def isInsideTarget(self, target):
-        tl, br = self.boundingBoxCoordinates(target, parameters["bboxDist"])
-        x, y, z = self.player.getPos()
-        if x > tl[0] and x < br[0] and y < tl[1] and y > br[1]:
-            return True
-        else:
-            return False
-
-    def boundingBoxCoordinates(self, target, distance):
-        """
-        Args:
-
-            obj:the position of object whose bound box has to be found
-            distance: the half width of the box | pseudo radius
-
-        Returns:
-            tl: top left coordinate.
-            br: bottom right coordinate
-        """
-
-        tl = (target[0] - distance, target[1] + distance)
-        br = (target[0] + distance, target[1] - distance)
-
-
-        return tl, br
+    #
+    # def isInsideTarget(self, target):
+    #     tl, br = self.boundingBoxCoordinates(target, parameters["bboxDist"])
+    #     x, y, z = self.player.getPos()
+    #     if x > tl[0] and x < br[0] and y < tl[1] and y > br[1]:
+    #         return True
+    #     else:
+    #         return False
+    #
+    # def boundingBoxCoordinates(self, target, distance):
+    #     """
+    #     Args:
+    #
+    #         obj:the position of object whose bound box has to be found
+    #         distance: the half width of the box | pseudo radius
+    #
+    #     Returns:
+    #         tl: top left coordinate.
+    #         br: bottom right coordinate
+    #     """
+    #
+    #     tl = (target[0] - distance, target[1] + distance)
+    #     br = (target[0] + distance, target[1] - distance)
+    #
+    #
+    #     return tl, br
 
     def resetPosition(self, quad):
 #method of experiment-class
@@ -1087,43 +1085,44 @@ class MyApp(ShowBase):
                 newPos = parameters["initPosList"][quad - 1]
                 self.quadrantIndex = quad - 1
                 print "Your quadrant is", (self.quadrantIndex), "\n"
-        else:
-            newPos = parameters["playerInitPos"]
-            print "trial: " + str(self.trial)
+        # else:
+        #     newPos = parameters["playerInitPos"]
+        #     print "trial: " + str(self.trial)
+        #
+        #     try:
+        #         if self.firstRun == True:
+        #             self.fac = self.indexArray[self.trial]
+        #             print "first trial"
+        #         else:
+        #             self.fac = self.indexArray[self.trial -1]
+        #             print "other trial"
+        #     except IndexError:
+        #         self.trial = 1
+        #         self.indexArray = self.randIndexArray()
+        #         self.firstRun=False
+        #         print "new run"
+        #         print "indexArray: " + str(self.indexArray)
+        #         self.fac = self.indexArray[self.trial - 1]
+        #
+        #     self.obj.moveObj(self.obj1, fac=self.fac)
 
-            try:
-                if self.firstRun == True:
-                    self.fac = self.indexArray[self.trial]
-                    print "first trial"
-                else:
-                    self.fac = self.indexArray[self.trial -1]
-                    print "other trial"
-            except IndexError:
-                self.trial = 1
-                self.indexArray = self.randIndexArray()
-                self.firstRun=False
-                print "new run"
-                print "indexArray: " + str(self.indexArray)
-                self.fac = self.indexArray[self.trial - 1]
-
-            self.obj.moveObj(self.obj1, fac=self.fac)
-
-        self.player.setPos(newPos)
-        self.player.setH(parameters["playerInitH"])
-
-        self.decayTime = 240
-        self.speedMemory = parameters["speed"]
-        self.closedMemory = self.keyMap["closed"]
-        print "newPos is", newPos, "\n"
-
-        print "quadrant duration was ", str((datetime.now() - self.lastResetTime).total_seconds())
-        print "\n \n \n"
-
-        self.lastResetTime = datetime.now()
-        self.boutFrame = 0
-        self.reset = True  # set reset to true. Will be set to false after frame updtae
-        self.trial += 1
-        return newPos
+        # self.player.setPos(newPos)
+        # self.player.setH(parameters["playerInitH"])
+        #
+        # self.decayTime = 240
+        # self.speedMemory = parameters["speed"]
+        # self.closedMemory = self.keyMap["closed"]
+        # print "newPos is", newPos, "\n"
+        #
+        # print "quadrant duration was ", str((datetime.now() - self.lastResetTime).total_seconds())
+        # print "\n \n \n"
+        #
+        # self.lastResetTime = datetime.now()
+        # self.boutFrame = 0
+        # self.reset = True  # set reset to true. Will be set to false after frame updtae
+        # self.trial += 1
+        # return newPos
+        self.ex.resetPosition(parameters["playerInitH"], parameters["speed"])
 
     def randChoice(self):
         self.quadrantIndex = random.choice(list(self.quadSet))
@@ -1257,3 +1256,10 @@ class MyApp(ShowBase):
         #     else:
         #         return n
         #
+
+if __name__ == '__main__':
+    app = MyApp()  # our 'object'
+    try:
+        app.run()
+    finally:
+        e.exceptionFinally()

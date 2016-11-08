@@ -1,4 +1,5 @@
 from panda3d.core import GeoMipTerrain
+from importHelper import *
 
 class Sky():
 
@@ -124,13 +125,14 @@ class Object():
         self.obj.setScale(objScale)
         return self.obj
 
-    def setObjects(self, origin, obj, position, instance):
+    def moveObjects(self, origin, obj, position, instance):
 
         obj.setPos(tuple(origin))
         instance.setPos(position[0], position[1], position[2])
         obj.instanceTo(instance)
 
-    def moveObjects(self):
 
-        pass
+
+
+
 
