@@ -289,7 +289,7 @@ def saveClose(win):
 
 def startVR():
     global procVR
-    procVR=subprocess.Popen(['python', 'main.py'])
+    procVR=subprocess.Popen(['python', 'myApp.py'])
     ui.tabWidget.setCurrentIndex(5)
 
     #showError("VR is not available")
