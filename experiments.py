@@ -1,6 +1,7 @@
 from enviroment import *
-from helping import helper
-import numpy as np
+from playerCon import Player
+# from myApp import MyApp as app
+from importHelper import datetime, np, helper
 parameters = helper.paramsFromGUI()
 
 
@@ -11,11 +12,16 @@ class Experiments(object):
         self.obj = Object(showbase)
         self.terrain = Terrain(showbase)
         self.sky = Sky(showbase)
+        self.player = Player()
 
         self.idxArr = self.randIndexArray()
+        print "indexArray: " + str(self.idxArr)
         self.objectPosition = None
         self.instance = None
         self.world = None
+        self.newPos = None
+        self.trial = 1
+        self.firstRun = True
         #self.worldFilename = None
 
     def getObjects(self, objPath, objScale, objTex):
@@ -23,9 +29,21 @@ class Experiments(object):
         return self.tempObj
 
     def setObjects(self, origin, *objects):
-
         for idx, obj in enumerate(objects):
-            self.obj.setObjects(origin=origin, obj = obj, position = self.objectPosition[idx], instance=self.instance)
+            try:
+                self.obj.moveObjects(origin=origin, obj = obj, position = self.objectPosition[idx], instance=self.instance[idx])
+            except AttributeError:
+                print "objectPositionType:", type(self.objectPosition)
+                self.objectPosition[idx] = None
+
+    def hideObject(self, *instance):
+        try:
+            for i in instance:
+                i.setPos(50,50,-50)
+        except AttributeError:
+            pass
+
+    # def moveObjects(self, origin):
 
     def randIndexArray(self):
         arr = np.arange(parameters["numObj"])
@@ -39,6 +57,23 @@ class Experiments(object):
 
     def createSky(self, loadNullModels, skyMapNull,skyMap,maxDistance,humanDisplay):
         self.sky.createSky(loadNullModels, skyMapNull, skyMap, maxDistance, humanDisplay)
+        
+    def resetPosition(self, initH=parameters["playerInitH"], speed=parameters["speed"]):
+        self.player.resetPos(self.newPos, initH, speed)
+        self.trial += 1
+        return self.newPos
+
+    def reachedDestination(self):
+        for i in self.objectPosition:
+            try:
+                event = self.player.reachedDestination(i)
+                if event is not False:
+                    return True
+            except:
+                return False
+        return False
+
+
 
 
 
