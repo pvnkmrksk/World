@@ -25,16 +25,15 @@ class Experiments(object):
         #self.worldFilename = None
 
     def getObjects(self, objPath, objScale, objTex):
-        self.tempObj = self.obj.getObjects(objPath, objScale, objTex)
-        return self.tempObj
+        tempObj = self.obj.getObjects(objPath, objScale, objTex)
+
+
+        return tempObj
 
     def setObjects(self, origin, *objects):
         for idx, obj in enumerate(objects):
-            try:
-                self.obj.moveObjects(origin=origin, obj = obj, position = self.objectPosition[idx], instance=self.instance[idx])
-            except AttributeError:
-                print "objectPositionType:", type(self.objectPosition)
-                self.objectPosition[idx] = None
+            self.obj.moveObjects(origin=origin, obj = obj, position = self.objectPosition[idx], instance=self.instance[idx])
+
 
     def hideObject(self, *instance):
         try:
@@ -42,8 +41,6 @@ class Experiments(object):
                 i.setPos(50,50,-50)
         except AttributeError:
             pass
-
-    # def moveObjects(self, origin):
 
     def randIndexArray(self):
         arr = np.arange(parameters["numObj"])
@@ -65,13 +62,13 @@ class Experiments(object):
 
     def reachedDestination(self):
         for i in self.objectPosition:
-            try:
-                event = self.player.reachedDestination(i)
-                if event is not False:
-                    return True
-            except:
-                return False
+
+            event = self.player.reachedDestination(i)
+            print i
+            if event is not False:
+                return True
         return False
+
 
 
 

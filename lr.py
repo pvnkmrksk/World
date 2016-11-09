@@ -30,38 +30,11 @@ class Lr(Experiments):
 
         self.setObjects(origin, self.obj1, self.obj2)
 
-    def setObjects(self, origin, *objects):
-
-        self.pos1 = parameters["posL"]
-        self.pos2 = parameters["posR"]
-
-        print "setObject1:", objects[0]
-        print "setObject2:", objects[1]
-
-        if not objects[0]:
-            instance1 = None
-        else:
-            instance1 = self.sb.render.attach_new_node("holder1")
-
-        if not objects[1]:
-            instance2 = None
-        else:
-            instance2 = self.sb.render.attach_new_node("holder2")
-
-        self.instance = (instance1, instance2)
-
-        self.pos = [self.pos1, self.pos2]
-        self.objectPosition = self.pos
-
-    # ATTENTION! objects is a tuple, don't pass the tuple to super fct! pass the object/s
-        super(Lr, self).setObjects(origin, objects[0], objects[1])
-
-    def resetPosition(self,initH=parameters["playerInitH"], speed=parameters["speed"]):
-        self.newPos = parameters["playerInitPos"]
+    def setObjects(self, origin=parameters["origin"], *objects):
 
         try:
             case = self.idxArr[self.trial-1]
-            print "trial: " + str(self.trial)
+            print "trial: ", self.trial
             print "case:", case
         except IndexError:
             self.trial = 1
@@ -69,28 +42,83 @@ class Lr(Experiments):
             case = self.idxArr[self.trial - 1]
             print "case:", case
 
+        self.pos1 = parameters["posL"]
+        self.pos2 = parameters["posR"]
 
-        self.hideObject(self.instance[0], self.instance[1])
+        #todo: work on object positioning
 
-
+        if self.firstRun == True:
+            instance1 = self.sb.render.attach_new_node("holder1")
+            instance2 = self.sb.render.attach_new_node("holder2")
+            self.instance = (instance1, instance2)
+            self.firstRun = False
 
         if case == 0:
-            self.setObjects(parameters["origin"], self.obj1, self.obj2)
+            self.pos = (self.pos1, None)
+            self.objectPosition = self.pos
+            super(Lr, self).setObjects(origin,objects[0], objects[1])
             print "ObjectPos:", self.objectPosition
             print "instance:", self.instance
         elif case == 1:
-            self.setObjects(parameters["origin"], self.obj2, self.obj1)
+            self.pos = (None, self.pos2)
+            self.objectPosition = self.pos
+            super(Lr, self).setObjects(origin,objects[1], objects[0])
             print "ObjectPos:", self.objectPosition
             print "instance:", self.instance
         elif case == 2:
-            self.setObjects(parameters["origin"], self.obj1, self.obj1)
+            self.pos = (self.pos1, self.pos2)
+            self.objectPosition = self.pos
+            super(Lr, self).setObjects(origin,objects[0], objects[0])
             print "ObjectPos:", self.objectPosition
             print "instance:", self.instance
         else:
-            self.setObjects(parameters["origin"], self.obj2, self.obj2)
+            self.pos = (None, None)
+            self.objectPosition = self.pos
+            super(Lr, self).setObjects(origin,objects[1], objects[1])
             print "ObjectPos:", self.objectPosition
             print "instance:", self.instance
 
+
+
+    # ATTENTION! objects is a tuple, don't pass the tuple to super fct! pass the object/s
+
+
+    def resetPosition(self,initH=parameters["playerInitH"], speed=parameters["speed"]):
+
+        self.newPos = parameters["playerInitPos"]
         super(Lr, self).resetPosition()
+
+        # try:
+        #     case = self.idxArr[self.trial-1]
+        #     print "trial: " + str(self.trial)
+        #     print "case:", case
+        # except IndexError:
+        #     self.trial = 1
+        #     self.idxArr = self.randIndexArray()
+        #     case = self.idxArr[self.trial - 1]
+        #     print "case:", case
+
+
+        self.hideObject(self.instance[0], self.instance[1])
+        self.setObjects(parameters["origin"], self.obj1, self.obj2)
+
+        # if case == 0:
+        #     self.setObjects(parameters["origin"], self.obj1, self.obj2)
+        #     print "ObjectPos:", self.objectPosition
+        #     print "instance:", self.instance
+        # elif case == 1:
+        #     self.setObjects(parameters["origin"], self.obj2, self.obj1)
+        #     print "ObjectPos:", self.objectPosition
+        #     print "instance:", self.instance
+        # elif case == 2:
+        #     self.setObjects(parameters["origin"], self.obj1, self.obj1)
+        #     print "ObjectPos:", self.objectPosition
+        #     print "instance:", self.instance
+        # else:
+        #     self.setObjects(parameters["origin"], self.obj2, self.obj2)
+        #     print "ObjectPos:", self.objectPosition
+        #     print "instance:", self.instance
+
+
 
 

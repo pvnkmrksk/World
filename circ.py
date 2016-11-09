@@ -7,7 +7,7 @@ parameters = helper.paramsFromGUI()
 class Circ(Experiments):
 
     def __init__(self, showbase,objPath1=parameters["spherePath"], objPath2=parameters["treePath"],
-                 objScale1=parameters["sphereScale"], objScale2=paramters["treeScale"],
+                 objScale1=parameters["sphereScale"], objScale2=parameters["treeScale"],
                  objTex1=parameters["greenTexPath"],objTex2=parameters["redTexPath"],origin=parameters["origin"],modelHeightMap=parameters["modelHeightMap"],
                  modelTextureMapNull=parameters["modelTextureMapNull"], modelTextureMap=parameters["modelTextureMap"],
                  loadNullModels=parameters["loadNullModels"],modelSizeSuffix=parameters["modelSizeSuffix"],
@@ -33,12 +33,13 @@ class Circ(Experiments):
         z= parameters["sphereZ"]
 
         self.temp = (x, y, z)
-        self.pos = np.array([self.temp])
-        if self.firstRun == True:
-            self.instance = self.sb.render.attach_new_node("holder")
-            self.instance = tuple(self.instance)
-            self.firstRun = False
+        self.pos = (self.temp,)
         self.objectPosition = self.pos
+
+        if self.firstRun == True:
+            instance = self.sb.render.attach_new_node("holder")
+            self.instance = (instance,)
+            self.firstRun = False
 
     # ATTENTION! objects is a tuple, don't pass the tuple to super fct! pass the object/s
         super(Circ, self).setObjects(origin, objects[0])
