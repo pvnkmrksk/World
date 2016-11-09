@@ -114,6 +114,7 @@ class Terrain():
 
 class Object():
 
+    positions = []
     def __init__(self, showbase):
         self.sb = showbase
 
@@ -126,13 +127,9 @@ class Object():
         return self.obj
 
     def moveObjects(self, origin, obj, position, instance):
-
-        obj.setPos(tuple(origin))
-        instance.setPos(position[0], position[1], position[2])
-        obj.instanceTo(instance)
-
-
-
-
-
-
+        try:
+            obj.setPos(origin)
+            instance.setPos(position[0], position[1], position[2])
+            obj.instanceTo(instance)
+        except AttributeError:
+            pass

@@ -20,14 +20,22 @@ class Player():
         myApp.app.boutFrame = 0
         myApp.app.reset = True  # set reset to true. Will be set to false after frame updtae
 
-    def reachedDestination(self, target):
-        # oddeven = np.append(self.odd, self.even, axis=0)
-        tl, br = self.boundingBoxCoordinates(target)
-        x, y, z = myApp.app.player.getPos()
-        if x > tl[0] and x < br[0] and y < tl[1] and y > br[1]:
-            return True
-        else:
+    def reachedDestination(self, target,distance=parameters["bboxDist"]):
+
+        try:
+
+            tl = (target[0] - distance, target[1] + distance)
+            br = (target[0] + distance, target[1] - distance)
+            #tl, br = self.boundingBoxCoordinates(target)
+            x, y, z = myApp.app.player.getPos()
+            if x > tl[0] and x < br[0] and y < tl[1] and y > br[1]:
+                return True
+            else:
+                return False
+        except TypeError:
             return False
+
+
 
     # def isInsideTarget(self, target):
     #     tl, br = self.boundingBoxCoordinates(target)
@@ -37,19 +45,18 @@ class Player():
     #     else:
     #         return False
 
-    def boundingBoxCoordinates(self, target, distance=parameters["bboxDist"]):
-        """
-        Args:
-
-            obj:the position of object whose bound box has to be found
-            distance: the half width of the box | pseudo radius
-
-        Returns:
-            tl: top left coordinate.
-            br: bottom right coordinate        """
-
-        tl = (target[0] - distance, target[1] + distance)
-        br = (target[0] + distance, target[1] - distance)
-
-        return tl, br
+    # def boundingBoxCoordinates(self, target, distance=parameters["bboxDist"]):
+    #     """
+    #     Args:
+    #
+    #         obj:the position of object whose bound box has to be found
+    #         distance: the half width of the box | pseudo radius
+    #
+    #     Returns:
+    #         tl: top left coordinate.
+    #         br: bottom right coordinate        """
+    #
+    #
+    #
+    #     return tl, br
 

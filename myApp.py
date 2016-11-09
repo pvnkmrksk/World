@@ -868,7 +868,7 @@ class MyApp(ShowBase):
                 self.decayTime -= 1
             if parameters['resetObject']:
                 if self.ex.reachedDestination():
-                    self.ex.resetPosition("rand")
+                    self.ex.resetPosition()
 
             # reset position by user input
             for i in range(4):
