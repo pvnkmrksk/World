@@ -85,9 +85,10 @@ def saveSettings(win, path):
                 text = ast.literal_eval(text)
             elif ('(' and ')') in text:#if lineEdit returns () convert to list
                 text = ast.literal_eval(text)
-        except:
+        except Exception as e:
             ui.statusbar.showMessage('Error')#todo: better message
-            showError()
+            print "error is",e
+            showError('list gone wrong')
 
         settings[str(name)] = text
 

@@ -1,7 +1,9 @@
 import os
 import serial
-
-class ValveHandler:
+import threading
+from classes.reader import ArduinoReader
+from getArduino import GetArduino
+class ValveHandler(GetArduino):
     def __init__(self,valvePort,baud=115200,compression=True):
         '''
 
@@ -10,27 +12,21 @@ class ValveHandler:
             baud: Baud rate, match it with arduino
             compression: When true, only value changes will be sent to serial saving bandwidth
         '''
+        self.serPort=GetArduino.__init__(self,baud=baud)
+        # self.ard=ArduinoReader()
         self.valvePort=valvePort
         self.compression=compression
         self.statePrev=0
-        serPort=self.get_serial_port()
+        self.state=0
+        # self.moveT=threading.Thread(target=self.moveThread,kwargs={'valvePort':self.valvePort,'state':self.state})
+    def moveThread(self,state):
         try:
-            self.ser=serial.Serial(serPort,baudrate=baud)
-            print "Arduino connected via port", serPort
-        except serial.SerialException:
-            print "arduino not connected, please replug the arduino\n"
-            return
-
-
-    def get_serial_port(self):
-        '''
-
-        Returns: The port arduino is connected to
-
-        '''
-        return "/dev/" + \
-               os.popen("dmesg | egrep ttyACM | cut -f3 -d: | tail -n1").read().strip()
-
+            self.ser.write(chr(255))
+            self.ser.write(chr(self.valvePort))
+            self.ser.write((chr(int(state))))
+            # print "%s is now in state %i"%(self.valvePort,state)
+        except:
+            print "something reallly bad"
 
     def move(self, state):
         '''
@@ -42,12 +38,28 @@ class ValveHandler:
             None
 
         '''
-        if (not(self.compression) or (state!=self.statePrev)): #update only if states different or if compression is diabled
-            try:
-                self.ser.write(chr(255))
-                self.ser.write(chr(self.valvePort))
-                self.ser.write((chr(int(state))))
-                print "%s is now in state %i"%(self.valvePort,state)
-            except:
-                print "something reallly bad"
-        self.statePrev = state  # reset to new state
+        if self.serPort !=1:#error check of return to make sure arduino works
+            if (not(self.compression) or (state!=self.statePrev)): #update only if states different or if compression is diabled
+                # self.moveT = threading.Thread(target=self.moveThread,
+                #                               kwargs={'state': state})
+                #
+                # self.moveT.start()
+
+
+                # if state==0:
+                #     val="LOW"
+                # else:
+                #     val="HIGH"
+                # self.ard.board.pinMode(2,"OUTPUT")
+                # self.ard.board.digitalWrite(2,val)
+                #
+                # print "val is",val
+                # print self.ard.board.analogRead(3)
+                try:
+                    self.ser.write(chr(255))
+                    self.ser.write(chr(self.valvePort))
+                    self.ser.write((chr(int(state))))
+                    # print "%s is now in state %i"%(self.valvePort,state)
+                except:
+                    print "something reallly bad"
+            self.statePrev = state  # reset to new state

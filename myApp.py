@@ -175,9 +175,10 @@ class MyApp(ShowBase):
                                                     parameters['worldSize'],
                                                     oq=parameters['odourQuad'],plot=parameters['plotOdourQuad'])
 
-        self.valve1=ValveHandler(valvePort=97)
-        self.valve2=ValveHandler(valvePort=98)
-        self.valve3=ValveHandler(valvePort=99)
+        baud=115200
+        self.valve1=ValveHandler(valvePort=97,baud=baud)
+        self.valve2=ValveHandler(valvePort=98,baud=baud)
+        self.valve3=ValveHandler(valvePort=99,baud=baud)
 
         self.haw= OdourTunnel(self.odourField,self.player,parameters=parameters,phase=150)
         self.apple= OdourTunnel(self.odourField,self.player,parameters=parameters)
@@ -194,7 +195,10 @@ class MyApp(ShowBase):
             None
 
         '''
-        rospy.init_node('world')
+        try:
+            rospy.init_node('world')
+        except Exception as e:
+            print e
         self.listener()
 
     # input functions
@@ -286,14 +290,14 @@ class MyApp(ShowBase):
         self.accept("d-up", self.setKey, ["stopBag", 0])
         self.accept("t", self.setKey, ["newTopSpeed", 1])
         self.accept("t-up", self.setKey, ["newTopSpeed", 0])
-        self.accept("1", self.setKey, ["quad1", 1])
-        self.accept("1-up", self.setKey, ["quad1", 0])
-        self.accept("2", self.setKey, ["quad2", 1])
-        self.accept("2-up", self.setKey, ["quad2", 0])
-        self.accept("3", self.setKey, ["quad3", 1])
-        self.accept("3-up", self.setKey, ["quad3", 0])
-        self.accept("4", self.setKey, ["quad4", 1])
-        self.accept("4-up", self.setKey, ["quad4", 0])
+        # self.accept("1", self.setKey, ["quad1", 0])
+        self.accept("1-up", self.setKey, ["quad1", 1])
+        # self.accept("2", self.setKey, ["quad2", 1])
+        self.accept("2-up", self.setKey, ["quad2", 1])
+        # self.accept("3", self.setKey, ["quad3", 1])
+        self.accept("3-up", self.setKey, ["quad3", 1])
+        # self.accept("4", self.setKey, ["quad4", 1])
+        self.accept("4-up", self.setKey, ["quad4", 1])
         self.accept("8", self.setKey, ["human", 1])
         # self.accept("8-up",self.setKey,["human",0])
         self.accept("5", self.setKey, ["hRight", 1])
@@ -629,6 +633,7 @@ class MyApp(ShowBase):
         self.keyHandler()
         self.valve1.move(self.valve1State)
         self.valve2.move(self.valve2State)
+        
 
         self.publisher(self.message())
         self.reset = False
@@ -638,6 +643,7 @@ class MyApp(ShowBase):
     def keyHandler(self):
         if self.keyMap["packetDur-down"] != 0:
             self.packetDur -= 0.0001
+            # self.keyMap["packetDur-down"]=0
             print "packetDur is now", self.packetDur
         if self.keyMap["packetDur-up"] != 0:
             self.packetDur += 0.0001
@@ -851,8 +857,8 @@ class MyApp(ShowBase):
             for i in range(4):
                 if (self.keyMap["quad" + str(i + 1)] != 0):
                     self.resetPosition(i + 1)
-                    time.sleep(0.15)
-
+                    # time.sleep(0.15)
+                    self.keyMap["quad"+str(i+1)]=0
 
 
 
@@ -1074,6 +1080,13 @@ class MyApp(ShowBase):
         self.boutFrame = 0
         self.reset = True  # set reset to true. Will be set to false after frame updtae
         self.trial += 1
+        #
+        # #rest tunnel to zwero phase so that on quad change, the onset of packet is at predicatbale
+        # # and at the beginning after an offset of  50frames 300ms so that a keypress doesn't end up with a sustained odour
+        # # and insteadof history dependence and so may switch any time
+        self.haw.phase=0
+        self.apple.phase=0
+        #doens't matter anymore , using only keyup events
         return newPos
 
     def randChoice(self):
