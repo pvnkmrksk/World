@@ -18,6 +18,7 @@ class Circ(Experiments):
         #self.createSky(loadNullModels,skyMapNull,skyMap,maxDistance,humanDisplay)
         self.obj1 = self.getObjects(objPath1, objScale1, objTex1)
         self.setObjects(origin, self.obj1)
+        print "Experiment init done"
 
     def setObjects(self, origin, *objects):
 
