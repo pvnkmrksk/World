@@ -47,16 +47,18 @@ int servo;           // which servo to pulse?
 int pos;             // servo angle 0-180
 int i;               // iterator
 
-// LED on Pin 13 for digital on/off demo
 
 int valveLedPin=2;
-int buzzerPin=8;
+int buzzerPin1=9;
+int buzzerPin2=10;
+int buzzerPin3=11;
 int pinState = LOW;
 int s1=6;           //servo 1 pin
-int valve1 =9;
-int valve2 =10;
-int valve3 =13;
-void setup() 
+int valve1 =7;
+int valve2 =8;
+int valve3 =4;
+
+void setup()
 { 
   // Attach each Servo object to a digital pin
   //servo1.attach(s1, minPulse, maxPulse);
@@ -114,13 +116,11 @@ void loop()
           if (pos == 1) {
             digitalWrite(valve1, HIGH);
             //pinState = HIGH;
-            
-            //tone(buzzerPin,1000);
+            tone(buzzerPin1,500);
           }
           if (pos == 0) {
             digitalWrite(valve1, LOW);
-//            pinState = LOW;
-            //noTone(buzzerPin);
+            noTone(buzzerPin1);
           }
           break;
 
@@ -128,32 +128,36 @@ void loop()
         case 98:
           if (pos == 1) {
             digitalWrite(valve2, HIGH);
-            //pinState = HIGH;
-            
-            //tone(buzzerPin,1000);
+            tone(buzzerPin2,750);
           }
           if (pos == 0) {
             digitalWrite(valve2, LOW);
-//            pinState = LOW;
-            //noTone(buzzerPin);
+            noTone(buzzerPin2);
           }
           break;
 
         case 99:
           if (pos == 1) {
             digitalWrite(valve3, HIGH);
-            //pinState = HIGH;
-            
-            //tone(buzzerPin,1000);
+            tone(buzzerPin3,1250);
           }
           if (pos == 0) {
             digitalWrite(valve3, LOW);
-//            pinState = LOW;
-            //noTone(buzzerPin);
+            noTone(buzzerPin3);
           }
           break;
+
       }
     }
+    //   Serial.print(digitalRead(valve1));
+//        Serial.print("\t");                 //send a "tab" over serial
+//        Serial.print(digitalRead(valve2));
+//        Serial.print("\t");                 //send a "tab" over serial
+//        Serial.print(digitalRead(valve3));
+//        Serial.println();                   //ends the line of serial communication
+       
+        
   }
+
 }
 

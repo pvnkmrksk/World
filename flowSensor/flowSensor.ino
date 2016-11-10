@@ -32,7 +32,7 @@ int sensor3 = 0;
 float output1 = 0;        // value output to the PWM (analog out)
 float output2 = 0;
 float output3 = 0;
-
+const float factor = 5.0/1023.0;
 void setup() {
   // initialize serial communications at 9600 bps:
   Serial.begin(9600);
@@ -51,14 +51,22 @@ void loop() {
   output3 = sensor3*5.0/1023.0;
   
   // print the results to the serial monitor:
-  Serial.print("flow1,2,3\n");
-  Serial.println(output1);
-  Serial.println(output2);
-  Serial.println(output3);
-  Serial.println("\n");
+//  Serial.print("flow1,2,3\n");
+//  Serial.println(output1);
+//  Serial.println(output2);
+//  Serial.println(output3);
+//  Serial.println("\n");
+
+  Serial.print(analogRead(flow1)*factor);     //read xpin and send value over serial
+  Serial.print("\t");                 //send a "tab" over serial
+  Serial.print(analogRead(flow2)*factor);
+  Serial.print("\t");
+  Serial.print(analogRead(flow3)*factor);
+  Serial.println();                   //ends the line of serial communication
+ 
   
   // wait 2 milliseconds before the next loop
   // for the analog-to-digital converter to settle
   // after the last reading:
-  delay(300);
+  delay(2);
 }

@@ -21,6 +21,7 @@ class OdourTunnel():
         self.player=player
         self.parameters=parameters
         self.phase=phase
+        self.frameDur= 1.0 / self.parameters['fps'] #frame dur in seconds
 
     def update(self,packetDur):
         '''
@@ -33,10 +34,10 @@ class OdourTunnel():
         '''
         x=int(self.player.getX())
         y=int(self.player.getY())
-        self.pf = self.of[x,y]
+        pf = self.of[x,y]
         if self.om:
-            self.mask = self.om[x,y]
-            self.pf=np.logical_and(self.mask,self.pf)
+            mask = self.om[x,y]
+            pf=np.logical_and(mask,pf)
 
 
         '''calculate Tau=Time period ,
@@ -47,21 +48,19 @@ class OdourTunnel():
         '''
 
 
-        self.packetDur = helper.round_down(packetDur, 1 / self.parameters['fps'])
+        # packetDur = helper.round_down(packetDur, self.frameDur)
 
-        if self.pf > 0:
-            # rounding down to the nearest multiple of frame time
-            self.tau = helper.round_down(self.parameters['fps'] / self.pf,
-                                                1 / self.parameters['fps'])
+        if pf > 0:
+            tau=int((1.0/pf)*self.parameters['fps'])
 
-            if (self.phase % self.tau) < (self.parameters['fps'] * self.packetDur):
-                self.state = 1
+            if (self.phase % tau) < (self.parameters['fps'] * packetDur):
+                state = 1
             else:
-                self.state = 0
+                state = 0
 
         else:
-            self.state = 0
+            state = 0
 
         self.phase += 1
-        return self.state
+        return state
 
