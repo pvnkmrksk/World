@@ -36,6 +36,8 @@ class MyApp(ShowBase):
         initialize init function for params, I/O, feedback and TaskManager
         """
 
+
+
         self.firstRun = True
         #print "indexArray: " + str(self.indexArray)
         loadPrcFileData("", "win-size " + str(int(parameters["windowWidth"] / parameters["captureScale"])) + " " +
@@ -46,6 +48,20 @@ class MyApp(ShowBase):
         loadPrcFileData('', 'pstats-gpu-timing 1')
 
         ShowBase.__init__(self)  # start the app
+
+        # ------ Begin of render pipeline code ------
+
+        # Insert the pipeline path to the system path, this is required to be
+        # able to import the pipeline classes
+        # pipeline_path = "/home/rhagoletis/catkin/src/World/render_pipeline/"
+        #
+        # sys.path.insert(0, pipeline_path)
+        #
+        # from rpcore import RenderPipeline, SpotLight
+        # self.render_pipeline = RenderPipeline()
+        # self.render_pipeline.create(self)
+
+        # ------ End of render pipeline code ------
 
         # PStatClient.connect()
         self.setFrameRateMeter(True)  # show frame rate monitor
