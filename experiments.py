@@ -25,13 +25,14 @@ class Experiments(object):
         #self.worldFilename = None
 
     def getObjects(self, objPath, objScale, objTex):
-        tempObj = self.obj.getObjects(objPath, objScale, objTex)
-
-
-        return tempObj
+        obj = self.obj.getObjects(objPath, objScale, objTex)
+        return obj
 
     def setObjects(self, origin, *objects):
+
+
         for idx, obj in enumerate(objects):
+
             self.obj.moveObjects(origin=origin, obj = obj, position = self.objectPosition[idx], instance=self.instance[idx])
 
 
@@ -39,6 +40,7 @@ class Experiments(object):
         try:
             for i in instance:
                 i.setPos(50,50,-50)
+
         except AttributeError:
             pass
 
@@ -64,7 +66,7 @@ class Experiments(object):
         for i in self.objectPosition:
 
             event = self.player.reachedDestination(i)
-            print i
+            # print i
             if event is not False:
                 return True
         return False
