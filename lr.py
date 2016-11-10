@@ -3,7 +3,7 @@ import math
 import numpy as np
 from helping import helper
 parameters = helper.paramsFromGUI()
-
+#HU
 class Lr(Experiments):
 
     def __init__(self, showbase,objPath1=parameters["spherePath"], objPath2=parameters["treePath"],
