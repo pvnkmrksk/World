@@ -75,30 +75,35 @@ class Terrain():
         self.sb = showbase
 
     def initTerrain(self, modelHeightMap, modelTextureMapNull, modelTextureMap, loadNullModels=False,):  # todo fix grass problem
-        self.terrain = GeoMipTerrain("worldTerrain")  # create a self.terrain
-        self.terrain.setHeightfield(modelHeightMap)  # set the height map
-        if loadNullModels:  # if null, then create uniform back and sky
-            self.terrain.setColorMap(modelTextureMapNull)  # set the colour map
-        else:
-            self.terrain.setColorMap(modelTextureMap)
-            # try:
-            #     self.tex = self.loader.loadTexture(parameters["modelTextureMap"])
-            #     # self.tex.setMinfilter(SamplerState.FT_linear)
-            #     # self.tex.setMinfilter(SamplerState.FT_linear_mipmap_linear)
-            #     print "texture successfully loaded"
-            #
-            # except:
-            #     print "Texture loading failed"
-            # try:
-            #     self.terrain.setColorMap(self.tex)  # set the colour map
-            #     print "Texture successfully applied"
-            # except:
-            #     print "Applying texture failed"
-        self.terrain.setBruteforce(True)  # level of detail
-        self.root = self.terrain.getRoot()  # capture root
-        self.root.reparentTo(self.sb.render)  # render from root
-        self.root.setSz(0.2)  # maximum height
-        self.terrain.generate()  # generate
+        # self.terrain = GeoMipTerrain("worldTerrain")  # create a self.terrain
+        # self.terrain.setHeightfield(modelHeightMap)  # set the height map
+        # if loadNullModels:  # if null, then create uniform back and sky
+        #     self.terrain.setColorMap(modelTextureMapNull)  # set the colour map
+        # else:
+        #     self.terrain.setColorMap(modelTextureMap)
+        #     # try:
+        #     #     self.tex = self.loader.loadTexture(parameters["modelTextureMap"])
+        #     #     # self.tex.setMinfilter(SamplerState.FT_linear)
+        #     #     # self.tex.setMinfilter(SamplerState.FT_linear_mipmap_linear)
+        #     #     print "texture successfully loaded"
+        #     #
+        #     # except:
+        #     #     print "Texture loading failed"
+        #     # try:
+        #     #     self.terrain.setColorMap(self.tex)  # set the colour map
+        #     #     print "Texture successfully applied"
+        #     # except:
+        #     #     print "Applying texture failed"
+        # self.terrain.setBruteforce(True)  # level of detail
+        # self.root = self.terrain.getRoot()  # capture root
+        # self.root.reparentTo(self.sb.render)  # render from root
+        # self.root.setSz(0.2)  # maximum height
+        # self.terrain.generate()  # generate
+        self.environ = self.sb.loader.loadModel(parameters["modelTextureMap"])
+        self.environ.reparentTo(self.sb.render)
+        self.environ.setPos(0, 0, 0)
+
+
 
     def generate(self, modelSizeSuffix, loadingString):
 
@@ -121,8 +126,8 @@ class Object():
     def getObjects(self, objPath, objScale, objTex):
 
         self.obj = self.sb.loader.loadModel(objPath)
-        self.tex = self.sb.loader.loadTexture(objTex)
-        self.obj.setTexture(self.tex)
+        #self.tex = self.sb.loader.loadTexture(objTex)
+        #self.obj.setTexture(self.tex)
         self.obj.setScale(objScale)
         return self.obj
 
