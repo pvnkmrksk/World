@@ -24,12 +24,12 @@ class Circ(Experiments):
         radius = parameters["radius"]
         teta = 360 / parameters["numObj"]
         phi = parameters["phi"]
-        fac = self.idxArr[self.trial-1]
+        case = self.idxArr[self.trial-1]
         playerPos = parameters['playerInitPos']
 
 
-        x = playerPos[0] + (math.sin(math.radians(teta * fac + phi)) * radius)
-        y = playerPos[1] + (math.cos(math.radians(teta * fac + phi)) * radius)
+        x = playerPos[0] + (math.sin(math.radians(teta * case + phi)) * radius)
+        y = playerPos[1] + (math.cos(math.radians(teta * case + phi)) * radius)
         z= parameters["sphereZ"]
 
         self.temp = (x, y, z)

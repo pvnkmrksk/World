@@ -127,9 +127,10 @@ class Object():
         return self.obj
 
     def moveObjects(self, origin, obj, position, instance):
+        print "Objects:", obj
         try:
-            obj.setPos(origin)
-            instance.setPos(position[0], position[1], position[2])
+            obj.setPos(position[0], position[1], position[2])
+            instance.setPos(origin)
             obj.instanceTo(instance)
         except AttributeError:
             pass

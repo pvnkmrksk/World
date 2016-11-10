@@ -44,6 +44,8 @@ class Lr(Experiments):
 
         self.pos1 = parameters["posL"]
         self.pos2 = parameters["posR"]
+        self.pos = (self.pos1, self.pos2)
+        self.objectPosition = self.pos
 
         #todo: work on object positioning
 
@@ -54,34 +56,53 @@ class Lr(Experiments):
             self.firstRun = False
 
         if case == 0:
-            self.pos = (self.pos1, None)
-            self.objectPosition = self.pos
-            super(Lr, self).setObjects(origin,objects[0], objects[1])
+
+            super(Lr, self).setObjects(origin, objects[1], objects[0])
+
+
+            # self.pos = (self.pos1, None)
+            # self.objectPosition = self.pos
+
+
             print "ObjectPos:", self.objectPosition
             print "instance:", self.instance
+
         elif case == 1:
-            self.pos = (None, self.pos2)
-            self.objectPosition = self.pos
-            super(Lr, self).setObjects(origin,objects[1], objects[0])
+
+            tempObj = objects[1].__copy__()
+            super(Lr, self).setObjects(origin, objects[1], tempObj)
+
+
+
+
+            # self.pos = (None, self.pos2)
+            # self.objectPosition = self.pos
             print "ObjectPos:", self.objectPosition
             print "instance:", self.instance
+
         elif case == 2:
-            self.pos = (self.pos1, self.pos2)
-            self.objectPosition = self.pos
-            super(Lr, self).setObjects(origin,objects[0], objects[0])
+            # self.pos = (self.pos1, self.pos2)
+            # self.objectPosition = self.pos
+
+            super(Lr, self).setObjects(origin, objects[0], objects[1])
+
+
             print "ObjectPos:", self.objectPosition
             print "instance:", self.instance
+
         else:
-            self.pos = (None, None)
-            self.objectPosition = self.pos
-            super(Lr, self).setObjects(origin,objects[1], objects[1])
+            # self.pos = (None, None)
+            # self.objectPosition = self.pos
+
+            tempObj = objects[0].__copy__()
+            super(Lr, self).setObjects(origin, objects[0], tempObj)
+
             print "ObjectPos:", self.objectPosition
             print "instance:", self.instance
 
 
 
     # ATTENTION! objects is a tuple, don't pass the tuple to super fct! pass the object/s
-
 
     def resetPosition(self,initH=parameters["playerInitH"], speed=parameters["speed"]):
 
