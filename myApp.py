@@ -179,8 +179,8 @@ class MyApp(ShowBase):
         self.valve2=ValveHandler(valvePort=98)
         self.valve3=ValveHandler(valvePort=99)
 
-        self.haw= OdourTunnel(self.odourField,self.player,parameters=parameters,phase=150)
-        self.apple= OdourTunnel(self.odourField,self.player,parameters=parameters)
+        # self.haw= OdourTunnel(self.odourField,self.player,parameters=parameters,phase=150)
+        # self.apple= OdourTunnel(self.odourField,self.player,parameters=parameters)
 
 
 
