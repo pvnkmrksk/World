@@ -2,7 +2,9 @@ from experiments import Experiments
 import math
 import numpy as np
 from helping import helper
+import copy
 parameters = helper.paramsFromGUI()
+
 #HU
 class Lr(Experiments):
 
@@ -15,22 +17,23 @@ class Lr(Experiments):
                  maxDistance=parameters["maxDistance"],humanDisplay=parameters["humanDisplay"]):
         super(Lr, self).__init__(showbase)
         self.createTerrain(modelHeightMap, modelTextureMapNull, modelTextureMap,loadNullModels,modelSizeSuffix, loadingString)
-        #self.createSky(loadNullModels,skyMapNull,skyMap,maxDistance,humanDisplay)
+        self.createSky(loadNullModels,skyMapNull,skyMap,maxDistance,humanDisplay)
 
         if loadingString[0] == "1":
-            self.obj1 = self.getObjects(objPath1, objScale1, objTex1)
+            self.obj1 = self.getObjects(objPath1, objScale1)#todo: self.obj?
+
         else:
             self.obj1 = None
             print "obj1 None"
         if  loadingString[1] == "1":
-            self.obj2 = self.getObjects(objPath2, objScale2, objTex2)
+            self.obj2 = self.getObjects(objPath2, objScale2)
         else:
             self.obj2 = None
             print "obj2 None"
 
-        self.setObjects(origin, self.obj1, self.obj2)
+        self.setObjects(self.obj1, self.obj2)
 
-    def setObjects(self, origin=parameters["origin"], *objects):
+    def setObjects(self, *objects):
 
         try:
             case = self.idxArr[self.trial-1]
@@ -44,63 +47,25 @@ class Lr(Experiments):
 
         self.pos1 = parameters["posL"]
         self.pos2 = parameters["posR"]
-        self.pos = (self.pos1, self.pos2)
-        self.objectPosition = self.pos
+        self.objectPosition = [self.pos1, self.pos2]#at first, objectPosition will always be pos1 and pos2 for flexible
+                                                    # object positioning, even if one instance/object is None.
+                                                    # Position change to None occurs later in super-method.
 
-        #todo: work on object positioning
 
-        if self.firstRun == True:
-            instance1 = self.sb.render.attach_new_node("holder1")
-            instance2 = self.sb.render.attach_new_node("holder2")
-            self.instance = (instance1, instance2)
-            self.firstRun = False
+        self.removeObj(objects)# remove tempObj, fixes rg-gg-bug and other render-object-bugs, pass tuple
 
         if case == 0:
-
-            super(Lr, self).setObjects(origin, objects[1], objects[0])
-
-
-            # self.pos = (self.pos1, None)
-            # self.objectPosition = self.pos
-
-
-            print "ObjectPos:", self.objectPosition
-            print "instance:", self.instance
-
+            self.tempObj = copy.copy(objects[1])
+            super(Lr, self).setObjects(objects[1], self.tempObj)
+            self.tempObjUse= True
         elif case == 1:
-
-            tempObj = objects[1].__copy__()
-            super(Lr, self).setObjects(origin, objects[1], tempObj)
-
-
-
-
-            # self.pos = (None, self.pos2)
-            # self.objectPosition = self.pos
-            print "ObjectPos:", self.objectPosition
-            print "instance:", self.instance
-
+           super(Lr, self).setObjects(objects[1], objects[0])
         elif case == 2:
-            # self.pos = (self.pos1, self.pos2)
-            # self.objectPosition = self.pos
-
-            super(Lr, self).setObjects(origin, objects[0], objects[1])
-
-
-            print "ObjectPos:", self.objectPosition
-            print "instance:", self.instance
-
+            super(Lr, self).setObjects(objects[0], objects[1])
         else:
-            # self.pos = (None, None)
-            # self.objectPosition = self.pos
-
-            tempObj = objects[0].__copy__()
-            super(Lr, self).setObjects(origin, objects[0], tempObj)
-
-            print "ObjectPos:", self.objectPosition
-            print "instance:", self.instance
-
-
+            self.tempObj = copy.copy(objects[0])
+            super(Lr, self).setObjects(objects[0], self.tempObj)
+            self.tempObjUse = True
 
     # ATTENTION! objects is a tuple, don't pass the tuple to super fct! pass the object/s
 
@@ -108,37 +73,7 @@ class Lr(Experiments):
 
         self.newPos = parameters["playerInitPos"]
         super(Lr, self).resetPosition()
-
-        # try:
-        #     case = self.idxArr[self.trial-1]
-        #     print "trial: " + str(self.trial)
-        #     print "case:", case
-        # except IndexError:
-        #     self.trial = 1
-        #     self.idxArr = self.randIndexArray()
-        #     case = self.idxArr[self.trial - 1]
-        #     print "case:", case
-
-
-        self.hideObject(self.instance[0], self.instance[1])
-        self.setObjects(parameters["origin"], self.obj1, self.obj2)
-
-        # if case == 0:
-        #     self.setObjects(parameters["origin"], self.obj1, self.obj2)
-        #     print "ObjectPos:", self.objectPosition
-        #     print "instance:", self.instance
-        # elif case == 1:
-        #     self.setObjects(parameters["origin"], self.obj2, self.obj1)
-        #     print "ObjectPos:", self.objectPosition
-        #     print "instance:", self.instance
-        # elif case == 2:
-        #     self.setObjects(parameters["origin"], self.obj1, self.obj1)
-        #     print "ObjectPos:", self.objectPosition
-        #     print "instance:", self.instance
-        # else:
-        #     self.setObjects(parameters["origin"], self.obj2, self.obj2)
-        #     print "ObjectPos:", self.objectPosition
-        #     print "instance:", self.instance
+        self.setObjects(self.obj1, self.obj2)
 
 
 
