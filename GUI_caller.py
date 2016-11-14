@@ -14,7 +14,7 @@ from PyQt4.Qwt5.Qwt import QwtCompass, QwtDial
 from World.msg import MsgTrajectory
 from classes.rosSubscriber import RosSubscriber
 from helping.helper import clamp
-
+from pathlib import Path
 import numpy as np
 pathRun=os.path.abspath(os.path.split(sys.argv[0])[0]) #path of the runfile
 pathJson= pathRun + '/jsonFiles/'
@@ -25,7 +25,7 @@ jsonCurrent=jsonRecent#pathJson+'temp.json' #modify a temp json file
 jsonVR= pathJson + 'VR.json'
 traj = 0
 signal.signal(signal.SIGINT, signal.SIG_DFL)
-
+filePath=Path(sys.path[0])
 
 
 
@@ -255,10 +255,12 @@ def showFileDialog(win, line, pathStart):
     '''
 
     fname = str(QtGui.QFileDialog.getOpenFileName(win, 'Open file', pathStart))
-
+    fname = Path(fname).relative_to(filePath)#local path, get path relayive to repo root directory so that bugs
+    # dues to different usernames are avoided.
     if line and fname != '': #set only if given a label to setText
         line.setText(fname)
     return fname
+
 
 def showSaveDialog(win, line):
 
