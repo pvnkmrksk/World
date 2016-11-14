@@ -1,0 +1,66 @@
+<CoordinateSystem> { Z-up } 
+<Material> grass.001 {
+  <Scalar> diffr { 0.640000 }
+  <Scalar> diffg { 0.640000 }
+  <Scalar> diffb { 0.640000 }
+  <Scalar> specr { 0.000000 }
+  <Scalar> specg { 0.000000 }
+  <Scalar> specb { 0.000000 }
+  <Scalar> shininess { 12.5 }
+  <Scalar> ambr { 1.000000 }
+  <Scalar> ambg { 1.000000 }
+  <Scalar> ambb { 1.000000 }
+  <Scalar> emitr { 0.000000 }
+  <Scalar> emitg { 0.000000 }
+  <Scalar> emitb { 0.000000 }
+}
+
+<Texture> Texture.001 {
+  "./tex/seamless_grass_by_rvmproductions-d6umoar.jpg"
+  <Scalar> envtype { MODULATE }
+  <Scalar> minfilter { LINEAR_MIPMAP_LINEAR }
+  <Scalar> magfilter { LINEAR_MIPMAP_LINEAR }
+  <Scalar> wrap { REPEAT }
+}
+
+  <Group> Plane.864 {
+    <Transform> {
+      <Matrix4> {
+        128.5 0.0 0.0 0.0 
+        0.0 128.5 0.0 0.0 
+        0.0 0.0 1.0 0.0 
+        -0.476131796836853 -0.08209837973117828 -7.128715515136719e-05 1.0 
+      }
+    }
+    
+    <VertexPool> Plane.864 {
+    
+      <Vertex> 0 {-128.976135 -128.582092 -0.000071
+        <UV>  {
+          21.241243 21.241243 
+        }
+      }
+      <Vertex> 1 {128.023865 -128.582092 -0.000071
+        <UV>  {
+          -20.241243 21.241243 
+        }
+      }
+      <Vertex> 2 {128.023865 128.417908 -0.000071
+        <UV>  {
+          -20.241243 -20.241243 
+        }
+      }
+      <Vertex> 3 {-128.976135 128.417908 -0.000071
+        <UV>  {
+          21.241243 -20.241243 
+        }
+      }}
+    
+    
+    <Polygon> {
+      <TRef> { Texture.001 }
+      <MRef> { grass.001 }
+      <Normal> {0.000000 0.000000 1.000000}
+      <VertexRef> { 0 1 2 3 <Ref> { Plane.864 }} 
+    }
+  }
