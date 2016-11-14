@@ -34,29 +34,3 @@ class Player():
                 return False
         except TypeError:
             return False
-
-
-
-    # def isInsideTarget(self, target):
-    #     tl, br = self.boundingBoxCoordinates(target)
-    #     x, y, z = myApp.app.player.getPos()
-    #     if x > tl[0] and x < br[0] and y < tl[1] and y > br[1]:
-    #         return True
-    #     else:
-    #         return False
-
-    # def boundingBoxCoordinates(self, target, distance=parameters["bboxDist"]):
-    #     """
-    #     Args:
-    #
-    #         obj:the position of object whose bound box has to be found
-    #         distance: the half width of the box | pseudo radius
-    #
-    #     Returns:
-    #         tl: top left coordinate.
-    #         br: bottom right coordinate        """
-    #
-    #
-    #
-    #     return tl, br
-

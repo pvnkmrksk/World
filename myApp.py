@@ -68,6 +68,7 @@ class MyApp(ShowBase):
 
         self.ex = experiment(self)
         self.indexArray = self.ex.idxArr
+
         self.initParams()  # run this 1st. Loads all content and params.
         self.initInput()
         self.initOutput()
@@ -178,8 +179,14 @@ class MyApp(ShowBase):
         self.modelLoader()
         if not parameters['humanDisplay']:
             self.initDisplayRegion()
+            self.ex.sky.skysphere.reparentTo(self.cameraCenter)#dont do this in enviroment.py, needs self.cameraCenter
+        else:
+            self.ex.sky.skysphere.reparentTo(self.camera)#todo: is this right? looks like it will cause bugs if human display is true
+
+
         #
-        self.createEnvironment()
+        # self.createEnvironment()
+
 
         # THis is to set the window title so that I can captur in CCSM for pinning to visible workspace
         props = WindowProperties()

@@ -15,12 +15,13 @@ class Circ(Experiments):
                  maxDistance=parameters["maxDistance"],humanDisplay=parameters["humanDisplay"]):
         super(Circ, self).__init__(showbase)
         self.createTerrain(modelHeightMap, modelTextureMapNull, modelTextureMap,loadNullModels,modelSizeSuffix, loadingString)
-        #self.createSky(loadNullModels,skyMapNull,skyMap,maxDistance,humanDisplay)
-        self.obj1 = self.getObjects(objPath1, objScale1, objTex1)
-        self.setObjects(origin, self.obj1)
-        print "Experiment init done"
+        self.createSky(loadNullModels,skyMapNull,skyMap,maxDistance,humanDisplay)
 
-    def setObjects(self, origin, *objects):
+
+        self.obj1 = self.getObjects(objPath1, objScale1)
+        self.setObjects(self.obj1)
+
+    def setObjects(self, *objects):
 
         radius = parameters["radius"]
         teta = 360 / parameters["numObj"]
@@ -34,16 +35,11 @@ class Circ(Experiments):
         z= parameters["sphereZ"]
 
         self.temp = (x, y, z)
-        self.pos = (self.temp,)
-        self.objectPosition = self.pos
+        self.objectPosition = [self.temp]
 
-        if self.firstRun == True:
-            instance = self.sb.render.attach_new_node("holder")
-            self.instance = (instance,)
-            self.firstRun = False
 
     # ATTENTION! objects is a tuple, don't pass the tuple to super fct! pass the object/s
-        super(Circ, self).setObjects(origin, objects[0])
+        super(Circ, self).setObjects(objects[0])
 
     def resetPosition(self,initH=parameters["playerInitH"], speed=parameters["speed"]):
         self.newPos = parameters["playerInitPos"]
@@ -51,13 +47,13 @@ class Circ(Experiments):
 
         print "trial: " + str(self.trial)
         try:
-            self.setObjects(parameters["origin"], self.obj1)
+            self.setObjects(self.obj1)
         except IndexError:
             self.trial = 1
             self.idxArr = self.randIndexArray()
             print "new run"
             print "indexArray: " + str(self.idxArr)
-            self.setObjects(parameters["origin"], self.obj1)
+            self.setObjects(self.obj1)
 
 
 

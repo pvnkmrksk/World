@@ -24,49 +24,44 @@ class Sky():
         self.sb.setBackgroundColor(*colour)
 
         # Our sky
-        if loadNullModels:  # if null, then create uniform back and sky
-            skysphere = self.sb.loader.loadModel(skyMapNull)
+        if parameters["loadNullModels"]:  # if null, then create uniform back and sky
+            self.skysphere = self.sb.loader.loadModel(parameters["skyMapNull"])
         else:
-            skysphere = self.sb.loader.loadModel(skyMap)
+            self.skysphere = self.sb.loader.loadModel(parameters["skyMap"])
 
-        skysphere.setEffect(self.sb.CompassEffect.make(self.sb.render))
-        skysphere.setScale(maxDistance)  # bit less than "far"
-        skysphere.setZ(-3)
+        self.skysphere.setEffect(CompassEffect.make(self.sb.render))
+        self.skysphere.setScale(parameters["maxDistance"])  # bit less than "far"
+        self.skysphere.setZ(-3)
         # NOT render - you'll fly through the sky!:
-        if humanDisplay:
-            skysphere.reparentTo(self.sb.camera)
-        else:
-            skysphere.reparentTo(self.sb.cameraCenter)
+
 
         # Our lighting
         # ambientLight = AmbientLight("ambientLight")
         # ambientLight.setColor(Vec4(.6, .6, .6, 1))
-        directionalLight = self.sb.DirectionalLight("directionalLight")
-        directionalLight.setDirection(self.sb.Vec3(-1,-1,-1))
-        directionalLight.setColor(self.sb.Vec4(1, 1, 1, 1))
-        directionalLight.setSpecularColor(self.sb.Vec4(1, 1, 1, 1))
+        directionalLight = DirectionalLight("directionalLight")
+        directionalLight.setDirection(Vec3(-1, -1, -1))
+        directionalLight.setColor(Vec4(1, 1, 1, 1))
+        directionalLight.setSpecularColor(Vec4(1, 1, 1, 1))
 
-        directionalLight2 = self.sb.DirectionalLight("directionalLight")
-        directionalLight2.setDirection(self.sb.Vec3(-1,1,-1))
-        directionalLight2.setColor(self.sb.Vec4(1, 1, 1, 1))
-        directionalLight2.setSpecularColor(self.sb.Vec4(1, 1, 1, 1))
-        directionalLight3 = self.sb.DirectionalLight("directionalLight")
-        directionalLight3.setDirection(self.sb.Vec3(1,-1,-1))
-        directionalLight3.setColor(self.sb.Vec4(1, 1, 1, 1))
-        directionalLight3.setSpecularColor(self.sb.Vec4(1, 1, 1, 1))
+        directionalLight2 = DirectionalLight("directionalLight")
+        directionalLight2.setDirection(Vec3(-1, 1, -1))
+        directionalLight2.setColor(Vec4(1, 1, 1, 1))
+        directionalLight2.setSpecularColor(Vec4(1, 1, 1, 1))
+        directionalLight3 = DirectionalLight("directionalLight")
+        directionalLight3.setDirection(Vec3(1, -1, -1))
+        directionalLight3.setColor(Vec4(1, 1, 1, 1))
+        directionalLight3.setSpecularColor(Vec4(1, 1, 1, 1))
 
-        directionalLight4 = self.sb.DirectionalLight("directionalLight")
-        directionalLight4.setDirection(self.sb.Vec3(1,1,-1))
-        directionalLight4.setColor(self.sb.Vec4(1, 1, 1, 1))
-        directionalLight4.setSpecularColor(self.sb.Vec4(1, 1, 1, 1))
+        directionalLight4 = DirectionalLight("directionalLight")
+        directionalLight4.setDirection(Vec3(1, 1, -1))
+        directionalLight4.setColor(Vec4(1, 1, 1, 1))
+        directionalLight4.setSpecularColor(Vec4(1, 1, 1, 1))
 
         # render.setLight(render.attachNewNode(ambientLight))
         self.sb.render.setLight(self.sb.render.attachNewNode(directionalLight))
         self.sb.render.setLight(self.sb.render.attachNewNode(directionalLight2))
         self.sb.render.setLight(self.sb.render.attachNewNode(directionalLight3))
         self.sb.render.setLight(self.sb.render.attachNewNode(directionalLight4))
-        # directionalLight.setShadowCaster(True, 512, 512)
-        # render.setShaderAuto()
 
 
 class Terrain():
@@ -74,7 +69,7 @@ class Terrain():
     def __init__(self, showbase):
         self.sb = showbase
 
-    def initTerrain(self, modelHeightMap, modelTextureMapNull, modelTextureMap, loadNullModels=False,):  # todo fix grass problem
+    def initTerrain(self, modelHeightMap, modelTextureMapNull, modelTextureMap, loadNullModels=False,):
         # self.terrain = GeoMipTerrain("worldTerrain")  # create a self.terrain
         # self.terrain.setHeightfield(modelHeightMap)  # set the height map
         # if loadNullModels:  # if null, then create uniform back and sky
@@ -102,12 +97,10 @@ class Terrain():
         self.environ = self.sb.loader.loadModel(parameters["modelTextureMap"])
         self.environ.reparentTo(self.sb.render)
         self.environ.setPos(0, 0, 0)
-
-
+        return self.environ
 
     def generate(self, modelSizeSuffix, loadingString):
 
-        # self.worldNameGen()
         self.worldFilename = "models/world_" + "size:" + modelSizeSuffix \
                              + "_obj:" + loadingString + ".bam"
         print "world file name is ", self.worldFilename
@@ -119,23 +112,22 @@ class Terrain():
 
 class Object():
 
-    positions = []
     def __init__(self, showbase):
         self.sb = showbase
 
-    def getObjects(self, objPath, objScale, objTex):
+    def getObjects(self, objPath, objScale):
 
         self.obj = self.sb.loader.loadModel(objPath)
-        #self.tex = self.sb.loader.loadTexture(objTex)
-        #self.obj.setTexture(self.tex)
         self.obj.setScale(objScale)
         return self.obj
 
-    def moveObjects(self, origin, obj, position, instance):
-        print "Objects:", obj
+
+    def moveObjects(self, position, obj):
+
         try:
             obj.setPos(position[0], position[1], position[2])
-            instance.setPos(origin)
-            obj.instanceTo(instance)
+            obj.reparentTo(self.sb.render)
         except AttributeError:
             pass
+
+
