@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 class Stimulus(object):
     def __init__(self, stimList=[1,2,3,4], nReps=1, mode='ordered', genTimeSeries=False, stimDur=1, fps=165, ):
         # pass
@@ -10,7 +11,8 @@ class Stimulus(object):
         self.genTimeSeries=genTimeSeries
         self.timeSeries=self.timeSeriesGen(self.currentStim(),self.stimDur,self.fps,self.genTimeSeries)
 
-
+    def stimDfGen(self,stimList,nReps,mode,genTimeSeries,stimDur,fps):
+        self.stimDf=pd.DataFrame(columns=['trial','stimList','timeSeries'])
     def stimListGen(self,stimList,nReps,mode):
         if mode=='randomRep':
             stimListRep=[]
