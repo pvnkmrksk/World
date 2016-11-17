@@ -4,7 +4,7 @@ parameters = helper.paramsFromGUI()
 
 class Player():
     
-    def resetPos(self, newPos, initH, speed):
+    def resetPos(self, newPos,  initH=parameters["playerInitH"], speed=parameters["speed"]):
         myApp.app.player.setPos(newPos)
         myApp.app.player.setH(initH)
     
@@ -26,7 +26,6 @@ class Player():
 
             tl = (target[0] - distance, target[1] + distance)
             br = (target[0] + distance, target[1] - distance)
-            #tl, br = self.boundingBoxCoordinates(target)
             x, y, z = myApp.app.player.getPos()
             if x > tl[0] and x < br[0] and y < tl[1] and y > br[1]:
                 return True

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'makeGUI.ui'
 #
-# Created: Fri Nov  4 18:25:01 2016
+# Created: Thu Nov 17 14:28:59 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -266,6 +266,7 @@ class Ui_RhagGUI(object):
         self.label_256.setObjectName(_fromUtf8("label_256"))
         self.gridLayout_3.addWidget(self.label_256, 10, 2, 1, 1)
         self.maxDistance = QtGui.QSpinBox(self.groupBox_4)
+        self.maxDistance.setMaximum(9999)
         self.maxDistance.setObjectName(_fromUtf8("maxDistance"))
         self.gridLayout_3.addWidget(self.maxDistance, 4, 0, 1, 1)
         self.playerInitPos = QtGui.QLineEdit(self.groupBox_4)
@@ -426,9 +427,13 @@ class Ui_RhagGUI(object):
         self.origin.setObjectName(_fromUtf8("origin"))
         self.gridLayout_14.addWidget(self.origin, 6, 3, 1, 1)
         self.sphereZ = QtGui.QDoubleSpinBox(self.groupBox_7)
+        self.sphereZ.setMinimum(-9999.0)
+        self.sphereZ.setMaximum(9999.0)
         self.sphereZ.setObjectName(_fromUtf8("sphereZ"))
         self.gridLayout_14.addWidget(self.sphereZ, 3, 3, 1, 1)
         self.treeZ = QtGui.QDoubleSpinBox(self.groupBox_7)
+        self.treeZ.setMinimum(-9999.0)
+        self.treeZ.setMaximum(9999.0)
         self.treeZ.setObjectName(_fromUtf8("treeZ"))
         self.gridLayout_14.addWidget(self.treeZ, 4, 3, 1, 1)
         self.phi = QtGui.QDoubleSpinBox(self.groupBox_7)
@@ -444,7 +449,7 @@ class Ui_RhagGUI(object):
         self.modelSizeSuffix.setObjectName(_fromUtf8("modelSizeSuffix"))
         self.gridLayout_14.addWidget(self.modelSizeSuffix, 7, 3, 1, 1)
         self.worldSize = QtGui.QSpinBox(self.groupBox_7)
-        self.worldSize.setMaximum(999)
+        self.worldSize.setMaximum(9999)
         self.worldSize.setObjectName(_fromUtf8("worldSize"))
         self.gridLayout_14.addWidget(self.worldSize, 9, 3, 1, 1)
         self.numObj = QtGui.QSpinBox(self.groupBox_7)
