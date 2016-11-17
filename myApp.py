@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 from __future__ import division #odd issue. Must be on first line else it fails
 from importHelper import *  # file with just a bunch of imports
-import objectControl as oc
 from helping import helper
 parameters=helper.paramsFromGUI()
 useGui = True
@@ -38,8 +37,6 @@ class MyApp(ShowBase):
 
 
 
-        self.firstRun = True
-        #print "indexArray: " + str(self.indexArray)
         loadPrcFileData("", "win-size " + str(int(parameters["windowWidth"] / parameters["captureScale"])) + " " +
                         str(int(parameters["windowHeight"] / parameters["captureScale"])))  # set window size
 
@@ -67,7 +64,6 @@ class MyApp(ShowBase):
         self.setFrameRateMeter(True)  # show frame rate monitor
 
         self.ex = experiment(self)
-        self.indexArray = self.ex.idxArr
 
         self.initParams()  # run this 1st. Loads all content and params.
         self.initInput()
@@ -111,7 +107,7 @@ class MyApp(ShowBase):
         # print "init pos list", parameters["initPosList"]
 
         # position of objects generated
-        self.odd, self.even, quad = self.quadPositionGenerator(posL=parameters["posL"], posR=parameters["posR"])
+        # self.odd, self.even, quad = self.quadPositionGenerator(posL=parameters["posL"], posR=parameters["posR"])
 
         self.servoAngle = 90  #
         if parameters["loadWind"]:
@@ -160,8 +156,6 @@ class MyApp(ShowBase):
         self.keyboardSetup()
         self.stimList = self.stimulusListGen()
         parameters["stimList"] = self.stimList
-
-
 
     def initOutput(self):
         '''
@@ -214,9 +208,6 @@ class MyApp(ShowBase):
 
         # self.haw= OdourTunnel(self.odourField,self.player,parameters=parameters,phase=150)
         # self.apple= OdourTunnel(self.odourField,self.player,parameters=parameters)
-
-
-
 
     def initFeedback(self):
         '''
@@ -396,11 +387,12 @@ class MyApp(ShowBase):
         None
         """
         if parameters["loadWorld"]:#todo.remove this useless bool
-            self.worldLoader()
+            #self.worldLoader()
             self.playerLoader()
 
     def worldLoader(self):
         """
+        OUTDATED
         generate filename of world,
         if file absent or force generate true, generate world using worldgen
         load model and reparent panda render node
@@ -434,16 +426,17 @@ class MyApp(ShowBase):
         #     pass
         #
         # self.obj.setObjPositions(fac=self.indexArray[0])
-        pass
+        print "worldLoader outdated"
 
     def playerLoader(self):
         self.player = NodePath("player")
-        self.player.setPos(self.ex.world, tuple(parameters["playerInitPos"]))
+        self.player.setPos(self.ex.world, parameters["playerInitPos"])  # does it has to be relative to self.ex.world?
         self.player.setH(self.ex.world, (parameters["playerInitH"]))  # heading angle is 0
 
     # sky load
     def createEnvironment(self):
         """
+        OUTDATED
         load fog
         load sky
         setup lights
@@ -451,55 +444,56 @@ class MyApp(ShowBase):
 
         """
         # Fog to hide a performance tweak:
-        colour = (0.0, 0.0, 0.0)
-        expfog = Fog("scene-wide-fog")
-        expfog.setColor(*colour)
-        expfog.setExpDensity(0.004)
-        render.setFog(expfog)
-        self.setBackgroundColor(*colour)
-
-        # Our sky
-        if parameters["loadNullModels"]:  # if null, then create uniform back and sky
-            skysphere = loader.loadModel(parameters["skyMapNull"])
-        else:
-            skysphere = loader.loadModel(parameters["skyMap"])
-
-        skysphere.setEffect(CompassEffect.make(self.render))
-        skysphere.setScale(parameters["maxDistance"])  # bit less than "far"
-        skysphere.setZ(-3)
-        # NOT render - you'll fly through the sky!:
-        if parameters["humanDisplay"]:
-            skysphere.reparentTo(self.camera)
-        else:
-            skysphere.reparentTo(self.cameraCenter)
-
-        # Our lighting
-        # ambientLight = AmbientLight("ambientLight")
-        # ambientLight.setColor(Vec4(.6, .6, .6, 1))
-        directionalLight = DirectionalLight("directionalLight")
-        directionalLight.setDirection(Vec3(-1,-1,-1))
-        directionalLight.setColor(Vec4(1, 1, 1, 1))
-        directionalLight.setSpecularColor(Vec4(1, 1, 1, 1))
-
-        directionalLight2 = DirectionalLight("directionalLight")
-        directionalLight2.setDirection(Vec3(-1,1,-1))
-        directionalLight2.setColor(Vec4(1, 1, 1, 1))
-        directionalLight2.setSpecularColor(Vec4(1, 1, 1, 1))
-        directionalLight3 = DirectionalLight("directionalLight")
-        directionalLight3.setDirection(Vec3(1,-1,-1))
-        directionalLight3.setColor(Vec4(1, 1, 1, 1))
-        directionalLight3.setSpecularColor(Vec4(1, 1, 1, 1))
-
-        directionalLight4 = DirectionalLight("directionalLight")
-        directionalLight4.setDirection(Vec3(1,1,-1))
-        directionalLight4.setColor(Vec4(1, 1, 1, 1))
-        directionalLight4.setSpecularColor(Vec4(1, 1, 1, 1))
-
-        # render.setLight(render.attachNewNode(ambientLight))
-        render.setLight(render.attachNewNode(directionalLight))
-        render.setLight(render.attachNewNode(directionalLight2))
-        render.setLight(render.attachNewNode(directionalLight3))
-        render.setLight(render.attachNewNode(directionalLight4))
+        # colour = (0.0, 0.0, 0.0)
+        # expfog = Fog("scene-wide-fog")
+        # expfog.setColor(*colour)
+        # expfog.setExpDensity(0.004)
+        # render.setFog(expfog)
+        # self.setBackgroundColor(*colour)
+        #
+        # # Our sky
+        # if parameters["loadNullModels"]:  # if null, then create uniform back and sky
+        #     skysphere = loader.loadModel(parameters["skyMapNull"])
+        # else:
+        #     skysphere = loader.loadModel(parameters["skyMap"])
+        #
+        # skysphere.setEffect(CompassEffect.make(self.render))
+        # skysphere.setScale(parameters["maxDistance"])  # bit less than "far"
+        # skysphere.setZ(-3)
+        # # NOT render - you'll fly through the sky!:
+        # if parameters["humanDisplay"]:
+        #     skysphere.reparentTo(self.camera)
+        # else:
+        #     skysphere.reparentTo(self.cameraCenter)
+        #
+        # # Our lighting
+        # # ambientLight = AmbientLight("ambientLight")
+        # # ambientLight.setColor(Vec4(.6, .6, .6, 1))
+        # directionalLight = DirectionalLight("directionalLight")
+        # directionalLight.setDirection(Vec3(-1,-1,-1))
+        # directionalLight.setColor(Vec4(1, 1, 1, 1))
+        # directionalLight.setSpecularColor(Vec4(1, 1, 1, 1))
+        #
+        # directionalLight2 = DirectionalLight("directionalLight")
+        # directionalLight2.setDirection(Vec3(-1,1,-1))
+        # directionalLight2.setColor(Vec4(1, 1, 1, 1))
+        # directionalLight2.setSpecularColor(Vec4(1, 1, 1, 1))
+        # directionalLight3 = DirectionalLight("directionalLight")
+        # directionalLight3.setDirection(Vec3(1,-1,-1))
+        # directionalLight3.setColor(Vec4(1, 1, 1, 1))
+        # directionalLight3.setSpecularColor(Vec4(1, 1, 1, 1))
+        #
+        # directionalLight4 = DirectionalLight("directionalLight")
+        # directionalLight4.setDirection(Vec3(1,1,-1))
+        # directionalLight4.setColor(Vec4(1, 1, 1, 1))
+        # directionalLight4.setSpecularColor(Vec4(1, 1, 1, 1))
+        #
+        # # render.setLight(render.attachNewNode(ambientLight))
+        # render.setLight(render.attachNewNode(directionalLight))
+        # render.setLight(render.attachNewNode(directionalLight2))
+        # render.setLight(render.attachNewNode(directionalLight3))
+        # render.setLight(render.attachNewNode(directionalLight4))
+        print "createEnviroment outdated"
         # directionalLight.setShadowCaster(True, 512, 512)
         # render.setShaderAuto()
 
@@ -1032,82 +1026,97 @@ class MyApp(ShowBase):
         else:
             self.boutFrame += 1
 
-    # def reachedDestination(self):
+    def reachedDestination(self):
+        '''
+        OUTDATED
+        '''
     #     # oddeven = np.append(self.odd, self.even, axis=0)
     #     for i in (self.ex.objectPosition):
     #         if self.isInsideTarget(i):
     #             return True
     #             break
-    #
-    #
+        print "reachedDestination outdated"
+
     def quadPositionGenerator(self, posL, posR):
+        '''
+        OUTDATED
+        '''
 
-        offset = (int(parameters["worldSize"]) - 1) / 2
+        # offset = (int(parameters["worldSize"]) - 1) / 2
+        #
+        # quad3PosL = posL
+        # quad3PosR = posR
+        #
+        # quad4PosL = (posL[0] + offset, posL[1])
+        # quad4PosR = (posR[0] + offset, posR[1])
+        #
+        # quad2PosL = (posL[0], posL[1] + offset)
+        # quad2PosR = (posR[0], posR[1] + offset)
+        #
+        # quad1PosL = (posL[0] + offset, posL[1] + offset)
+        # quad1PosR = (posR[0] + offset, posR[1] + offset)
+        #
+        # odd = np.array([quad1PosR, quad2PosL, quad3PosL, quad3PosR])
+        # even = np.array([quad1PosL, quad2PosR, quad4PosL, quad4PosR])
+        # quad = np.array(
+        #     [[quad1PosL, quad1PosR], [quad2PosL, quad2PosR], [quad3PosL, quad3PosR], [quad4PosL, quad4PosR]])
+        # # print offset
+        # # print "even is ", odd
+        # # print "even is ", even
+        # return odd, even, quad
+        print "quadPositionGenerator outdated"
 
-        quad3PosL = posL
-        quad3PosR = posR
-
-        quad4PosL = (posL[0] + offset, posL[1])
-        quad4PosR = (posR[0] + offset, posR[1])
-
-        quad2PosL = (posL[0], posL[1] + offset)
-        quad2PosR = (posR[0], posR[1] + offset)
-
-        quad1PosL = (posL[0] + offset, posL[1] + offset)
-        quad1PosR = (posR[0] + offset, posR[1] + offset)
-
-        odd = np.array([quad1PosR, quad2PosL, quad3PosL, quad3PosR])
-        even = np.array([quad1PosL, quad2PosR, quad4PosL, quad4PosR])
-        quad = np.array(
-            [[quad1PosL, quad1PosR], [quad2PosL, quad2PosR], [quad3PosL, quad3PosR], [quad4PosL, quad4PosR]])
-        # print offset
-        # print "even is ", odd
-        # print "even is ", even
-        return odd, even, quad
-    #
-    # def isInsideTarget(self, target):
+    def isInsideTarget(self, target):
+        '''
+        OUTDATED
+        '''
     #     tl, br = self.boundingBoxCoordinates(target, parameters["bboxDist"])
     #     x, y, z = self.player.getPos()
     #     if x > tl[0] and x < br[0] and y < tl[1] and y > br[1]:
     #         return True
     #     else:
     #         return False
-    #
-    # def boundingBoxCoordinates(self, target, distance):
-    #     """
-    #     Args:
-    #
-    #         obj:the position of object whose bound box has to be found
-    #         distance: the half width of the box | pseudo radius
-    #
-    #     Returns:
-    #         tl: top left coordinate.
-    #         br: bottom right coordinate
-    #     """
+        print "isInsideTarget outdated"
+
+    def boundingBoxCoordinates(self, target, distance):
+        """
+        OUTDATED
+        Args:
+
+            obj:the position of object whose bound box has to be found
+            distance: the half width of the box | pseudo radius
+
+        Returns:
+            tl: top left coordinate.
+            br: bottom right coordinate
+        """
     #
     #     tl = (target[0] - distance, target[1] + distance)
     #     br = (target[0] + distance, target[1] - distance)
     #
     #
     #     return tl, br
+        print "boundingBoxCoordinates outdated"
 
     def resetPosition(self, quad):
-#method of experiment-class
+        '''
+        OUTDATED
+        '''
 
-        if len(parameters["loadingString"]) == 2:
-            if quad == "rand":
-                self.randIndex()
-                newPos = parameters["initPosList"][self.quadrantIndex]
-                print "random quadrant is ", self.quadrantIndex + 1, "\n"
-
-                # index = random.randrange(len(parameters["initPosList"]))
-                # newPos = parameters["initPosList"][index]
-                # print "random quadrant is ", index + 1, "\n"
-
-            else:
-                newPos = parameters["initPosList"][quad - 1]
-                self.quadrantIndex = quad - 1
-                print "Your quadrant is", (self.quadrantIndex), "\n"
+        # if len(parameters["loadingString"]) == 2:
+        #     if quad == "rand":
+        #         self.randIndex()
+        #         newPos = parameters["initPosList"][self.quadrantIndex]
+        #         print "random quadrant is ", self.quadrantIndex + 1, "\n"
+        #
+        #         # index = random.randrange(len(parameters["initPosList"]))
+        #         # newPos = parameters["initPosList"][index]
+        #         # print "random quadrant is ", index + 1, "\n"
+        #
+        #     else:
+        #         newPos = parameters["initPosList"][quad - 1]
+        #         self.quadrantIndex = quad - 1
+        #         print "Your quadrant is", (self.quadrantIndex), "\n"
         # else:
         #     newPos = parameters["playerInitPos"]
         #     print "trial: " + str(self.trial)
@@ -1145,7 +1154,7 @@ class MyApp(ShowBase):
         # self.reset = True  # set reset to true. Will be set to false after frame updtae
         # self.trial += 1
         # return newPos
-        self.ex.resetPosition(parameters["playerInitH"], parameters["speed"])
+        print "resetPosition outdated"
 
     def randChoice(self):
         self.quadrantIndex = random.choice(list(self.quadSet))
@@ -1153,13 +1162,6 @@ class MyApp(ShowBase):
 
         # print "quadrant ndex is", self.quadrantIndex
         # print "set is", self.quadSet
-
-    def randIndexArray(self):
-        # method of experiment-class
-        arr = np.arange(parameters["numObj"])
-        if parameters["randPos"] == True:
-            np.random.shuffle(arr)
-        return arr
 
     def randIndex(self):
         if len(self.quadSet) > 0:
@@ -1207,6 +1209,7 @@ class MyApp(ShowBase):
 
             self.bagRecordingState = False
    # screen capture
+
     def record(self, dur, fps):
         self.movie('frames/movie', dur, fps=fps, format='jpg', sd=7)
 
