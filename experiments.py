@@ -41,7 +41,7 @@ class Experiments(object):
         :param objects: tuple of objects to set
         :return:
         """
-
+        
         for idx, obj in enumerate(objects):
             self.obj.moveObjects(position = self.objectPosition[idx], obj=obj)
         self.updateObjPos(objects)

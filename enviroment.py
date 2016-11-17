@@ -37,7 +37,7 @@ class Sky():
 
         # Our lighting
         ambientLight = AmbientLight("ambientLight")
-        ambientLight.setColor(Vec4(0.3, 0.3, 0.2, 1))
+        ambientLight.setColor(Vec4(0.3, 0.3, 0.3, 1))
 
         directionalLight = DirectionalLight("directionalLight")
         directionalLight.setDirection(Vec3(-1, -1, -1))
