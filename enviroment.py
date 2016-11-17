@@ -1,4 +1,3 @@
-from panda3d.core import GeoMipTerrain
 from importHelper import *
 
 class Sky():
@@ -6,7 +5,8 @@ class Sky():
     def __init__(self, showbase):
         self.sb = showbase
 
-    def createSky(self, loadNullModels, skyMapNull,skyMap,maxDistance,humanDisplay):
+    def createSky(self, loadNullModels=parameters["loadNullModels"], skyMapNull=parameters["skyMapNull"],skyMap=parameters["skyMap"],
+                 maxDistance=parameters["maxDistance"],humanDisplay=parameters["humanDisplay"]):
         """
         load fog
         load sky
@@ -15,7 +15,7 @@ class Sky():
 
         """
         # Fog to hide a performance tweak:
-        #What is happening?
+        # What is happening?
         colour = (0.0, 0.0, 0.0)
         expfog = Fog("scene-wide-fog")
         expfog.setColor(*colour)
@@ -24,40 +24,42 @@ class Sky():
         self.sb.setBackgroundColor(*colour)
 
         # Our sky
-        if parameters["loadNullModels"]:  # if null, then create uniform back and sky
-            self.skysphere = self.sb.loader.loadModel(parameters["skyMapNull"])
+        if loadNullModels:  # if null, then create uniform back and sky
+            self.skysphere = self.sb.loader.loadModel(skyMapNull)
         else:
-            self.skysphere = self.sb.loader.loadModel(parameters["skyMap"])
+            self.skysphere = self.sb.loader.loadModel(skyMap)
 
         self.skysphere.setEffect(CompassEffect.make(self.sb.render))
-        self.skysphere.setScale(parameters["maxDistance"])  # bit less than "far"
+        self.skysphere.setScale(maxDistance)  # bit less than "far"
         self.skysphere.setZ(-3)
         # NOT render - you'll fly through the sky!:
 
 
         # Our lighting
-        # ambientLight = AmbientLight("ambientLight")
-        # ambientLight.setColor(Vec4(.6, .6, .6, 1))
+        ambientLight = AmbientLight("ambientLight")
+        ambientLight.setColor(Vec4(0.3, 0.3, 0.2, 1))
+
         directionalLight = DirectionalLight("directionalLight")
         directionalLight.setDirection(Vec3(-1, -1, -1))
         directionalLight.setColor(Vec4(1, 1, 1, 1))
         directionalLight.setSpecularColor(Vec4(1, 1, 1, 1))
 
-        directionalLight2 = DirectionalLight("directionalLight")
+        directionalLight2 = DirectionalLight("directionalLight2")
         directionalLight2.setDirection(Vec3(-1, 1, -1))
         directionalLight2.setColor(Vec4(1, 1, 1, 1))
         directionalLight2.setSpecularColor(Vec4(1, 1, 1, 1))
-        directionalLight3 = DirectionalLight("directionalLight")
+
+        directionalLight3 = DirectionalLight("directionalLight3")
         directionalLight3.setDirection(Vec3(1, -1, -1))
         directionalLight3.setColor(Vec4(1, 1, 1, 1))
         directionalLight3.setSpecularColor(Vec4(1, 1, 1, 1))
 
-        directionalLight4 = DirectionalLight("directionalLight")
+        directionalLight4 = DirectionalLight("directionalLight4")
         directionalLight4.setDirection(Vec3(1, 1, -1))
         directionalLight4.setColor(Vec4(1, 1, 1, 1))
         directionalLight4.setSpecularColor(Vec4(1, 1, 1, 1))
 
-        # render.setLight(render.attachNewNode(ambientLight))
+        self.sb.render.setLight(self.sb.render.attachNewNode(ambientLight))
         self.sb.render.setLight(self.sb.render.attachNewNode(directionalLight))
         self.sb.render.setLight(self.sb.render.attachNewNode(directionalLight2))
         self.sb.render.setLight(self.sb.render.attachNewNode(directionalLight3))
@@ -69,7 +71,9 @@ class Terrain():
     def __init__(self, showbase):
         self.sb = showbase
 
-    def initTerrain(self, modelHeightMap, modelTextureMapNull, modelTextureMap, loadNullModels=False,):
+    def initTerrain(self, modelHeightMap = parameters["modelHeightMap"], modelTextureMapNull = parameters["modelTextureMapNull"],
+                    modelTextureMap = parameters["modelTextureMap"], loadNullModels = parameters["loadNullModels"], worldSize = parameters["worldSize"]):
+
         # self.terrain = GeoMipTerrain("worldTerrain")  # create a self.terrain
         # self.terrain.setHeightfield(modelHeightMap)  # set the height map
         # if loadNullModels:  # if null, then create uniform back and sky
@@ -94,20 +98,36 @@ class Terrain():
         # self.root.reparentTo(self.sb.render)  # render from root
         # self.root.setSz(0.2)  # maximum height
         # self.terrain.generate()  # generate
-        self.environ = self.sb.loader.loadModel(parameters["modelTextureMap"])
-        self.environ.reparentTo(self.sb.render)
-        self.environ.setPos(0, 0, 0)
-        return self.environ
 
-    def generate(self, modelSizeSuffix, loadingString):
+        # todo: fix the terrain shift bug
+        # terrain shift bug: origin of .egg-file from blender is centerpoint, not 0/0/0-corner
+        # because of that, terrain is shifted relative to player
+        # problem of translating terrain: myApp line 433 in playerLoader
+        # self.player.setPos(self.ex.world, position) will set position relative to terrain origin, which is centerpoint
+        # so: 129/129/3 will be 258/258/3 etc.
+        # solutions: 1. below, load terrain, translate it, write bam file which will have the correct origin, load that
+        # 2. translate terrain and don't set positions relative to terrain
+        shift = ((worldSize-1)/2)+1
+        print "shift:", shift
+        blab = self.sb.loader.loadModel(modelTextureMap)
+        blab.setPos(shift, shift, 0)
+        blab.reparentTo(self.sb.render)
+        self.sb.render.writeBamFile("models/testgrass.bam")  # todo: use better filename
+        self.terrain = self.sb.loader.loadModel("models/testgrass.bam")
+        self.terrain.setPos(0, 0, 0)
+        self.terrain.reparentTo(self.sb.render)
 
+        return self.terrain
+
+    def generate(self, modelSizeSuffix = parameters["modelSizeSuffix"], loadingString = parameters["loadingString"]):
+        # todo: this seems to be the same like initTerrain with one extra step, overthink that. Maybe cool to autogenerate complex worlds
         self.worldFilename = "models/world_" + "size:" + modelSizeSuffix \
                              + "_obj:" + loadingString + ".bam"
         print "world file name is ", self.worldFilename
         self.sb.render.writeBamFile(self.worldFilename)
-        self.world = self.sb.loader.loadModel(self.worldFilename)  # loads the world_size
-        self.world.reparentTo(self.sb.render)
-        return self.world
+        self.worldModel = self.sb.loader.loadModel(self.worldFilename)  # loads the world_size
+        self.worldModel.reparentTo(self.sb.render)
+        return self.worldModel
             # create 3D model
 
 class Object():

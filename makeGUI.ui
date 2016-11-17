@@ -566,7 +566,11 @@
               </widget>
              </item>
              <item row="4" column="0">
-              <widget class="QSpinBox" name="maxDistance"/>
+              <widget class="QSpinBox" name="maxDistance">
+               <property name="maximum">
+                <number>9999</number>
+               </property>
+              </widget>
              </item>
              <item row="6" column="0" colspan="2">
               <widget class="QLineEdit" name="playerInitPos">
@@ -900,10 +904,24 @@
               </widget>
              </item>
              <item row="3" column="3">
-              <widget class="QDoubleSpinBox" name="sphereZ"/>
+              <widget class="QDoubleSpinBox" name="sphereZ">
+               <property name="minimum">
+                <double>-9999.000000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>9999.000000000000000</double>
+               </property>
+              </widget>
              </item>
              <item row="4" column="3">
-              <widget class="QDoubleSpinBox" name="treeZ"/>
+              <widget class="QDoubleSpinBox" name="treeZ">
+               <property name="minimum">
+                <double>-9999.000000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>9999.000000000000000</double>
+               </property>
+              </widget>
              </item>
              <item row="2" column="5">
               <widget class="QDoubleSpinBox" name="phi"/>
@@ -924,7 +942,7 @@
              <item row="9" column="3">
               <widget class="QSpinBox" name="worldSize">
                <property name="maximum">
-                <number>999</number>
+                <number>9999</number>
                </property>
               </widget>
              </item>
