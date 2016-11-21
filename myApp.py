@@ -241,6 +241,7 @@ class MyApp(ShowBase):
         y   : decrease gain
         e   : start bag recording
         d   : stop bag recording
+        0   : restPosition
         1234: go to quadrants 1234
         8   : human mode on
         5   : human control key
@@ -266,8 +267,10 @@ class MyApp(ShowBase):
                        "accelerate": 0, "decelerate": 0, "handBrake": 0, "reverse": 0,
                        "closed": 0, "gain-up": 0, "gain-down": 0, "lrGain-up": 0,
                        "lrGain-down": 0,
-                       "init": 0, "packetDur-up": 0, "packetDur-down": 0, "newTopSpeed": 0, "clf": 0, "saveFig": 0,
-                       "startBag": 0, "stopBag": 0, "quad1": 0, "quad2": 0, "quad3": 0, "quad4": 0, "human": 0,
+                       "init": 0, "packetDur-up": 0, "packetDur-down": 0,
+                       "newTopSpeed": 0, "clf": 0, "saveFig": 0,
+                       "startBag": 0, "stopBag": 0,
+                       "quad1": 0, "quad2": 0, "quad3": 0, "quad4": 0, "resetPos":0,"human": 0,
                        "hRight": 0, "DCoffset-up": 0, "DCoffset-down": 0,
                        "valve1-on": 0, "valve1-off": 0,"valve2-on": 0, "valve2-off": 0}
 
@@ -300,8 +303,8 @@ class MyApp(ShowBase):
         self.accept("[-up", self.setKey, ["packetDur-down", 0])
         self.accept("]", self.setKey, ["packetDur-up", 1])
         self.accept("]-up", self.setKey, ["packetDur-up", 0])
-        self.accept("q", self.setKey, ["clf", 1])
-        self.accept("q-up", self.setKey, ["clf", 0])
+        # self.accept("q", self.setKey, ["clf", 1])
+        # self.accept("q-up", self.setKey, ["clf", 0])
         self.accept("w", self.setKey, ["saveFig", 1])
         self.accept("w-up", self.setKey, ["saveFig", 0])
         self.accept("e", self.setKey, ["startBag", 1])
@@ -312,6 +315,8 @@ class MyApp(ShowBase):
         self.accept("t-up", self.setKey, ["newTopSpeed", 0])
         self.accept("1", self.setKey, ["quad1", 1])
         self.accept("1-up", self.setKey, ["quad1", 0])
+        self.accept("0", self.setKey, ["resetPos", 1])
+        self.accept("0-up", self.setKey, ["resetPos", 0])
         self.accept("2", self.setKey, ["quad2", 1])
         self.accept("2-up", self.setKey, ["quad2", 0])
         self.accept("3", self.setKey, ["quad3", 1])
@@ -696,6 +701,9 @@ class MyApp(ShowBase):
         if (self.keyMap["valve2-off"] != 0):
             self.valve2State = 0
 
+        if (self.keyMap["resetPos"] != 0):
+            self.ex.resetPosition()
+
     def updatePlayer(self):
         """
         tries to replay past poshpr, else updates it using wbad
@@ -724,7 +732,7 @@ class MyApp(ShowBase):
 
             # global prevPos, currentPos, ax, fig, treePos, redPos Global Clock by default, panda runs as fast as it can frame to frame
             scalefactor = parameters["speed"] * (globalClock.getDt())
-            climbfactor = 0.08
+            climbfactor = 0.008
             bankfactor = 1
             parameters["wbad"] = self.wbad
             parameters["wbas"] = self.wbas
@@ -1185,13 +1193,13 @@ class MyApp(ShowBase):
                                      tuple(parameters["camHpr"]))  # (0,-2,0))# self.world, self.player.getH())
 
         self.cameraLeft.setPos(self.player, 0, 0, 0)
-        self.cameraLeft.setH(self.player, 120)  # self.player.getH())#+120)
+        self.cameraLeft.setHpr(self.player, (120,parameters["camHpr"][1],parameters["camHpr"][2]))  # self.player.getH())#+120)
         #
         self.cameraCenter.setPos(self.player, 0, 0, 0)
         self.cameraCenter.setHpr(self.player, tuple(parameters["camHpr"]))  # (0,-2,0))# self.world, self.player.getH())
 
         self.cameraRight.setPos(self.player, 0, 0, 0)
-        self.cameraRight.setH(self.player, 240)  # self.world, self.player.getH())#-120)
+        self.cameraRight.setHpr(self.player, (240,parameters["camHpr"][1],parameters["camHpr"][2]))  # self.world, self.player.getH())#-120)
 
     # recording functions
     def bagControl(self):

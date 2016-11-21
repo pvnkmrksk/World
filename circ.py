@@ -22,15 +22,16 @@ class Circ(Experiments):
             print "case:", case
         except IndexError:
             self.trial = 1
-            self.idxArr = helper.randIndexArray(parameters["numObj"]+1, parameters["randPos"])  # numObj+1 because of
+            self.idxArr = helper.randIndexArray(parameters["numObj"], parameters["randPos"])  # numObj+1 because of
                                                                                                 # negative control
             print "new run"
             print "indexArray: " + str(self.idxArr)
             case = self.idxArr[self.trial - 1]
             print "case:", case
 
-        if case == max(self.idxArr):  # negative control
-            self.removeObj((self.obj1,))  # Always pass tuple to removeObj
+        # if case == max(self.idxArr):  # negative control
+
+            # self.removeObj((self.obj1,))  # Always pass tuple to removeObj
         else:
 
             radius = parameters["radius"]
