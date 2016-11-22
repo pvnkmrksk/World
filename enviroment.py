@@ -32,6 +32,7 @@ class Sky():
         self.skysphere.setEffect(CompassEffect.make(self.sb.render))
         self.skysphere.setScale(maxDistance)  # bit less than "far"
         self.skysphere.setZ(-3)
+        self.skysphere.reparentTo(self.sb.render)
         # NOT render - you'll fly through the sky!:
 
 
@@ -67,12 +68,24 @@ class Sky():
 
 
 class Terrain():
+    """
+    handles the terrain
+    """
 
     def __init__(self, showbase):
         self.sb = showbase
 
     def initTerrain(self, modelHeightMap = parameters["modelHeightMap"], modelTextureMapNull = parameters["modelTextureMapNull"],
                     modelTextureMap = parameters["modelTextureMap"], loadNullModels = parameters["loadNullModels"], worldSize = parameters["worldSize"]):
+        """
+        loads terrain-model, translates it and dumps it into bam-file
+        :param modelHeightMap:
+        :param modelTextureMapNull:
+        :param modelTextureMap: filepath of terrain-model
+        :param loadNullModels:
+        :param worldSize: length/width of terrain-model, important for shift-translate
+        :return:
+        """
 
         # self.terrain = GeoMipTerrain("worldTerrain")  # create a self.terrain
         # self.terrain.setHeightfield(modelHeightMap)  # set the height map
@@ -105,7 +118,8 @@ class Terrain():
         # problem of translating terrain: myApp line 433 in playerLoader
         # self.player.setPos(self.ex.world, position) will set position relative to terrain origin, which is centerpoint
         # so: 129/129/3 will be 258/258/3 etc.
-        # solutions: 1. below, load terrain, translate it, write bam file which will have the correct origin, load that
+        # solutions:
+        # 1. below, load terrain, translate it, write bam file which will have the correct origin, load that
         # 2. translate terrain and don't set positions relative to terrain
         shift = ((worldSize-1)/2)+1
         print "shift:", shift
@@ -131,11 +145,21 @@ class Terrain():
             # create 3D model
 
 class Object():
+    """
+    handles Objects in VR
+    """
 
     def __init__(self, showbase):
         self.sb = showbase
 
     def getObjects(self, objPath, objScale):
+        """
+        loads Model from object path
+        scales object
+        :param objPath: filepath of object model
+        :param objScale: scale factor for object
+        :return: scaled object
+        """
 
         self.obj = self.sb.loader.loadModel(objPath)
         self.obj.setScale(objScale)
@@ -143,11 +167,19 @@ class Object():
 
 
     def moveObjects(self, position, obj):
+        """
+        sets new position for passed object and rerenders it
+        rerender maybe not necessary at this place, but prevents bugs
+        AttributeError if object is None
+        :param position: tuple of position (x/y/z)
+        :param obj: object to move
+        """
 
         try:
             obj.setPos(position[0], position[1], position[2])
             obj.reparentTo(self.sb.render)
         except AttributeError:
+            # if object is None, do nothing
             pass
 
 
