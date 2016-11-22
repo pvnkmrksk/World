@@ -12,9 +12,6 @@ class Experiments(object):
         self.terrain = Terrain(showbase)  # new terrain-handler from enviroment.py
         self.sky = Sky(showbase)  # new sky- and -light-handler from enviroment.py
         self.player = Player()  # new player-handler from playerCon.py
-
-        self.idxArr = helper.randIndexArray(parameters["numObj"], parameters["randPos"])  # creates the indexArray, which controls order of resetPositions
-        print "indexArray: " + str(self.idxArr)
         self.objectPosition = None  # list of positions of objects
         self.world = None  #the terrain-object, used by player-positioning etc.
         self.newPos = None  # player Position
@@ -27,7 +24,7 @@ class Experiments(object):
         calls getObjects from enviroment.py
         :param objPath: file path of loaded object
         :param objScale: scale of loaded object
-        :return: recieved object
+        :return: received object
         """
 
         obj = self.obj.getObjects(objPath, objScale)
@@ -39,7 +36,6 @@ class Experiments(object):
         updates self.objectPosition after placing. Important if one object is None, objPos will be None at this place
         necessary for reached destination, since reachedDestination works with self.objectPosition
         :param objects: tuple of objects to set
-        :return:
         """
 
         for idx, obj in enumerate(objects):
@@ -71,11 +67,19 @@ class Experiments(object):
         speed: do I have to explain that?
         calls resetPos in playerCon
         increases self.trial
-        :return: new player Position
+        :return: new player Position (necessary?)
         """
 
         self.player.resetPos(self.newPos)
         self.trial += 1
+        return self.newPos
+
+    def retryPosition(self):
+        """
+        just resets Position without increasing trial
+        :return: new player Position (necessary?)
+        """
+        self.player.resetPos(self.newPos)
         return self.newPos
 
     def reachedDestination(self):
@@ -108,6 +112,7 @@ class Experiments(object):
 
     def removeObj(self, obj):
         """
+        :param: obj, object ro remove/derender
         detaches render nodes from objects
         removes tempObj from scene graph
         if object is None (i.e. Lr: 10), AttributeError
