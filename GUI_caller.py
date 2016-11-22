@@ -10,7 +10,7 @@ import subprocess
 import signal
 
 from PyQt4.Qwt5.Qwt import QwtCompass, QwtDial
-#import pyqtgraph as pg
+import pyqtgraph as pg
 from World.msg import MsgTrajectory
 from classes.rosSubscriber import RosSubscriber
 from helping.helper import clamp
@@ -317,6 +317,7 @@ def tick():
         ui.lcdServoAngle.display(traj.servoAngle)
         ui.lcdHeadingAngle.display(traj.orientation.x%360)
 
+        ui.livePosition.setText(str(traj.position))
         if not ui.pausePlot.isChecked():
             spots = [{'pos': np.array([traj.position.x, traj.position.y])
                          , 'data': 1}]
@@ -399,11 +400,11 @@ if __name__ == '__main__':
     ui.compassHeading.setNeedle(Qwt.QwtDialSimpleNeedle(Qwt.QwtDialSimpleNeedle.Arrow))
     ui.compassHeading.setOrigin(270)# to set north as north
 
-    # RosSubscriber('GUI', '/trajectory', MsgTrajectory, clbk)
-    # my_plot = pg.PlotWidget()
-    # ui.trajectoryLayout.addWidget(my_plot)
-    # s1 = pg.ScatterPlotItem(size=2, pen=pg.mkPen(None), brush=pg.mkBrush(255, 255, 255, 120))
-    # resetView()
+    RosSubscriber('GUI', '/trajectory', MsgTrajectory, clbk)
+    my_plot = pg.PlotWidget()
+    ui.trajectoryLayout.addWidget(my_plot)
+    s1 = pg.ScatterPlotItem(size=2, pen=pg.mkPen(None), brush=pg.mkBrush(255, 255, 255, 120))
+    resetView()
 
 
     timer = QTimer()

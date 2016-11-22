@@ -479,19 +479,19 @@ class MyApp(ShowBase):
         #lens = PerspectiveLens(120, 140)  # tuple(parameters["camFOV"]))
         lens = PerspectiveLens(parameters['camFOV'][0], parameters['camFOV'][1])  # tuple(parameters["camFOV"]))
 
-        displayLeft = self.win.makeDisplayRegion(0, 1 / 3, 0, 1)
+        displayLeft = self.win.makeDisplayRegion(0, 1 / 3., 0, 1)
         camL = Camera('Lcam')
         camL.setLens(lens)
         self.cameraLeft = self.render.attach_new_node(camL)
         displayLeft.setCamera(self.cameraLeft)
 
-        displayCenter = self.win.makeDisplayRegion(1 / 3, 2 / 3, 0, 1)
+        displayCenter = self.win.makeDisplayRegion(1 / 3., 2 / 3., 0, 1)
         camC = Camera('Ccam')
         camC.setLens(lens)
         self.cameraCenter = self.render.attach_new_node(camC)
         displayCenter.setCamera(self.cameraCenter)
 
-        displayRight = self.win.makeDisplayRegion(2 / 3, 1, 0, 1)
+        displayRight = self.win.makeDisplayRegion(2 / 3., 1, 0, 1)
         camR = Camera('Rcam')
         camR.setLens(lens)
         self.cameraRight = self.render.attach_new_node(camR)
@@ -1106,25 +1106,26 @@ class MyApp(ShowBase):
 
     def updateCamera(self):
 
-        if parameters['humanDisplay']:
-            self.camera.setPos(self.player, 0, 0, 0)
-            self.camera.setHpr(self.player, tuple(parameters["camHpr"]))  # (0,-2,0))# self.world, self.player.getH())
-        else:
-            self.cameraLeft.setPos(self.player, 0, 0, 0)
-            self.cameraLeft.setH(self.player, 120)  # self.player.getH())#+120)
-            #
-            self.cameraCenter.setPos(self.player, 0, 0, 0)
-            self.cameraCenter.setHpr(self.player,
-                                     tuple(parameters["camHpr"]))  # (0,-2,0))# self.world, self.player.getH())
+        # if parameters['humanDisplay']:
+        #     self.camera.setPos(self.player, 0, 0, 0)
+        #     self.camera.setHpr(self.player, tuple(parameters["camHpr"]))  # (0,-2,0))# self.world, self.player.getH())
+        # else:
+        #     self.cameraLeft.setPos(self.player, 0, 0, 0)
+        #     self.cameraLeft.setH(self.player, 120)  # self.player.getH())#+120)
+        #     #
+        #     self.cameraCenter.setPos(self.player, 0, 0, 0)
+        #     self.cameraCenter.setHpr(self.player,
+        #                              tuple(parameters["camHpr"]))  # (0,-2,0))# self.world, self.player.getH())
 
+        #rotate by hFov cw and ccw
         self.cameraLeft.setPos(self.player, 0, 0, 0)
-        self.cameraLeft.setH(self.player, 120)  # self.player.getH())#+120)
+        self.cameraLeft.setHpr(self.player, (parameters['camFOV'][0],parameters["camHpr"][1],parameters["camHpr"][2]))  # self.player.getH())#+120)
         #
         self.cameraCenter.setPos(self.player, 0, 0, 0)
-        self.cameraCenter.setHpr(self.player, tuple(parameters["camHpr"]))  # (0,-2,0))# self.world, self.player.getH())
+        self.cameraCenter.setHpr(self.player, (0,parameters["camHpr"][1],parameters["camHpr"][2]))  #tuple(parameters["camHpr"]))  # (0,-2,0))# self.world, self.player.getH())
 
         self.cameraRight.setPos(self.player, 0, 0, 0)
-        self.cameraRight.setH(self.player, 240)  # self.world, self.player.getH())#-120)
+        self.cameraRight.setHpr(self.player, (-parameters['camFOV'][0],parameters["camHpr"][1],parameters["camHpr"][2]))  # self.world, self.player.getH())#-120)
 
     # recording functions
     def bagControl(self):
