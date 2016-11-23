@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 import json
 import os
 import subprocess
@@ -22,7 +22,7 @@ class BagControl():
     def startBag(self):
         self.bagger()
         obj = self.metadataGen()
-        helpme.pickler(obj, self.bagFilename)
+        pickler(obj, self.bagFilename)
 
         with open(self.bagFilename + ".json", 'w') as outfile:
             json.dump(obj, outfile, indent=4, sort_keys=True, separators=(',', ':'))
@@ -47,14 +47,17 @@ class BagControl():
     def bagFilenameGen(self):
         self.timeNow = str(datetime.now().strftime('%Y-%m-%d__%H:%M:%S'))
         mode = ""
-        if parameters["hcp"]:
-            mode += "hcp_"
-        if parameters["loadWind"]:
-            mode += "wind_"
-        if parameters["imposeStimulus"]:
-            mode += "impose_"
-        if parameters["quad"]:
-            mode += "quad_"
+        try:
+            # if parameters["hcp"]:
+            #     mode += "hcp_"
+            if parameters["loadWind"]:
+                mode += "wind_"
+            if parameters["imposeStimulus"]:
+                mode += "impose_"
+            if parameters["quad"]:
+                mode += "quad_"
+        except KeyError:
+            print "key missing, change the code now!"
 
         bagDir = "bags/" + str(datetime.now().strftime('%Y_%m_%d'))  # make a directory of current date
         if not os.path.exists(bagDir):
@@ -92,7 +95,7 @@ class BagControl():
         file = open(__file__, 'r')
         servo = open("servo.py", 'r')
         arduino = open("servoControl/servoControl.ino", 'r')
-        bam = open(app.worldFilename)
+        # bam = open(app.worldFilename)
         obj = dict(parameters=parameters, world=file.read(),
                    servo=servo.read(), arduino=arduino.read(), )
         # bam=bam.read().encode('utf-8').strip())
