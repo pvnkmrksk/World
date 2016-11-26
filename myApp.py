@@ -518,7 +518,8 @@ class MyApp(ShowBase):
 
         #lens = PerspectiveLens(120, 140)  # tuple(parameters["camFOV"]))
         lens = PerspectiveLens(parameters['camFOV'][0], parameters['camFOV'][1])  # tuple(parameters["camFOV"]))
-
+        lens.setNear(0.01)
+        # lens.setFar(80)
         displayLeft = self.win.makeDisplayRegion(0, 1 / 3, 0, 1)
         camL = Camera('Lcam')
         camL.setLens(lens)

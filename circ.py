@@ -44,6 +44,7 @@ class Circ(Experiments):
 
         if case == max(self.idxArr):  # negative control
             self.removeObj(objects)  # Always pass tuple to removeObj
+            self.objectPosition = [None]
         else:
             # creates the circ-position with radius and angle relative to playerInit
             # phi is phase ("offset" for special positions)
