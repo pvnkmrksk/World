@@ -1,4 +1,4 @@
-from enviroment import *
+from environment import *
 from playerCon import Player
 from importHelper import helper
 parameters = helper.paramsFromGUI()
@@ -8,20 +8,20 @@ class Experiments(object):
 
     def __init__(self, showbase):
         self.sb=showbase  # gets ShowBase from MyApp()(can't open 2 ShowBases)
-        self.obj = Object(showbase)  # new object-handler from enviroment.py
-        self.terrain = Terrain(showbase)  # new terrain-handler from enviroment.py
-        self.sky = Sky(showbase)  # new sky- and -light-handler from enviroment.py
+        self.obj = Object(showbase)  # new object-handler from environment.py
+        self.terrain = Terrain(showbase)  # new terrain-handler from environment.py
+        self.sky = Sky(showbase)  # new sky- and -light-handler from environment.py
         self.player = Player()  # new player-handler from playerCon.py
         self.objectPosition = None  # list of positions of objects
-        self.world = None  #the terrain-object, used by player-positioning etc.
+        self.world = None  # the terrain-object, used by player-positioning etc.
         self.newPos = None  # player Position
-        self.trial = 1  # trial number, gets increased everytime a reset-event happens
+        self.trial = 1  # trial number, gets increased every time a reset-event happens
         self.tempObjUse = False  # Bool, true if one instance/object is copied
         self.tempObj = None  # copied instance, will have value if needed
 
     def getObjects(self, objPath, objScale):
         """
-        calls getObjects from enviroment.py
+        calls getObjects from environment.py
         :param objPath: file path of loaded object
         :param objScale: scale of loaded object
         :return: received object
@@ -32,7 +32,7 @@ class Experiments(object):
 
     def setObjects(self, *objects):
         """
-        calls moveObjects in enviroment.py for every passed object
+        calls moveObjects in environment.py for every passed object
         updates self.objectPosition after placing. Important if one object is None, objPos will be None at this place
         necessary for reached destination, since reachedDestination works with self.objectPosition
         :param objects: tuple of objects to set
@@ -47,7 +47,7 @@ class Experiments(object):
 
     def createTerrain(self):
         """
-        calls initTerrain in enviroment.py
+        calls initTerrain in environment.py
         assigns self.world to created terrain
         """
 
@@ -56,7 +56,7 @@ class Experiments(object):
 
     def createSky(self):
         """
-        calls createSky in enviroment.py
+        calls createSky in environment.py
         """
 
         self.sky.createSky()

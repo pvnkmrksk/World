@@ -173,7 +173,7 @@ class MyApp(ShowBase):
         self.modelLoader()
         if not parameters['humanDisplay']:
             self.initDisplayRegion()
-            self.ex.sky.skysphere.reparentTo(self.cameraCenter)#dont do this in enviroment.py, needs self.cameraCenter
+            self.ex.sky.skysphere.reparentTo(self.cameraCenter)#dont do this in environment.py, needs self.cameraCenter
         else:
             self.ex.sky.skysphere.reparentTo(self.camera)#todo: is this right? looks like it will cause bugs if human display is true
 
@@ -515,6 +515,8 @@ class MyApp(ShowBase):
 
         dr = self.camNode.getDisplayRegion(0)
         dr.setActive(0)
+
+
 
         #lens = PerspectiveLens(120, 140)  # tuple(parameters["camFOV"]))
         lens = PerspectiveLens(parameters['camFOV'][0], parameters['camFOV'][1])  # tuple(parameters["camFOV"]))

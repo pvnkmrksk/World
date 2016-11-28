@@ -39,33 +39,32 @@ class Sky():
         # Our lighting
         ambientLight = AmbientLight("ambientLight")
         ambientLight.setColor(Vec4(0.3, 0.3, 0.3, 1))
-
+        #
         directionalLight = DirectionalLight("directionalLight")
-        directionalLight.setDirection(Vec3(-1, -1, -1))
+        directionalLight.setDirection(Vec3(-1, 1, -1))
         directionalLight.setColor(Vec4(1, 1, 1, 1))
         directionalLight.setSpecularColor(Vec4(1, 1, 1, 1))
-
-        directionalLight2 = DirectionalLight("directionalLight2")
-        directionalLight2.setDirection(Vec3(-1, 1, -1))
-        directionalLight2.setColor(Vec4(1, 1, 1, 1))
-        directionalLight2.setSpecularColor(Vec4(1, 1, 1, 1))
-
-        directionalLight3 = DirectionalLight("directionalLight3")
-        directionalLight3.setDirection(Vec3(1, -1, -1))
-        directionalLight3.setColor(Vec4(1, 1, 1, 1))
-        directionalLight3.setSpecularColor(Vec4(1, 1, 1, 1))
-
-        directionalLight4 = DirectionalLight("directionalLight4")
-        directionalLight4.setDirection(Vec3(1, 1, -1))
-        directionalLight4.setColor(Vec4(1, 1, 1, 1))
-        directionalLight4.setSpecularColor(Vec4(1, 1, 1, 1))
-
+        #
+        # directionalLight2 = DirectionalLight("directionalLight2")
+        # directionalLight2.setDirection(Vec3(-1, 1, -1))
+        # directionalLight2.setColor(Vec4(1, 1, 1, 1))
+        # directionalLight2.setSpecularColor(Vec4(1, 1, 1, 1))
+        # #
+        # directionalLight3 = DirectionalLight("directionalLight3")
+        # directionalLight3.setDirection(Vec3(1, -1, -1))
+        # directionalLight3.setColor(Vec4(1, 1, 1, 1))
+        # directionalLight3.setSpecularColor(Vec4(1, 1, 1, 1))
+        #
+        # directionalLight4 = DirectionalLight("directionalLight4")
+        # directionalLight4.setDirection(Vec3(1, 1, -1))
+        # directionalLight4.setColor(Vec4(1, 1, 1, 1))
+        # directionalLight4.setSpecularColor(Vec4(1, 1, 1, 1))
+        #
         self.sb.render.setLight(self.sb.render.attachNewNode(ambientLight))
         self.sb.render.setLight(self.sb.render.attachNewNode(directionalLight))
-        self.sb.render.setLight(self.sb.render.attachNewNode(directionalLight2))
-        self.sb.render.setLight(self.sb.render.attachNewNode(directionalLight3))
-        self.sb.render.setLight(self.sb.render.attachNewNode(directionalLight4))
-
+        # self.sb.render.setLight(self.sb.render.attachNewNode(directionalLight2))
+        # self.sb.render.setLight(self.sb.render.attachNewNode(directionalLight3))
+        # self.sb.render.setLight(self.sb.render.attachNewNode(directionalLight4))
 
 class Terrain():
     """
@@ -86,7 +85,6 @@ class Terrain():
         :param worldSize: length/width of terrain-model, important for shift-translate
         :return:
         """
-
         # self.terrain = GeoMipTerrain("worldTerrain")  # create a self.terrain
         # self.terrain.setHeightfield(modelHeightMap)  # set the height map
         # if loadNullModels:  # if null, then create uniform back and sky
@@ -123,13 +121,15 @@ class Terrain():
         # 2. translate terrain and don't set positions relative to terrain
         shift = ((worldSize-1)/2)+1
         print "shift:", shift
-        blab = self.sb.loader.loadModel(modelTextureMap)
-        blab.setPos(shift, shift, 0)
-        blab.reparentTo(self.sb.render)
+        tempTerrain = self.sb.loader.loadModel(modelTextureMap)
+        tempTerrain.setPos(shift, shift, 0)
+        tempTerrain.reparentTo(self.sb.render)
         self.sb.render.writeBamFile("models/testgrass.bam")  # todo: use better filename
+        tempTerrain.removeNode()
         self.terrain = self.sb.loader.loadModel("models/testgrass.bam")
         self.terrain.setPos(0, 0, 0)
         self.terrain.reparentTo(self.sb.render)
+        self.terrain.setShaderAuto()
 
         return self.terrain
 
@@ -161,10 +161,9 @@ class Object():
         :return: scaled object
         """
 
-        self.obj = self.sb.loader.loadModel(objPath)
-        self.obj.setScale(objScale)
-        return self.obj
-
+        obj = self.sb.loader.loadModel(objPath)
+        obj.setScale(objScale)
+        return obj
 
     def moveObjects(self, position, obj):
         """
@@ -178,6 +177,8 @@ class Object():
         try:
             obj.setPos(position[0], position[1], position[2])
             obj.reparentTo(self.sb.render)
+            obj.setShaderAuto()
+
         except AttributeError:
             # if object is None, do nothing
             pass

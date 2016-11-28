@@ -24,6 +24,8 @@ from direct.task import Task
 from panda3d.core import AmbientLight, DirectionalLight, Vec4, Vec3, Fog, Camera, PerspectiveLens
 from panda3d.core import loadPrcFileData, NodePath, TextNode
 from panda3d.core import CompassEffect, ClockObject
+from panda3d.core import Shader
+from panda3d.core import loadPrcFileData
 from direct.gui.OnscreenText import OnscreenText
 from panda3d.core import WindowProperties
 
