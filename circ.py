@@ -1,6 +1,7 @@
 from experiments import Experiments
 import math
 from helping import helper
+from panda3d.core import Shader
 parameters = helper.paramsFromGUI()
 
 class Circ(Experiments):
@@ -16,6 +17,7 @@ class Circ(Experiments):
         self.createSky()
 
         self.obj1 = self.getObjects(objPath1, objScale1)
+        self.obj1.setShaderAuto()
         self.setObjects(self.obj1)
 
     def setObjects(self, *objects):
