@@ -68,11 +68,12 @@ class Lr(Experiments):
         # after creating copy, set tempObjUse True, so removeObj() in experiments.py will remove the copy next time
         # ATTENTION! objects is a tuple, don't pass the tuple to super fct! pass the object/s
         if case == 0:
+            super(Lr, self).setObjects(objects[1], objects[0])
+
+        elif case == 1:
             self.tempObj = copy.copy(objects[1])
             super(Lr, self).setObjects(objects[1], self.tempObj)
-            self.tempObjUse= True
-        elif case == 1:
-           super(Lr, self).setObjects(objects[1], objects[0])
+            self.tempObjUse = True
         elif case == 2:
             super(Lr, self).setObjects(objects[0], objects[1])
         else:
