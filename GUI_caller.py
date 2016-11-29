@@ -14,7 +14,7 @@ import pyqtgraph as pg
 from World.msg import MsgTrajectory
 from classes.rosSubscriber import RosSubscriber
 from helping.helper import clamp
-
+from pathlib import Path
 import numpy as np
 pathRun=os.path.abspath(os.path.split(sys.argv[0])[0]) #path of the runfile
 pathJson= pathRun + '/jsonFiles/'
@@ -25,7 +25,7 @@ jsonCurrent=jsonRecent#pathJson+'temp.json' #modify a temp json file
 jsonVR= pathJson + 'VR.json'
 traj = 0
 signal.signal(signal.SIGINT, signal.SIG_DFL)
-
+filePath=Path(sys.path[0])
 
 
 
@@ -85,9 +85,10 @@ def saveSettings(win, path):
                 text = ast.literal_eval(text)
             elif ('(' and ')') in text:#if lineEdit returns () convert to list
                 text = ast.literal_eval(text)
-        except:
+        except Exception as e:
             ui.statusbar.showMessage('Error')#todo: better message
-            showError()
+            print "error is",e
+            showError('list gone wrong')
 
         settings[str(name)] = text
 
@@ -223,6 +224,7 @@ def openLoad(win):
     '''
     global jsonCurrent
     path=showFileDialog(win, None, pathJson)
+    print "path is", path
     if path == '':
         ui.statusbar.showMessage('Canceled')
         pass
@@ -234,7 +236,7 @@ def openSave(win):
 
     global jsonCurrent
     path = showSaveDialog(win, pathJson)
-    print path
+    print "path is",path
     if path == '':
         ui.statusbar.showMessage('Canceled')
         pass
@@ -255,9 +257,14 @@ def showFileDialog(win, line, pathStart):
     '''
 
     fname = str(QtGui.QFileDialog.getOpenFileName(win, 'Open file', pathStart))
+    fname = Path(fname).relative_to(filePath)#local path, get path relayive to repo root directory so that bugs
+    # dues to different usernames are avoided.
+    fname = str(fname)
     if line and fname != '': #set only if given a label to setText
         line.setText(fname)
+
     return fname
+
 
 def showSaveDialog(win, line):
 
@@ -289,7 +296,7 @@ def saveClose(win):
 
 def startVR():
     global procVR
-    procVR=subprocess.Popen(['python', 'myApp.py'])
+    procVR=subprocess.Popen(['python', 'main.py'])
     ui.tabWidget.setCurrentIndex(5)
 
     #showError("VR is not available")
@@ -317,6 +324,7 @@ def tick():
         ui.lcdServoAngle.display(traj.servoAngle)
         ui.lcdHeadingAngle.display(traj.orientation.x%360)
 
+        ui.livePosition.setText(str(traj.position))
         if not ui.pausePlot.isChecked():
             spots = [{'pos': np.array([traj.position.x, traj.position.y])
                          , 'data': 1}]
@@ -413,8 +421,8 @@ if __name__ == '__main__':
     myDict = {
         'greenTexPath': [ui.greenTexPathBtn, showFileDialog, ui.greenTexPath],
         'redTexPath': [ui.redTexPathBtn, showFileDialog, ui.redTexPath],
-        'spherePath': [ui.spherePathBtn, showFileDialog, ui.spherePath],
-        'treePath': [ui.treePathBtn, showFileDialog, ui.treePath],
+        'object1': [ui.obj1PathBtn, showFileDialog, ui.object1],
+        'object2': [ui.obj2PathBtn, showFileDialog, ui.object2],
         'treeTexPath': [ui.treeTexPathBtn, showFileDialog, ui.treeTexPath],
         'skyMapBtn': [ui.skyMapBtn, showFileDialog, ui.skyMap],
         'skyMapNullBtn': [ui.skyMapNullBtn, showFileDialog, ui.skyMapNull],

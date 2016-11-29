@@ -6,7 +6,7 @@ parameters = helper.paramsFromGUI()
 
 class Circ(Experiments):
 
-    def __init__(self, showbase,objPath1=parameters["spherePath"], objScale1=parameters["sphereScale"]):
+    def __init__(self, showbase,objPath1=parameters["object1"], objScale1=parameters["obj1Scale"]):
 
         super(Circ, self).__init__(showbase)
         self.idxArr = helper.randIndexArray(parameters["numObj"]+1, parameters[
@@ -38,33 +38,34 @@ class Circ(Experiments):
             # if trial is higher than count of digits in idxArr, reset trial and create new idxArr
             #happens if player went through all circ-positions and negative control
             self.trial = 1
-            self.idxArr = helper.randIndexArray(parameters["numObj"]+1, parameters["randPos"])
+            self.idxArr = helper.randIndexArray(parameters["numObj"], parameters["randPos"])
+            # self.idxArr = helper.randIndexArray(parameters["numObj"]+1, parameters["randPos"])
             print "new run"
             print "indexArray: " + str(self.idxArr)
             case = self.idxArr[self.trial - 1]
             print "case:", case
 
-        if case == max(self.idxArr):  # negative control
-            self.removeObj(objects)  # Always pass tuple to removeObj
-            self.objectPosition = [None]
-        else:
-            # creates the circ-position with radius and angle relative to playerInit
-            # phi is phase ("offset" for special positions)
-            radius = parameters["radius"]
-            teta = 360 / parameters["numObj"]
-            phi = parameters["phi"]
-            playerPos = parameters['playerInitPos']
+        # if case == max(self.idxArr):  # negative control
+        #     self.removeObj(objects)  # Always pass tuple to removeObj
+        #     self.objectPosition = [None]
+        # else:
+        # creates the circ-position with radius and angle relative to playerInit
+        # phi is phase ("offset" for special positions)
+        radius = parameters["radius"]
+        teta = 360 / parameters["numObj"]
+        phi = parameters["phi"]
+        playerPos = parameters['playerInitPos']
 
-            # converts radius-angle-position to x/y-coordiantes
-            x = playerPos[0] + (math.sin(math.radians(teta * case + phi)) * radius)
-            y = playerPos[1] + (math.cos(math.radians(teta * case + phi)) * radius)
-            z= parameters["sphereZ"]
+        # converts radius-angle-position to x/y-coordiantes
+        x = playerPos[0] + (math.sin(math.radians(teta * case + phi)) * radius)
+        y = playerPos[1] + (math.cos(math.radians(teta * case + phi)) * radius)
+        z= parameters["obj1Z"]
 
-            self.temp = (x, y, z)
-            self.objectPosition = [self.temp]
+        self.temp = (x, y, z)
+        self.objectPosition = [self.temp]
 
-            # ATTENTION! objects is a tuple, don't pass the tuple to super fct! pass the object/s
-            super(Circ, self).setObjects(objects[0])
+        # ATTENTION! objects is a tuple, don't pass the tuple to super fct! pass the object/s
+        super(Circ, self).setObjects(objects[0])
 
     def resetPosition(self):
         """

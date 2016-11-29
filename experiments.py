@@ -11,7 +11,7 @@ class Experiments(object):
         self.obj = Object(showbase)  # new object-handler from environment.py
         self.terrain = Terrain(showbase)  # new terrain-handler from environment.py
         self.sky = Sky(showbase)  # new sky- and -light-handler from environment.py
-        self.player = Player()  # new player-handler from playerCon.py
+        self.player = Player(showbase)  # new player-handler from playerCon.py
         self.objectPosition = None  # list of positions of objects
         self.world = None  # the terrain-object, used by player-positioning etc.
         self.newPos = None  # player Position

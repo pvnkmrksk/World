@@ -5,11 +5,11 @@ parameters = helper.paramsFromGUI()
 
 class Lr(Experiments):
 
-    def __init__(self, showbase, objPath1=parameters["spherePath"], objPath2=parameters["treePath"],
-                 objScale1=parameters["sphereScale"], objScale2=parameters["treeScale"],
+    def __init__(self, showbase, objPath1=parameters["object1"], objPath2=parameters["object2"],
+                 objScale1=parameters["obj1Scale"], objScale2=parameters["obj2Scale"],
                  loadingString=parameters["loadingString"]):
         super(Lr, self).__init__(showbase)
-        self.idxArr = helper.randIndexArray(parameters["numObj"], parameters[
+        self.idxArr = helper.randIndexArray(4, parameters[
             "randPos"])  # creates the indexArray, which controls order of resetPositions
         print "indexArray: " + str(self.idxArr)
         self.createTerrain()

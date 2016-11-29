@@ -25,6 +25,9 @@ float64 imposeHeading
 float64 imposeResponseHeading
 float64 compensation
 
+geometry_msgs/Vector3 object1Pos
+geometry_msgs/Vector3 object2Pos
+
 int16 reset
 
 string key
