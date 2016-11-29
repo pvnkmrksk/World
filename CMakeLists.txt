@@ -52,6 +52,7 @@ add_message_files(
    MsgState.msg
    MsgFlystate.msg
    MsgTrajectory.msg
+   MsgArduino.msg
 #   Message2.msg
  )
 
