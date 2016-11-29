@@ -129,7 +129,7 @@ class Terrain():
         self.terrain = self.sb.loader.loadModel("models/testgrass.bam")
         self.terrain.setPos(0, 0, 0)
         self.terrain.reparentTo(self.sb.render)
-        self.terrain.setShaderAuto()
+        self.terrain.setShaderAuto()  # enable per pixel rendering for normal mapping
 
         return self.terrain
 

@@ -659,177 +659,102 @@
            </attribute>
            <widget class="QGroupBox" name="groupBox_7">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="geometry">
              <rect>
-              <x>0</x>
-              <y>0</y>
-              <width>681</width>
-              <height>391</height>
+              <x>10</x>
+              <y>10</y>
+              <width>661</width>
+              <height>360</height>
              </rect>
             </property>
             <property name="title">
              <string>GroupBox</string>
             </property>
-            <layout class="QGridLayout" name="gridLayout_14">
-             <item row="1" column="3">
-              <widget class="QDoubleSpinBox" name="sphereScale"/>
-             </item>
-             <item row="7" column="1">
-              <widget class="QPushButton" name="skyMapNullBtn">
-               <property name="text">
-                <string>skyMapNull</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QLineEdit" name="spherePath"/>
-             </item>
-             <item row="1" column="1">
-              <widget class="QPushButton" name="spherePathBtn">
-               <property name="text">
-                <string>spherePath</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="4">
-              <widget class="QLabel" name="label_109">
-               <property name="text">
-                <string>sphereScale</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0">
-              <widget class="QLineEdit" name="greenTexPath"/>
-             </item>
-             <item row="2" column="1">
-              <widget class="QPushButton" name="greenTexPathBtn">
-               <property name="text">
-                <string>greenTexPath</string>
-               </property>
-              </widget>
+            <layout class="QGridLayout" name="gridLayout_8">
+             <item row="1" column="2">
+              <widget class="QDoubleSpinBox" name="obj2Scale"/>
              </item>
              <item row="2" column="4">
-              <widget class="QLabel" name="label_110">
+              <widget class="QCheckBox" name="randPos">
                <property name="text">
-                <string>treeScale</string>
+                <string>randPos</string>
                </property>
               </widget>
              </item>
-             <item row="3" column="0">
-              <widget class="QLineEdit" name="redTexPath"/>
-             </item>
-             <item row="3" column="1">
-              <widget class="QPushButton" name="redTexPathBtn">
-               <property name="text">
-                <string>redTexPath</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="4">
-              <widget class="QLabel" name="label_153">
-               <property name="text">
-                <string>sphereZ</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="0">
-              <widget class="QLineEdit" name="treePath"/>
-             </item>
-             <item row="4" column="1">
-              <widget class="QPushButton" name="treePathBtn">
-               <property name="text">
-                <string>treePath</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="4">
-              <widget class="QLabel" name="label_154">
-               <property name="text">
-                <string>treeZ</string>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="0">
-              <widget class="QLineEdit" name="treeTexPath"/>
-             </item>
-             <item row="5" column="1">
-              <widget class="QPushButton" name="treeTexPathBtn">
-               <property name="text">
-                <string>treeTexPath</string>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="4">
-              <widget class="QLabel" name="label_21">
-               <property name="text">
-                <string>bboxDist</string>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="0">
-              <widget class="QLineEdit" name="skyMap"/>
-             </item>
-             <item row="6" column="1">
-              <widget class="QPushButton" name="skyMapBtn">
-               <property name="text">
-                <string>skyMap</string>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="4">
-              <widget class="QLabel" name="label_76">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="text">
-                <string>origin</string>
-               </property>
-              </widget>
-             </item>
-             <item row="7" column="0">
-              <widget class="QLineEdit" name="skyMapNull"/>
-             </item>
-             <item row="7" column="4">
-              <widget class="QLabel" name="label_45">
-               <property name="text">
-                <string>modelSizeSuffix</string>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="0">
-              <widget class="QLineEdit" name="modelHeightMap">
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="4">
-              <widget class="QLabel" name="label_149">
-               <property name="text">
-                <string>worldSize</string>
-               </property>
-              </widget>
-             </item>
-             <item row="10" column="0">
-              <widget class="QLineEdit" name="modelTextureMap"/>
-             </item>
-             <item row="10" column="4">
+             <item row="10" column="3">
               <widget class="QLabel" name="label_19">
                <property name="text">
                 <string>posL</string>
                </property>
               </widget>
              </item>
-             <item row="11" column="0">
-              <widget class="QLineEdit" name="modelTextureMapNull">
+             <item row="10" column="5">
+              <widget class="QLabel" name="label_10">
                <property name="text">
-                <string/>
+                <string>radius</string>
                </property>
               </widget>
              </item>
-             <item row="11" column="3">
+             <item row="11" column="1">
+              <widget class="QPushButton" name="treeTexPathBtn">
+               <property name="text">
+                <string>treeTexPath</string>
+               </property>
+              </widget>
+             </item>
+             <item row="10" column="1">
+              <widget class="QPushButton" name="redTexPathBtn">
+               <property name="text">
+                <string>redTexPath</string>
+               </property>
+              </widget>
+             </item>
+             <item row="13" column="0">
+              <widget class="QLineEdit" name="greenTexPath"/>
+             </item>
+             <item row="1" column="3">
+              <widget class="QLabel" name="label_110">
+               <property name="text">
+                <string>obj2Scale</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0">
+              <widget class="QLineEdit" name="skyMap"/>
+             </item>
+             <item row="0" column="3">
+              <widget class="QLabel" name="label_109">
+               <property name="text">
+                <string>obj1Scale</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QLineEdit" name="object1"/>
+             </item>
+             <item row="0" column="2">
+              <widget class="QDoubleSpinBox" name="obj1Scale"/>
+             </item>
+             <item row="0" column="1">
+              <widget class="QPushButton" name="obj1PathBtn">
+               <property name="text">
+                <string>object 1</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLineEdit" name="object2"/>
+             </item>
+             <item row="1" column="1">
+              <widget class="QPushButton" name="obj2PathBtn">
+               <property name="text">
+                <string>object 2</string>
+               </property>
+              </widget>
+             </item>
+             <item row="11" column="2">
               <widget class="QLineEdit" name="posR">
                <property name="toolTip">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add &lt;span style=&quot; font-weight:600;&quot;&gt;2 &lt;/span&gt;items&lt;/p&gt;&lt;p&gt;(0, 0)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -839,58 +764,140 @@
                </property>
               </widget>
              </item>
-             <item row="11" column="4">
-              <widget class="QLabel" name="label_20">
-               <property name="text">
-                <string>posR</string>
+             <item row="1" column="4">
+              <widget class="QDoubleSpinBox" name="obj2Z">
+               <property name="minimum">
+                <double>-99.989999999999995</double>
                </property>
               </widget>
              </item>
-             <item row="10" column="3">
-              <widget class="QLineEdit" name="posL">
-               <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add &lt;span style=&quot; font-weight:600;&quot;&gt;2 &lt;/span&gt;items&lt;/p&gt;&lt;p&gt;(0, 0)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-               <property name="text">
-                <string>()</string>
+             <item row="0" column="4">
+              <widget class="QDoubleSpinBox" name="obj1Z">
+               <property name="minimum">
+                <double>-100.000000000000000</double>
                </property>
               </widget>
              </item>
-             <item row="9" column="1">
-              <widget class="QPushButton" name="modelHeightMapBtn">
+             <item row="0" column="5">
+              <widget class="QLabel" name="label_153">
                <property name="text">
-                <string>modelHeightMap</string>
+                <string>obj1Z</string>
                </property>
               </widget>
              </item>
-             <item row="10" column="1">
+             <item row="2" column="3">
+              <widget class="QLabel" name="label_149">
+               <property name="text">
+                <string>worldSize</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="5">
+              <widget class="QLabel" name="label_154">
+               <property name="text">
+                <string>obj2Z</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="2">
+              <widget class="QSpinBox" name="worldSize">
+               <property name="maximum">
+                <number>9999</number>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLineEdit" name="modelTextureMap"/>
+             </item>
+             <item row="2" column="1">
               <widget class="QPushButton" name="modelTextureMapBtn">
                <property name="text">
                 <string>modelTextureMap</string>
                </property>
               </widget>
              </item>
-             <item row="11" column="1">
+             <item row="4" column="1">
+              <widget class="QPushButton" name="skyMapBtn">
+               <property name="text">
+                <string>skyMap</string>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="0">
+              <widget class="QLineEdit" name="modelTextureMapNull">
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="14" column="0">
+              <widget class="QLineEdit" name="modelHeightMap">
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="0">
+              <widget class="QLineEdit" name="skyMapNull"/>
+             </item>
+             <item row="11" column="0">
+              <widget class="QLineEdit" name="treeTexPath"/>
+             </item>
+             <item row="14" column="1">
+              <widget class="QPushButton" name="modelHeightMapBtn">
+               <property name="text">
+                <string>modelHeightMap</string>
+               </property>
+              </widget>
+             </item>
+             <item row="13" column="1">
+              <widget class="QPushButton" name="greenTexPathBtn">
+               <property name="text">
+                <string>greenTexPath</string>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="1">
               <widget class="QPushButton" name="modelTextureMapNullBtn">
                <property name="text">
                 <string>modelTextureMapNull</string>
                </property>
               </widget>
              </item>
-             <item row="1" column="6">
-              <widget class="QLabel" name="label_10">
+             <item row="10" column="0">
+              <widget class="QLineEdit" name="redTexPath"/>
+             </item>
+             <item row="6" column="1">
+              <widget class="QPushButton" name="skyMapNullBtn">
                <property name="text">
-                <string>radius</string>
+                <string>skyMapNull</string>
                </property>
               </widget>
              </item>
-             <item row="1" column="5">
-              <widget class="QDoubleSpinBox" name="radius"/>
-             </item>
              <item row="5" column="3">
+              <widget class="QLabel" name="label_21">
+               <property name="text">
+                <string>bboxDist</string>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="2">
               <widget class="QDoubleSpinBox" name="bboxDist"/>
              </item>
              <item row="6" column="3">
+              <widget class="QLabel" name="label_76">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="text">
+                <string>origin</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="2">
+              <widget class="QLineEdit" name="modelSizeSuffix"/>
+             </item>
+             <item row="6" column="2">
               <widget class="QLineEdit" name="origin">
                <property name="enabled">
                 <bool>false</bool>
@@ -903,63 +910,71 @@
                </property>
               </widget>
              </item>
-             <item row="3" column="3">
-              <widget class="QDoubleSpinBox" name="sphereZ">
-               <property name="minimum">
-                <double>-9999.000000000000000</double>
-               </property>
-               <property name="maximum">
-                <double>9999.000000000000000</double>
-               </property>
-              </widget>
-             </item>
              <item row="4" column="3">
-              <widget class="QDoubleSpinBox" name="treeZ">
-               <property name="minimum">
-                <double>-9999.000000000000000</double>
-               </property>
-               <property name="maximum">
-                <double>9999.000000000000000</double>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="5">
-              <widget class="QDoubleSpinBox" name="phi"/>
-             </item>
-             <item row="2" column="3">
-              <widget class="QDoubleSpinBox" name="treeScale"/>
-             </item>
-             <item row="2" column="6">
-              <widget class="QLabel" name="label_24">
+              <widget class="QLabel" name="label_45">
                <property name="text">
-                <string>phi</string>
+                <string>modelSizeSuffix</string>
                </property>
               </widget>
              </item>
-             <item row="7" column="3">
-              <widget class="QLineEdit" name="modelSizeSuffix"/>
-             </item>
-             <item row="9" column="3">
-              <widget class="QSpinBox" name="worldSize">
-               <property name="maximum">
-                <number>9999</number>
+             <item row="10" column="2">
+              <widget class="QLineEdit" name="posL">
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add &lt;span style=&quot; font-weight:600;&quot;&gt;2 &lt;/span&gt;items&lt;/p&gt;&lt;p&gt;(0, 0)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="text">
+                <string>()</string>
                </property>
               </widget>
              </item>
-             <item row="4" column="5">
+             <item row="11" column="3">
+              <widget class="QLabel" name="label_20">
+               <property name="text">
+                <string>posR</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="4">
               <widget class="QSpinBox" name="numObj"/>
              </item>
-             <item row="4" column="6">
+             <item row="4" column="5">
               <widget class="QLabel" name="label_25">
                <property name="text">
                 <string>numObj</string>
                </property>
               </widget>
              </item>
-             <item row="3" column="5">
-              <widget class="QCheckBox" name="randPos">
+             <item row="10" column="4">
+              <widget class="QDoubleSpinBox" name="radius">
+               <property name="maximum">
+                <double>9999.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="7" column="1" rowspan="3">
+              <spacer name="verticalSpacer">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="11" column="4">
+              <widget class="QDoubleSpinBox" name="phi">
+               <property name="maximum">
+                <double>360.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="11" column="5">
+              <widget class="QLabel" name="label_24">
                <property name="text">
-                <string>randPos</string>
+                <string>phi</string>
                </property>
               </widget>
              </item>
@@ -1616,7 +1631,7 @@
            </rect>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="tab_2">
            <attribute name="title">
@@ -1782,6 +1797,32 @@
            <attribute name="title">
             <string>Tab 2</string>
            </attribute>
+           <widget class="QLabel" name="positionLabel">
+            <property name="geometry">
+             <rect>
+              <x>80</x>
+              <y>50</y>
+              <width>121</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Position</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="livePosition">
+            <property name="geometry">
+             <rect>
+              <x>70</x>
+              <y>70</y>
+              <width>121</width>
+              <height>81</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>None</string>
+            </property>
+           </widget>
           </widget>
          </widget>
         </widget>

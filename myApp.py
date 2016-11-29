@@ -35,8 +35,6 @@ class MyApp(ShowBase):
         initialize init function for params, I/O, feedback and TaskManager
         """
 
-
-
         loadPrcFileData("", "win-size " + str(int(parameters["windowWidth"] / parameters["captureScale"])) + " " +
                         str(int(parameters["windowHeight"] / parameters["captureScale"])))  # set window size
 
@@ -62,7 +60,8 @@ class MyApp(ShowBase):
 
         # PStatClient.connect()
         self.setFrameRateMeter(True)  # show frame rate monitor
-
+        # self.haw.phase = None
+        # self.apple.phase = None
         self.ex = experiment(self)
 
         self.initParams()  # run this 1st. Loads all content and params.
@@ -157,6 +156,8 @@ class MyApp(ShowBase):
         self.stimList = self.stimulusListGen()
         parameters["stimList"] = self.stimList
 
+
+
     def initOutput(self):
         '''
         initializes plotting mechanism
@@ -202,12 +203,16 @@ class MyApp(ShowBase):
                                                     parameters['worldSize'],
                                                     oq=parameters['odourQuad'],plot=parameters['plotOdourQuad'])
 
-        self.valve1=ValveHandler(valvePort=97)
-        self.valve2=ValveHandler(valvePort=98)
-        self.valve3=ValveHandler(valvePort=99)
+        baud=115200
+        self.valve1=ValveHandler(valvePort=97,baud=baud)
+        self.valve2=ValveHandler(valvePort=98,baud=baud)
+        self.valve3=ValveHandler(valvePort=99,baud=baud)
 
         # self.haw= OdourTunnel(self.odourField,self.player,parameters=parameters,phase=150)
         # self.apple= OdourTunnel(self.odourField,self.player,parameters=parameters)
+
+
+
 
     def initFeedback(self):
         '''
@@ -218,7 +223,10 @@ class MyApp(ShowBase):
             None
 
         '''
-        rospy.init_node('world')
+        try:
+            rospy.init_node('world')
+        except Exception as e:
+            print e
         self.listener()
 
     # input functions
@@ -397,7 +405,6 @@ class MyApp(ShowBase):
 
     def worldLoader(self):
         """
-        OUTDATED
         generate filename of world,
         if file absent or force generate true, generate world using worldgen
         load model and reparent panda render node
@@ -406,42 +413,29 @@ class MyApp(ShowBase):
             None
         """
         # global plotter
-        # self.worldFilename = "models/world_" + "size:" + parameters["modelSizeSuffix"] \
-        #                      + "_obj:" + parameters["loadingString"] + ".bam"
-        #
-        # print "model file exists:", os.path.isfile(self.worldFilename)
-        #
-        # print "open worldgen?", (not os.path.isfile(self.worldFilename)) or parameters["generateWorld"]
-        # print "\n \n \n"
-        #
-        # if ((not os.path.isfile(self.worldFilename)) or parameters["generateWorld"]):
-        #     subprocess.Popen(["python", "worldGen.py"])
-        #     time.sleep(3)
-        #
-        # self.world = self.loader.loadModel(self.worldFilename)  # loads the world_size
-        # self.world.reparentTo(self.render)  # render the world
+        self.worldFilename = "models/world_" + "size:" + parameters["modelSizeSuffix"] \
+                             + "_obj:" + parameters["loadingString"] + ".bam"
 
-        #self.obj = oc.ObjectControl(self)
-        #self.objTup = self.obj.getObjects()
+        print "model file exists:", os.path.isfile(self.worldFilename)
 
-        # try:
-        #     self.obj1 = self.objTup[0]
-        #     self.obj2 = self.objTup[1]
-        # except IndexError:
-        #     pass
-        #
-        # self.obj.setObjPositions(fac=self.indexArray[0])
-        print "worldLoader outdated"
+        print "open worldgen?", (not os.path.isfile(self.worldFilename)) or parameters["generateWorld"]
+        print "\n \n \n"
+
+        if ((not os.path.isfile(self.worldFilename)) or parameters["generateWorld"]):
+            subprocess.Popen(["python", "worldGen.py"])
+            time.sleep(3)
+
+        self.world = self.loader.loadModel(self.worldFilename)  # loads the world_size
+        self.world.reparentTo(self.render)  # render the world
 
     def playerLoader(self):
         self.player = NodePath("player")
-        self.player.setPos(self.ex.world, parameters["playerInitPos"])  # does it has to be relative to self.ex.world?
+        self.player.setPos(self.ex.world, tuple(parameters["playerInitPos"]))
         self.player.setH(self.ex.world, (parameters["playerInitH"]))  # heading angle is 0
 
     # sky load
     def createEnvironment(self):
         """
-        OUTDATED
         load fog
         load sky
         setup lights
@@ -449,56 +443,55 @@ class MyApp(ShowBase):
 
         """
         # Fog to hide a performance tweak:
-        # colour = (0.0, 0.0, 0.0)
-        # expfog = Fog("scene-wide-fog")
-        # expfog.setColor(*colour)
-        # expfog.setExpDensity(0.004)
-        # render.setFog(expfog)
-        # self.setBackgroundColor(*colour)
-        #
-        # # Our sky
-        # if parameters["loadNullModels"]:  # if null, then create uniform back and sky
-        #     skysphere = loader.loadModel(parameters["skyMapNull"])
-        # else:
-        #     skysphere = loader.loadModel(parameters["skyMap"])
-        #
-        # skysphere.setEffect(CompassEffect.make(self.render))
-        # skysphere.setScale(parameters["maxDistance"])  # bit less than "far"
-        # skysphere.setZ(-3)
-        # # NOT render - you'll fly through the sky!:
-        # if parameters["humanDisplay"]:
-        #     skysphere.reparentTo(self.camera)
-        # else:
-        #     skysphere.reparentTo(self.cameraCenter)
-        #
-        # # Our lighting
-        # # ambientLight = AmbientLight("ambientLight")
-        # # ambientLight.setColor(Vec4(.6, .6, .6, 1))
-        # directionalLight = DirectionalLight("directionalLight")
-        # directionalLight.setDirection(Vec3(-1,-1,-1))
-        # directionalLight.setColor(Vec4(1, 1, 1, 1))
-        # directionalLight.setSpecularColor(Vec4(1, 1, 1, 1))
-        #
-        # directionalLight2 = DirectionalLight("directionalLight")
-        # directionalLight2.setDirection(Vec3(-1,1,-1))
-        # directionalLight2.setColor(Vec4(1, 1, 1, 1))
-        # directionalLight2.setSpecularColor(Vec4(1, 1, 1, 1))
-        # directionalLight3 = DirectionalLight("directionalLight")
-        # directionalLight3.setDirection(Vec3(1,-1,-1))
-        # directionalLight3.setColor(Vec4(1, 1, 1, 1))
-        # directionalLight3.setSpecularColor(Vec4(1, 1, 1, 1))
-        #
-        # directionalLight4 = DirectionalLight("directionalLight")
-        # directionalLight4.setDirection(Vec3(1,1,-1))
-        # directionalLight4.setColor(Vec4(1, 1, 1, 1))
-        # directionalLight4.setSpecularColor(Vec4(1, 1, 1, 1))
-        #
-        # # render.setLight(render.attachNewNode(ambientLight))
-        # render.setLight(render.attachNewNode(directionalLight))
-        # render.setLight(render.attachNewNode(directionalLight2))
-        # render.setLight(render.attachNewNode(directionalLight3))
-        # render.setLight(render.attachNewNode(directionalLight4))
-        print "createEnviroment outdated"
+        colour = (0.0, 0.0, 0.0)
+        expfog = Fog("scene-wide-fog")
+        expfog.setColor(*colour)
+        expfog.setExpDensity(0.004)
+        render.setFog(expfog)
+        self.setBackgroundColor(*colour)
+
+        # Our sky
+        if parameters["loadNullModels"]:  # if null, then create uniform back and sky
+            skysphere = loader.loadModel(parameters["skyMapNull"])
+        else:
+            skysphere = loader.loadModel(parameters["skyMap"])
+
+        skysphere.setEffect(CompassEffect.make(self.render))
+        skysphere.setScale(parameters["maxDistance"])  # bit less than "far"
+        skysphere.setZ(-3)
+        # NOT render - you'll fly through the sky!:
+        if parameters["humanDisplay"]:
+            skysphere.reparentTo(self.camera)
+        else:
+            skysphere.reparentTo(self.cameraCenter)
+
+        # Our lighting
+        # ambientLight = AmbientLight("ambientLight")
+        # ambientLight.setColor(Vec4(.6, .6, .6, 1))
+        directionalLight = DirectionalLight("directionalLight")
+        directionalLight.setDirection(Vec3(-1,-1,-1))
+        directionalLight.setColor(Vec4(1, 1, 1, 1))
+        directionalLight.setSpecularColor(Vec4(1, 1, 1, 1))
+
+        directionalLight2 = DirectionalLight("directionalLight")
+        directionalLight2.setDirection(Vec3(-1,1,-1))
+        directionalLight2.setColor(Vec4(1, 1, 1, 1))
+        directionalLight2.setSpecularColor(Vec4(1, 1, 1, 1))
+        directionalLight3 = DirectionalLight("directionalLight")
+        directionalLight3.setDirection(Vec3(1,-1,-1))
+        directionalLight3.setColor(Vec4(1, 1, 1, 1))
+        directionalLight3.setSpecularColor(Vec4(1, 1, 1, 1))
+
+        directionalLight4 = DirectionalLight("directionalLight")
+        directionalLight4.setDirection(Vec3(1,1,-1))
+        directionalLight4.setColor(Vec4(1, 1, 1, 1))
+        directionalLight4.setSpecularColor(Vec4(1, 1, 1, 1))
+
+        # render.setLight(render.attachNewNode(ambientLight))
+        render.setLight(render.attachNewNode(directionalLight))
+        render.setLight(render.attachNewNode(directionalLight2))
+        render.setLight(render.attachNewNode(directionalLight3))
+        render.setLight(render.attachNewNode(directionalLight4))
         # directionalLight.setShadowCaster(True, 512, 512)
         # render.setShaderAuto()
 
@@ -516,12 +509,10 @@ class MyApp(ShowBase):
         dr = self.camNode.getDisplayRegion(0)
         dr.setActive(0)
 
-
-
         #lens = PerspectiveLens(120, 140)  # tuple(parameters["camFOV"]))
         lens = PerspectiveLens(parameters['camFOV'][0], parameters['camFOV'][1])  # tuple(parameters["camFOV"]))
         lens.setNear(0.01)
-        # lens.setFar(80)
+
         displayLeft = self.win.makeDisplayRegion(0, 1 / 3, 0, 1)
         camL = Camera('Lcam')
         camL.setLens(lens)
@@ -603,7 +594,7 @@ class MyApp(ShowBase):
         mes.wbad = parameters["wbad"]  # set wing beat amplitude difference
         mes.wbas = parameters["wbas"]  # set wing beat amplitude sum
 
-        mes.trial = self.trial  # trial number. increments after every reset, todo: change to self.ex.trial
+        mes.trial = self.trial  # trial number. increments after every reset
         mes.servoAngle = self.servoAngle  # servo angle command, may not complete if out of bounds
         mes.valve1 = self.valve1State  # odour valve state
         mes.valve2 = self.valve2State  # odour valve state
@@ -620,8 +611,18 @@ class MyApp(ShowBase):
         """
 
         mes.impose = self.stim  # imposed heading rate
-        self.currentImposeResponse = -(
-            self.player.getH() - self.prevH - self.stim)  # send what the fly's motion caused on heading, negative for ease of view in rqtPlot
+
+        if self.ex.objectPosition[0]:
+            mes.object1Pos = self.ex.objectPosition[0]
+        # try:
+        #
+        #     if not self.ex.objectPosition[1]:
+        #         mes.object2Pos = self.ex.objectPosition[1]
+        # except:
+        #     # print "no 2nd object"
+        #     pass
+        # send what the fly's motion caused on heading, negative for ease of view in rqtPlot
+        self.currentImposeResponse = -(self.player.getH() - self.prevH - self.stim)
         mes.imposeResponse = self.currentImposeResponse
         # self.imposeResponseArr=np.append(self.imposeResponseArr,mes.imposeResponse)
         self.prevH = self.player.getH()
@@ -641,6 +642,9 @@ class MyApp(ShowBase):
         # mes.headingResponseMod = self.headingResponseMod
         mes.compensation = mes.impose - mes.imposeResponse
         self.prevStim = self.stim
+
+
+
         return mes
 
     # frameupdate
@@ -704,9 +708,6 @@ class MyApp(ShowBase):
         if (self.keyMap["valve2-off"] != 0):
             self.valve2State = 0
 
-        if (self.keyMap["resetPos"] != 0):
-            self.ex.resetPosition()
-
     def updatePlayer(self):
         """
         tries to replay past poshpr, else updates it using wbad
@@ -724,7 +725,6 @@ class MyApp(ShowBase):
             None
         """
         if not parameters["replayWorld"]:
-
 
 
             """
@@ -869,7 +869,7 @@ class MyApp(ShowBase):
                 (self.player.getY() < 0) or (self.player.getY() > parameters["worldSize"]):
 
                 if parameters['quad']:
-                    self.resetPosition("rand")
+                    self.ex.resetPosition()
                 # else:
                 #     self.player.setX(self.player.getX)
                 #     self.player.setY(self.player.setY)
@@ -879,7 +879,7 @@ class MyApp(ShowBase):
             if parameters['quad']:
                 if  (self.player.getX() > parameters["offset"] and self.player.getX() < (parameters["offset"] + 1)) or \
                     (self.player.getY() > parameters["offset"] and self.player.getY() < (parameters["offset"] + 1)):
-                    self.resetPosition("rand")
+                    self.ex.resetPosition()
 
             # todo.fix document and clean the timer
             if self.decayTime > 60:
@@ -901,7 +901,7 @@ class MyApp(ShowBase):
             # reset position by user input
             for i in range(4):
                 if (self.keyMap["quad" + str(i + 1)] != 0):
-                    self.resetPosition(i + 1)
+                    self.ex.resetPosition(i + 1)
                     time.sleep(0.15)
 
 
@@ -1032,7 +1032,7 @@ class MyApp(ShowBase):
 
     def tooLongBoutReset(self):
         if self.boutFrame > parameters["maxBoutDur"]:
-            self.resetPosition("rand")
+            self.ex.resetPosition()
             print "bout longer than max duration", parameters["maxBoutDur"]
         else:
             self.boutFrame += 1
@@ -1110,9 +1110,10 @@ class MyApp(ShowBase):
         print "boundingBoxCoordinates outdated"
 
     def resetPosition(self, quad):
-        '''
-        OUTDATED
-        '''
+        """
+        oUTDATED
+        """
+
 
         # if len(parameters["loadingString"]) == 2:
         #     if quad == "rand":
@@ -1149,6 +1150,15 @@ class MyApp(ShowBase):
         #
         #     self.obj.moveObj(self.obj1, fac=self.fac)
 
+            # index = random.randrange(len(parameters["initPosList"]))
+            # newPos = parameters["initPosList"][index]
+            # print "random quadrant is ", index + 1, "\n"
+
+        # else:
+        #     newPos = parameters["initPosList"][quad - 1]
+        #     self.quadrantIndex = quad - 1
+        #     print "Your quadrant is", (self.quadrantIndex), "\n"
+        #
         # self.player.setPos(newPos)
         # self.player.setH(parameters["playerInitH"])
         #
@@ -1164,8 +1174,16 @@ class MyApp(ShowBase):
         # self.boutFrame = 0
         # self.reset = True  # set reset to true. Will be set to false after frame updtae
         # self.trial += 1
+        # #
+        # # #rest tunnel to zwero phase so that on quad change, the onset of packet is at predicatbale
+        # # # and at the beginning after an offset of  50frames 300ms so that a keypress doesn't end up with a sustained odour
+        # # # and insteadof history dependence and so may switch any time
+        # self.haw.phase=0
+        # self.apple.phase=0
+        # #doens't matter anymore , using only keyup events
         # return newPos
-        print "resetPosition outdated"
+
+        print "resetPos outdated"
 
     def randChoice(self):
         self.quadrantIndex = random.choice(list(self.quadSet))
@@ -1181,28 +1199,29 @@ class MyApp(ShowBase):
         else:
             self.quadSet = self.quadSetCopy.copy()
             self.randChoice()
-
+	
     def updateCamera(self):
 
-        if parameters['humanDisplay']:
-            self.camera.setPos(self.player, 0, 0, 0)
-            self.camera.setHpr(self.player, tuple(parameters["camHpr"]))  # (0,-2,0))# self.world, self.player.getH())
-        else:
-            self.cameraLeft.setPos(self.player, 0, 0, 0)
-            self.cameraLeft.setH(self.player, 120)  # self.player.getH())#+120)
-            #
-            self.cameraCenter.setPos(self.player, 0, 0, 0)
-            self.cameraCenter.setHpr(self.player,
-                                     tuple(parameters["camHpr"]))  # (0,-2,0))# self.world, self.player.getH())
+        # if parameters['humanDisplay']:
+        #     self.camera.setPos(self.player, 0, 0, 0)
+        #     self.camera.setHpr(self.player, tuple(parameters["camHpr"]))  # (0,-2,0))# self.world, self.player.getH())
+        # else:
+        #     self.cameraLeft.setPos(self.player, 0, 0, 0)
+        #     self.cameraLeft.setH(self.player, 120)  # self.player.getH())#+120)
+        #     #
+        #     self.cameraCenter.setPos(self.player, 0, 0, 0)
+        #     self.cameraCenter.setHpr(self.player,
+        #                              tuple(parameters["camHpr"]))  # (0,-2,0))# self.world, self.player.getH())
 
+        #rotate by hFov cw and ccw
         self.cameraLeft.setPos(self.player, 0, 0, 0)
-        self.cameraLeft.setHpr(self.player, (120,parameters["camHpr"][1],parameters["camHpr"][2]))  # self.player.getH())#+120)
+        self.cameraLeft.setHpr(self.player, (parameters['camFOV'][0],parameters["camHpr"][1],parameters["camHpr"][2]))  # self.player.getH())#+120)
         #
         self.cameraCenter.setPos(self.player, 0, 0, 0)
-        self.cameraCenter.setHpr(self.player, tuple(parameters["camHpr"]))  # (0,-2,0))# self.world, self.player.getH())
+        self.cameraCenter.setHpr(self.player, (0,parameters["camHpr"][1],parameters["camHpr"][2]))  #tuple(parameters["camHpr"]))  # (0,-2,0))# self.world, self.player.getH())
 
         self.cameraRight.setPos(self.player, 0, 0, 0)
-        self.cameraRight.setHpr(self.player, (240,parameters["camHpr"][1],parameters["camHpr"][2]))  # self.world, self.player.getH())#-120)
+        self.cameraRight.setHpr(self.player, (-parameters['camFOV'][0],parameters["camHpr"][1],parameters["camHpr"][2]))  # self.world, self.player.getH())#-120)
 
     # recording functions
     def bagControl(self):
@@ -1220,7 +1239,6 @@ class MyApp(ShowBase):
 
             self.bagRecordingState = False
    # screen capture
-
     def record(self, dur, fps):
         self.movie('frames/movie', dur, fps=fps, format='jpg', sd=7)
 
@@ -1293,10 +1311,3 @@ class MyApp(ShowBase):
         #     else:
         #         return n
         #
-
-if __name__ == '__main__':
-    app = MyApp()  # our 'object'
-    try:
-        app.run()
-    finally:
-        e.exceptionFinally()
