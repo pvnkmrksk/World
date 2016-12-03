@@ -1,0 +1,208 @@
+import numpy as np
+<<<<<<< HEAD
+class Stimulus():
+    def __init__(self):
+        pass
+    def stimulusListGen(self,nSteps,mode,constantArea,area,stopDur,startDur,stepDur,factorDur,areaMode,startHeading,durListGen,gpMode,headingListGen,interTrial,fps,intraTrial,signFlip,orderFlip,nReps ):
+        '''
+        """
+        If stepMode is true, the stimulus will have than many steps
+         Else it calculates, the number of steps needed to reach Start to stop in step ratio of factorDur
+
+        If areaMode is true, the stimulus will all have area equal to area given
+         Else it calculates area from startHeading rate and startDuration
+
+        If durListGen is true, it generates the list of durations, else the entered list of durations is used
+            In gp Mode, the list forms a gp with common ratio of factorDur
+            In ap Mode, the list forms a ap with common difference of stepDur
+
+        If headingListGen is true, it generates the list of heading rates, else the entered list is used
+            It generates it by dividing durlist form area, this is because, area, which is total rotation imposed every stimulus is kept constant (ex, 720degrees)
+
+
+
+        Returns:
+
+        """
+
+        Args:
+            stepMode:  the stimulus will have nSteps steps
+            Else it calculates, the number of steps needed to reach Start to stop in step ratio of factorDur
+
+            nSteps: number of steps in the sweep if stepMode is True
+            stopDur:
+            startDur:
+            stepDur:
+            factorDur:
+            areaMode:
+            startHeading:
+            durListGen:
+            gpMode:
+            headingListGen:
+            interTrial:
+            fps:
+            intraTrial:
+            signFlip:
+            orderFlip:
+            nReps:
+
+        Returns:
+
+        '''
+        # print "startDur is", nSteps
+
+
+        if not constantArea:
+            area = startHeading * startDur
+
+        if nSteps == 'auto':
+            # todo.fix this calculates steps for gp mode. Missing ap mode
+            if mode == 'gp':
+                nSteps = np.log10(stopDur / startDur) / np.log10(factorDur)
+        else:
+            nSteps -= 1  # because power estimation will increment it because factor^0 is also included
+
+        if durListGen:
+            if mode=='gp':
+                # print "GP mode is True"
+                durList = np.array([startDur * factorDur ** x
+                                    for x in range(int(nSteps + 1))])
+            elif mode=='ap':
+                durList = np.array(range(startDur, stopDur, stepDur))
+                # print "GP mode is False"
+
+
+        if headingListGen:
+            headingRate = area / durList
+            print "Imposed turn in degrees/frame is,", durList * headingRate
+
+        print "\nDurlist is", durList
+        print "Heading is", headingRate
+
+        i = 0
+        timeSeries = (np.zeros(int(interTrial * fps)))
+
+        for dur in durList:
+            try:
+                assert len(durList) == len(
+                    headingRate)  # they should be equal unless there is a bug or typo
+
+            except AssertionError:
+                print "gain and dur of smae lengty"
+
+            timeSeries = np.append(timeSeries,
+                                                 headingRate[i] * np.ones(int(dur * fps)))
+            timeSeries = np.append(timeSeries,
+                                                 np.zeros(int(intraTrial * fps)))
+
+            if signFlip:
+                timeSeries = np.append(timeSeries,
+                                                     -headingRate[i] * np.ones(
+                                                         int(dur * fps)))
+                timeSeries = np.append(timeSeries,
+                                                     np.zeros(int(intraTrial * fps)))
+
+            i += 1
+
+        timeSeries = np.append(timeSeries,
+                                             np.zeros(int(interTrial * fps)))
+
+        if orderFlip:
+            timeSeries = np.append(timeSeries, np.flipud(timeSeries))
+        timeSeries = np.tile(timeSeries, nReps)
+
+        # plt.plot(timeSeries)
+        # plt.show()
+
+
+        return timeSeries
+=======
+import pandas as pd
+class Stimulus(object):
+    def __init__(self, stimList=[1,2,3,4], nReps=1, mode='ordered', genTimeSeries=False, stimDur=1, fps=165, ):
+        # pass
+        self.stimList=self.stimListGen(np.array(stimList),nReps,mode)
+        self.stimDur=stimDur
+        self.currentIndex=-1
+        self.fps=fps
+        self.currentFrame = 0
+        self.genTimeSeries=genTimeSeries
+        self.timeSeries=self.timeSeriesGen(self.currentStim(),self.stimDur,self.fps,self.genTimeSeries)
+
+    def stimDfGen(self,stimList,nReps,mode,genTimeSeries,stimDur,fps):
+        self.stimDf=pd.DataFrame(columns=['trial','stimList','timeSeries'])
+    def stimListGen(self,stimList,nReps,mode):
+        if mode=='randomRep':
+            stimListRep=[]
+            for i in range(nReps):
+                np.random.shuffle(stimList)
+                stimListRep=np.append(stimListRep,stimList)
+        elif mode=='ordered':
+            stimListRep=np.tile(stimList,nReps)
+        print "stimlist rep is",stimListRep
+        return stimListRep
+
+    def timeSeriesGen(self,stim,stimDur,fps,genTimeSeries):
+        if genTimeSeries:
+            self.currentFrame=0
+            return np.tile(stim,int(stimDur*fps))
+        else:
+            return None
+
+    def nextStim(self):
+        self.currentIndex+=1
+        try:
+            self.timeSeries=self.timeSeriesGen(self.currentStim(),self.stimDur,self.fps,self.genTimeSeries)
+        except IndexError:
+            print "stim Complete"
+            return None
+        print self.currentStim()
+        return self.currentStim()
+    def previousStim(self):
+        self.currentIndex-=1
+        try:
+            self.timeSeries=self.timeSeriesGen(self.currentStim(),self.stimDur,self.fps,self.genTimeSeries)
+        except IndexError:
+            print "stim complete"
+            return None
+        return self.currentStim()
+
+
+        # pass
+    def repeatCurrentStim(self):
+        self.timeSeries=self.timeSeriesGen(self.currentStim(),self.stimDur,self.fps,self.genTimeSeries)
+
+        return self.currentStim()
+
+        # pass
+    def restartStim(self):
+        self.currentIndex=0
+        self.timeSeries=self.timeSeriesGen(self.currentStim(),self.stimDur,self.fps,self.genTimeSeries)
+
+        return self.currentStim()
+        # pass
+
+    def currentStim(self):
+        return self.stimList[self.currentIndex]
+    def nextFrame(self):
+        if self.timeSeriesGen:
+            try:
+                cf=self.timeSeries[self.currentFrame]
+                self.currentFrame+=1
+            except IndexError:
+                self.nextStim()
+                cf=self.timeSeries[self.currentFrame]
+
+            return cf
+
+
+if __name__ =='__main__':
+
+    s=Stimulus(nReps=5,mode='randomRep')
+    while True:
+        n=s.nextStim()
+        print n
+        if n is None:
+            break
+
+>>>>>>> alphaTesting
