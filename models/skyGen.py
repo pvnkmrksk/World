@@ -94,7 +94,7 @@ while n:
     n = data.getNextChild( )
 
 # save
-data.writeEgg( Filename( 'sky_null.egg' ) )
+data.writeEgg( Filename( 'sky.egg' ) )
 
 # egg2bam
-os.system( 'egg2bam sky_null.egg -o sky.bam' )
+os.system( 'egg2bam sky.egg -o sky.bam' )

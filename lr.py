@@ -49,9 +49,14 @@ class Lr(Experiments):
         except IndexError:
             # if trial is higher than count of digits in idxArr, reset trial and create new idxArr
             # happens if player went through all 4 lr-configurations
+            print "new run"
             self.trial = 1
+            self.runNum += 1
+            print "runNum:", self.runNum
             self.idxArr = helper.randIndexArray(parameters["numObj"], parameters["randPos"])
+            print "idxArr:", self.idxArr
             case = self.idxArr[self.trial - 1]
+            print "trial:", self.trial
             print "case:", case
 
         self.pos1 = parameters["posL"]
@@ -88,9 +93,17 @@ class Lr(Experiments):
         calls super
         calls setObjects
         """
-
-        self.newPos = parameters["playerInitPos"]
         super(Lr, self).resetPosition()
+        self.setObjects(self.obj1, self.obj2)
+
+    def startExperiment(self):
+        """
+        overwrites startExperiment() in experiment.py
+        calls super (new trial), creates fresh idxArray for setup
+        sets Obj Position with new trial and idxArr
+        """
+        super(Lr, self).startExperiment()
+        self.idxArr = helper.randIndexArray(4, parameters["randPos"])
         self.setObjects(self.obj1, self.obj2)
 
 

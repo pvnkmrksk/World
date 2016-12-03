@@ -14,10 +14,11 @@ class Experiments(object):
         self.player = Player(showbase)  # new player-handler from playerCon.py
         self.objectPosition = None  # list of positions of objects
         self.world = None  # the terrain-object, used by player-positioning etc.
-        self.newPos = None  # player Position
+        self.newPos = parameters["playerInitPos"]  # player Position
         self.trial = 1  # trial number, gets increased every time a reset-event happens
         self.tempObjUse = False  # Bool, true if one instance/object is copied
         self.tempObj = None  # copied instance, will have value if needed
+        self.runNum = 1
 
     def getObjects(self, objPath, objScale):
         """
@@ -130,6 +131,21 @@ class Experiments(object):
                 item.detachNode()
             except AttributeError:
                 pass
+
+    def startExperiment(self):
+        """
+        resets trial and runNum to 1
+        creates new idxArr
+        sets playerPos to init
+        object positioning occurs in circ, lr...
+        bag recording starts in myApp
+        everything is ready for an experiment!
+
+        """
+        self.trial = 1
+        self.runNum = 1
+        self.player.resetPos(self.newPos)
+
 
 
 

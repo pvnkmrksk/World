@@ -242,6 +242,8 @@ class MyApp(ShowBase):
         right: head clockwise
         o   : Open loop
         p   : Closed loop
+        k   : open thrust
+        l   : closed thrust
         r   : reverse gear
         s   : handbrake
         i   : reset to init position
@@ -253,12 +255,13 @@ class MyApp(ShowBase):
         1234: go to quadrants 1234
         8   : human mode on
         5   : human control key
-        g   : Decrease DC offset
-        h   : Increase DC offset
+        h   : Decrease DC offset
+        j   : Increase DC offset
         v   : valve on
         c   : valve off
         x   : valve on
         Z   : valve off
+        = : start experiment
 
         [   : packetDur down
         ]   : packetDur up
@@ -273,14 +276,18 @@ class MyApp(ShowBase):
         '''
         self.keyMap = {"left": 0, "right": 0, "climb": 0, "fall": 0,
                        "accelerate": 0, "decelerate": 0, "handBrake": 0, "reverse": 0,
-                       "closed": 0, "gain-up": 0, "gain-down": 0, "lrGain-up": 0,
+                       "closed": 0, "thrust":0,"gain-up": 0, "gain-down": 0, "lrGain-up": 0,
                        "lrGain-down": 0,
                        "init": 0, "packetDur-up": 0, "packetDur-down": 0,
                        "newTopSpeed": 0, "clf": 0, "saveFig": 0,
                        "startBag": 0, "stopBag": 0,
-                       "quad1": 0, "quad2": 0, "quad3": 0, "quad4": 0, "resetPos":0,"human": 0,
+                       "a-down": 0, "a-up": 0, "b-down": 0, "b-up": 0,
+                       "c-down": 0, "c-up": 0, "d-down": 0, "d-up": 0,
+
+                       "resetPos":0,
+                       "human": 0,
                        "hRight": 0, "DCoffset-up": 0, "DCoffset-down": 0,
-                       "valve1-on": 0, "valve1-off": 0,"valve2-on": 0, "valve2-off": 0}
+                       "valve1-on": 0, "valve1-off": 0,"valve2-on": 0, "valve2-off": 0, "startEx": 0}
 
         self.accept("escape", self.winClose)
         self.accept("q", self.setKey, ["climb", 1])
@@ -297,6 +304,8 @@ class MyApp(ShowBase):
         self.accept("arrow_up-up", self.setKey, ["accelerate", 0])
         self.accept("o", self.setKey, ["closed", 0])
         self.accept("p", self.setKey, ["closed", 1])
+        self.accept("k", self.setKey, ["thrust", 0])
+        self.accept("l", self.setKey, ["thrust", 1])
         self.accept("r", self.setKey, ["reverse", 1])
         self.accept("r-up", self.setKey, ["reverse", 0])
         self.accept("s", self.setKey, ["handBrake", 1])
@@ -321,24 +330,35 @@ class MyApp(ShowBase):
         self.accept("d-up", self.setKey, ["stopBag", 0])
         self.accept("t", self.setKey, ["newTopSpeed", 1])
         self.accept("t-up", self.setKey, ["newTopSpeed", 0])
-        self.accept("1", self.setKey, ["quad1", 1])
-        self.accept("1-up", self.setKey, ["quad1", 0])
-        self.accept("0", self.setKey, ["resetPos", 1])
-        self.accept("0-up", self.setKey, ["resetPos", 0])
-        self.accept("2", self.setKey, ["quad2", 1])
-        self.accept("2-up", self.setKey, ["quad2", 0])
-        self.accept("3", self.setKey, ["quad3", 1])
-        self.accept("3-up", self.setKey, ["quad3", 0])
-        self.accept("4", self.setKey, ["quad4", 1])
-        self.accept("4-up", self.setKey, ["quad4", 0])
-        self.accept("8", self.setKey, ["human", 1])
+        # self.accept("0", self.setKey, ["resetPos", 0])
+        self.accept("0-up", self.setKey, ["resetPos", 1])
+
+        self.accept("1", self.setKey, ["a-down", 1])
+        self.accept("1-up", self.setKey, ["a-down", 0])
+        self.accept("2", self.setKey, ["a-up", 1])
+        self.accept("2-up", self.setKey, ["a-up", 0])
+        self.accept("3", self.setKey, ["b-down", 1])
+        self.accept("3-up", self.setKey, ["b-down", 0])
+        self.accept("4", self.setKey, ["b-up", 1])
+        self.accept("4-up", self.setKey, ["b-up", 0])
+
+        self.accept("5", self.setKey, ["c-down", 5])
+        self.accept("5-up", self.setKey, ["c-down", 0])
+        self.accept("6", self.setKey, ["c-up", 5])
+        self.accept("6-up", self.setKey, ["c-up", 0])
+        self.accept("7", self.setKey, ["d-down", 5])
+        self.accept("7-up", self.setKey, ["d-down", 0])
+        self.accept("8", self.setKey, ["d-up", 5])
+        self.accept("8-up", self.setKey, ["d-up", 0])
+        # self.accept("8", self.setKey, ["human", 1])
+
         # self.accept("8-up",self.setKey,["human",0])
-        self.accept("5", self.setKey, ["hRight", 1])
-        self.accept("5-up", self.setKey, ["hRight", -1])
-        self.accept("g", self.setKey, ["DCoffset-down", 1])
-        self.accept("g-up", self.setKey, ["DCoffset-down", 0])
-        self.accept("h", self.setKey, ["DCoffset-up", 1])
-        self.accept("h-up", self.setKey, ["DCoffset-up", 0])
+        # self.accept("5", self.setKey, ["hRight", 1])
+        # self.accept("5-up", self.setKey, ["hRight", -1])
+        self.accept("h", self.setKey, ["DCoffset-down", 1])
+        self.accept("h-up", self.setKey, ["DCoffset-down", 0])
+        self.accept("j", self.setKey, ["DCoffset-up", 1])
+        self.accept("j-up", self.setKey, ["DCoffset-up", 0])
         self.accept("v", self.setKey, ["valve2-on", 1])
         self.accept("v-up", self.setKey, ["valve2-on", 0])
         self.accept("c", self.setKey, ["valve2-off", 1])
@@ -347,6 +367,8 @@ class MyApp(ShowBase):
         self.accept("x-up", self.setKey, ["valve1-on", 0])
         self.accept("z", self.setKey, ["valve1-off", 1])
         self.accept("z-up", self.setKey, ["valve1-off", 0])
+        self.accept("f12", self.setKey, ["startEx", 1])
+        self.accept("f12-up", self.setKey, ["startEx", 0])
 
         self.disableMouse()  # or updateCamera will fail!
 
@@ -372,7 +394,9 @@ class MyApp(ShowBase):
         """
         # self.closeWindow(self.win)
         if self.bagRecordingState:  # if bag recording , close before exit
-            self.stopbag()
+            self.stopBag()
+
+
 
         try:
             servo.move(99, 0)  # close valve to prevent odour bleeding through
@@ -707,6 +731,46 @@ class MyApp(ShowBase):
             self.valve2State = 1
         if (self.keyMap["valve2-off"] != 0):
             self.valve2State = 0
+        if (self.keyMap["resetPos"] != 0):
+            self.ex.resetPosition()
+            self.keyMap["resetPos"] =0
+
+        if (self.keyMap["a-up"] != 0):
+            parameters["minWbas"] += parameters["DCoffsetIncrement"]
+            print "wbas scalers is ", parameters["minWbas"]
+
+        if (self.keyMap["a-down"] != 0):
+            parameters["minWbas"] -= parameters["DCoffsetIncrement"]
+            print "wbas scalers is ", parameters["minWbas"]
+
+        if (self.keyMap["b-up"] != 0):
+            parameters["maxWbas"] += parameters["DCoffsetIncrement"]
+            print "wbas scalers is ", parameters["maxWbas"]
+
+        if (self.keyMap["b-down"] != 0):
+            parameters["maxWbas"] -= parameters["DCoffsetIncrement"]
+            print "wbas scalers is ", parameters["maxWbas"]
+
+        if (self.keyMap["c-up"] != 0):
+            parameters["minFlightSpeed"] += parameters["DCoffsetIncrement"]
+            print "speed scalers is ", parameters["minFlightSpeed"]
+
+        if (self.keyMap["c-down"] != 0):
+            parameters["minFlightSpeed"] -= parameters["DCoffsetIncrement"]
+            print "speed scalers is ", parameters["minFlightSpeed"]
+
+        if (self.keyMap["d-up"] != 0):
+            parameters["maxFlightSpeed"] += parameters["DCoffsetIncrement"]
+            print "speed scalers is ", parameters["maxFlightSpeed"]
+
+        if (self.keyMap["d-down"] != 0):
+            parameters["maxFlightSpeed"] -= parameters["DCoffsetIncrement"]
+            print "speed scalers is ", parameters["maxFlightSpeed"]
+
+        if (self.keyMap["startEx"] != 0):
+            self.ex.startExperiment()
+            self.startBag()
+
 
     def updatePlayer(self):
         """
@@ -774,6 +838,18 @@ class MyApp(ShowBase):
             if (self.keyMap["closed"] != 0):
                 self.player.setH(self.player.getH() - parameters["wbad"] * parameters["gain"])
 
+            if (self.keyMap["thrust"] != 0):
+                self.player.setH(self.player.getH() - parameters["wbad"] * parameters["gain"])
+                parameters["speed"]=((parameters["wbas"]-parameters["minWbas"])*
+                                     (parameters["maxFlightSpeed"]-parameters["minFlightSpeed"])/
+                                     (parameters["maxWbas"]-parameters["minWbas"]))\
+                                    +parameters["minFlightSpeed"]
+                # #
+                # self.player.setP(((parameters["wbas"]-parameters["minWbas"])*
+                #                      (parameters["maxFlightSpeed"]-parameters["minFlightSpeed"])/
+                #                      (parameters["maxWbas"]-parameters["minWbas"]))\
+                #                     +parameters["minFlightSpeed"]
+                # )
             # if (self.keyMap["human"] != 0):
             #     self.player.setH(self.player.getH() + self.keyMap["hRight"] * parameters["gain"])
 
@@ -876,17 +952,19 @@ class MyApp(ShowBase):
                 #todo. fix out of bounds
 
             #if hitting the midway mark, reset in quad mode, else carry on
-            if parameters['quad']:
-                if  (self.player.getX() > parameters["offset"] and self.player.getX() < (parameters["offset"] + 1)) or \
-                    (self.player.getY() > parameters["offset"] and self.player.getY() < (parameters["offset"] + 1)):
-                    self.ex.resetPosition()
+            # if parameters['quad']:
+            #     if  (self.player.getX() > parameters["offset"] and self.player.getX() < (parameters["offset"] + 1)) or \
+            #         (self.player.getY() > parameters["offset"] and self.player.getY() < (parameters["offset"] + 1)):
+            #         self.ex.resetPosition()
 
             # todo.fix document and clean the timer
-            if self.decayTime > 60:
+            if self.decayTime > 82:
+
                 parameters["speed"] = 0
                 self.keyMap["closed"] = 0
                 self.decayTime -= 1
-            elif 0 < self.decayTime <= 60:
+
+            elif 0 < self.decayTime <= 82:
 
                 self.keyMap["closed"] = self.closedMemory
                 self.decayTime -= 1
@@ -894,16 +972,19 @@ class MyApp(ShowBase):
             elif self.decayTime == 0:
                 parameters["speed"] = self.speedMemory
                 self.decayTime -= 1
+
             if parameters['resetObject']:
                 if self.ex.reachedDestination():
                     self.ex.resetPosition()
 
-            # reset position by user input
-            for i in range(4):
-                if (self.keyMap["quad" + str(i + 1)] != 0):
-                    self.ex.resetPosition(i + 1)
-                    time.sleep(0.15)
+            #todo.delete Quad is non existenent
 
+            # reset position by user input
+            # for i in range(4):
+            #     if (self.keyMap["quad" + str(i + 1)] != 0):
+            #         self.ex.resetPosition(i + 1)
+            #         time.sleep(0.15)
+            #
 
 
 
@@ -1031,9 +1112,11 @@ class MyApp(ShowBase):
         # plt.plot(sums)
 
     def tooLongBoutReset(self):
-        if self.boutFrame > parameters["maxBoutDur"]:
+        if parameters["maxBoutDur"] == 0:
+            return
+        elif self.boutFrame > parameters["maxBoutDur"]*parameters["fps"]:
             self.ex.resetPosition()
-            print "bout longer than max duration", parameters["maxBoutDur"]
+            print "bout longer than max duration", parameters["maxBoutDur"], " s"
         else:
             self.boutFrame += 1
 
@@ -1225,19 +1308,31 @@ class MyApp(ShowBase):
 
     # recording functions
     def bagControl(self):
+        # todo: put this in key-handler
         if (self.keyMap["startBag"] == 1):
-            self.trajBagger = BagControl('traj', parameters['bagTrajTopics'])
-            self.fullBagger = BagControl('full', parameters['bagFullTopics'])
-
-            self.trial = 0
-            self.frame = 0
-            self.bagRecordingState = True
+            self.startBag()
 
         elif (self.keyMap["stopBag"] != 0):
+            self.stopBag()
+
+    def startBag(self):
+        self.trajBagger = BagControl('traj', parameters['bagTrajTopics'])
+        self.fullBagger = BagControl('full', parameters['bagFullTopics'])
+
+        # self.trial = conflict with experiment class, min trial is 1
+        self.frame = 0  # todo: ?
+
+        self.bagRecordingState = True
+
+    def stopBag(self):
+        try:
             self.trajBagger.stopbag()
             self.fullBagger.stopbag()
+        except AttributeError:
+            print "No bag running"
 
-            self.bagRecordingState = False
+        self.bagRecordingState = False
+
    # screen capture
     def record(self, dur, fps):
         self.movie('frames/movie', dur, fps=fps, format='jpg', sd=7)
