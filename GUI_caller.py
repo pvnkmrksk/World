@@ -1,4 +1,4 @@
-import sys, os, rospy
+import sys, os, rospy, time
 import json_tricks as json
 from PyQt4.QtGui import QApplication, QMainWindow
 from makeGUI import Ui_RhagGUI
@@ -8,6 +8,7 @@ from PyQt4.Qwt5 import Qwt
 import ast
 import subprocess
 import signal
+import rostopic
 
 from PyQt4.Qwt5.Qwt import QwtCompass, QwtDial
 import pyqtgraph as pg
@@ -306,6 +307,13 @@ def stopVR():
 def startRoscore():
     subprocess.Popen(['roscore'])
 
+def startCameraParam():
+    # text expansion of bash is disabled  by default for security concerns.
+    # Since this is not user input string, security isn't a issue in this case
+    # subprocess.Popen(['gedit', '~/a.txt'],shell=True)
+    # subprocess.Popen(['gedit', '~/src.git/Kinefly/launch/rhag/camera_1394.launch'])
+    subprocess.call('gedit ~/src.git/Kinefly/launch/rhag/camera_1394.launch',shell=True)
+
 def startWbad():
     subprocess.Popen(["roslaunch", "Kinefly", "main.launch"])  # start kinefly
 
@@ -351,6 +359,12 @@ def clearPlot():
     #todo. clear plot os not working
 if __name__ == '__main__':
 #necessary for getting the GUI running
+    try:
+        rostopic.get_topic_class('/rosout')  # is_rosmaster_running = True
+    except rostopic.ROSTopicIOException as e:
+        roscore = subprocess.Popen('roscore')  # then start roscore yourself
+        time.sleep(1)  # wait a bit to be sure the roscore is really launched
+
     app = QApplication(sys.argv)
     window = QMainWindow()
     ui = Ui_RhagGUI()
@@ -394,7 +408,7 @@ if __name__ == '__main__':
 
     ui.startVRBtn.clicked.connect(lambda: startVR())
     ui.stopVRBtn.clicked.connect(lambda: stopVR())
-    ui.roscoreBtn.clicked.connect(lambda: startRoscore())
+    ui.camParamBtn.clicked.connect(lambda: startCameraParam())
     ui.wbadBtn.clicked.connect(lambda: startWbad())
     ui.resetView.clicked.connect(lambda :resetView())
     ui.clearPlot.clicked.connect(lambda :clearPlot())

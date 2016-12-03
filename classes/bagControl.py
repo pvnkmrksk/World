@@ -24,8 +24,12 @@ class BagControl():
         obj = self.metadataGen()
         pickler(obj, self.bagFilename)
 
-        with open(self.bagFilename + ".json", 'w') as outfile:
-            json.dump(obj, outfile, indent=4, sort_keys=True, separators=(',', ':'))
+        try:
+            with open(self.bagFilename + ".json", 'w') as outfile:
+                json.dump(obj, outfile, indent=4, sort_keys=True, separators=(',', ':'))
+        except UnicodeDecodeError:
+            print "error with unicode FIX IT"
+            pass
         time.sleep(0.15)  # sleep to prevent multiple instatntiations for a single keypress
 
     def stopbag(self):
@@ -45,6 +49,8 @@ class BagControl():
         rospy.loginfo("Bag recording started")
 
     def bagFilenameGen(self):
+        # todo: fix filename generate
+
         self.timeNow = str(datetime.now().strftime('%Y-%m-%d__%H:%M:%S'))
         mode = ""
         try:
@@ -63,10 +69,14 @@ class BagControl():
         if not os.path.exists(bagDir):
             os.makedirs(bagDir)  # create dir if non existent
 
-        fileName = bagDir + "/" + self.timeNow + "_" + parameters["fly"] + "_" \
-                   + mode + parameters["loadingString"] \
-                   + "_gain" + str(parameters["gain"]) \
-                   + "_trial_" + str(parameters["trialNo"]) + "_" + self.bagType
+        # fileName = bagDir + "/" + self.timeNow + "_" + parameters["fly"] + "_" \
+        #            + mode + parameters["loadingString"] \
+        #            + "_gain" + str(parameters["gain"]) \
+        #            + "_trial_" + str(parameters["trialNo"]) + "_" + self.bagType
+        #
+        fileName = bagDir + "/" + self.timeNow + "_" + parameters["loadingString"] \
+                   + "_" + parameters["fly"] + "_" + mode + self.bagType
+
         print fileName
         return fileName
 
@@ -77,7 +87,11 @@ class BagControl():
             time.sleep(5)  # so that bag file can be transfereed from memory
 
         obj = self.metadataGen()
-        metadata = (json.dumps(obj))
+        try:
+            metadata = (json.dumps(obj))
+        except UnicodeDecodeError:
+            print "FIX this unicode error in stop"
+            metadata = "empty"
         metadata = String(metadata)
         # print "metadata is:", metadata
 

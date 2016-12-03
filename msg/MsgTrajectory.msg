@@ -9,6 +9,7 @@ float64 gain
 int16 closed
 
 int16 trial
+int16 runNum
 int16 servoAngle
 int16 valve1
 int16 valve2
