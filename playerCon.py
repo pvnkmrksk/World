@@ -46,7 +46,7 @@ class Player():
         self.sb.player.setPos(newPos)
         self.sb.player.setH(initH)
     
-        self.sb.decayTime = 240
+        self.sb.decayTime = 165
         self.sb.speedMemory = speed
         self.sb.closedMemory = self.sb.keyMap["closed"]
         print "self.newPos is", newPos, "\n"
