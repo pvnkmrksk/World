@@ -51,7 +51,7 @@ class Player():
         self.sb.closedMemory = self.sb.keyMap["closed"]
         print "self.newPos is", newPos, "\n"
     
-        print "quadrant duration was ", str((datetime.now() - self.sb.lastResetTime).total_seconds())
+        print "run duration was ", str((datetime.now() - self.sb.lastResetTime).total_seconds())
         print "\n \n \n"
     
         self.sb.lastResetTime = datetime.now()

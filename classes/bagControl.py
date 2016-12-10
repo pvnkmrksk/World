@@ -8,16 +8,19 @@ import rosbag
 import rospy
 from std_msgs.msg import String
 
-from helping.helper import pickler,depickler
-from params import parameters
+from helping.helper import pickler,depickler, paramsFromGUI
+# from params import parameters
+parameters= paramsFromGUI()
 
 
 
 class BagControl():
-    def __init__(self, bagType, topics):
+    def __init__(self, bagType, topics, parameters=parameters):
         self.bagType = bagType
         self.topics = topics
         self.startBag()
+        print "test:", parameters["fly"], parameters["loadingString"]
+
 
     def startBag(self):
         self.bagger()
@@ -30,7 +33,7 @@ class BagControl():
         except UnicodeDecodeError:
             print "error with unicode FIX IT"
             pass
-        time.sleep(0.15)  # sleep to prevent multiple instatntiations for a single keypress
+        # time.sleep(0.15)  # sleep to prevent multiple instatntiations for a single keypress
 
     def stopbag(self):
         # self.runBagCommand.send_signal(subprocess.signal.SIGINT) #send signal on stop command
@@ -74,10 +77,12 @@ class BagControl():
         #            + "_gain" + str(parameters["gain"]) \
         #            + "_trial_" + str(parameters["trialNo"]) + "_" + self.bagType
         #
-        fileName = bagDir + "/" + self.timeNow + "_" + parameters["loadingString"] \
-                   + "_" + parameters["fly"] + "_" + mode + self.bagType
 
-        print fileName
+
+        fileName = bagDir + "/" + self.timeNow + "_" + parameters["fly"] + "_" + parameters["loadingString"] \
+                   + "_" + self.bagType
+
+        print "filename:", fileName
         return fileName
 
     def addMetadata(self):

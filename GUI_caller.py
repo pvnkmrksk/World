@@ -327,20 +327,20 @@ def clbk(data):
 def tick():
     try:
         ui.compassServo.setValue(traj.servoAngle+90)
-        ui.compassHeading.setValue(traj.orientation.x)
+        ui.compassHeading.setValue(traj.pOri.x)
 
         ui.lcdServoAngle.display(traj.servoAngle)
-        ui.lcdHeadingAngle.display(traj.orientation.x%360)
+        ui.lcdHeadingAngle.display(traj.pOri.x%360)
 
-        ui.livePosition.setText(str(traj.position))
+        ui.livePosition.setText(str(traj.pPos))
         if not ui.pausePlot.isChecked():
-            spots = [{'pos': np.array([traj.position.x, traj.position.y])
+            spots = [{'pos': np.array([traj.pPos.x, traj.pPos.y])
                          , 'data': 1}]
             s1.addPoints(spots)
             my_plot.addItem(s1)
 
     except AttributeError:
-        pass
+        print "something bad,no gui update"
 
 def resetView():
     my_plot.setRange(xRange=(0,255),yRange=(0,255))
