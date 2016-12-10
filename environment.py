@@ -183,10 +183,9 @@ class Object():
             obj.setShaderAuto()# here?
 
         except AttributeError:
-            # if object is None, do nothing
-            pass
+            print "obj is None"
         except TypeError:
-            # if object is None, do nothing
-            pass
+            print "position is messed up!" \
+                  "check is objectPosition is defined correctly (tuple inside list)"
 
 

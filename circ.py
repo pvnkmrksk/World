@@ -30,9 +30,9 @@ class Circ(Experiments):
 
         try:
             # get case from idxArr, dependent on trial number
-            case = self.idxArr[self.trial-1]
+            self.case = self.idxArr[self.trial-1]
             print "trial: ", self.trial
-            print "case:", case
+            print "case:", self.case
         except IndexError:
             # if trial is higher than count of digits in idxArr, reset trial and create new idxArr
             # happens if player went through all circ-positions and negative control
@@ -40,11 +40,12 @@ class Circ(Experiments):
             self.runNum += 1
             self.idxArr = helper.randIndexArray(parameters["numObj"]+1, parameters["randPos"])  # +1 because negControl
             print "new run"
+            print "runNum:", self.runNum
             print "indexArray: " + str(self.idxArr)
-            case = self.idxArr[self.trial - 1]
-            print "case:", case
+            self.case = self.idxArr[self.trial - 1]
+            print "case:", self.case
 
-        if case == max(self.idxArr):  # negative control
+        if self.case == max(self.idxArr):  # negative control
             self.removeObj(objects)  # Always pass tuple to removeObj
             self.objectPosition = [None]
         else:
@@ -56,8 +57,8 @@ class Circ(Experiments):
             playerPos = parameters['playerInitPos']
 
             # converts radius-angle-position to x/y-coordinates
-            x = playerPos[0] + (math.sin(math.radians(teta * case + phi)) * radius)
-            y = playerPos[1] + (math.cos(math.radians(teta * case + phi)) * radius)
+            x = playerPos[0] + (math.sin(math.radians(teta * self.case + phi)) * radius)
+            y = playerPos[1] + (math.cos(math.radians(teta * self.case + phi)) * radius)
             z= parameters["obj1Z"]
 
             self.temp = (x, y, z)
@@ -85,6 +86,13 @@ class Circ(Experiments):
         super(Circ, self).startExperiment()
         self.idxArr = helper.randIndexArray(parameters["numObj"]+1, parameters["randPos"])
         self.setObjects(self.obj1)
+
+    def retryRun(self, newList=False):
+        if newList == True:
+            self.idxArr = helper.randIndexArray(parameters["numObj"] + 1, parameters["randPos"])
+        super(Circ, self).retryRun()
+        self.setObjects(self.obj1)
+
 
 
 

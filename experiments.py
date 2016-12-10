@@ -19,6 +19,8 @@ class Experiments(object):
         self.tempObjUse = False  # Bool, true if one instance/object is copied
         self.tempObj = None  # copied instance, will have value if needed
         self.runNum = 1
+        self.case = 0
+        self.isFlying = True
 
     def getObjects(self, objPath, objScale):
         """
@@ -81,7 +83,12 @@ class Experiments(object):
         :return: new player Position (necessary?)
         """
         self.player.resetPos(self.newPos)
+        self.sb.boutFrame = 0
         return self.newPos
+
+    def retryRun(self, newList=False):
+        self.trial = 1
+        self.player.resetPos(self.newPos)
 
     def reachedDestination(self):
         """
@@ -142,9 +149,21 @@ class Experiments(object):
         everything is ready for an experiment!
 
         """
+
         self.trial = 1
         self.runNum = 1
         self.player.resetPos(self.newPos)
+
+    def badFly(self):
+        self.isFlying = False
+        self.sb.maxBoutDur = 0
+        print "isFlying:", self.isFlying
+
+    def goodFly(self):
+        self.isFlying = True
+        self.sb.maxBoutDur = parameters["maxBoutDur"]
+        self.retryPosition()
+        print "isFlying:", self.isFlying
 
 
 
