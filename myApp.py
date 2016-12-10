@@ -9,6 +9,8 @@ if parameters["loadingString"] == "circ":
     from circ import Circ as experiment
 elif len(parameters["loadingString"]) == 2:
     from lr import Lr as experiment
+elif parameters["loadingString"] == "gain":
+    from gain import Gain as experiment
 
 # print parameters
 e=ExceptionHandlers(parameters)
@@ -60,11 +62,12 @@ class MyApp(ShowBase):
 
         # PStatClient.connect()
         self.setFrameRateMeter(True)  # show frame rate monitor
+        self.initParams()  # run this 1st. Loads all content and params.
+
         # self.haw.phase = None
         # self.apple.phase = None
         self.ex = experiment(self)
 
-        self.initParams()  # run this 1st. Loads all content and params.
         self.initInput()
         self.initOutput()
         self.initFeedback()
@@ -108,6 +111,7 @@ class MyApp(ShowBase):
         # position of objects generated
         # self.odd, self.even, quad = self.quadPositionGenerator(posL=parameters["posL"], posR=parameters["posR"])
 
+        self.gain = parameters["gain"]
         self.servoAngle = 90  #
         if parameters["loadWind"]:
             servo.move(1, self.servoAngle)
@@ -119,6 +123,7 @@ class MyApp(ShowBase):
         self.reset = False
         self.bagRecordingState = False
         self.decayTime = -1
+        self.maxBoutDur = parameters["maxBoutDur"]
         self.boutFrame = 0
         self.lastResetTime = datetime.now()
         self.replayFrame = parameters["captureStart"]
@@ -261,7 +266,9 @@ class MyApp(ShowBase):
         c   : valve off
         x   : valve on
         Z   : valve off
-        = : start experiment
+        f12 : start experiment
+        f5  : fly stopped flying
+        f6  : fly started flying again
 
         [   : packetDur down
         ]   : packetDur up
@@ -287,7 +294,7 @@ class MyApp(ShowBase):
                        "resetPos":0,
                        "human": 0,
                        "hRight": 0, "DCoffset-up": 0, "DCoffset-down": 0,
-                       "valve1-on": 0, "valve1-off": 0,"valve2-on": 0, "valve2-off": 0, "startEx": 0}
+                       "valve1-on": 0, "valve1-off": 0,"valve2-on": 0, "valve2-off": 0, "startEx": 0, "badFly": 0, "goodFly": 0}
 
         self.accept("escape", self.winClose)
         self.accept("q", self.setKey, ["climb", 1])
@@ -324,10 +331,10 @@ class MyApp(ShowBase):
         # self.accept("q-up", self.setKey, ["clf", 0])
         self.accept("w", self.setKey, ["saveFig", 1])
         self.accept("w-up", self.setKey, ["saveFig", 0])
-        self.accept("e", self.setKey, ["startBag", 1])
-        self.accept("e-up", self.setKey, ["startBag", 0])
-        self.accept("d", self.setKey, ["stopBag", 1])
-        self.accept("d-up", self.setKey, ["stopBag", 0])
+        # self.accept("e", self.setKey, ["startBag", 1])
+        self.accept("e-up", self.setKey, ["startBag", 1])
+        # self.accept("d", self.setKey, ["stopBag", 1])
+        self.accept("d-up", self.setKey, ["stopBag", 1])
         self.accept("t", self.setKey, ["newTopSpeed", 1])
         self.accept("t-up", self.setKey, ["newTopSpeed", 0])
         # self.accept("0", self.setKey, ["resetPos", 0])
@@ -367,8 +374,10 @@ class MyApp(ShowBase):
         self.accept("x-up", self.setKey, ["valve1-on", 0])
         self.accept("z", self.setKey, ["valve1-off", 1])
         self.accept("z-up", self.setKey, ["valve1-off", 0])
-        self.accept("f12", self.setKey, ["startEx", 1])
-        self.accept("f12-up", self.setKey, ["startEx", 0])
+        # self.accept("f12", self.setKey, ["startEx", 1])
+        self.accept("f12-up", self.setKey, ["startEx", 1])
+        self.accept("f5-up", self.setKey, ["badFly", 1])
+        self.accept("f6-up", self.setKey, ["goodFly", 1])
 
         self.disableMouse()  # or updateCamera will fail!
 
@@ -609,22 +618,25 @@ class MyApp(ShowBase):
 
         mes = MsgTrajectory()  # create message
         mes.header.stamp = rospy.Time.now()  # set time stamp
-        mes.position = self.player.getPos()  # set xyz
-        mes.orientation = self.player.getHpr()  # set heading pitch roll
+        mes.pPos = self.player.getPos()  # set xyz
+        mes.pOri = self.player.getHpr()  # set heading pitch roll
         mes.speed = parameters["speed"]  # set current forward velocity, pixel/s (1px=1m)
-        mes.gain = parameters["gain"]  # set current closed loop gain
-        mes.closed = self.keyMap["closed"]  # boolean to indicate closed loop state
+        mes.gain = self.gain  # set current closed loop gain
+        mes.headingControl = self.keyMap["closed"]  # boolean to indicate closed loop state
 
         mes.wbad = parameters["wbad"]  # set wing beat amplitude difference
         mes.wbas = parameters["wbas"]  # set wing beat amplitude sum
 
-        mes.trial = self.trial  # trial number. increments after every reset
+        mes.trial = self.ex.trial  # trial number. increments after every reset
+        mes.runNum = self.ex.runNum
+        mes.case = self.ex.case
         mes.servoAngle = self.servoAngle  # servo angle command, may not complete if out of bounds
         mes.valve1 = self.valve1State  # odour valve state
         mes.valve2 = self.valve2State  # odour valve state
         mes.valve3 = self.valve3State  # odour valve state
         mes.quadrant = self.quadrantIndex + 1  # 0 indexing of python +1 to real qorld quadrant naming
         mes.reset = self.reset  # boolean flag on quad change
+        mes.isFlying = self.ex.isFlying
 
         mes.DCoffset = parameters["DCoffset"]
         """
@@ -637,7 +649,7 @@ class MyApp(ShowBase):
         mes.impose = self.stim  # imposed heading rate
 
         if self.ex.objectPosition[0]:
-            mes.object1Pos = self.ex.objectPosition[0]
+            mes.o1Pos = self.ex.objectPosition[0]
         # try:
         #
         #     if not self.ex.objectPosition[1]:
@@ -684,10 +696,12 @@ class MyApp(ShowBase):
         Returns:
             task.cont, panda internal return value to say , frame call complete,please render the frame
         """
+        self.keyHandler()
+        self.bagControl()
+
 
         self.updatePlayer()
         self.updateCamera()
-        self.bagControl()
 
 
         if parameters["loadWind"]:
@@ -701,7 +715,6 @@ class MyApp(ShowBase):
             self.valve2State=self.apple.update(self.packetDur)
 
 
-        self.keyHandler()
         self.valve1.move(self.valve1State)
         self.valve2.move(self.valve2State)
 
@@ -768,8 +781,23 @@ class MyApp(ShowBase):
             print "speed scalers is ", parameters["maxFlightSpeed"]
 
         if (self.keyMap["startEx"] != 0):
-            self.ex.startExperiment()
+            self.ex.runNum = np.NaN
+            self.ex.trial = np.NaN
+            parameters['speed']=0
             self.startBag()
+            time.sleep(3)
+            self.ex.startExperiment()
+
+            self.keyMap['startEx'] = 0
+
+        if (self.keyMap["badFly"] != 0):
+            self.ex.badFly()
+            self.keyMap['badFly'] = 0
+
+        if (self.keyMap["goodFly"] != 0):
+            self.ex.goodFly()
+            self.keyMap['goodFly'] = 0
+
 
 
     def updatePlayer(self):
@@ -798,7 +826,7 @@ class MyApp(ShowBase):
             """
 
             # global prevPos, currentPos, ax, fig, treePos, redPos Global Clock by default, panda runs as fast as it can frame to frame
-            scalefactor = parameters["speed"] * (globalClock.getDt())
+            # scalefactor = parameters["speed"]/parameters['fps']# * (globalClock.getDt())
             climbfactor = 0.008
             bankfactor = 1
             parameters["wbad"] = self.wbad
@@ -836,10 +864,10 @@ class MyApp(ShowBase):
             #                                         clamp)
 
             if (self.keyMap["closed"] != 0):
-                self.player.setH(self.player.getH() - parameters["wbad"] * parameters["gain"])
+                self.player.setH(self.player.getH() - parameters["wbad"] * self.gain)
 
             if (self.keyMap["thrust"] != 0):
-                self.player.setH(self.player.getH() - parameters["wbad"] * parameters["gain"])
+                self.player.setH(self.player.getH() - parameters["wbad"] * self.gain)
                 parameters["speed"]=((parameters["wbas"]-parameters["minWbas"])*
                                      (parameters["maxFlightSpeed"]-parameters["minFlightSpeed"])/
                                      (parameters["maxWbas"]-parameters["minWbas"]))\
@@ -851,7 +879,7 @@ class MyApp(ShowBase):
                 #                     +parameters["minFlightSpeed"]
                 # )
             # if (self.keyMap["human"] != 0):
-            #     self.player.setH(self.player.getH() + self.keyMap["hRight"] * parameters["gain"])
+            #     self.player.setH(self.player.getH() + self.keyMap["hRight"] * self.gain)
 
             # Left and Right
             """
@@ -896,18 +924,18 @@ class MyApp(ShowBase):
             This finally updates the position of the player, there is adelay of one frame in speed update.
 
             """
-            self.player.setY(self.player, scalefactor)
+            self.player.setY(self.player, parameters['speed']/parameters['fps'])
 
             # update gain
             """
             THis updates gain by gainIncrement
             """
             if (self.keyMap["gain-up"] != 0):
-                parameters["gain"] += parameters["gainIncrement"]
-                print "gain is", parameters["gain"]
+                self.gain += parameters["gainIncrement"]
+                print "gain is", self.gain
             elif (self.keyMap["gain-down"] != 0):
-                parameters["gain"] -= parameters["gainIncrement"]
-                print "gain is ", parameters["gain"]
+                self.gain -= parameters["gainIncrement"]
+                print "gain is ", self.gain
 
             if (self.keyMap["lrGain-down"] != 0):
                 parameters["lrGain"] -= parameters["gainIncrement"]
@@ -1112,11 +1140,11 @@ class MyApp(ShowBase):
         # plt.plot(sums)
 
     def tooLongBoutReset(self):
-        if parameters["maxBoutDur"] == 0:
+        if self.maxBoutDur == 0:
             return
-        elif self.boutFrame > parameters["maxBoutDur"]*parameters["fps"]:
+        elif self.boutFrame > self.maxBoutDur*parameters["fps"]:
             self.ex.resetPosition()
-            print "bout longer than max duration", parameters["maxBoutDur"], " s"
+            print "bout longer than max duration", self.maxBoutDur, " s"
         else:
             self.boutFrame += 1
 
@@ -1311,9 +1339,12 @@ class MyApp(ShowBase):
         # todo: put this in key-handler
         if (self.keyMap["startBag"] == 1):
             self.startBag()
+            self.keyMap['startBag']=0
 
         elif (self.keyMap["stopBag"] != 0):
             self.stopBag()
+            self.keyMap['stopBag']=0
+
 
     def startBag(self):
         self.trajBagger = BagControl('traj', parameters['bagTrajTopics'])
@@ -1376,7 +1407,7 @@ class MyApp(ShowBase):
         #     self.positionLabel.setText(self.vec32String(self.player.getPos(), "x", "y", "z"))
         #     self.orientationLabel.setText(self.vec32String(self.player.getHpr(), "H", "P", "R"))
         #     self.speedLabel.setText("Speed: " + str(parameters["speed"]))
-        #     self.gainLabel.setText("Gain: " + str(parameters["gain"]))
+        #     self.gainLabel.setText("Gain: " + str(self.gain))
         #
         #     self.servoLabel.setText("Servo Angle: " + str(self.servoAngle))
         #     self.closedLabel.setText("Closed Loop: " + str(bool(self.keyMap["closed"])))
