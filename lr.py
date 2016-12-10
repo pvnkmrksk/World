@@ -43,9 +43,9 @@ class Lr(Experiments):
 
         try:
             # get case from idxArr, dependent on trial number
-            case = self.idxArr[self.trial-1]
+            self.case = self.idxArr[self.trial-1]
             print "trial: ", self.trial
-            print "case:", case
+            print "case:", self.case
         except IndexError:
             # if trial is higher than count of digits in idxArr, reset trial and create new idxArr
             # happens if player went through all 4 lr-configurations
@@ -55,9 +55,9 @@ class Lr(Experiments):
             print "runNum:", self.runNum
             self.idxArr = helper.randIndexArray(parameters["numObj"], parameters["randPos"])
             print "idxArr:", self.idxArr
-            case = self.idxArr[self.trial - 1]
+            self.case = self.idxArr[self.trial - 1]
             print "trial:", self.trial
-            print "case:", case
+            print "case:", self.case
 
         self.pos1 = parameters["posL"]
         self.pos2 = parameters["posR"]
@@ -72,14 +72,14 @@ class Lr(Experiments):
         # if you pass only the same object twice, super will move that one object twice and not create a second object
         # after creating copy, set tempObjUse True, so removeObj() in experiments.py will remove the copy next time
         # ATTENTION! objects is a tuple, don't pass the tuple to super fct! pass the object/s
-        if case == 0:
+        if self.case == 0:
             super(Lr, self).setObjects(objects[1], objects[0])
 
-        elif case == 1:
+        elif self.case == 1:
             self.tempObj = copy.copy(objects[1])
             super(Lr, self).setObjects(objects[1], self.tempObj)
             self.tempObjUse = True
-        elif case == 2:
+        elif self.case == 2:
             super(Lr, self).setObjects(objects[0], objects[1])
         else:
             self.tempObj = copy.copy(objects[0])
@@ -106,6 +106,12 @@ class Lr(Experiments):
         self.idxArr = helper.randIndexArray(4, parameters["randPos"])
         self.setObjects(self.obj1, self.obj2)
 
+
+    def retryRun(self, newList=False):
+        if newList == True:
+            self.idxArr = helper.randIndexArray(4, parameters["randPos"])
+        super(Lr, self).retryRun()
+        self.setObjects(self.obj1, self.obj2)
 
 
 

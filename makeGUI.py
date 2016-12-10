@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'makeGUI.ui'
 #
-# Created: Thu Dec  1 18:07:08 2016
+# Created: Thu Dec  8 19:12:13 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -715,9 +715,10 @@ class Ui_RhagGUI(object):
         self.race.addItem(_fromUtf8(""))
         self.race.addItem(_fromUtf8(""))
         self.gridLayout_17.addWidget(self.race, 2, 0, 1, 2)
-        self.trialNo = QtGui.QSpinBox(self.groupBox_9)
-        self.trialNo.setObjectName(_fromUtf8("trialNo"))
-        self.gridLayout_17.addWidget(self.trialNo, 4, 0, 1, 2)
+        self.boutNum = QtGui.QSpinBox(self.groupBox_9)
+        self.boutNum.setProperty("value", 1)
+        self.boutNum.setObjectName(_fromUtf8("boutNum"))
+        self.gridLayout_17.addWidget(self.boutNum, 4, 0, 1, 2)
         self.bagFullTopics = QtGui.QLineEdit(self.groupBox_9)
         self.bagFullTopics.setObjectName(_fromUtf8("bagFullTopics"))
         self.gridLayout_17.addWidget(self.bagFullTopics, 0, 0, 1, 2)
@@ -879,7 +880,7 @@ class Ui_RhagGUI(object):
         RhagGUI.setStatusBar(self.statusbar)
 
         self.retranslateUi(RhagGUI)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
         self.tabWidget1.setCurrentIndex(0)
         self.tabWidget_4.setCurrentIndex(0)
         self.tabWidget_2.setCurrentIndex(1)
@@ -1033,7 +1034,7 @@ class Ui_RhagGUI(object):
         self.imposeStimulus.setText(_translate("RhagGUI", "Impose stimulus", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_64), _translate("RhagGUI", "Impose Stimulus", None))
         self.groupBox_9.setTitle(_translate("RhagGUI", "GroupBox", None))
-        self.label_12.setText(_translate("RhagGUI", "Trial No.", None))
+        self.label_12.setText(_translate("RhagGUI", "boutNum", None))
         self.label_6.setText(_translate("RhagGUI", "Race", None))
         self.label_47.setText(_translate("RhagGUI", "bagFullTopics", None))
         self.race.setItemText(0, _translate("RhagGUI", "apple", None))
