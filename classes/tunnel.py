@@ -3,13 +3,20 @@ from helping import helper
 import numpy as np
 
 class WindTunnel():
-    def __init__(self, windDirection,fps=165):
-        if windDirection != -1:  # -1 is open loop in wind direction
-            self.servoAngle = int((90 - (self.player.getH()) + windDirection - 180) % 360)
+    def __init__(self, servo,player):
+        self.servo=servo
+        self.player=player
+
+    def update(self, windDir):
+
+        if windDir != -1:  # -1 is open loop in wind direction
+            self.servoAngle = int((90 - (self.player.getH()) + windDir - 180) % 360)
         else:
             self.servoAngle = 90
             # print "wind in open loop"
-        servo.move(1, self.servoAngle)
+
+        self.servo.move(self.servoAngle)
+        return self.servoAngle
 
 
 class OdourTunnel():

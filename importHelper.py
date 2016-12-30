@@ -8,6 +8,7 @@ from classes.fieldGen import FieldGen
 from classes.exceptionHandlers import ExceptionHandlers
 from classes.valveHandler import ValveHandler
 from classes.tunnel import OdourTunnel
+from classes.tunnel import WindTunnel
 # import servo
 from helping import helper
 

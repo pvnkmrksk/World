@@ -11,43 +11,21 @@ class Player():
     def __init__(self,showbase):
         self.sb=showbase
     
-    def resetPos(self, newPos,  initH=parameters["playerInitH"], speed=parameters["speed"]):
+    def resetPos(self, newPos,  initH=parameters["playerInitH"]):
         """
 
         :param newPos:
         :param initH:
-        :param speed:
         :return:
         """
         
         
-        # myApp.app.player.setPos(newPos)
-        # myApp.app.player.setH(initH)
-        # 
-        # myApp.app.decayTime = 240
-        # myApp.app.speedMemory = speed
-        # myApp.app.closedMemory = myApp.app.keyMap["closed"]
-        # print "self.newPos is", newPos, "\n"
-        # 
-        # print "quadrant duration was ", str((datetime.now() - myApp.app.lastResetTime).total_seconds())
-        # print "\n \n \n"
-        # 
-        # myApp.app.lastResetTime = datetime.now()
-        # myApp.app.boutFrame = 0
-        # myApp.app.reset = True  # set reset to true. Will be set to false after frame updtae
-        # 
-        # 
-        # #rest tunnel to zwero phase so that on quad change, the onset of packet is at predicatbale
-        # # and at the beginning after an offset of  50frames 300ms so that a keypress doesn't end up with a sustained odour
-        # # and insteadof history dependence and so may switch any time
-        # myApp.app.haw.phase = 0
-        # myApp.app.apple.phase = 0
-        # 
+
         self.sb.player.setPos(newPos)
         self.sb.player.setH(initH)
     
         self.sb.decayTime = 165
-        self.sb.speedMemory = speed
+        self.sb.speedMemory = self.sb.speed
         self.sb.closedMemory = self.sb.keyMap["closed"]
         print "self.newPos is", newPos, "\n"
     

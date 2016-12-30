@@ -113,8 +113,8 @@ class MyApp(ShowBase):
 
         self.gain = parameters["gain"]
         self.servoAngle = 90  #
-        if parameters["loadWind"]:
-            servo.move(1, self.servoAngle)
+
+            # servo.move(1, self.servoAngle)
         self.quadrantIndex = 2  # starts in 3rd quadrant, index 2 based on init pos
         self.valve1State = 0
         self.valve2State = 0
@@ -149,6 +149,8 @@ class MyApp(ShowBase):
         self.phase = 0
         self.valve1Port=97
         self.valve2Port=98
+        self.speed=0
+        # self.speed=parameters["maxSpeed"]
 
     def initInput(self):
         '''
@@ -194,9 +196,24 @@ class MyApp(ShowBase):
         self.win.requestProperties(props)
 
 
+
+        baud=115200
+        self.valve1=ValveHandler(casePort=97, baud=baud)
+        self.valve2=ValveHandler(casePort=98, baud=baud)
+        self.valve3=ValveHandler(casePort=99, baud=baud)
+
         myFieldGen = FieldGen()
+
         if parameters["loadWind"]:
-            self.windField = myFieldGen.windField(wq=parameters['windQuad'])
+
+            self.servo1=ValveHandler(casePort=1,baud=baud)
+            self.servo1.move(self.servoAngle)
+
+            self.windField = myFieldGen.windField(width=parameters['worldSize'],
+                                                  height=parameters['worldSize'],wq=parameters['windQuad'])
+            self.windTunnel = WindTunnel(self.servo1,self.player)
+
+
         if parameters["loadOdour"]:
 
             # self.beep = self.loader.loadSfx(parameters['beepPath'])
@@ -208,10 +225,6 @@ class MyApp(ShowBase):
                                                     parameters['worldSize'],
                                                     oq=parameters['odourQuad'],plot=parameters['plotOdourQuad'])
 
-        baud=115200
-        self.valve1=ValveHandler(valvePort=97,baud=baud)
-        self.valve2=ValveHandler(valvePort=98,baud=baud)
-        self.valve3=ValveHandler(valvePort=99,baud=baud)
 
         # self.haw= OdourTunnel(self.odourField,self.player,parameters=parameters,phase=150)
         # self.apple= OdourTunnel(self.odourField,self.player,parameters=parameters)
@@ -294,7 +307,8 @@ class MyApp(ShowBase):
                        "resetPos":0,
                        "human": 0,
                        "hRight": 0, "DCoffset-up": 0, "DCoffset-down": 0,
-                       "valve1-on": 0, "valve1-off": 0,"valve2-on": 0, "valve2-off": 0, "startEx": 0, "badFly": 0, "goodFly": 0}
+                       "valve1-on": 0, "valve1-off": 0,"valve2-on": 0, "valve2-off": 0,
+                       "startEx": 0, "fullSpeed":0,"badFly": 0, "goodFly": 0}
 
         self.accept("escape", self.winClose)
         self.accept("q", self.setKey, ["climb", 1])
@@ -376,6 +390,7 @@ class MyApp(ShowBase):
         self.accept("z-up", self.setKey, ["valve1-off", 0])
         # self.accept("f12", self.setKey, ["startEx", 1])
         self.accept("f12-up", self.setKey, ["startEx", 1])
+        self.accept("f1-up", self.setKey, ["fullSpeed", 1])
         self.accept("f5-up", self.setKey, ["badFly", 1])
         self.accept("f6-up", self.setKey, ["goodFly", 1])
 
@@ -620,7 +635,7 @@ class MyApp(ShowBase):
         mes.header.stamp = rospy.Time.now()  # set time stamp
         mes.pPos = self.player.getPos()  # set xyz
         mes.pOri = self.player.getHpr()  # set heading pitch roll
-        mes.speed = parameters["speed"]  # set current forward velocity, pixel/s (1px=1m)
+        mes.speed = self.speed  # set current forward velocity, pixel/s (1px=1m)
         mes.gain = self.gain  # set current closed loop gain
         mes.headingControl = self.keyMap["closed"]  # boolean to indicate closed loop state
 
@@ -706,9 +721,11 @@ class MyApp(ShowBase):
 
         if parameters["loadWind"]:
             x, y, z = self.player.getPos()
-            windDir = self.windField[x, y]
-            self.windTunnel(windDir)
-            self.windTunnel(parameters["windDirection"])
+            windDir = self.windField[int(x), int(y)]
+            self.servoAngle=self.windTunnel.update(windDir)
+
+            # self.windTunnel(parameters["windDirection"])
+
         #
         if parameters["loadOdour"]:
             self.valve1State=self.haw.update(self.packetDur)
@@ -783,9 +800,10 @@ class MyApp(ShowBase):
         if (self.keyMap["startEx"] != 0):
             self.ex.runNum = np.NaN
             self.ex.trial = np.NaN
-            parameters['speed']=0
+            self.speed=0
             self.startBag()
             time.sleep(3)
+            self.setFullSpeed()
             self.ex.startExperiment()
 
             self.keyMap['startEx'] = 0
@@ -798,6 +816,14 @@ class MyApp(ShowBase):
             self.ex.goodFly()
             self.keyMap['goodFly'] = 0
 
+        if (self.keyMap["fullSpeed"] !=0):
+            self.setFullSpeed()
+            self.keyMap["fullSpeed"] = 0
+
+
+    def setFullSpeed(self):
+        self.speed=parameters["maxSpeed"]
+        print "Full Speed"
 
 
     def updatePlayer(self):
@@ -825,12 +851,29 @@ class MyApp(ShowBase):
             There is a fps invariant factor which is implemented using a frame time to normalize for computing power
             """
 
-            # global prevPos, currentPos, ax, fig, treePos, redPos Global Clock by default, panda runs as fast as it can frame to frame
-            # scalefactor = parameters["speed"]/parameters['fps']# * (globalClock.getDt())
+            # global prevPos, currentPos, ax, fig, treePos, redPos Global Clock by default,
+            # panda runs as fast as it can frame to frame
+            # scalefactor = self.speed/parameters['fps']# * (globalClock.getDt())
             climbfactor = 0.008
             bankfactor = 1
             parameters["wbad"] = self.wbad
             parameters["wbas"] = self.wbas
+
+            # do the decay time check here, so you don't get a 1 or 2 frame move because of the old speed
+            if self.decayTime > 82:
+
+                self.speed = 0
+                self.keyMap["closed"] = 0
+                self.decayTime -= 1
+
+            elif 0 < self.decayTime <= 82:
+
+                self.keyMap["closed"] = self.closedMemory
+                self.decayTime -= 1
+
+            elif self.decayTime == 0:
+                self.speed = self.speedMemory
+                self.decayTime -= 1
 
             #impose stimulus and exit once out of bounds
             if parameters["imposeStimulus"]:
@@ -868,7 +911,7 @@ class MyApp(ShowBase):
 
             if (self.keyMap["thrust"] != 0):
                 self.player.setH(self.player.getH() - parameters["wbad"] * self.gain)
-                parameters["speed"]=((parameters["wbas"]-parameters["minWbas"])*
+                self.speed=((parameters["wbas"]-parameters["minWbas"])*
                                      (parameters["maxFlightSpeed"]-parameters["minFlightSpeed"])/
                                      (parameters["maxWbas"]-parameters["minWbas"]))\
                                     +parameters["minFlightSpeed"]
@@ -885,9 +928,9 @@ class MyApp(ShowBase):
             """
             this is actually turn ccw and cw. The increment is bankfactor
             """
-            if (self.keyMap["left"] != 0):  # and parameters["speed"] > 0.0):
+            if (self.keyMap["left"] != 0):  # and self.speed > 0.0):
                 self.player.setH(self.player.getH() + bankfactor)
-            elif (self.keyMap["right"] != 0):  # and parameters["speed"] > 0.0):
+            elif (self.keyMap["right"] != 0):  # and self.speed > 0.0):
                 self.player.setH(self.player.getH() - bankfactor)
 
             # Climb and Fall
@@ -895,11 +938,11 @@ class MyApp(ShowBase):
             this is strictly not climb and fall. It is actually Z up and Z down.
             when key press, z is incremented (decrenmented) by climbfactor
             """
-            if (self.keyMap["climb"] != 0):  # and parameters["speed"] > 0.00):
+            if (self.keyMap["climb"] != 0):  # and self.speed > 0.00):
                 self.player.setZ(self.player.getZ() + climbfactor)
                 # print "z is ", self.player.getZ()
 
-            elif (self.keyMap["fall"] != 0):  # and parameters["speed"] > 0.00):
+            elif (self.keyMap["fall"] != 0):  # and self.speed > 0.00):
                 self.player.setZ(self.player.getZ() - climbfactor)
                 # print "z is ", self.player.getZ()
 
@@ -909,22 +952,22 @@ class MyApp(ShowBase):
             handbrake sets speed to zero
             """
             if (self.keyMap["accelerate"] != 0):
-                parameters["speed"] += parameters["speedIncrement"]
-                if (parameters["speed"] > parameters["maxSpeed"]):
-                    parameters["speed"] = parameters["maxSpeed"]
+                self.speed += parameters["speedIncrement"]
+                if (self.speed > parameters["maxSpeed"]):
+                    self.speed = parameters["maxSpeed"]
             elif (self.keyMap["decelerate"] != 0):
-                parameters["speed"] -= parameters["speedIncrement"]
+                self.speed -= parameters["speedIncrement"]
 
             # handbrake
             if (self.keyMap["handBrake"] != 0):
-                parameters["speed"] = 0
+                self.speed = 0
 
             # todo.fix latency of one frame move forwards
             """
             This finally updates the position of the player, there is adelay of one frame in speed update.
 
             """
-            self.player.setY(self.player, parameters['speed']/parameters['fps'])
+            self.player.setY(self.player, self.speed/parameters['fps'])
 
             # update gain
             """
@@ -986,20 +1029,7 @@ class MyApp(ShowBase):
             #         self.ex.resetPosition()
 
             # todo.fix document and clean the timer
-            if self.decayTime > 82:
 
-                parameters["speed"] = 0
-                self.keyMap["closed"] = 0
-                self.decayTime -= 1
-
-            elif 0 < self.decayTime <= 82:
-
-                self.keyMap["closed"] = self.closedMemory
-                self.decayTime -= 1
-
-            elif self.decayTime == 0:
-                parameters["speed"] = self.speedMemory
-                self.decayTime -= 1
 
             if parameters['resetObject']:
                 if self.ex.reachedDestination():
@@ -1274,7 +1304,7 @@ class MyApp(ShowBase):
         # self.player.setH(parameters["playerInitH"])
         #
         # self.decayTime = 240
-        # self.speedMemory = parameters["speed"]
+        # self.speedMemory = self.speed
         # self.closedMemory = self.keyMap["closed"]
         # print "newPos is", newPos, "\n"
         #
@@ -1406,7 +1436,7 @@ class MyApp(ShowBase):
         # def updateLabel(self):
         #     self.positionLabel.setText(self.vec32String(self.player.getPos(), "x", "y", "z"))
         #     self.orientationLabel.setText(self.vec32String(self.player.getHpr(), "H", "P", "R"))
-        #     self.speedLabel.setText("Speed: " + str(parameters["speed"]))
+        #     self.speedLabel.setText("Speed: " + str(self.speed))
         #     self.gainLabel.setText("Gain: " + str(self.gain))
         #
         #     self.servoLabel.setText("Servo Angle: " + str(self.servoAngle))

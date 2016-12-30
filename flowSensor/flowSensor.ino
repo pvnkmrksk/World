@@ -42,13 +42,20 @@ void loop() {
   // read the analog in value:
   sensor1 = analogRead(flow1);
   // map it to the range of the analog out:
+delay(1);
   output1 = sensor1*5.0/1023.0;
+//output1=map(sensor1,0,1023,0,5);
+
   // change the analog out value:
   sensor2 = analogRead(flow2);
+delay(1);
   output2 = sensor2*5.0/1023.0;
-  
+//  output2=map(sensor2,0,1023,0,5);
   sensor3 = analogRead(flow3);
+delay(1);
   output3 = sensor3*5.0/1023.0;
+
+//output3=map(sensor3,0,1023,0,5);
   
   // print the results to the serial monitor:
 //  Serial.print("flow1,2,3\n");
@@ -56,17 +63,24 @@ void loop() {
 //  Serial.println(output2);
 //  Serial.println(output3);
 //  Serial.println("\n");
-
-  Serial.print(analogRead(flow1)*factor);     //read xpin and send value over serial
+//
+//  Serial.print(analogRead(flow1)*factor);     //read xpin and send value over serial
+//  Serial.print("\t");                 //send a "tab" over serial
+//  Serial.print(analogRead(flow2)*factor);
+//  Serial.print("\t");
+//  Serial.print(analogRead(flow3)*factor);
+//  Serial.println();                   //ends the line of serial communication
+// 
+  
+  Serial.print(output1);     //read xpin and send value over serial
   Serial.print("\t");                 //send a "tab" over serial
-  Serial.print(analogRead(flow2)*factor);
+  Serial.print(output2);
   Serial.print("\t");
-  Serial.print(analogRead(flow3)*factor);
+  Serial.print(output3);
   Serial.println();                   //ends the line of serial communication
  
-  
   // wait 2 milliseconds before the next loop
   // for the analog-to-digital converter to settle
   // after the last reading:
-  delay(2);
+  delay(200);
 }

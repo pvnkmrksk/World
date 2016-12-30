@@ -340,8 +340,8 @@ def tick():
             my_plot.addItem(s1)
 
     except AttributeError:
-        print "something bad,no gui update"
-
+        # print "something bad,no gui update"
+        pass
 def resetView():
     my_plot.setRange(xRange=(0,255),yRange=(0,255))
 
