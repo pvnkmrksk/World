@@ -4,7 +4,7 @@ import rostopic
 import subprocess
 import time
 import json
-
+from classes.valveHandler import ValveHandler
 class ExceptionHandlers():
 
     def __init__(self,parameters):
@@ -95,11 +95,20 @@ class ExceptionHandlers():
                 proc.kill()
 
         try:
-            servo.move(99, 0)  # close valve to prevent odour bleeding through
-            servo.move(1, 90)  # close valve to prevent odour bleeding through
+            s=ValveHandler(1)
+            v1=ValveHandler(97)
+            v2=ValveHandler(98)
+            v3=ValveHandler(99)
+
+            s.move(90)
+            v1.move(0)
+            v2.move(0)
+            v3.move(0)
+            # servo.move(99, 0)  # close valve to prevent odour bleeding through
+            # servo.move(1, 90)  # close valve to prevent odour bleeding through
 
         except  (serial.serialutil.SerialException, NameError):
-            print "arduino faulty"
+            print "arduino faulty finally"
             pass  # arduino disconnected or faulty, let go
 
         print "\n\n\nQuitting Now\n"
