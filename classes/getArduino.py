@@ -15,6 +15,7 @@ class GetArduino():
         except serial.SerialException:
             print "arduino not connected, please replug the arduino\n"
             self.ser=1
+        return self.ser
 
     def get_serial_port(self):
         '''

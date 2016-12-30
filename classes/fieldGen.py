@@ -10,7 +10,7 @@ class FieldGen():
             plt.imshow(obj, interpolation='none', cmap='Greys_r')
             plt.show(block=False)
 
-    def windField(self,width=257,height=257,wq=[-1,0,180,270],plot=False):
+    def windField(self,width=1025,height=1025,wq=[-1,0,180,270],plot=False,fillMidLine=180):
         '''
 
         :param width: width of the wind field
@@ -22,13 +22,21 @@ class FieldGen():
         '''
         wind_field = np.zeros([width, height])
 
-        offset = (width - 1) / 2
+        offset = int(((width - 1) / 2))
 
         wind_field[0:offset, 0:offset] = wq[2]
-        wind_field[offset + 1:width, 0:offset] = wq[3]
-        wind_field[0:offset, offset + 1:width] = wq[1]
-        wind_field[offset + 1:width, offset + 1:width] = wq[0]
+        wind_field[offset :width, 0:offset] = wq[3]
+        wind_field[0:offset, offset :width] = wq[1]
+        wind_field[offset :width, offset :width] = wq[0]
+        #
+        # wind_field[0:offset, 0:offset] = wq[2]
+        # wind_field[offset + 1:width, 0:offset] = wq[3]
+        # wind_field[0:offset, offset + 1:width] = wq[1]
+        # wind_field[offset + 1:width, offset + 1:width] = wq[0]
 
+
+        #to fill the midline regions of the matrix which is not accessed by offsets
+        wind_field[offset:offset+1,offset:offset+1]=fillMidLine
         self.toPlot(wind_field,plot=plot)
         return wind_field
 
