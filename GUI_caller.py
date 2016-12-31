@@ -333,6 +333,31 @@ def tick():
         ui.lcdHeadingAngle.display(traj.pOri.x%360)
 
         ui.livePosition.setText(str(traj.pPos))
+
+        stateText="gain\t\t: "+str(traj.gain)+\
+                  "\nHeading Control\t: "+str(bool(traj.headingControl))+\
+                  "\nSpeed Control\t: "+str(bool(traj.speedControl))+\
+                  "\ntrial\t\t: "+str(traj.trial)+ \
+                  "\nrunNum\t\t: " + str(traj.runNum) + \
+                  "\ncase\t\t: " + str(traj.case) + \
+                  "\nservoAngle\t: "+str(traj.servoAngle)+\
+                  "\nDCoffset\t: "+str(traj.DCoffset)+ \
+                  "\npacketFrequency\t: "+str(traj.packetFrequency)+ \
+                  "\npacketDuration\t: "+str(traj.packetDuration)+ \
+                  "\nvalve1\t\t: " + str(bool(traj.valve1)) + \
+                  "\nvalve2\t\t: " + str(bool(traj.valve2)) + \
+                  "\nvalve3\t\t: " + str(bool(traj.valve3)) + \
+                  "\nisFlying\t\t: " + str(bool(traj.isFlying)) + \
+                  "\nreset\t\t: " + str(bool(traj.reset))
+
+                  # "\nheadingControl\t\t: " + str(bool(traj.headingControl)) + \
+                  # "trial\t\t: "+str(traj.trial)+\
+
+
+
+
+
+        ui.liveState.setText(stateText)
         if not ui.pausePlot.isChecked():
             spots = [{'pos': np.array([traj.pPos.x, traj.pPos.y])
                          , 'data': 1}]
@@ -343,7 +368,8 @@ def tick():
         # print "something bad,no gui update"
         pass
 def resetView():
-    my_plot.setRange(xRange=(0,255),yRange=(0,255))
+    off=100
+    my_plot.setRange(xRange=(512-off,512+off),yRange=(512-off,512+off))
 
 
 def setHeadingLcd():

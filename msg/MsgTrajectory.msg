@@ -19,7 +19,8 @@ int16 valve3
 int16 quadrant
 
 float64 DCoffset
-
+float64 packetFrequency
+float64 packetDuration
 float64 impose
 float64 imposeResponse
 

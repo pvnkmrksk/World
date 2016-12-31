@@ -41,14 +41,14 @@ class OdourTunnel():
         '''
         x=int(self.player.getX())
         y=int(self.player.getY())
-        pf = self.of[x,y]
+        self.pf = self.of[x,y]
         if self.om:
             mask = self.om[x,y]
-            pf=np.logical_and(mask,pf)
+            self.pf=np.logical_and(mask,self.pf)
 
 
         '''calculate Tau=Time period ,
-        if pf>0, if in the packet on time, turn on valve else off
+        if self.pf>0, if in the packet on time, turn on valve else off
         else turn off valve
         set the volume to high or low and send command to arduino to set valve state
         finally increment the phase
@@ -57,8 +57,8 @@ class OdourTunnel():
 
         # packetDur = helper.round_down(packetDur, self.frameDur)
 
-        if pf > 0:
-            tau=int((1.0/pf)*self.parameters['fps'])
+        if self.pf > 0:
+            tau=int((1.0/self.pf)*self.parameters['fps'])
 
             if (self.phase % tau) < (self.parameters['fps'] * packetDur):
                 state = 1

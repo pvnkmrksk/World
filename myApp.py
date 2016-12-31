@@ -226,8 +226,8 @@ class MyApp(ShowBase):
                                                     oq=parameters['odourQuad'],plot=parameters['plotOdourQuad'])
 
 
-        # self.haw= OdourTunnel(self.odourField,self.player,parameters=parameters,phase=150)
-        # self.apple= OdourTunnel(self.odourField,self.player,parameters=parameters)
+            self.haw= OdourTunnel(odourField=self.odourField,player=self.player,parameters=parameters,phase=150)
+            self.apple= OdourTunnel(odourField=self.odourField,player=self.player,parameters=parameters)
 
 
 
@@ -654,6 +654,8 @@ class MyApp(ShowBase):
         mes.isFlying = self.ex.isFlying
 
         mes.DCoffset = parameters["DCoffset"]
+        mes.packetFrequency = self.apple.pf
+        mes.packetDuration = self.packetDur
         """
         Recreate heading as though the fly did nothing
         This is done by cumulative sum of just imposed turns
@@ -728,11 +730,11 @@ class MyApp(ShowBase):
 
         #
         if parameters["loadOdour"]:
-            self.valve1State=self.haw.update(self.packetDur)
+            # self.valve1State=self.haw.update(self.packetDur)
             self.valve2State=self.apple.update(self.packetDur)
-
-
-        self.valve1.move(self.valve1State)
+        #
+        #
+        # self.valve1.move(self.valve1State)
         self.valve2.move(self.valve2State)
 
         self.publisher(self.message())

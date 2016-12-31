@@ -180,9 +180,9 @@ class FieldGen():
 
 
         field[0:offsetW, 0:offsetH] = quad[2]
-        field[offsetW + 1:w, 0:offsetH] = quad[3]
-        field[0:offsetW, offsetH + 1:h] = quad[1]
-        field[offsetW + 1:w, offsetH + 1:h] = quad[0]
+        field[offsetW :w, 0:offsetH] = quad[3]
+        field[0:offsetW, offsetH :h] = quad[1]
+        field[offsetW :w, offsetH :h] = quad[0]
         return field
 
 

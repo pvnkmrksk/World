@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'makeGUI.ui'
 #
-# Created: Thu Dec  8 19:12:13 2016
+# Created: Sat Dec 31 13:50:05 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -863,6 +863,12 @@ class Ui_RhagGUI(object):
         self.livePosition = QtGui.QLabel(self.tab_4)
         self.livePosition.setGeometry(QtCore.QRect(70, 70, 121, 81))
         self.livePosition.setObjectName(_fromUtf8("livePosition"))
+        self.stateLabel = QtGui.QLabel(self.tab_4)
+        self.stateLabel.setGeometry(QtCore.QRect(290, 50, 121, 21))
+        self.stateLabel.setObjectName(_fromUtf8("stateLabel"))
+        self.liveState = QtGui.QLabel(self.tab_4)
+        self.liveState.setGeometry(QtCore.QRect(250, 70, 281, 301))
+        self.liveState.setObjectName(_fromUtf8("liveState"))
         self.tabWidget_2.addTab(self.tab_4, _fromUtf8(""))
         self.tabWidget.addTab(self.tab_6, _fromUtf8(""))
         self.gridLayout_9.addWidget(self.tabWidget, 0, 0, 1, 2)
@@ -880,7 +886,7 @@ class Ui_RhagGUI(object):
         RhagGUI.setStatusBar(self.statusbar)
 
         self.retranslateUi(RhagGUI)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(5)
         self.tabWidget1.setCurrentIndex(0)
         self.tabWidget_4.setCurrentIndex(0)
         self.tabWidget_2.setCurrentIndex(1)
@@ -1061,6 +1067,8 @@ class Ui_RhagGUI(object):
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_2), _translate("RhagGUI", "Tab 1", None))
         self.positionLabel.setText(_translate("RhagGUI", "Position", None))
         self.livePosition.setText(_translate("RhagGUI", "None", None))
+        self.stateLabel.setText(_translate("RhagGUI", "State", None))
+        self.liveState.setText(_translate("RhagGUI", "None", None))
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_4), _translate("RhagGUI", "Tab 2", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_6), _translate("RhagGUI", "Live", None))
         self.wbadBtn.setText(_translate("RhagGUI", "Wing Beat Analyser", None))
