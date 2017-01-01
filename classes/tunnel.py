@@ -29,6 +29,7 @@ class OdourTunnel():
         self.parameters=parameters
         self.phase=phase
         self.frameDur= 1.0 / self.parameters['fps'] #frame dur in seconds
+        self.pf=0 #so that ros msgtrajectory doens't show error
 
     def update(self,packetDur):
         '''

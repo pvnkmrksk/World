@@ -66,11 +66,19 @@ class MyApp(ShowBase):
 
         # self.haw.phase = None
         # self.apple.phase = None
+
         self.ex = experiment(self)
 
         self.initInput()
         self.initOutput()
+        self.initSky()
+
+        self.initHardware()
         self.initFeedback()
+        self.ex.updateOdourField()
+
+        # self.ex = experiment(self)
+
         self.taskMgr.add(self.updateTask, "update")  # A task to run every frame, some keyboard setup and our speed
 
     def initParams(self):
@@ -179,6 +187,8 @@ class MyApp(ShowBase):
 
         # self.initPlot()  # load the plot 1st so that the active window is panda
         self.modelLoader()
+
+    def initSky(self):
         if not parameters['humanDisplay']:
             self.initDisplayRegion()
             self.ex.sky.skysphere.reparentTo(self.cameraCenter)#dont do this in environment.py, needs self.cameraCenter
@@ -196,7 +206,7 @@ class MyApp(ShowBase):
         self.win.requestProperties(props)
 
 
-
+    def initHardware(self):
         baud=115200
         self.valve1=ValveHandler(casePort=97, baud=baud)
         self.valve2=ValveHandler(casePort=98, baud=baud)
@@ -204,30 +214,30 @@ class MyApp(ShowBase):
 
         myFieldGen = FieldGen()
 
-        if parameters["loadWind"]:
+        # if parameters["loadWind"]:
 
-            self.servo1=ValveHandler(casePort=1,baud=baud)
-            self.servo1.move(self.servoAngle)
+        self.servo1=ValveHandler(casePort=1,baud=baud)
+        self.servo1.move(self.servoAngle)
 
-            self.windField = myFieldGen.windField(width=parameters['worldSize'],
-                                                  height=parameters['worldSize'],wq=parameters['windQuad'])
-            self.windTunnel = WindTunnel(self.servo1,self.player)
+        self.windField = myFieldGen.windField(width=parameters['worldSize'],
+                                              height=parameters['worldSize'],wq=parameters['windQuad'])
+        self.windTunnel = WindTunnel(self.servo1,self.player)
 
 
-        if parameters["loadOdour"]:
+        # if parameters["loadOdour"]:
 
             # self.beep = self.loader.loadSfx(parameters['beepPath'])
             # self.beep.setLoop(1)#loop COntinuously
             # self.beep.play()  # start playing the sound seamlessly
             # self.beep.setVolume(0) #mute until unmuted later once init of all items complete
 
-            self.odourField = myFieldGen.odourField(parameters['worldSize'],
+        self.odourField = myFieldGen.odourQuadField(parameters['worldSize'],
                                                     parameters['worldSize'],
-                                                    oq=parameters['odourQuad'],plot=parameters['plotOdourQuad'])
+                                                    oq=parameters['odourQuad'], plot=parameters['plotOdourQuad'])
 
 
-            self.haw= OdourTunnel(odourField=self.odourField,player=self.player,parameters=parameters,phase=150)
-            self.apple= OdourTunnel(odourField=self.odourField,player=self.player,parameters=parameters)
+        self.haw= OdourTunnel(odourField=self.odourField,player=self.player,parameters=parameters,phase=150)
+        self.apple= OdourTunnel(odourField=self.odourField,player=self.player,parameters=parameters)
 
 
 
@@ -638,7 +648,7 @@ class MyApp(ShowBase):
         mes.speed = self.speed  # set current forward velocity, pixel/s (1px=1m)
         mes.gain = self.gain  # set current closed loop gain
         mes.headingControl = self.keyMap["closed"]  # boolean to indicate closed loop state
-
+        mes.speedControl=self.keyMap['thrust']
         mes.wbad = parameters["wbad"]  # set wing beat amplitude difference
         mes.wbas = parameters["wbas"]  # set wing beat amplitude sum
 

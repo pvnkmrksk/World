@@ -44,6 +44,8 @@ class Terrain():
     """
 
     def __init__(self, showbase):
+        #todo we have to make the lighting symetrical the
+        # shadows make one region darker htan the other
         self.sb = showbase
         # Our lighting
         self.ambientLight = AmbientLight("ambientLight")

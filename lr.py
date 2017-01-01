@@ -1,6 +1,7 @@
 from experiments import Experiments
 from helping import helper
 import copy
+from importHelper import *
 parameters = helper.paramsFromGUI()
 
 class Lr(Experiments):
@@ -29,7 +30,24 @@ class Lr(Experiments):
             self.obj2 = None
             print "obj2 None"
 
+
+        # self.sb.initHardware()
+        mfg= FieldGen()
+        self.of = mfg.odourQuadField(parameters['worldSize']*2,parameters['worldSize']*2,
+                                     oq=parameters['odourQuad'],
+                                     plot=parameters['plotOdourQuad'])
+
+        xO=parameters['worldSize']
+        yO=parameters['worldSize']
+        self.ofCase={0:self.of[xO:xO+xO,yO:yO+yO],
+                     1:self.of[0:xO,yO:yO+yO],
+                     2:self.of[0:xO,0:yO],
+                     3:self.of[xO:xO+xO,0:yO]}
+
         self.setObjects(self.obj1, self.obj2)
+
+
+
 
     def setObjects(self, *objects):
         """
@@ -53,7 +71,8 @@ class Lr(Experiments):
             self.trial = 1
             self.runNum += 1
             print "runNum:", self.runNum
-            self.idxArr = helper.randIndexArray(parameters["numObj"], parameters["randPos"])
+            #todo shouldn't numobj be 4 for lr
+            self.idxArr = helper.randIndexArray(4, parameters["randPos"])
             print "idxArr:", self.idxArr
             self.case = self.idxArr[self.trial - 1]
             print "trial:", self.trial
@@ -72,19 +91,45 @@ class Lr(Experiments):
         # if you pass only the same object twice, super will move that one object twice and not create a second object
         # after creating copy, set tempObjUse True, so removeObj() in experiments.py will remove the copy next time
         # ATTENTION! objects is a tuple, don't pass the tuple to super fct! pass the object/s
-        if self.case == 0:
-            super(Lr, self).setObjects(objects[1], objects[0])
 
-        elif self.case == 1:
-            self.tempObj = copy.copy(objects[1])
-            super(Lr, self).setObjects(objects[1], self.tempObj)
-            self.tempObjUse = True
-        elif self.case == 2:
-            super(Lr, self).setObjects(objects[0], objects[1])
-        else:
+        if self.case == 0:
             self.tempObj = copy.copy(objects[0])
             super(Lr, self).setObjects(objects[0], self.tempObj)
             self.tempObjUse = True
+
+        elif self.case == 2:
+            super(Lr, self).setObjects(objects[0], objects[1])
+
+        elif self.case == 1:
+            super(Lr, self).setObjects(objects[1], objects[0])
+
+        elif self.case == 3:
+            self.tempObj = copy.copy(objects[1])
+            super(Lr, self).setObjects(objects[1], self.tempObj)
+            self.tempObjUse = True
+        else:
+            print "something wrong in setobject of lr"
+
+# if self.case == 0:
+#             super(Lr, self).setObjects(objects[1], objects[0])
+#
+#         elif self.case == 1:
+#             self.tempObj = copy.copy(objects[1])
+#             super(Lr, self).setObjects(objects[1], self.tempObj)
+#             self.tempObjUse = True
+#         elif self.case == 2:
+#             super(Lr, self).setObjects(objects[0], objects[1])
+#         elif self.case == 3:
+#             self.tempObj = copy.copy(objects[0])
+#             super(Lr, self).setObjects(objects[0], self.tempObj)
+#             self.tempObjUse = True
+#         else:
+#             print "something wrong in setobject of lr"
+#
+
+    def updateOdourField(self):
+        self.sb.apple.of=self.ofCase[self.case]
+        self.sb.haw.of=self.ofCase[self.case]
 
     def resetPosition(self):
         """
@@ -95,6 +140,7 @@ class Lr(Experiments):
         """
         super(Lr, self).resetPosition()
         self.setObjects(self.obj1, self.obj2)
+        self.updateOdourField()
 
     def startExperiment(self):
         """

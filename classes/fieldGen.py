@@ -124,7 +124,7 @@ class FieldGen():
 
         return packet_field
 
-    def odourField(self, w=257, h=257, oq=['s', 1, 'p', 0],plot=False):
+    def odourQuadField(self, w=257, h=257, oq=['s', 1, 'p', 0], plot=False):
         '''
         GIves an array filley with 4 arrays as quadrants with packets or strips or custom images to be used as odourfield
 
@@ -173,6 +173,7 @@ class FieldGen():
         self.toPlot(np.rot90(odour_field), plot)
 
         return odour_field
+
 
     def gen(self,field,quad,w,h):
         offsetW = int((w - 1) / 2)
