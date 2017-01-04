@@ -1,5 +1,5 @@
 from datetime import datetime
-import json
+import json_tricks as json
 import os
 import subprocess
 import time
@@ -29,9 +29,12 @@ class BagControl():
 
         try:
             with open(self.bagFilename + ".json", 'w') as outfile:
-                json.dump(obj, outfile, indent=4, sort_keys=True, separators=(',', ':'))
-        except UnicodeDecodeError:
-            print "error with unicode FIX IT"
+                pickler(obj,self.bagFilename+'.pickle')
+
+                json.dump(obj, outfile, indent=4, sort_keys=True, separators=(',', ':'),ensure_ascii=False)
+        except UnicodeDecodeError as e:
+
+            print "error with unicode FIX IT", e
             pass
         # time.sleep(0.15)  # sleep to prevent multiple instatntiations for a single keypress
 
@@ -93,22 +96,31 @@ class BagControl():
 
         obj = self.metadataGen()
         try:
-            metadata = (json.dumps(obj))
+            metadata = (json.dumps(obj,ensure_ascii=False))
         except UnicodeDecodeError:
             print "FIX this unicode error in stop"
             metadata = "empty"
         metadata = String(metadata)
         # print "metadata is:", metadata
 
-        with rosbag.Bag(bagName, 'a') as bag:
-            i = 0
-            for _, _, t in bag.read_messages():
-                if i == 0:
-                    tstamp = t
-                i += 1
-                break
-            bag.write('/metadata', metadata, tstamp)
-            # datasave
+        def saver():
+            with rosbag.Bag(bagName, 'a') as bag:
+                i = 0
+                for _, _, t in bag.read_messages():
+                    if i == 0:
+                        tstamp = t
+                    i += 1
+                    break
+                bag.write('/metadata', metadata, tstamp)
+                # datasave
+
+        #large bags take more than 5 sefconds to save, if so wait and then try again
+        try:
+            saver()
+        except rosbag.bag.ROSBagException:
+            time.sleep(10)
+            saver()
+
 
     def metadataGen(self):
         file = open(__file__, 'r')

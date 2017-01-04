@@ -342,6 +342,7 @@ def tick():
                   "\ncase\t\t: " + str(traj.case) + \
                   "\nservoAngle\t: "+str(traj.servoAngle)+\
                   "\nDCoffset\t: "+str(traj.DCoffset)+ \
+                  "\nspeed\t: "+str(traj.speed)+ \
                   "\npacketFrequency\t: "+str(traj.packetFrequency)+ \
                   "\npacketDuration\t: "+str(traj.packetDuration)+ \
                   "\nvalve1\t\t: " + str(bool(traj.valve1)) + \
@@ -377,7 +378,7 @@ def setHeadingLcd():
 
 
 def clearPlot():
-    # s1.points()
+    s1.points()
     s1.clear()
     my_plot.clear()
 

@@ -677,13 +677,15 @@ class MyApp(ShowBase):
 
         if self.ex.objectPosition[0]:
             mes.o1Pos = self.ex.objectPosition[0]
-        # try:
-        #
-        #     if not self.ex.objectPosition[1]:
-        #         mes.object2Pos = self.ex.objectPosition[1]
-        # except:
-        #     # print "no 2nd object"
-        #     pass
+            # mes.o2Pos = self.ex.objectPosition[1]
+        try:
+
+            if self.ex.objectPosition[1]:
+                mes.o2Pos = self.ex.objectPosition[1]
+                # mes.object2Pos = self.ex.objectPosition[1]
+        except:
+            # print "no 2nd object"
+            pass
         # send what the fly's motion caused on heading, negative for ease of view in rqtPlot
         self.currentImposeResponse = -(self.player.getH() - self.prevH - self.stim)
         mes.imposeResponse = self.currentImposeResponse
