@@ -52,31 +52,32 @@ class Terrain():
         self.ambientLight.setColor(Vec4(0.3, 0.3, 0.3, 1))
         self.ambientNode = self.sb.render.attachNewNode(self.ambientLight)
         #
-        self.directionalLight = DirectionalLight("directionalLight")
-        self.directionalLight.setDirection(Vec3(-1, 1, -1))
-        self.directionalLight.setColor(Vec4(1, 1, 1, 1))
-        self.directionalLight.setSpecularColor(Vec4(1, 1, 1, 1))
-        self.directNode = self.sb.render.attachNewNode(self.directionalLight)
+        # self.directionalLight = DirectionalLight("directionalLight")
+        # self.directionalLight.setDirection(Vec3(-1, 1, -1))
+        # self.directionalLight.setColor(Vec4(1, 1, 1, 1))
+        # self.directionalLight.setSpecularColor(Vec4(1, 1, 1, 1))
+        # self.directNode = self.sb.render.attachNewNode(self.directionalLight)
         #
         directionalLight2 = DirectionalLight("directionalLight2")
         directionalLight2.setDirection(Vec3(-1, 1, -1))
         directionalLight2.setColor(Vec4(1, 1, 1, 1))
         directionalLight2.setSpecularColor(Vec4(1, 1, 1, 1))
+
         # #
-        # directionalLight3 = DirectionalLight("directionalLight3")
-        # directionalLight3.setDirection(Vec3(1, -1, -1))
-        # directionalLight3.setColor(Vec4(1, 1, 1, 1))
-        # directionalLight3.setSpecularColor(Vec4(1, 1, 1, 1))
-        #
+        directionalLight3 = DirectionalLight("directionalLight3")
+        directionalLight3.setDirection(Vec3(1, 1, -1))
+        directionalLight3.setColor(Vec4(1, 1, 1, 1))
+        directionalLight3.setSpecularColor(Vec4(1, 1, 1, 1))
+
         # directionalLight4 = DirectionalLight("directionalLight4")
         # directionalLight4.setDirection(Vec3(1, 1, -1))
         # directionalLight4.setColor(Vec4(1, 1, 1, 1))
         # directionalLight4.setSpecularColor(Vec4(1, 1, 1, 1))
         #
         self.sb.render.setLight(self.ambientNode)
-        self.sb.render.setLight(self.directNode)
+        # self.sb.render.setLight(self.directNode)
         self.sb.render.setLight(self.sb.render.attachNewNode(directionalLight2))
-        # self.sb.render.setLight(self.sb.render.attachNewNode(directionalLight3))
+        self.sb.render.setLight(self.sb.render.attachNewNode(directionalLight3))
         # self.sb.render.setLight(self.sb.render.attachNewNode(directionalLight4))
 
     def initTerrain(self, modelHeightMap = parameters["modelHeightMap"], modelTextureMapNull = parameters["modelTextureMapNull"],
@@ -126,7 +127,12 @@ class Terrain():
         # 2. translate terrain and don't set positions relative to terrain
         shift = ((worldSize-1)/2)+1
         print "shift:", shift
-        tempTerrain = self.sb.loader.loadModel(modelTextureMap)
+
+        if parameters["loadNullModels"] :
+            tempTerrain = self.sb.loader.loadModel(modelTextureMapNull)
+        else:
+            tempTerrain = self.sb.loader.loadModel(modelTextureMap)
+
         tempTerrain.setPos(shift, shift, 0)
         tempTerrain.reparentTo(self.sb.render)
         self.sb.render.writeBamFile("models/testgrass.bam")  # todo: use better filename

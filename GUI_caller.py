@@ -369,7 +369,7 @@ def tick():
         # print "something bad,no gui update"
         pass
 def resetView():
-    off=100
+    off=20
     my_plot.setRange(xRange=(512-off,512+off),yRange=(512-off,512+off))
 
 
@@ -378,9 +378,9 @@ def setHeadingLcd():
 
 
 def clearPlot():
-    s1.points()
+    # s1.points()
     s1.clear()
-    my_plot.clear()
+    # my_plot.clear()
 
     # my_plot.removeItem(s1)
     #todo. clear plot os not working

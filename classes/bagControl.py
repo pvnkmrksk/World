@@ -97,8 +97,9 @@ class BagControl():
         obj = self.metadataGen()
         try:
             metadata = (json.dumps(obj,ensure_ascii=False))
-        except UnicodeDecodeError:
-            print "FIX this unicode error in stop"
+        except UnicodeDecodeError as e:
+            print "FIX this unicode error in stop", e
+
             metadata = "empty"
         metadata = String(metadata)
         # print "metadata is:", metadata
@@ -127,8 +128,14 @@ class BagControl():
         servo = open("servo.py", 'r')
         arduino = open("servoControl/servoControl.ino", 'r')
         # bam = open(app.worldFilename)
-        obj = dict(parameters=parameters, world=file.read(),
-                   servo=servo.read(), arduino=arduino.read(), )
+
+
+        # obj = dict(parameters=parameters, world=file.read(),
+        #            servo=servo.read(), arduino=arduino.read(), )
+        #
+
+        obj=dict(parameters=parameters)
+
         # bam=bam.read().encode('utf-8').strip())
         # obj = [parameters, file.read(), servo.read(), arduino.read(), world.read()]
         return obj

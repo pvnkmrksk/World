@@ -43,10 +43,14 @@ class OdourTunnel():
         x=int(self.player.getX())
         y=int(self.player.getY())
         self.pf = self.of[x,y]
-        if self.om:
-            mask = self.om[x,y]
-            self.pf=np.logical_and(mask,self.pf)
 
+        if self.om is not None:
+            mask = self.om[x,y]
+            # print mask, self.pf
+            if not np.logical_and(mask,self.pf):
+                self.pf = 0
+            # self.pf=np.logical_and(mask,self.pf)
+            # print self.pf
 
         '''calculate Tau=Time period ,
         if self.pf>0, if in the packet on time, turn on valve else off

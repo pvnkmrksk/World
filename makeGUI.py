@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'makeGUI.ui'
 #
-# Created: Sat Dec 31 13:50:05 2016
+# Created: Thu Jan  5 13:01:29 2017
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -886,7 +886,7 @@ class Ui_RhagGUI(object):
         RhagGUI.setStatusBar(self.statusbar)
 
         self.retranslateUi(RhagGUI)
-        self.tabWidget.setCurrentIndex(5)
+        self.tabWidget.setCurrentIndex(0)
         self.tabWidget1.setCurrentIndex(0)
         self.tabWidget_4.setCurrentIndex(0)
         self.tabWidget_2.setCurrentIndex(1)
@@ -902,6 +902,7 @@ class Ui_RhagGUI(object):
         QtCore.QObject.connect(self.loadWind, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.label_8.setEnabled)
         QtCore.QObject.connect(self.loadWind, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.label_152.setEnabled)
         QtCore.QObject.connect(self.gain, QtCore.SIGNAL(_fromUtf8("valueChanged(int)")), self.lcdGain.display)
+        QtCore.QObject.connect(self.loadOdour, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.useOdourMask.setChecked)
         QtCore.QMetaObject.connectSlotsByName(RhagGUI)
 
     def retranslateUi(self, RhagGUI):

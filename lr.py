@@ -37,6 +37,12 @@ class Lr(Experiments):
                                      oq=parameters['odourQuad'],
                                      plot=parameters['plotOdourQuad'])
 
+        if parameters['useOdourMask']:
+            self.omCase = {0:np.rot90(imread(parameters['odour1Mask']),2),
+                           1:np.rot90(imread(parameters['odour2Mask']),2),
+                           2: np.rot90(imread(parameters['odour3Mask']),2),
+                           3: np.rot90(imread(parameters['odour4Mask']),2)}
+
         xO=parameters['worldSize']
         yO=parameters['worldSize']
         self.ofCase={0:self.of[xO:xO+xO,yO:yO+yO],
@@ -91,7 +97,7 @@ class Lr(Experiments):
         # if you pass only the same object twice, super will move that one object twice and not create a second object
         # after creating copy, set tempObjUse True, so removeObj() in experiments.py will remove the copy next time
         # ATTENTION! objects is a tuple, don't pass the tuple to super fct! pass the object/s
-
+        #todo discuss how to decode this with maraian
         if self.case == 0:
             self.tempObj = copy.copy(objects[0])
             super(Lr, self).setObjects(objects[0], self.tempObj)
@@ -130,6 +136,10 @@ class Lr(Experiments):
     def updateOdourField(self):
         self.sb.apple.of=self.ofCase[self.case]
         self.sb.haw.of=self.ofCase[self.case]
+
+        if parameters['useOdourMask']:
+            self.sb.apple.om=self.omCase[self.case]
+            self.sb.haw.om=self.omCase[self.case]
 
     def resetPosition(self):
         """

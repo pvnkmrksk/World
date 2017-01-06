@@ -75,7 +75,8 @@ class MyApp(ShowBase):
 
         self.initHardware()
         self.initFeedback()
-        self.ex.updateOdourField()
+        if len(parameters["loadingString"]) == 2:
+            self.ex.updateOdourField()
 
         # self.ex = experiment(self)
 
@@ -742,11 +743,11 @@ class MyApp(ShowBase):
 
         #
         if parameters["loadOdour"]:
-            # self.valve1State=self.haw.update(self.packetDur)
+            self.valve1State=self.haw.update(self.packetDur)
             self.valve2State=self.apple.update(self.packetDur)
         #
         #
-        # self.valve1.move(self.valve1State)
+        self.valve1.move(self.valve1State)
         self.valve2.move(self.valve2State)
 
         self.publisher(self.message())
@@ -1075,7 +1076,7 @@ class MyApp(ShowBase):
             If current frame exceeds dataframe, Indexerror catches and finishes playback cleanly
             Finally it updates the current frame number by playbackIncrement which can be used to speed up playback
             """
-
+            #todo can't use until we send proper obj positions
             try:
                 poshpr = traj.ix[self.replayFrame, :].values
                 print "frame is", self.replayFrame
