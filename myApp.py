@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 from __future__ import division #odd issue. Must be on first line else it fails
 from importHelper import *  # file with just a bunch of imports
-from helping import helper
-parameters=helper.paramsFromGUI()
-useGui = True
+
+
+print parameters["loadingString"]
 
 if parameters["loadingString"] == "circ":
     from circ import Circ as experiment
@@ -11,6 +11,9 @@ elif len(parameters["loadingString"]) == 2:
     from lr import Lr as experiment
 elif parameters["loadingString"] == "gain":
     from gain import Gain as experiment
+
+
+
 
 # print parameters
 e=ExceptionHandlers(parameters)
@@ -61,13 +64,19 @@ class MyApp(ShowBase):
         # ------ End of render pipeline code ------
 
         # PStatClient.connect()
-        self.setFrameRateMeter(True)  # show frame rate monitor
+        if parameters['frameRecord']:
+            self.setFrameRateMeter(False)  # show frame rate monitor
+        else:
+            self.setFrameRateMeter(True)  # show frame rate monitor
+
         self.initParams()  # run this 1st. Loads all content and params.
 
         # self.haw.phase = None
         # self.apple.phase = None
-
-        self.ex = experiment(self)
+        # things go wrong in replay world while using loadingString.
+        # It used default values if nothing is passed and those params come from paramsFromGUI
+        # which use the current params and not the rerplay bag
+        self.ex = experiment(self, parameters,loadingString=parameters["loadingString"])
 
         self.initInput()
         self.initOutput()
@@ -99,7 +108,7 @@ class MyApp(ShowBase):
             self.fpsLimit(parameters["fps"])
 
         if parameters["frameRecord"]:
-            self.record(dur=parameters["recordDur"], fps=parameters["recordFps"])
+            self.record(pth=parameters['frameRecordPath'],dur=parameters["recordDur"], fps=parameters["recordFps"])
 
         # offset for position displacemtn and boundary being 2^n+1,
         parameters["offset"] = ((int(parameters["worldSize"]) - 1) / 2) + 1
@@ -713,7 +722,11 @@ class MyApp(ShowBase):
 
         return mes
 
-    # frameupdate
+    #
+
+
+
+    #  frameupdate
     def updateTask(self, task):
         """
         calls all update functions, player, camera and bag control
@@ -726,34 +739,75 @@ class MyApp(ShowBase):
         Returns:
             task.cont, panda internal return value to say , frame call complete,please render the frame
         """
-        self.keyHandler()
-        self.bagControl()
+        if not parameters["replayWorld"]:
+            self.keyHandler()
+            self.bagControl()
 
 
-        self.updatePlayer()
+            self.updatePlayer()
+            # self.updateCamera()
+
+
+            if parameters["loadWind"]:
+                x, y, z = self.player.getPos()
+                windDir = self.windField[int(x), int(y)]
+                self.servoAngle=self.windTunnel.update(windDir)
+
+                # self.windTunnel(parameters["windDirection"])
+
+            #
+            if parameters["loadOdour"]:
+                self.valve1State=self.haw.update(self.packetDur)
+                self.valve2State=self.apple.update(self.packetDur)
+            #
+            #
+            self.valve1.move(self.valve1State)
+            self.valve2.move(self.valve2State)
+
+            # self.publisher(self.message())
+            # self.reset = False
+        else:
+
+            """
+            Replay world sets the current frame poshpr from the dataframe loaded from file
+            If current frame exceeds dataframe, Indexerror catches and finishes playback cleanly
+            Finally it updates the current frame number by playbackIncrement which can be used to speed up playback
+            """
+            # todo can't use until we send proper obj positions
+            try:
+
+                poshpr = dfPosHpr.ix[self.replayFrame, :].values
+                # print "frame is", self.replayFrame
+            except IndexError:
+                print "Finished playback"
+                self.winClose()
+            # print poshpr
+            self.player.setPosHpr(tuple(poshpr[0:3]), tuple(poshpr[3:]))
+            # self.player.setPosHpr(traj.ix[self.replayFrame,:].values)
+
+
+            self.reset=df.trajectory__reset[self.replayFrame]
+
+            if self.reset:
+                self.ex.case = df.trajectory__case[self.replayFrame]
+                self.ex.trial = df.trajectory__trial[self.replayFrame]
+                self.ex.runNum = df.trajectory__runNum[self.replayFrame]
+                self.ex.resetPosition()#this happens only in replay
+                print "the frame now is",self.replayFrame
+
+            self.replayFrame += parameters["playbackIncrement"]
+
         self.updateCamera()
-
-
-        if parameters["loadWind"]:
-            x, y, z = self.player.getPos()
-            windDir = self.windField[int(x), int(y)]
-            self.servoAngle=self.windTunnel.update(windDir)
-
-            # self.windTunnel(parameters["windDirection"])
-
-        #
-        if parameters["loadOdour"]:
-            self.valve1State=self.haw.update(self.packetDur)
-            self.valve2State=self.apple.update(self.packetDur)
-        #
-        #
-        self.valve1.move(self.valve1State)
-        self.valve2.move(self.valve2State)
-
         self.publisher(self.message())
         self.reset = False
 
         return Task.cont
+
+
+
+
+
+
 
     def keyHandler(self):
         if self.keyMap["packetDur-down"] != 0:
@@ -842,7 +896,7 @@ class MyApp(ShowBase):
 
 
     def updatePlayer(self):
-        """
+            """
         tries to replay past poshpr, else updates it using wbad
 
         listens to keyboard to update values
@@ -857,8 +911,6 @@ class MyApp(ShowBase):
         Returns:
             None
         """
-        if not parameters["replayWorld"]:
-
 
             """
             the factors are essentially keyboard gains. On user input via keyboard, the gain with which the action
@@ -1069,25 +1121,253 @@ class MyApp(ShowBase):
                 self.tooLongBoutReset()
 
             self.frame += 1
-        else:
-
-            """
-            Replay world sets the current frame poshpr from the dataframe loaded from file
-            If current frame exceeds dataframe, Indexerror catches and finishes playback cleanly
-            Finally it updates the current frame number by playbackIncrement which can be used to speed up playback
-            """
-            #todo can't use until we send proper obj positions
-            try:
-                poshpr = traj.ix[self.replayFrame, :].values
-                print "frame is", self.replayFrame
-            except IndexError:
-                print "Finished playback"
-                self.winClose()
-            # print poshpr
-            self.player.setPosHpr(tuple(poshpr[0:3]), tuple(poshpr[3:]))
-            # self.player.setPosHpr(traj.ix[self.replayFrame,:].values)
-
-            self.replayFrame += parameters["playbackIncrement"]
+        # """
+        # tries to replay past poshpr, else updates it using wbad
+        #
+        # listens to keyboard to update values
+        # closed and open loop
+        # climb and fall
+        # turn cw and ccw
+        # throttle and handbrake
+        # handbrake and translation
+        # gain and DC offset
+        # respects space time boundary conditions
+        #
+        # Returns:
+        #     None
+        # """
+        # if not parameters["replayWorld"]:
+        #
+        #
+        #     """
+        #     the factors are essentially keyboard gains. On user input via keyboard, the gain with which the action
+        #     happens is controlled by these numbers
+        #     There is a fps invariant factor which is implemented using a frame time to normalize for computing power
+        #     """
+        #
+        #     # global prevPos, currentPos, ax, fig, treePos, redPos Global Clock by default,
+        #     # panda runs as fast as it can frame to frame
+        #     # scalefactor = self.speed/parameters['fps']# * (globalClock.getDt())
+        #     climbfactor = 0.008
+        #     bankfactor = 1
+        #     parameters["wbad"] = self.wbad
+        #     parameters["wbas"] = self.wbas
+        #
+        #     # do the decay time check here, so you don't get a 1 or 2 frame move because of the old speed
+        #     if self.decayTime > 82:
+        #
+        #         self.speed = 0
+        #         self.keyMap["closed"] = 0
+        #         self.decayTime -= 1
+        #
+        #     elif 0 < self.decayTime <= 82:
+        #
+        #         self.keyMap["closed"] = self.closedMemory
+        #         self.decayTime -= 1
+        #
+        #     elif self.decayTime == 0:
+        #         self.speed = self.speedMemory
+        #         self.decayTime -= 1
+        #
+        #     #impose stimulus and exit once out of bounds
+        #     if parameters["imposeStimulus"]:
+        #         try:
+        #             self.stim = self.stimList[self.frame]
+        #         except IndexError:
+        #             parameters["imposeStimulus"] = False
+        #             print "\n \n impose Stimulus Complete \n \n"
+        #
+        #     # closed loop
+        #     """
+        #     In closed loop, the current heading is updated by adding(subtracting) a value that is product of
+        #     wbad and gain.
+        #     Heading is defined counterclockwise in degrees.
+        #     wbad is left-right. positive wbad is left>right --> right turn --> heading increase cw.
+        #     Therefore, the negative sign in effect brings about the negative feedback and makes coherent reality.
+        #
+        #     In human mode, there is a button on activaqtion, a key down is left and key up is right.
+        #     This is a costant race to keep stable and inactivity is not a solution.
+        #     One has to constantly osscilate up down to keep heading steady.
+        #
+        #     """
+        #     #
+        #     # if parameters["mouseMode"]:
+        #     #     if self.mouseWatcherNode.hasMouse():
+        #     #         # x = self.mouseWatcherNode.getMouseX()
+        #     #         # sets wbad to a clamped value of mouseY pos*gain
+        #     #         clamp = 0.5
+        #     #         parameters["wbad"] = self.clamp(1 *
+        #     #                                         parameters["gain"] * self.mouseWatcherNode.getMouseX(), -clamp,
+        #     #                                         clamp)
+        #
+        #     if (self.keyMap["closed"] != 0):
+        #         self.player.setH(self.player.getH() - parameters["wbad"] * self.gain)
+        #
+        #     if (self.keyMap["thrust"] != 0):
+        #         self.player.setH(self.player.getH() - parameters["wbad"] * self.gain)
+        #         self.speed=((parameters["wbas"]-parameters["minWbas"])*
+        #                              (parameters["maxFlightSpeed"]-parameters["minFlightSpeed"])/
+        #                              (parameters["maxWbas"]-parameters["minWbas"]))\
+        #                             +parameters["minFlightSpeed"]
+        #         # #
+        #         # self.player.setP(((parameters["wbas"]-parameters["minWbas"])*
+        #         #                      (parameters["maxFlightSpeed"]-parameters["minFlightSpeed"])/
+        #         #                      (parameters["maxWbas"]-parameters["minWbas"]))\
+        #         #                     +parameters["minFlightSpeed"]
+        #         # )
+        #     # if (self.keyMap["human"] != 0):
+        #     #     self.player.setH(self.player.getH() + self.keyMap["hRight"] * self.gain)
+        #
+        #     # Left and Right
+        #     """
+        #     this is actually turn ccw and cw. The increment is bankfactor
+        #     """
+        #     if (self.keyMap["left"] != 0):  # and self.speed > 0.0):
+        #         self.player.setH(self.player.getH() + bankfactor)
+        #     elif (self.keyMap["right"] != 0):  # and self.speed > 0.0):
+        #         self.player.setH(self.player.getH() - bankfactor)
+        #
+        #     # Climb and Fall
+        #     """
+        #     this is strictly not climb and fall. It is actually Z up and Z down.
+        #     when key press, z is incremented (decrenmented) by climbfactor
+        #     """
+        #     if (self.keyMap["climb"] != 0):  # and self.speed > 0.00):
+        #         self.player.setZ(self.player.getZ() + climbfactor)
+        #         # print "z is ", self.player.getZ()
+        #
+        #     elif (self.keyMap["fall"] != 0):  # and self.speed > 0.00):
+        #         self.player.setZ(self.player.getZ() - climbfactor)
+        #         # print "z is ", self.player.getZ()
+        #
+        #     # throttle control
+        #     """
+        #     this updates the speed until top speed
+        #     handbrake sets speed to zero
+        #     """
+        #     if (self.keyMap["accelerate"] != 0):
+        #         self.speed += parameters["speedIncrement"]
+        #         if (self.speed > parameters["maxSpeed"]):
+        #             self.speed = parameters["maxSpeed"]
+        #     elif (self.keyMap["decelerate"] != 0):
+        #         self.speed -= parameters["speedIncrement"]
+        #
+        #     # handbrake
+        #     if (self.keyMap["handBrake"] != 0):
+        #         self.speed = 0
+        #
+        #     # todo.fix latency of one frame move forwards
+        #     """
+        #     This finally updates the position of the player, there is adelay of one frame in speed update.
+        #
+        #     """
+        #     self.player.setY(self.player, self.speed/parameters['fps'])
+        #
+        #     # update gain
+        #     """
+        #     THis updates gain by gainIncrement
+        #     """
+        #     if (self.keyMap["gain-up"] != 0):
+        #         self.gain += parameters["gainIncrement"]
+        #         print "gain is", self.gain
+        #     elif (self.keyMap["gain-down"] != 0):
+        #         self.gain -= parameters["gainIncrement"]
+        #         print "gain is ", self.gain
+        #
+        #     if (self.keyMap["lrGain-down"] != 0):
+        #         parameters["lrGain"] -= parameters["gainIncrement"]
+        #         print "lrGain is ", parameters["lrGain"]
+        #
+        #     # update DCoffset
+        #     """
+        #
+        #     DC offset is to fix individual errors in allignment of wbad and tethering
+        #     When a fly "intends" to fly straight, the wbad should be around 0.
+        #     But due to geometry errors and position errors, the zero is not zero.
+        #     The DC offset adds or subtracts a constant amount to set to zero
+        #     """
+        #     if (self.keyMap["DCoffset-up"] != 0):
+        #         parameters["DCoffset"] += parameters["DCoffsetIncrement"]
+        #         print "ofset is ", parameters["DCoffset"]
+        #
+        #     if (self.keyMap["DCoffset-down"] != 0):
+        #         parameters["DCoffset"] -= parameters["DCoffsetIncrement"]
+        #         print "ofset is ", parameters["DCoffset"]
+        #
+        #
+        #     # respect max camera distance else you cannot see the floor post loop the loop!
+        #     if (self.player.getZ() > parameters["maxDistance"]):
+        #         self.player.setZ(parameters["maxDistance"])
+        #
+        #     elif (self.player.getZ() < 0):
+        #         self.player.setZ(0)
+        #
+        #
+        #     # if in quad mode, teleport to one random quadrant when you hit boundary
+        #     # else stay where you are
+        #
+        #     if  (self.player.getX() < 0) or (self.player.getX() > parameters["worldSize"]) or \
+        #         (self.player.getY() < 0) or (self.player.getY() > parameters["worldSize"]):
+        #
+        #         if parameters['quad']:
+        #             self.ex.resetPosition()
+        #         # else:
+        #         #     self.player.setX(self.player.getX)
+        #         #     self.player.setY(self.player.setY)
+        #         #todo. fix out of bounds
+        #
+        #     #if hitting the midway mark, reset in quad mode, else carry on
+        #     # if parameters['quad']:
+        #     #     if  (self.player.getX() > parameters["offset"] and self.player.getX() < (parameters["offset"] + 1)) or \
+        #     #         (self.player.getY() > parameters["offset"] and self.player.getY() < (parameters["offset"] + 1)):
+        #     #         self.ex.resetPosition()
+        #
+        #     # todo.fix document and clean the timer
+        #
+        #
+        #     if parameters['resetObject']:
+        #         if self.ex.reachedDestination():
+        #             self.ex.resetPosition()
+        #
+        #     #todo.delete Quad is non existenent
+        #
+        #     # reset position by user input
+        #     # for i in range(4):
+        #     #     if (self.keyMap["quad" + str(i + 1)] != 0):
+        #     #         self.ex.resetPosition(i + 1)
+        #     #         time.sleep(0.15)
+        #     #
+        #
+        #
+        #
+        #     if parameters["imposeStimulus"]:
+        #         self.player.setH(self.player.getH() + self.stim)
+        #
+        #     # if imposing turns, don't change quad after too long a bout
+        #     if not parameters["imposeStimulus"]:
+        #         self.tooLongBoutReset()
+        #
+        #     self.frame += 1
+        # else:
+        #
+        #     """
+        #     Replay world sets the current frame poshpr from the dataframe loaded from file
+        #     If current frame exceeds dataframe, Indexerror catches and finishes playback cleanly
+        #     Finally it updates the current frame number by playbackIncrement which can be used to speed up playback
+        #     """
+        #     #todo can't use until we send proper obj positions
+        #     try:
+        #
+        #         poshpr = dfPosHpr.ix[self.replayFrame, :].values
+        #         print "frame is", self.replayFrame
+        #     except IndexError:
+        #         print "Finished playback"
+        #         self.winClose()
+        #     # print poshpr
+        #     self.player.setPosHpr(tuple(poshpr[0:3]), tuple(poshpr[3:]))
+        #     # self.player.setPosHpr(traj.ix[self.replayFrame,:].values)
+        #
+        #     self.replayFrame += parameters["playbackIncrement"]
 
     def stimulusListGen(self, ):
         """
@@ -1410,8 +1690,9 @@ class MyApp(ShowBase):
         self.bagRecordingState = False
 
    # screen capture
-    def record(self, dur, fps):
-        self.movie('frames/movie', dur, fps=fps, format='jpg', sd=7)
+    def record(self, dur, fps,pth='frames/movie'):
+
+        self.movie(namePrefix=pth, duration=dur, fps=fps, format='jpg', sd=7)
 
     def fpsLimit(self, fps):
         globalClock = ClockObject.getGlobalClock()

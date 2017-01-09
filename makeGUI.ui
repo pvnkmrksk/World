@@ -48,10 +48,17 @@
         </property>
        </widget>
       </item>
+      <item row="2" column="1">
+       <widget class="QPushButton" name="wbadBtn">
+        <property name="text">
+         <string>Wing Beat Analyser</string>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="0" colspan="2">
        <widget class="QTabWidget" name="tabWidget">
         <property name="currentIndex">
-         <number>0</number>
+         <number>4</number>
         </property>
         <widget class="QWidget" name="tab">
          <attribute name="title">
@@ -487,7 +494,7 @@
            </rect>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="tab_11">
            <attribute name="title">
@@ -1599,28 +1606,25 @@
            <rect>
             <x>10</x>
             <y>50</y>
-            <width>384</width>
-            <height>129</height>
+            <width>424</width>
+            <height>152</height>
            </rect>
           </property>
           <property name="title">
            <string>Recording Options</string>
           </property>
-          <layout class="QGridLayout" name="gridLayout_16">
-           <item row="0" column="0">
-            <widget class="QSpinBox" name="captureScale"/>
-           </item>
+          <layout class="QGridLayout" name="gridLayout_10">
            <item row="0" column="1">
             <widget class="QLabel" name="label_14">
              <property name="text">
-              <string>capture scale</string>
+              <string>capture Downscale</string>
              </property>
             </widget>
            </item>
-           <item row="0" column="2">
+           <item row="0" column="2" colspan="2">
             <widget class="QSpinBox" name="playbackIncrement"/>
            </item>
-           <item row="0" column="3">
+           <item row="0" column="4">
             <widget class="QLabel" name="label_16">
              <property name="text">
               <string>playback increment</string>
@@ -1637,20 +1641,41 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="2">
-            <widget class="QSpinBox" name="recordDur"/>
-           </item>
-           <item row="1" column="3">
+           <item row="1" column="4">
             <widget class="QLabel" name="label_17">
              <property name="text">
               <string>record duration</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="2">
-            <widget class="QSpinBox" name="recordFps"/>
+           <item row="3" column="0">
+            <widget class="QLineEdit" name="frameRecordPath">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
            </item>
-           <item row="2" column="3">
+           <item row="3" column="1">
+            <widget class="QPushButton" name="frameRecordPathBtn">
+             <property name="text">
+              <string>record Path</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QDoubleSpinBox" name="captureScale"/>
+           </item>
+           <item row="1" column="2" colspan="2">
+            <widget class="QDoubleSpinBox" name="recordDur"/>
+           </item>
+           <item row="3" column="3">
+            <widget class="QSpinBox" name="recordFps">
+             <property name="maximum">
+              <number>200</number>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="4">
             <widget class="QLabel" name="label_18">
              <property name="text">
               <string>record fps</string>
@@ -1924,13 +1949,6 @@
           </widget>
          </widget>
         </widget>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QPushButton" name="wbadBtn">
-        <property name="text">
-         <string>Wing Beat Analyser</string>
-        </property>
        </widget>
       </item>
      </layout>

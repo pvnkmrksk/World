@@ -1,31 +1,34 @@
 from experiments import Experiments
 from helping import helper
 import copy
-from importHelper import *
-parameters = helper.paramsFromGUI()
-
+from importHelper import * # that is super dirty, please import only needed stuff
+print "\n\n\n\nwee have imported\n\n\n\n"
 class Lr(Experiments):
 
-    def __init__(self, showbase, objPath1=parameters["object1"], objPath2=parameters["object2"],
+    def __init__(self, showbase, parameters,objPath1=parameters["object1"], objPath2=parameters["object2"],
                  objScale1=parameters["obj1Scale"], objScale2=parameters["obj2Scale"],
                  loadingString=parameters["loadingString"]):
-        super(Lr, self).__init__(showbase)
+
+        super(Lr, self).__init__(showbase,parameters)
         self.idxArr = helper.randIndexArray(4, parameters[
             "randPos"])  # creates the indexArray, which controls order of resetPositions
         print "indexArray: " + str(self.idxArr)
         self.createTerrain()
         self.createSky()
+        print "loadingString:", loadingString
 
         # loads objects dependent on the loading string
         # 11 loads obj1, obj2, 10 loads obj1, None, 01 loads None, obj2, 00 loads None, None
 
         if loadingString[0] == "1":
             self.obj1 = self.getObjects(objPath1, objScale1)
+            print "obj1 loaded"
         else:
             self.obj1 = None
             print "obj1 None"
         if loadingString[1] == "1":
             self.obj2 = self.getObjects(objPath2, objScale2)
+            print "obj2 loaded"
         else:
             self.obj2 = None
             print "obj2 None"
@@ -52,9 +55,6 @@ class Lr(Experiments):
 
         self.setObjects(self.obj1, self.obj2)
 
-
-
-
     def setObjects(self, *objects):
         """
         overwrites setObjects in experiments.py
@@ -65,24 +65,9 @@ class Lr(Experiments):
         :param objects: objects to set/move
         """
 
-        try:
-            # get case from idxArr, dependent on trial number
-            self.case = self.idxArr[self.trial-1]
-            print "trial: ", self.trial
-            print "case:", self.case
-        except IndexError:
-            # if trial is higher than count of digits in idxArr, reset trial and create new idxArr
-            # happens if player went through all 4 lr-configurations
-            print "new run"
-            self.trial = 1
-            self.runNum += 1
-            print "runNum:", self.runNum
-            #todo shouldn't numobj be 4 for lr
-            self.idxArr = helper.randIndexArray(4, parameters["randPos"])
-            print "idxArr:", self.idxArr
-            self.case = self.idxArr[self.trial - 1]
-            print "trial:", self.trial
-            print "case:", self.case
+
+        # todo: there are unnecessary variable assignments, clean that
+        self.case, self.trial, self.runNum = self.generateCase(self.trial, self.runNum)
 
         self.pos1 = parameters["posL"]
         self.pos2 = parameters["posR"]
@@ -100,8 +85,8 @@ class Lr(Experiments):
         #todo discuss how to decode this with maraian
         if self.case == 0:
             self.tempObj = copy.copy(objects[0])
-            super(Lr, self).setObjects(objects[0], self.tempObj)
             self.tempObjUse = True
+            super(Lr, self).setObjects(objects[0], self.tempObj)
 
         elif self.case == 2:
             super(Lr, self).setObjects(objects[0], objects[1])

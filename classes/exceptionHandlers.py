@@ -10,7 +10,7 @@ class ExceptionHandlers():
     def __init__(self,parameters):
         self.parameters=parameters
         # self.exceptionGUI()
-        self.exceptionReplay()
+        # self.exceptionReplay()
         self.exceptionArduino()
         self.exceptionROS()
 
@@ -66,6 +66,8 @@ class ExceptionHandlers():
             self.parameters["captureScale"] = scale
             self.parameters["captureStart"] = start
             self.parameters["playbackIncrement"] = increment
+
+            return self.parameters
     def exceptionArduino(self):
         # check if arduino servo is connected
         try:

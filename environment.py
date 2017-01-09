@@ -188,12 +188,11 @@ class Object():
         try:
             obj.setPos(position[0], position[1], position[2])
             obj.reparentTo(self.sb.render)
-            obj.setShaderAuto()# here?
+            obj.setShaderAuto()# here?, for normal maps
 
         except AttributeError:
             print "obj is None"
         except TypeError:
-            print "position is messed up!" \
-                  "check is objectPosition is defined correctly (tuple inside list)"
+            print "position is None"
 
 

@@ -1,12 +1,12 @@
 from environment import *
 from playerCon import Player
 from importHelper import helper
-parameters = helper.paramsFromGUI()
-
 
 class Experiments(object):
 
-    def __init__(self, showbase):
+    def __init__(self, showbase, parameters):
+
+        parameters = parameters
         self.sb=showbase  # gets ShowBase from MyApp()(can't open 2 ShowBases)
         self.obj = Object(showbase)  # new object-handler from environment.py
         self.terrain = Terrain(showbase)  # new terrain-handler from environment.py
@@ -21,6 +21,7 @@ class Experiments(object):
         self.runNum = 1
         self.case = 0
         self.isFlying = True
+        self.replay = parameters["replayWorld"]
 
     def getObjects(self, objPath, objScale):
         """
@@ -42,7 +43,7 @@ class Experiments(object):
         """
 
         for idx, obj in enumerate(objects):
-            self.obj.moveObjects(position = self.objectPosition[idx], obj=obj)
+            self.obj.moveObjects(position=self.objectPosition[idx], obj=obj)
         self.updateObjPos(objects)
         print "updatedPos:", self.objectPosition
 
@@ -63,7 +64,7 @@ class Experiments(object):
         """
 
         self.sky.createSky()
-        
+
     def resetPosition(self):
         """
         initH: heading of player
@@ -73,9 +74,12 @@ class Experiments(object):
         :return: new player Position (necessary?)
         """
 
-        self.player.resetPos(self.newPos)
-        self.trial += 1
-        return self.newPos
+        if not self.replay:
+            self.player.resetPos(self.newPos)
+            self.trial += 1
+            return self.newPos
+        else:
+            return
 
     def retryPosition(self):
         """
@@ -127,17 +131,19 @@ class Experiments(object):
         safe way to prevent any kind of render-bugs (i.e. the rg-gg-bug in Lr)
         """
 
-        if self.tempObjUse == True:
+        if self.tempObjUse:
             try:
                 self.tempObj.remove_node()
                 self.tempObjUse = False
             except AttributeError:
-                pass
+                self.tempObjUse = False
+                print "tempObj None at removeObj"
+
         for item in obj:
             try:
                 item.detachNode()
             except AttributeError:
-                pass
+                print "Obj None at removeObj"
 
     def startExperiment(self):
         """
@@ -149,7 +155,6 @@ class Experiments(object):
         everything is ready for an experiment!
 
         """
-
         self.trial = 1
         self.runNum = 1
         self.player.resetPos(self.newPos)
@@ -164,6 +169,43 @@ class Experiments(object):
         self.sb.maxBoutDur = parameters["maxBoutDur"]
         self.retryPosition()
         print "isFlying:", self.isFlying
+
+    def generateCase(self, trial, runNum):
+        if not self.replay:
+            try:
+                # get case from idxArr, dependent on trial number
+                case = self.idxArr[trial-1]
+                print "trial: ", trial
+                print "case:", case
+                return case, trial, runNum
+            except IndexError:
+                # if trial is higher than count of digits in idxArr, reset trial and create new idxArr
+                # happens if player went through all 4 lr-configurations
+                print "new run"
+                trial = 1
+                runNum += 1
+                print "runNum:", runNum
+                self.idxArr = helper.randIndexArray(4, parameters["randPos"])
+                print "idxArr:", self.idxArr
+                case = self.idxArr[trial - 1]
+                print "trial:", trial
+                print "case:", case
+                return case, trial, runNum
+        else:
+            case = self.case
+            trial = self.trial
+            runNum = self.runNum
+            print "runNum:", runNum
+            print "trial: ", trial
+            print "case:", case
+
+            return case, trial, runNum
+
+
+    def replayUpdate(self, case, trial, runNum):
+        self.case = case
+        self.trial = trial
+        self.runNum = runNum
 
 
 

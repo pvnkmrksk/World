@@ -429,6 +429,11 @@ if __name__ == '__main__':
     resetBtn=ui.buttonBox.button(QtGui.QDialogButtonBox.Reset)
     resetBtn.clicked.connect(lambda: loadSettings(window, jsonCurrent))
 
+    # recordPathBtn = ui.buttonBox.button(ui.frameRecordPathBtn)
+    # file = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+    ui.frameRecordPathBtn.clicked.connect(lambda: showSaveDialog(window, ui.frameRecordPath))
+# 'frameRecordPath': [ui.frameRecordPathBtn,showSaveDialog,ui.frameRecordPath],
+
 
     #todo. open the last tab on close
 
@@ -480,6 +485,7 @@ if __name__ == '__main__':
         'odour3Mask': [ui.odour3MaskBtn, showFileDialog, ui.odour3Mask],
         'odour4Mask': [ui.odour4MaskBtn, showFileDialog, ui.odour4Mask],
         'beepPath': [ui.beepPathBtn,showFileDialog,ui.beepPath],
+
 
 
     }

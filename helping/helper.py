@@ -25,15 +25,19 @@ def paramsFromGUI():
         from GUI_caller import jsonVR
         print "using GUI"
 
+        #def paramsGen(jsonPath):
         with open(jsonVR, 'r') as jfile:
             parameters = json.load(jfile)
             for item in parameters['toTuplify']:
                 parameters[item] = tuple(parameters[item])
+
     else:
         from params import parameters
         print "using old parms file"
 
     return parameters
+
+
 
 def clamp(n, minn, maxn):
     """

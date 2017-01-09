@@ -1,14 +1,15 @@
 from experiments import Experiments
 import math
-from helping import helper
-from panda3d.core import Shader
-parameters = helper.paramsFromGUI()
+
+from importHelper import * # that is super dirty, please import only needed stuff
+
+
 
 class Circ(Experiments):
 
-    def __init__(self, showbase,objPath1=parameters["object1"], objScale1=parameters["obj1Scale"]):
+    def __init__(self, showbase, parameters,objPath1=parameters["object1"], objScale1=parameters["obj1Scale"], loadingString=None):
 
-        super(Circ, self).__init__(showbase)
+        super(Circ, self).__init__(showbase, parameters)
         self.idxArr = helper.randIndexArray(parameters["numObj"]+1, parameters[
             "randPos"])  # creates the indexArray, which controls order of resetPositions
                          # numObj+1 because of negative control, has to be number of positions +1 in GUI
@@ -28,22 +29,8 @@ class Circ(Experiments):
         :param objects: objects to set/move
         """
 
-        try:
-            # get case from idxArr, dependent on trial number
-            self.case = self.idxArr[self.trial-1]
-            print "trial: ", self.trial
-            print "case:", self.case
-        except IndexError:
-            # if trial is higher than count of digits in idxArr, reset trial and create new idxArr
-            # happens if player went through all circ-positions and negative control
-            self.trial = 1
-            self.runNum += 1
-            self.idxArr = helper.randIndexArray(parameters["numObj"]+1, parameters["randPos"])  # +1 because negControl
-            print "new run"
-            print "runNum:", self.runNum
-            print "indexArray: " + str(self.idxArr)
-            self.case = self.idxArr[self.trial - 1]
-            print "case:", self.case
+        # todo: there are unnecessary variable assignments, clean that
+        self.case, self.trial, self.runNum = self.generateCase(self.trial, self.runNum)
 
         if self.case == max(self.idxArr):  # negative control
             self.removeObj(objects)  # Always pass tuple to removeObj
