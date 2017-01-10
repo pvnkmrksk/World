@@ -17,6 +17,7 @@ class Circ(Experiments):
         self.createTerrain()
         self.createSky()
         self.obj1 = self.getObjects(objPath1, objScale1)
+        # self.terrain.slnp.lookAt(self.obj1)
         self.obj1.setShaderAuto()
         self.setObjects(self.obj1)
 

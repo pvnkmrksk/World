@@ -1,4 +1,5 @@
 from importHelper import *
+from panda3d.core import  Spotlight
 
 class Sky():
 
@@ -49,7 +50,7 @@ class Terrain():
         self.sb = showbase
         # Our lighting
         self.ambientLight = AmbientLight("ambientLight")
-        self.ambientLight.setColor(Vec4(0.3, 0.3, 0.3, 1))
+        self.ambientLight.setColor(Vec4(0.35, 0.35, 0.35, 1))
         self.ambientNode = self.sb.render.attachNewNode(self.ambientLight)
         #
         # self.directionalLight = DirectionalLight("directionalLight")
@@ -74,6 +75,14 @@ class Terrain():
         # directionalLight4.setColor(Vec4(1, 1, 1, 1))
         # directionalLight4.setSpecularColor(Vec4(1, 1, 1, 1))
         #
+        # slight = Spotlight('slight')
+        # lens = PerspectiveLens()
+        # slight.setLens(lens)
+        # self.slnp = self.sb.render.attachNewNode(slight)
+        # self.slnp.setPos(10, 20, 0)
+        #
+        # self.sb.render.setLight(self.slnp)
+
         self.sb.render.setLight(self.ambientNode)
         # self.sb.render.setLight(self.directNode)
         self.sb.render.setLight(self.sb.render.attachNewNode(directionalLight2))

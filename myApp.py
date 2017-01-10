@@ -3,7 +3,7 @@ from __future__ import division #odd issue. Must be on first line else it fails
 from importHelper import *  # file with just a bunch of imports
 
 
-print parameters["loadingString"]
+print "loadingString myApp:", parameters["loadingString"]
 
 if parameters["loadingString"] == "circ":
     from circ import Circ as experiment
@@ -503,13 +503,13 @@ class MyApp(ShowBase):
 
     # sky load
     def createEnvironment(self):
-        """
-        load fog
-        load sky
-        setup lights
-        Returns:
-
-        """
+        # """
+        # load fog
+        # load sky
+        # setup lights
+        # Returns:
+        #
+        # """
         # # Fog to hide a performance tweak:
         # colour = (0.0, 0.0, 0.0)
         # expfog = Fog("scene-wide-fog")
@@ -562,6 +562,7 @@ class MyApp(ShowBase):
         # render.setLight(render.attachNewNode(directionalLight4))
         # # directionalLight.setShadowCaster(True, 512, 512)
         # # render.setShaderAuto()
+
         pass
 
     # display regions
@@ -758,7 +759,7 @@ class MyApp(ShowBase):
 
             #
             if parameters["loadOdour"]:
-                # self.valve1State=self.haw.update(self.packetDur)
+                self.valve1State=self.haw.update(self.packetDur)
                 self.valve2State=self.apple.update(self.packetDur)
             #
             #

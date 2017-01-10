@@ -114,10 +114,13 @@ class ParamCache():
         '''
         self.replay = self.parameters["replayWorld"]
         self.scale = self.parameters["captureScale"]
-        self.start = self.parameters["captureStart"]
+        self.start = 0
         self.increment = self.parameters["playbackIncrement"]
         self.record = parameters["frameRecord"]
         self.recordPath= parameters['frameRecordPath']
+        self.dur = parameters["recordDur"]
+        self.recordfps = parameters["recordFps"]
+
 
     def paramLoad(self,parameters):
         '''
@@ -134,7 +137,13 @@ class ParamCache():
         parameters["captureScale"] = self.scale
         parameters["captureStart"] = self.start
         parameters["playbackIncrement"] = self.increment
-        parameters['frameRecordPath']=        self.recordPath
+        parameters['frameRecordPath']= self.recordPath
+        parameters["recordDur"] = self.dur
+        parameters["recordFps"] = self.recordfps
+        parameters["modelTextureMapNull"] = parameters["modelTextureMap"]
+        parameters["skyMapNull"] = parameters["skyMap"]
+        parameters["loadingString"] = "11" #todo: remove that after recording
+
 
         return parameters
 
@@ -143,12 +152,12 @@ def replayLoader():
     '''Load a dataframe from pickle and analyse lr cases'''
 
     defaultPath="/home/rhagoletis/catkin/src/World/bags/"
-    if False:#parameters['replaybag']: #todo fix replaybag, implement ros publish
-       ftype= ["*.bag"]
-       text='Choose the bag to replay'
-    else:
-       ftype= ["*.pickle"]
-       text='Choose the pickle file to replay '
+    # if parameters['replaybag']:
+    #    ftype= ["*.bag"]
+    #    text='Choose the bag to replay'
+    # else:
+    ftype= ["*.pickle"]
+    text='Choose the pickle file to replay '
     path=easygui.fileopenbox(title=text
                               ,default=defaultPath,
                               multiple=False,filetypes=ftype)
@@ -164,24 +173,29 @@ def replayLoader():
 if parameters['replayWorld']:
     print "\n \n replayFIlke is \n\n",replayFileSelected
     if not replayFileSelected:
-        if parameters['replayWorld']:
+        # if parameters['replayBag']:
 
-            #copy the needed params from parameters
-            pc=ParamCache(parameters)
+        #copy the needed params from parameters
+        pc=ParamCache(parameters)
 
-            df,metadata=replayLoader()
-            dfPosHpr = df[['trajectory__pPos_x', 'trajectory__pPos_y', 'trajectory__pPos_z',
-                         'trajectory__pOri_x', 'trajectory__pOri_y','trajectory__pOri_z']]
-            dfPosHpr.columns = [['x', 'y', 'z', 'h', 'p', 'r']]
-            #reassigning the bag parameters
-            parameters=metadata['parameters']
-            for item in parameters['toTuplify']:
-                parameters[item] = tuple(parameters[item])
-            parameters['replayWorld']=True #this is because, while the actual bag never had replayworld checked.
-            # But the code needs it to be true to playback bag data
+        df,metadata=replayLoader()
+        dfPosHpr = df[['trajectory__pPos_x', 'trajectory__pPos_y', 'trajectory__pPos_z',
+                     'trajectory__pOri_x', 'trajectory__pOri_y','trajectory__pOri_z']]
+        dfPosHpr.columns = [['x', 'y', 'z', 'h', 'p', 'r']]
+        #reassigning the bag parameters
+        parameters=metadata['parameters']
+        print "loadingString metadata importHelper:", metadata["parameters"]["loadingString"]
+        for item in parameters['toTuplify']:
+            parameters[item] = tuple(parameters[item])
+        parameters['replayWorld']=True #this is because, while the actual bag never had replayworld checked.
+        # But the code needs it to be true to playback bag data
 
-            #dump the saved parameters into the current one
-            parameters=pc.paramLoad(parameters)
+        #dump the saved parameters into the current one
+        parameters=pc.paramLoad(parameters)
         replayFileSelected=True
+        print "loadingString importHelper:", parameters["loadingString"]
+        print "bagDur:", parameters["maxBoutDur"]
+
+
     else:
         pass
