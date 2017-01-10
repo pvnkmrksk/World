@@ -510,58 +510,59 @@ class MyApp(ShowBase):
         Returns:
 
         """
-        # Fog to hide a performance tweak:
-        colour = (0.0, 0.0, 0.0)
-        expfog = Fog("scene-wide-fog")
-        expfog.setColor(*colour)
-        expfog.setExpDensity(0.004)
-        render.setFog(expfog)
-        self.setBackgroundColor(*colour)
-
-        # Our sky
-        if parameters["loadNullModels"]:  # if null, then create uniform back and sky
-            skysphere = loader.loadModel(parameters["skyMapNull"])
-        else:
-            skysphere = loader.loadModel(parameters["skyMap"])
-
-        skysphere.setEffect(CompassEffect.make(self.render))
-        skysphere.setScale(parameters["maxDistance"])  # bit less than "far"
-        skysphere.setZ(-3)
-        # NOT render - you'll fly through the sky!:
-        if parameters["humanDisplay"]:
-            skysphere.reparentTo(self.camera)
-        else:
-            skysphere.reparentTo(self.cameraCenter)
-
-        # Our lighting
-        # ambientLight = AmbientLight("ambientLight")
-        # ambientLight.setColor(Vec4(.6, .6, .6, 1))
-        directionalLight = DirectionalLight("directionalLight")
-        directionalLight.setDirection(Vec3(-1,-1,-1))
-        directionalLight.setColor(Vec4(1, 1, 1, 1))
-        directionalLight.setSpecularColor(Vec4(1, 1, 1, 1))
-
-        directionalLight2 = DirectionalLight("directionalLight")
-        directionalLight2.setDirection(Vec3(-1,1,-1))
-        directionalLight2.setColor(Vec4(1, 1, 1, 1))
-        directionalLight2.setSpecularColor(Vec4(1, 1, 1, 1))
-        directionalLight3 = DirectionalLight("directionalLight")
-        directionalLight3.setDirection(Vec3(1,-1,-1))
-        directionalLight3.setColor(Vec4(1, 1, 1, 1))
-        directionalLight3.setSpecularColor(Vec4(1, 1, 1, 1))
-
-        directionalLight4 = DirectionalLight("directionalLight")
-        directionalLight4.setDirection(Vec3(1,1,-1))
-        directionalLight4.setColor(Vec4(1, 1, 1, 1))
-        directionalLight4.setSpecularColor(Vec4(1, 1, 1, 1))
-
-        # render.setLight(render.attachNewNode(ambientLight))
-        render.setLight(render.attachNewNode(directionalLight))
-        render.setLight(render.attachNewNode(directionalLight2))
-        render.setLight(render.attachNewNode(directionalLight3))
-        render.setLight(render.attachNewNode(directionalLight4))
-        # directionalLight.setShadowCaster(True, 512, 512)
-        # render.setShaderAuto()
+        # # Fog to hide a performance tweak:
+        # colour = (0.0, 0.0, 0.0)
+        # expfog = Fog("scene-wide-fog")
+        # expfog.setColor(*colour)
+        # expfog.setExpDensity(0.004)
+        # render.setFog(expfog)
+        # self.setBackgroundColor(*colour)
+        #
+        # # Our sky
+        # if parameters["loadNullModels"]:  # if null, then create uniform back and sky
+        #     skysphere = loader.loadModel(parameters["skyMapNull"])
+        # else:
+        #     skysphere = loader.loadModel(parameters["skyMap"])
+        #
+        # skysphere.setEffect(CompassEffect.make(self.render))
+        # skysphere.setScale(parameters["maxDistance"])  # bit less than "far"
+        # skysphere.setZ(-3)
+        # # NOT render - you'll fly through the sky!:
+        # if parameters["humanDisplay"]:
+        #     skysphere.reparentTo(self.camera)
+        # else:
+        #     skysphere.reparentTo(self.cameraCenter)
+        #
+        # # Our lighting
+        # # ambientLight = AmbientLight("ambientLight")
+        # # ambientLight.setColor(Vec4(.6, .6, .6, 1))
+        # directionalLight = DirectionalLight("directionalLight")
+        # directionalLight.setDirection(Vec3(-1,-1,-1))
+        # directionalLight.setColor(Vec4(1, 1, 1, 1))
+        # directionalLight.setSpecularColor(Vec4(1, 1, 1, 1))
+        #
+        # directionalLight2 = DirectionalLight("directionalLight")
+        # directionalLight2.setDirection(Vec3(-1,1,-1))
+        # directionalLight2.setColor(Vec4(1, 1, 1, 1))
+        # directionalLight2.setSpecularColor(Vec4(1, 1, 1, 1))
+        # directionalLight3 = DirectionalLight("directionalLight")
+        # directionalLight3.setDirection(Vec3(1,-1,-1))
+        # directionalLight3.setColor(Vec4(1, 1, 1, 1))
+        # directionalLight3.setSpecularColor(Vec4(1, 1, 1, 1))
+        #
+        # directionalLight4 = DirectionalLight("directionalLight")
+        # directionalLight4.setDirection(Vec3(1,1,-1))
+        # directionalLight4.setColor(Vec4(1, 1, 1, 1))
+        # directionalLight4.setSpecularColor(Vec4(1, 1, 1, 1))
+        #
+        # # render.setLight(render.attachNewNode(ambientLight))
+        # render.setLight(render.attachNewNode(directionalLight))
+        # render.setLight(render.attachNewNode(directionalLight2))
+        # render.setLight(render.attachNewNode(directionalLight3))
+        # render.setLight(render.attachNewNode(directionalLight4))
+        # # directionalLight.setShadowCaster(True, 512, 512)
+        # # render.setShaderAuto()
+        pass
 
     # display regions
     def initDisplayRegion(self):
@@ -757,7 +758,7 @@ class MyApp(ShowBase):
 
             #
             if parameters["loadOdour"]:
-                self.valve1State=self.haw.update(self.packetDur)
+                # self.valve1State=self.haw.update(self.packetDur)
                 self.valve2State=self.apple.update(self.packetDur)
             #
             #

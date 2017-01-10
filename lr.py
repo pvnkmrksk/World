@@ -33,7 +33,7 @@ class Lr(Experiments):
             self.obj2 = None
             print "obj2 None"
 
-
+        #todo.fixme soon timestamp inside the file
         # self.sb.initHardware()
         mfg= FieldGen()
         self.of = mfg.odourQuadField(parameters['worldSize']*2,parameters['worldSize']*2,

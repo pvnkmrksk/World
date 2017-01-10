@@ -143,7 +143,7 @@ def replayLoader():
     '''Load a dataframe from pickle and analyse lr cases'''
 
     defaultPath="/home/rhagoletis/catkin/src/World/bags/"
-    if parameters['replaybag']:
+    if False:#parameters['replaybag']: #todo fix replaybag, implement ros publish
        ftype= ["*.bag"]
        text='Choose the bag to replay'
     else:
@@ -164,7 +164,7 @@ def replayLoader():
 if parameters['replayWorld']:
     print "\n \n replayFIlke is \n\n",replayFileSelected
     if not replayFileSelected:
-        if parameters['replayBag']:
+        if parameters['replayWorld']:
 
             #copy the needed params from parameters
             pc=ParamCache(parameters)
