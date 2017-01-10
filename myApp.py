@@ -3,7 +3,7 @@ from __future__ import division #odd issue. Must be on first line else it fails
 from importHelper import *  # file with just a bunch of imports
 
 
-print parameters["loadingString"]
+print "loadingString myApp:", parameters["loadingString"]
 
 if parameters["loadingString"] == "circ":
     from circ import Circ as experiment

@@ -15,10 +15,14 @@ class Lr(Experiments):
         print "indexArray: " + str(self.idxArr)
         self.createTerrain()
         self.createSky()
-        print "loadingString:", loadingString
+        print "loadingString LR:", parameters["loadingString"]
+        print "obj1 LR:", parameters["object1"]
+        print "obj2 LR:", parameters["object2"]
 
         # loads objects dependent on the loading string
         # 11 loads obj1, obj2, 10 loads obj1, None, 01 loads None, obj2, 00 loads None, None
+
+
 
         if loadingString[0] == "1":
             self.obj1 = self.getObjects(objPath1, objScale1)
