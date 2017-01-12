@@ -1687,13 +1687,13 @@
          <widget class="QWidget" name="layoutWidget">
           <property name="geometry">
            <rect>
-            <x>10</x>
+            <x>11</x>
             <y>20</y>
-            <width>239</width>
+            <width>362</width>
             <height>24</height>
            </rect>
           </property>
-          <layout class="QGridLayout" name="gridLayout_15">
+          <layout class="QGridLayout" name="gridLayout_11">
            <item row="0" column="0">
             <widget class="QCheckBox" name="replayWorld">
              <property name="text">
@@ -1708,6 +1708,16 @@
              </property>
              <property name="text">
               <string>frameRecord</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QCheckBox" name="replayBag">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="text">
+              <string>replayBag</string>
              </property>
             </widget>
            </item>

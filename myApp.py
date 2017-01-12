@@ -615,6 +615,11 @@ class MyApp(ShowBase):
     def listener(self):
         """ Listens to Kinefly Flystate topic"""
         rospy.Subscriber("/kinefly/flystate", MsgFlystate, self.callback)
+        # if parameters['replayBag']:
+        rospy.Subscriber("/trajectory",MsgTrajectory,self.callback2)
+        time.sleep(15)
+        # print "self traj wis", self.wbad
+        print "self traj is", self.traj
 
     def callback(self, data):
         """
@@ -627,7 +632,20 @@ class MyApp(ShowBase):
         """
         self.wbad = data.left.angles[0] - data.right.angles[0] + parameters["DCoffset"]
         self.wbas = data.left.angles[0] + data.right.angles[0]
+
         return self.wbad
+    def callback2(self, data):
+        """
+        Returns Wing Beat Amplitude Difference from received data
+        Args:
+            data: the data from the subscriber ROS node
+
+        Returns:
+
+        """
+        self.traj=data#.pPos.x
+
+        return self.traj
 
     def publisher(self, data):
         """
@@ -776,31 +794,50 @@ class MyApp(ShowBase):
             Finally it updates the current frame number by playbackIncrement which can be used to speed up playback
             """
             # todo can't use until we send proper obj positions
-            try:
+            if parameters['replayBag']:
+                poshpr=[self.traj.pPos.x,self.traj.pPos.y,self.traj.pPos.z,self.traj.pOri.x,self.traj.pOri.y,self.traj.pOri.z]
+                self.reset=self.traj.reset
 
-                poshpr = dfPosHpr.ix[self.replayFrame, :].values
-                # print "frame is", self.replayFrame
-            except IndexError:
-                print "Finished playback"
-                self.winClose()
+            else:
+                try:
+
+                    poshpr = dfPosHpr.ix[self.replayFrame, :].values
+                    self.reset = df.trajectory__reset[self.replayFrame]
+
+                    # print "frame is", self.replayFrame
+                except IndexError:
+                    print "Finished playback"
+                    self.winClose()
             # print poshpr
+
             self.player.setPosHpr(tuple(poshpr[0:3]), tuple(poshpr[3:]))
-            # self.player.setPosHpr(traj.ix[self.replayFrame,:].values)
 
 
-            self.reset=df.trajectory__reset[self.replayFrame]
 
             if self.reset:
-                self.ex.case = df.trajectory__case[self.replayFrame]
-                self.ex.trial = df.trajectory__trial[self.replayFrame]
-                self.ex.runNum = df.trajectory__runNum[self.replayFrame]
-                self.ex.resetPosition()#this happens only in replay
-                print "the frame now is",self.replayFrame
+                if parameters['replayBag']:
+
+                    self.ex.case = self.traj.case
+                    self.ex.trial = self.traj.trial
+                    self.ex.runNum = self.traj.runNum
+                    self.ex.resetPosition()#this happens only in replay
+                    # print "the frame now is",self.replayFrame
+                else:
+
+                    self.ex.case = df.trajectory__case[self.replayFrame]
+                    self.ex.trial = df.trajectory__trial[self.replayFrame]
+                    self.ex.runNum = df.trajectory__runNum[self.replayFrame]
+                    self.ex.resetPosition()  # this happens only in replay
+                    # print "the frame now is",self.replayFrame
 
             self.replayFrame += parameters["playbackIncrement"]
 
         self.updateCamera()
-        self.publisher(self.message())
+        if not parameters['replayBag']:
+            self.publisher(self.message())
+        else:
+            pass
+
         self.reset = False
 
         return Task.cont
@@ -1637,7 +1674,7 @@ class MyApp(ShowBase):
         else:
             self.quadSet = self.quadSetCopy.copy()
             self.randChoice()
-	
+
     def updateCamera(self):
 
         # if parameters['humanDisplay']:

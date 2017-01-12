@@ -120,7 +120,7 @@ class ParamCache():
         self.recordPath= parameters['frameRecordPath']
         self.dur = parameters["recordDur"]
         self.recordfps = parameters["recordFps"]
-
+        self.replayBag=parameters['replayBag']
 
     def paramLoad(self,parameters):
         '''
@@ -140,6 +140,9 @@ class ParamCache():
         parameters['frameRecordPath']= self.recordPath
         parameters["recordDur"] = self.dur
         parameters["recordFps"] = self.recordfps
+        parameters['replayBag']=self.replayBag
+
+
         parameters["modelTextureMapNull"] = parameters["modelTextureMap"]
         parameters["skyMapNull"] = parameters["skyMap"]
         parameters["loadingString"] = "11" #todo: remove that after recording
@@ -151,7 +154,7 @@ class ParamCache():
 def replayLoader():
     '''Load a dataframe from pickle and analyse lr cases'''
 
-    defaultPath="/home/rhagoletis/catkin/src/World/bags/"
+    defaultPath="~/catkin/src/World/bags/"
     # if parameters['replaybag']:
     #    ftype= ["*.bag"]
     #    text='Choose the bag to replay'
@@ -165,36 +168,73 @@ def replayLoader():
 
     print 'path to replay is',path
 
-    dff=pd.read_pickle(path)
-    df=dff['df']
-    metadata=dff['metadata']
-    return df,metadata
+    df,metadata=bagUnpickler()
+    return df, metadata
+
+def bagUnpickler(path):
+    dff = pd.read_pickle(path)
+    df = dff['df']
+    metadata = dff['metadata']
+    return df, metadata
+
+
+def replayBag(delay=10):
+    '''load a bag and subprocess play'''
+    defaultPath = "~/catkin/src/World/bags/"
+    ftype = ["*full.bag"]
+    text = 'Choose the bagfile to replay  publish'
+    path = easygui.fileopenbox(title=text
+                               , default=defaultPath,
+                               multiple=False, filetypes=ftype)
+    # path='/home/rhagoletis/catkin/src/World/bags/2017_01_04/2017-01-04__23:08:26_apple15_11_traj.bag_df.pickle'
+
+    print 'bag to replay is', path
+    bp=subprocess.Popen(['rosbag','play','-d',str(delay),path])
+    return bp,path
 
 if parameters['replayWorld']:
     print "\n \n replayFIlke is \n\n",replayFileSelected
     if not replayFileSelected:
         # if parameters['replayBag']:
+        if parameters['replayBag']:
+            bp,path=replayBag()
+            print "hello ther"
+            #copy the needed params from parameters
+            pc=ParamCache(parameters)
+            picklePath=path+'_df.pickle'
+            df,metadata=bagUnpickler(picklePath)
+            parameters=metadata['parameters']
+            print "loadingString metadata importHelper:", metadata["parameters"]["loadingString"]
+            for item in parameters['toTuplify']:
+                parameters[item] = tuple(parameters[item])
+            parameters['replayWorld']=True #this is because, while the actual bag never had replayworld checked.
+            # But the code needs it to be true to playback bag data
 
-        #copy the needed params from parameters
-        pc=ParamCache(parameters)
+            #dump the saved parameters into the current one
+            parameters=pc.paramLoad(parameters)
+            replayFileSelected=True
+        else:
+            # copy the needed params from parameters
+            pc = ParamCache(parameters)
 
-        df,metadata=replayLoader()
-        dfPosHpr = df[['trajectory__pPos_x', 'trajectory__pPos_y', 'trajectory__pPos_z',
-                     'trajectory__pOri_x', 'trajectory__pOri_y','trajectory__pOri_z']]
-        dfPosHpr.columns = [['x', 'y', 'z', 'h', 'p', 'r']]
-        #reassigning the bag parameters
-        parameters=metadata['parameters']
-        print "loadingString metadata importHelper:", metadata["parameters"]["loadingString"]
-        for item in parameters['toTuplify']:
-            parameters[item] = tuple(parameters[item])
-        parameters['replayWorld']=True #this is because, while the actual bag never had replayworld checked.
-        # But the code needs it to be true to playback bag data
+            df, metadata = replayLoader()
+            dfPosHpr = df[['trajectory__pPos_x', 'trajectory__pPos_y', 'trajectory__pPos_z',
+                           'trajectory__pOri_x', 'trajectory__pOri_y', 'trajectory__pOri_z']]
+            dfPosHpr.columns = [['x', 'y', 'z', 'h', 'p', 'r']]
+            # reassigning the bag parameters
+            parameters = metadata['parameters']
+            print "loadingString metadata importHelper:", metadata["parameters"]["loadingString"]
+            for item in parameters['toTuplify']:
+                parameters[item] = tuple(parameters[item])
+            parameters['replayWorld'] = True  # this is because, while the actual bag never had replayworld checked.
+            # But the code needs it to be true to playback bag data
 
-        #dump the saved parameters into the current one
-        parameters=pc.paramLoad(parameters)
-        replayFileSelected=True
-        print "loadingString importHelper:", parameters["loadingString"]
-        print "bagDur:", parameters["maxBoutDur"]
+            # dump the saved parameters into the current one
+            parameters = pc.paramLoad(parameters)
+            replayFileSelected = True
+            print "loadingString importHelper:", parameters["loadingString"]
+            print "bagDur:", parameters["maxBoutDur"]
+
 
 
     else:

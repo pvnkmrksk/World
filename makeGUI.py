@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'makeGUI.ui'
 #
-# Created: Sat Jan  7 20:00:52 2017
+# Created: Thu Jan 12 11:56:06 2017
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -791,18 +791,22 @@ class Ui_RhagGUI(object):
         self.label_18.setObjectName(_fromUtf8("label_18"))
         self.gridLayout_10.addWidget(self.label_18, 3, 4, 1, 1)
         self.layoutWidget1 = QtGui.QWidget(self.tab_10)
-        self.layoutWidget1.setGeometry(QtCore.QRect(10, 20, 239, 24))
+        self.layoutWidget1.setGeometry(QtCore.QRect(11, 20, 362, 24))
         self.layoutWidget1.setObjectName(_fromUtf8("layoutWidget1"))
-        self.gridLayout_15 = QtGui.QGridLayout(self.layoutWidget1)
-        self.gridLayout_15.setMargin(0)
-        self.gridLayout_15.setObjectName(_fromUtf8("gridLayout_15"))
+        self.gridLayout_11 = QtGui.QGridLayout(self.layoutWidget1)
+        self.gridLayout_11.setMargin(0)
+        self.gridLayout_11.setObjectName(_fromUtf8("gridLayout_11"))
         self.replayWorld = QtGui.QCheckBox(self.layoutWidget1)
         self.replayWorld.setObjectName(_fromUtf8("replayWorld"))
-        self.gridLayout_15.addWidget(self.replayWorld, 0, 0, 1, 1)
+        self.gridLayout_11.addWidget(self.replayWorld, 0, 0, 1, 1)
         self.frameRecord = QtGui.QCheckBox(self.layoutWidget1)
         self.frameRecord.setEnabled(False)
         self.frameRecord.setObjectName(_fromUtf8("frameRecord"))
-        self.gridLayout_15.addWidget(self.frameRecord, 0, 1, 1, 1)
+        self.gridLayout_11.addWidget(self.frameRecord, 0, 1, 1, 1)
+        self.replayBag = QtGui.QCheckBox(self.layoutWidget1)
+        self.replayBag.setEnabled(True)
+        self.replayBag.setObjectName(_fromUtf8("replayBag"))
+        self.gridLayout_11.addWidget(self.replayBag, 0, 2, 1, 1)
         self.tabWidget.addTab(self.tab_10, _fromUtf8(""))
         self.tab_6 = QtGui.QWidget()
         self.tab_6.setObjectName(_fromUtf8("tab_6"))
@@ -1061,7 +1065,7 @@ class Ui_RhagGUI(object):
         self.label_49.setText(_translate("RhagGUI", "fly", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("RhagGUI", "Record", None))
         self.groupBox_2.setTitle(_translate("RhagGUI", "Recording Options", None))
-        self.label_14.setText(_translate("RhagGUI", "capture scale", None))
+        self.label_14.setText(_translate("RhagGUI", "capture Downscale", None))
         self.label_16.setText(_translate("RhagGUI", "playback increment", None))
         self.label_15.setText(_translate("RhagGUI", "capture start", None))
         self.label_17.setText(_translate("RhagGUI", "record duration", None))
@@ -1069,6 +1073,7 @@ class Ui_RhagGUI(object):
         self.label_18.setText(_translate("RhagGUI", "record fps", None))
         self.replayWorld.setText(_translate("RhagGUI", "replay world", None))
         self.frameRecord.setText(_translate("RhagGUI", "frameRecord", None))
+        self.replayBag.setText(_translate("RhagGUI", "replayBag", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_10), _translate("RhagGUI", "Replay", None))
         self.label_5.setText(_translate("RhagGUI", "Heading Angle", None))
         self.label_23.setText(_translate("RhagGUI", "Servo Angle", None))

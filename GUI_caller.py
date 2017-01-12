@@ -454,6 +454,7 @@ if __name__ == '__main__':
     ui.compassHeading.setOrigin(270)# to set north as north
 
     RosSubscriber('GUI', '/trajectory', MsgTrajectory, clbk)
+    time.sleep(15)
     my_plot = pg.PlotWidget()
     ui.trajectoryLayout.addWidget(my_plot)
     s1 = pg.ScatterPlotItem(size=2, pen=pg.mkPen(None), brush=pg.mkBrush(255, 255, 255, 120))
