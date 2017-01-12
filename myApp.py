@@ -579,7 +579,7 @@ class MyApp(ShowBase):
         dr = self.camNode.getDisplayRegion(0)
         dr.setActive(0)
 
-        #lens = PerspectiveLens(120, 140)  # tuple(parameters["camFOV"]))
+        # lens = PerspectiveLens(120, 140)  # tuple(parameters["camFOV"]))
         lens = PerspectiveLens(parameters['camFOV'][0], parameters['camFOV'][1])  # tuple(parameters["camFOV"]))
         lens.setNear(0.01)
 
@@ -610,7 +610,7 @@ class MyApp(ShowBase):
         self.cameraRight.setPos(self.player, 0, 0, 0)
         self.cameraRight.setHpr(self.player, tuple(parameters["camHpr"]))
 
-    # feedback
+        # feedback
 
     def listener(self):
         """ Listens to Kinefly Flystate topic"""
@@ -660,7 +660,7 @@ class MyApp(ShowBase):
         mes.speed = self.speed  # set current forward velocity, pixel/s (1px=1m)
         mes.gain = self.gain  # set current closed loop gain
         mes.headingControl = self.keyMap["closed"]  # boolean to indicate closed loop state
-        mes.speedControl=self.keyMap['thrust']
+        mes.speedControl = self.keyMap['thrust']
         mes.wbad = parameters["wbad"]  # set wing beat amplitude difference
         mes.wbas = parameters["wbas"]  # set wing beat amplitude sum
 
@@ -720,15 +720,14 @@ class MyApp(ShowBase):
         mes.compensation = mes.impose - mes.imposeResponse
         self.prevStim = self.stim
 
-
-
         return mes
 
-    #
+        #
 
 
 
-    #  frameupdate
+        #  frameupdate
+
     def updateTask(self, task):
         """
         calls all update functions, player, camera and bag control
@@ -745,7 +744,6 @@ class MyApp(ShowBase):
             self.keyHandler()
             self.bagControl()
 
-
             self.updatePlayer()
             # self.updateCamera()
 
@@ -753,14 +751,14 @@ class MyApp(ShowBase):
             if parameters["loadWind"]:
                 x, y, z = self.player.getPos()
                 windDir = self.windField[int(x), int(y)]
-                self.servoAngle=self.windTunnel.update(windDir)
+                self.servoAngle = self.windTunnel.update(windDir)
 
                 # self.windTunnel(parameters["windDirection"])
 
             #
             if parameters["loadOdour"]:
-                self.valve1State=self.haw.update(self.packetDur)
-                self.valve2State=self.apple.update(self.packetDur)
+                self.valve1State = self.haw.update(self.packetDur)
+                self.valve2State = self.apple.update(self.packetDur)
             #
             #
             self.valve1.move(self.valve1State)
@@ -788,14 +786,14 @@ class MyApp(ShowBase):
             # self.player.setPosHpr(traj.ix[self.replayFrame,:].values)
 
 
-            self.reset=df.trajectory__reset[self.replayFrame]
+            self.reset = df.trajectory__reset[self.replayFrame]
 
             if self.reset:
                 self.ex.case = df.trajectory__case[self.replayFrame]
                 self.ex.trial = df.trajectory__trial[self.replayFrame]
                 self.ex.runNum = df.trajectory__runNum[self.replayFrame]
-                self.ex.resetPosition()#this happens only in replay
-                print "the frame now is",self.replayFrame
+                self.ex.resetPosition()  # this happens only in replay
+                print "the frame now is", self.replayFrame
 
             self.replayFrame += parameters["playbackIncrement"]
 
@@ -804,12 +802,6 @@ class MyApp(ShowBase):
         self.reset = False
 
         return Task.cont
-
-
-
-
-
-
 
     def keyHandler(self):
         if self.keyMap["packetDur-down"] != 0:
@@ -834,7 +826,7 @@ class MyApp(ShowBase):
             self.valve2State = 0
         if (self.keyMap["resetPos"] != 0):
             self.ex.resetPosition()
-            self.keyMap["resetPos"] =0
+            self.keyMap["resetPos"] = 0
 
         if (self.keyMap["a-up"] != 0):
             parameters["minWbas"] += parameters["DCoffsetIncrement"]
@@ -871,7 +863,7 @@ class MyApp(ShowBase):
         if (self.keyMap["startEx"] != 0):
             self.ex.runNum = np.NaN
             self.ex.trial = np.NaN
-            self.speed=0
+            self.speed = 0
             self.startBag()
             time.sleep(3)
             self.setFullSpeed()
@@ -887,242 +879,238 @@ class MyApp(ShowBase):
             self.ex.goodFly()
             self.keyMap['goodFly'] = 0
 
-        if (self.keyMap["fullSpeed"] !=0):
+        if (self.keyMap["fullSpeed"] != 0):
             self.setFullSpeed()
             self.keyMap["fullSpeed"] = 0
 
-
     def setFullSpeed(self):
-        self.speed=parameters["maxSpeed"]
+        self.speed = parameters["maxSpeed"]
         print "Full Speed"
 
-
     def updatePlayer(self):
-            """
-        tries to replay past poshpr, else updates it using wbad
+        """
+    tries to replay past poshpr, else updates it using wbad
 
-        listens to keyboard to update values
-        closed and open loop
-        climb and fall
-        turn cw and ccw
-        throttle and handbrake
-        handbrake and translation
-        gain and DC offset
-        respects space time boundary conditions
+    listens to keyboard to update values
+    closed and open loop
+    climb and fall
+    turn cw and ccw
+    throttle and handbrake
+    handbrake and translation
+    gain and DC offset
+    respects space time boundary conditions
 
-        Returns:
-            None
+    Returns:
+        None
+    """
+
+        """
+        the factors are essentially keyboard gains. On user input via keyboard, the gain with which the action
+        happens is controlled by these numbers
+        There is a fps invariant factor which is implemented using a frame time to normalize for computing power
         """
 
-            """
-            the factors are essentially keyboard gains. On user input via keyboard, the gain with which the action
-            happens is controlled by these numbers
-            There is a fps invariant factor which is implemented using a frame time to normalize for computing power
-            """
+        # global prevPos, currentPos, ax, fig, treePos, redPos Global Clock by default,
+        # panda runs as fast as it can frame to frame
+        # scalefactor = self.speed/parameters['fps']# * (globalClock.getDt())
+        climbfactor = 0.008
+        bankfactor = 1
+        parameters["wbad"] = self.wbad
+        parameters["wbas"] = self.wbas
 
-            # global prevPos, currentPos, ax, fig, treePos, redPos Global Clock by default,
-            # panda runs as fast as it can frame to frame
-            # scalefactor = self.speed/parameters['fps']# * (globalClock.getDt())
-            climbfactor = 0.008
-            bankfactor = 1
-            parameters["wbad"] = self.wbad
-            parameters["wbas"] = self.wbas
+        # do the decay time check here, so you don't get a 1 or 2 frame move because of the old speed
+        if self.decayTime > 82:
 
-            # do the decay time check here, so you don't get a 1 or 2 frame move because of the old speed
-            if self.decayTime > 82:
+            self.speed = 0
+            self.keyMap["closed"] = 0
+            self.decayTime -= 1
 
-                self.speed = 0
-                self.keyMap["closed"] = 0
-                self.decayTime -= 1
+        elif 0 < self.decayTime <= 82:
 
-            elif 0 < self.decayTime <= 82:
+            self.keyMap["closed"] = self.closedMemory
+            self.decayTime -= 1
 
-                self.keyMap["closed"] = self.closedMemory
-                self.decayTime -= 1
+        elif self.decayTime == 0:
+            self.speed = self.speedMemory
+            self.decayTime -= 1
 
-            elif self.decayTime == 0:
-                self.speed = self.speedMemory
-                self.decayTime -= 1
+        # impose stimulus and exit once out of bounds
+        if parameters["imposeStimulus"]:
+            try:
+                self.stim = self.stimList[self.frame]
+            except IndexError:
+                parameters["imposeStimulus"] = False
+                print "\n \n impose Stimulus Complete \n \n"
 
-            #impose stimulus and exit once out of bounds
-            if parameters["imposeStimulus"]:
-                try:
-                    self.stim = self.stimList[self.frame]
-                except IndexError:
-                    parameters["imposeStimulus"] = False
-                    print "\n \n impose Stimulus Complete \n \n"
+        # closed loop
+        """
+        In closed loop, the current heading is updated by adding(subtracting) a value that is product of
+        wbad and gain.
+        Heading is defined counterclockwise in degrees.
+        wbad is left-right. positive wbad is left>right --> right turn --> heading increase cw.
+        Therefore, the negative sign in effect brings about the negative feedback and makes coherent reality.
 
-            # closed loop
-            """
-            In closed loop, the current heading is updated by adding(subtracting) a value that is product of
-            wbad and gain.
-            Heading is defined counterclockwise in degrees.
-            wbad is left-right. positive wbad is left>right --> right turn --> heading increase cw.
-            Therefore, the negative sign in effect brings about the negative feedback and makes coherent reality.
+        In human mode, there is a button on activaqtion, a key down is left and key up is right.
+        This is a costant race to keep stable and inactivity is not a solution.
+        One has to constantly osscilate up down to keep heading steady.
 
-            In human mode, there is a button on activaqtion, a key down is left and key up is right.
-            This is a costant race to keep stable and inactivity is not a solution.
-            One has to constantly osscilate up down to keep heading steady.
+        """
+        #
+        # if parameters["mouseMode"]:
+        #     if self.mouseWatcherNode.hasMouse():
+        #         # x = self.mouseWatcherNode.getMouseX()
+        #         # sets wbad to a clamped value of mouseY pos*gain
+        #         clamp = 0.5
+        #         parameters["wbad"] = self.clamp(1 *
+        #                                         parameters["gain"] * self.mouseWatcherNode.getMouseX(), -clamp,
+        #                                         clamp)
 
-            """
-            #
-            # if parameters["mouseMode"]:
-            #     if self.mouseWatcherNode.hasMouse():
-            #         # x = self.mouseWatcherNode.getMouseX()
-            #         # sets wbad to a clamped value of mouseY pos*gain
-            #         clamp = 0.5
-            #         parameters["wbad"] = self.clamp(1 *
-            #                                         parameters["gain"] * self.mouseWatcherNode.getMouseX(), -clamp,
-            #                                         clamp)
+        if (self.keyMap["closed"] != 0):
+            self.player.setH(self.player.getH() - parameters["wbad"] * self.gain)
 
-            if (self.keyMap["closed"] != 0):
-                self.player.setH(self.player.getH() - parameters["wbad"] * self.gain)
+        if (self.keyMap["thrust"] != 0):
+            self.player.setH(self.player.getH() - parameters["wbad"] * self.gain)
+            self.speed = ((parameters["wbas"] - parameters["minWbas"]) *
+                          (parameters["maxFlightSpeed"] - parameters["minFlightSpeed"]) /
+                          (parameters["maxWbas"] - parameters["minWbas"])) \
+                         + parameters["minFlightSpeed"]
+            # #
+            # self.player.setP(((parameters["wbas"]-parameters["minWbas"])*
+            #                      (parameters["maxFlightSpeed"]-parameters["minFlightSpeed"])/
+            #                      (parameters["maxWbas"]-parameters["minWbas"]))\
+            #                     +parameters["minFlightSpeed"]
+            # )
+        # if (self.keyMap["human"] != 0):
+        #     self.player.setH(self.player.getH() + self.keyMap["hRight"] * self.gain)
 
-            if (self.keyMap["thrust"] != 0):
-                self.player.setH(self.player.getH() - parameters["wbad"] * self.gain)
-                self.speed=((parameters["wbas"]-parameters["minWbas"])*
-                                     (parameters["maxFlightSpeed"]-parameters["minFlightSpeed"])/
-                                     (parameters["maxWbas"]-parameters["minWbas"]))\
-                                    +parameters["minFlightSpeed"]
-                # #
-                # self.player.setP(((parameters["wbas"]-parameters["minWbas"])*
-                #                      (parameters["maxFlightSpeed"]-parameters["minFlightSpeed"])/
-                #                      (parameters["maxWbas"]-parameters["minWbas"]))\
-                #                     +parameters["minFlightSpeed"]
-                # )
-            # if (self.keyMap["human"] != 0):
-            #     self.player.setH(self.player.getH() + self.keyMap["hRight"] * self.gain)
+        # Left and Right
+        """
+        this is actually turn ccw and cw. The increment is bankfactor
+        """
+        if (self.keyMap["left"] != 0):  # and self.speed > 0.0):
+            self.player.setH(self.player.getH() + bankfactor)
+        elif (self.keyMap["right"] != 0):  # and self.speed > 0.0):
+            self.player.setH(self.player.getH() - bankfactor)
 
-            # Left and Right
-            """
-            this is actually turn ccw and cw. The increment is bankfactor
-            """
-            if (self.keyMap["left"] != 0):  # and self.speed > 0.0):
-                self.player.setH(self.player.getH() + bankfactor)
-            elif (self.keyMap["right"] != 0):  # and self.speed > 0.0):
-                self.player.setH(self.player.getH() - bankfactor)
+        # Climb and Fall
+        """
+        this is strictly not climb and fall. It is actually Z up and Z down.
+        when key press, z is incremented (decrenmented) by climbfactor
+        """
+        if (self.keyMap["climb"] != 0):  # and self.speed > 0.00):
+            self.player.setZ(self.player.getZ() + climbfactor)
+            # print "z is ", self.player.getZ()
 
-            # Climb and Fall
-            """
-            this is strictly not climb and fall. It is actually Z up and Z down.
-            when key press, z is incremented (decrenmented) by climbfactor
-            """
-            if (self.keyMap["climb"] != 0):  # and self.speed > 0.00):
-                self.player.setZ(self.player.getZ() + climbfactor)
-                # print "z is ", self.player.getZ()
+        elif (self.keyMap["fall"] != 0):  # and self.speed > 0.00):
+            self.player.setZ(self.player.getZ() - climbfactor)
+            # print "z is ", self.player.getZ()
 
-            elif (self.keyMap["fall"] != 0):  # and self.speed > 0.00):
-                self.player.setZ(self.player.getZ() - climbfactor)
-                # print "z is ", self.player.getZ()
+        # throttle control
+        """
+        this updates the speed until top speed
+        handbrake sets speed to zero
+        """
+        if (self.keyMap["accelerate"] != 0):
+            self.speed += parameters["speedIncrement"]
+            if (self.speed > parameters["maxSpeed"]):
+                self.speed = parameters["maxSpeed"]
+        elif (self.keyMap["decelerate"] != 0):
+            self.speed -= parameters["speedIncrement"]
 
-            # throttle control
-            """
-            this updates the speed until top speed
-            handbrake sets speed to zero
-            """
-            if (self.keyMap["accelerate"] != 0):
-                self.speed += parameters["speedIncrement"]
-                if (self.speed > parameters["maxSpeed"]):
-                    self.speed = parameters["maxSpeed"]
-            elif (self.keyMap["decelerate"] != 0):
-                self.speed -= parameters["speedIncrement"]
+        # handbrake
+        if (self.keyMap["handBrake"] != 0):
+            self.speed = 0
 
-            # handbrake
-            if (self.keyMap["handBrake"] != 0):
-                self.speed = 0
+        # todo.fix latency of one frame move forwards
+        """
+        This finally updates the position of the player, there is adelay of one frame in speed update.
 
-            # todo.fix latency of one frame move forwards
-            """
-            This finally updates the position of the player, there is adelay of one frame in speed update.
+        """
+        self.player.setY(self.player, self.speed / parameters['fps'])
 
-            """
-            self.player.setY(self.player, self.speed/parameters['fps'])
+        # update gain
+        """
+        THis updates gain by gainIncrement
+        """
+        if (self.keyMap["gain-up"] != 0):
+            self.gain += parameters["gainIncrement"]
+            print "gain is", self.gain
+        elif (self.keyMap["gain-down"] != 0):
+            self.gain -= parameters["gainIncrement"]
+            print "gain is ", self.gain
 
-            # update gain
-            """
-            THis updates gain by gainIncrement
-            """
-            if (self.keyMap["gain-up"] != 0):
-                self.gain += parameters["gainIncrement"]
-                print "gain is", self.gain
-            elif (self.keyMap["gain-down"] != 0):
-                self.gain -= parameters["gainIncrement"]
-                print "gain is ", self.gain
+        if (self.keyMap["lrGain-down"] != 0):
+            parameters["lrGain"] -= parameters["gainIncrement"]
+            print "lrGain is ", parameters["lrGain"]
 
-            if (self.keyMap["lrGain-down"] != 0):
-                parameters["lrGain"] -= parameters["gainIncrement"]
-                print "lrGain is ", parameters["lrGain"]
+        # update DCoffset
+        """
 
-            # update DCoffset
-            """
+        DC offset is to fix individual errors in allignment of wbad and tethering
+        When a fly "intends" to fly straight, the wbad should be around 0.
+        But due to geometry errors and position errors, the zero is not zero.
+        The DC offset adds or subtracts a constant amount to set to zero
+        """
+        if (self.keyMap["DCoffset-up"] != 0):
+            parameters["DCoffset"] += parameters["DCoffsetIncrement"]
+            print "ofset is ", parameters["DCoffset"]
 
-            DC offset is to fix individual errors in allignment of wbad and tethering
-            When a fly "intends" to fly straight, the wbad should be around 0.
-            But due to geometry errors and position errors, the zero is not zero.
-            The DC offset adds or subtracts a constant amount to set to zero
-            """
-            if (self.keyMap["DCoffset-up"] != 0):
-                parameters["DCoffset"] += parameters["DCoffsetIncrement"]
-                print "ofset is ", parameters["DCoffset"]
+        if (self.keyMap["DCoffset-down"] != 0):
+            parameters["DCoffset"] -= parameters["DCoffsetIncrement"]
+            print "ofset is ", parameters["DCoffset"]
 
-            if (self.keyMap["DCoffset-down"] != 0):
-                parameters["DCoffset"] -= parameters["DCoffsetIncrement"]
-                print "ofset is ", parameters["DCoffset"]
+        # respect max camera distance else you cannot see the floor post loop the loop!
+        if (self.player.getZ() > parameters["maxDistance"]):
+            self.player.setZ(parameters["maxDistance"])
 
+        elif (self.player.getZ() < 0):
+            self.player.setZ(0)
 
-            # respect max camera distance else you cannot see the floor post loop the loop!
-            if (self.player.getZ() > parameters["maxDistance"]):
-                self.player.setZ(parameters["maxDistance"])
+        # if in quad mode, teleport to one random quadrant when you hit boundary
+        # else stay where you are
 
-            elif (self.player.getZ() < 0):
-                self.player.setZ(0)
-
-
-            # if in quad mode, teleport to one random quadrant when you hit boundary
-            # else stay where you are
-
-            if  (self.player.getX() < 0) or (self.player.getX() > parameters["worldSize"]) or \
+        if (self.player.getX() < 0) or (self.player.getX() > parameters["worldSize"]) or \
                 (self.player.getY() < 0) or (self.player.getY() > parameters["worldSize"]):
 
-                if parameters['quad']:
-                    self.ex.resetPosition()
+            if parameters['quad']:
+                self.ex.resetPosition()
                 # else:
                 #     self.player.setX(self.player.getX)
                 #     self.player.setY(self.player.setY)
-                #todo. fix out of bounds
+                # todo. fix out of bounds
 
-            #if hitting the midway mark, reset in quad mode, else carry on
-            # if parameters['quad']:
-            #     if  (self.player.getX() > parameters["offset"] and self.player.getX() < (parameters["offset"] + 1)) or \
-            #         (self.player.getY() > parameters["offset"] and self.player.getY() < (parameters["offset"] + 1)):
-            #         self.ex.resetPosition()
+        # if hitting the midway mark, reset in quad mode, else carry on
+        # if parameters['quad']:
+        #     if  (self.player.getX() > parameters["offset"] and self.player.getX() < (parameters["offset"] + 1)) or \
+        #         (self.player.getY() > parameters["offset"] and self.player.getY() < (parameters["offset"] + 1)):
+        #         self.ex.resetPosition()
 
-            # todo.fix document and clean the timer
-
-
-            if parameters['resetObject']:
-                if self.ex.reachedDestination():
-                    self.ex.resetPosition()
-
-            #todo.delete Quad is non existenent
-
-            # reset position by user input
-            # for i in range(4):
-            #     if (self.keyMap["quad" + str(i + 1)] != 0):
-            #         self.ex.resetPosition(i + 1)
-            #         time.sleep(0.15)
-            #
+        # todo.fix document and clean the timer
 
 
+        if parameters['resetObject']:
+            if self.ex.reachedDestination():
+                self.ex.resetPosition()
 
-            if parameters["imposeStimulus"]:
-                self.player.setH(self.player.getH() + self.stim)
+        # todo.delete Quad is non existenent
 
-            # if imposing turns, don't change quad after too long a bout
-            if not parameters["imposeStimulus"]:
-                self.tooLongBoutReset()
+        # reset position by user input
+        # for i in range(4):
+        #     if (self.keyMap["quad" + str(i + 1)] != 0):
+        #         self.ex.resetPosition(i + 1)
+        #         time.sleep(0.15)
+        #
 
-            self.frame += 1
+
+
+        if parameters["imposeStimulus"]:
+            self.player.setH(self.player.getH() + self.stim)
+
+        # if imposing turns, don't change quad after too long a bout
+        if not parameters["imposeStimulus"]:
+            self.tooLongBoutReset()
+
+        self.frame += 1
         # """
         # tries to replay past poshpr, else updates it using wbad
         #
@@ -1469,7 +1457,7 @@ class MyApp(ShowBase):
     def tooLongBoutReset(self):
         if self.maxBoutDur == 0:
             return
-        elif self.boutFrame > self.maxBoutDur*parameters["fps"]:
+        elif self.boutFrame > self.maxBoutDur * parameters["fps"]:
             self.ex.resetPosition()
             print "bout longer than max duration", self.maxBoutDur, " s"
         else:
@@ -1479,11 +1467,11 @@ class MyApp(ShowBase):
         '''
         OUTDATED
         '''
-    #     # oddeven = np.append(self.odd, self.even, axis=0)
-    #     for i in (self.ex.objectPosition):
-    #         if self.isInsideTarget(i):
-    #             return True
-    #             break
+        #     # oddeven = np.append(self.odd, self.even, axis=0)
+        #     for i in (self.ex.objectPosition):
+        #         if self.isInsideTarget(i):
+        #             return True
+        #             break
         print "reachedDestination outdated"
 
     def quadPositionGenerator(self, posL, posR):
@@ -1519,12 +1507,12 @@ class MyApp(ShowBase):
         '''
         OUTDATED
         '''
-    #     tl, br = self.boundingBoxCoordinates(target, parameters["bboxDist"])
-    #     x, y, z = self.player.getPos()
-    #     if x > tl[0] and x < br[0] and y < tl[1] and y > br[1]:
-    #         return True
-    #     else:
-    #         return False
+        #     tl, br = self.boundingBoxCoordinates(target, parameters["bboxDist"])
+        #     x, y, z = self.player.getPos()
+        #     if x > tl[0] and x < br[0] and y < tl[1] and y > br[1]:
+        #         return True
+        #     else:
+        #         return False
         print "isInsideTarget outdated"
 
     def boundingBoxCoordinates(self, target, distance):
@@ -1539,19 +1527,18 @@ class MyApp(ShowBase):
             tl: top left coordinate.
             br: bottom right coordinate
         """
-    #
-    #     tl = (target[0] - distance, target[1] + distance)
-    #     br = (target[0] + distance, target[1] - distance)
-    #
-    #
-    #     return tl, br
+        #
+        #     tl = (target[0] - distance, target[1] + distance)
+        #     br = (target[0] + distance, target[1] - distance)
+        #
+        #
+        #     return tl, br
         print "boundingBoxCoordinates outdated"
 
     def resetPosition(self, quad):
         """
         oUTDATED
         """
-
 
         # if len(parameters["loadingString"]) == 2:
         #     if quad == "rand":
@@ -1588,9 +1575,9 @@ class MyApp(ShowBase):
         #
         #     self.obj.moveObj(self.obj1, fac=self.fac)
 
-            # index = random.randrange(len(parameters["initPosList"]))
-            # newPos = parameters["initPosList"][index]
-            # print "random quadrant is ", index + 1, "\n"
+        # index = random.randrange(len(parameters["initPosList"]))
+        # newPos = parameters["initPosList"][index]
+        # print "random quadrant is ", index + 1, "\n"
 
         # else:
         #     newPos = parameters["initPosList"][quad - 1]
@@ -1637,7 +1624,7 @@ class MyApp(ShowBase):
         else:
             self.quadSet = self.quadSetCopy.copy()
             self.randChoice()
-	
+
     def updateCamera(self):
 
         # if parameters['humanDisplay']:
@@ -1651,27 +1638,30 @@ class MyApp(ShowBase):
         #     self.cameraCenter.setHpr(self.player,
         #                              tuple(parameters["camHpr"]))  # (0,-2,0))# self.world, self.player.getH())
 
-        #rotate by hFov cw and ccw
+        # rotate by hFov cw and ccw
         self.cameraLeft.setPos(self.player, 0, 0, 0)
-        self.cameraLeft.setHpr(self.player, (parameters['camFOV'][0],parameters["camHpr"][1],parameters["camHpr"][2]))  # self.player.getH())#+120)
+        self.cameraLeft.setHpr(self.player, (
+        parameters['camFOV'][0], parameters["camHpr"][1], parameters["camHpr"][2]))  # self.player.getH())#+120)
         #
         self.cameraCenter.setPos(self.player, 0, 0, 0)
-        self.cameraCenter.setHpr(self.player, (0,parameters["camHpr"][1],parameters["camHpr"][2]))  #tuple(parameters["camHpr"]))  # (0,-2,0))# self.world, self.player.getH())
+        self.cameraCenter.setHpr(self.player, (0, parameters["camHpr"][1], parameters["camHpr"][
+            2]))  # tuple(parameters["camHpr"]))  # (0,-2,0))# self.world, self.player.getH())
 
         self.cameraRight.setPos(self.player, 0, 0, 0)
-        self.cameraRight.setHpr(self.player, (-parameters['camFOV'][0],parameters["camHpr"][1],parameters["camHpr"][2]))  # self.world, self.player.getH())#-120)
+        self.cameraRight.setHpr(self.player, (-parameters['camFOV'][0], parameters["camHpr"][1],
+                                              parameters["camHpr"][2]))  # self.world, self.player.getH())#-120)
 
-    # recording functions
+        # recording functions
+
     def bagControl(self):
         # todo: put this in key-handler
         if (self.keyMap["startBag"] == 1):
             self.startBag()
-            self.keyMap['startBag']=0
+            self.keyMap['startBag'] = 0
 
         elif (self.keyMap["stopBag"] != 0):
             self.stopBag()
-            self.keyMap['stopBag']=0
-
+            self.keyMap['stopBag'] = 0
 
     def startBag(self):
         self.trajBagger = BagControl('traj', parameters['bagTrajTopics'])
@@ -1691,8 +1681,9 @@ class MyApp(ShowBase):
 
         self.bagRecordingState = False
 
-   # screen capture
-    def record(self, dur, fps,pth='frames/movie'):
+        # screen capture
+
+    def record(self, dur, fps, pth='frames/movie'):
 
         self.movie(namePrefix=pth, duration=dur, fps=fps, format='jpg', sd=7)
 
