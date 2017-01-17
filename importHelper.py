@@ -24,7 +24,7 @@ from std_msgs.msg import String
 from direct.showbase.ShowBase import ShowBase  # Panda imports
 from direct.task import Task
 from panda3d.core import AmbientLight, DirectionalLight, Vec4, Vec3, Fog, Camera, PerspectiveLens
-from panda3d.core import loadPrcFileData, NodePath, TextNode
+from panda3d.core import loadPrcFileData, NodePath, TextNode, CullFaceAttrib
 from panda3d.core import CompassEffect, ClockObject
 from panda3d.core import Shader
 from panda3d.core import loadPrcFileData
@@ -142,7 +142,7 @@ class ParamCache():
         parameters["recordFps"] = self.recordfps
         parameters["modelTextureMapNull"] = parameters["modelTextureMap"]
         parameters["skyMapNull"] = parameters["skyMap"]
-        parameters["loadingString"] = "11" #todo: remove that after recording
+        parameters["loadingString"] = "circ" #todo: remove that after recording
 
 
         return parameters

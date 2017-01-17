@@ -59,6 +59,57 @@ class Lr(Experiments):
 
         self.setObjects(self.obj1, self.obj2)
 
+    # def setObjects(self, *objects):
+    #     """
+    #     overwrites setObjects in experiments.py
+    #     creates object-positions for lr-objects dependent on the case
+    #     case: number from idxArr which determines the lr-configuration (10,01,11,00)
+    #     calls super-method after defining the positions
+    #     None-object-errors (AttributeError) are handled by higher methods (if one object is None)
+    #     :param objects: objects to set/move
+    #     """
+    #
+    #
+    #     # todo: there are unnecessary variable assignments, clean that
+    #     self.case, self.trial, self.runNum = self.generateCase(self.trial, self.runNum)
+    #
+    #     self.pos1 = parameters["posL"]
+    #     self.pos2 = parameters["posR"]
+    #     self.objectPosition = [self.pos1, self.pos2]#at first, objectPosition will always be pos1 and pos2 for flexible
+    #                                                 # object positioning, even if one instance/object is None.
+    #                                                 # Position change to None occurs later in super-method.
+    #
+    #     self.removeObj(objects)  # remove tempObj, fixes rg-gg-bug and other render-object-bugs, pass tuple
+    #
+    #     # case-dependent object-positioning (10,01,11,00)
+    #     # if config is 11 or 00, need to create tempObj-copy of obj and pass that to super
+    #     # if you pass only the same object twice, super will move that one object twice and not create a second object
+    #     # after creating copy, set tempObjUse True, so removeObj() in experiments.py will remove the copy next time
+    #     # ATTENTION! objects is a tuple, don't pass the tuple to super fct! pass the object/s
+    #     #todo discuss how to decode this with maraian
+    #     if self.case == 0:
+    #         self.tempObj = copy.copy(objects[0])
+    #         self.tempObjUse = True
+    #         # self.tempObj.setScale(1, -1, 1)
+    #         # self.tempObj.setAttrib(CullFaceAttrib.makeReverse())
+    #         super(Lr, self).setObjects(objects[0], self.tempObj)
+    #
+    #     elif self.case == 2:
+    #         super(Lr, self).setObjects(objects[0], objects[1])
+    #
+    #     elif self.case == 1:
+    #         super(Lr, self).setObjects(objects[1], objects[0])
+    #
+    #     elif self.case == 3:
+    #         self.tempObj = copy.copy(objects[1])
+    #         super(Lr, self).setObjects(objects[1], self.tempObj)
+    #         # self.tempObj.setScale(1, -1, 1)
+    #         # self.tempObj.setAttrib(CullFaceAttrib.makeReverse())
+    #
+    #         self.tempObjUse = True
+    #     else:
+    #         print "something wrong in setobject of lr"
+
     def setObjects(self, *objects):
         """
         overwrites setObjects in experiments.py
@@ -69,15 +120,15 @@ class Lr(Experiments):
         :param objects: objects to set/move
         """
 
-
         # todo: there are unnecessary variable assignments, clean that
         self.case, self.trial, self.runNum = self.generateCase(self.trial, self.runNum)
 
         self.pos1 = parameters["posL"]
         self.pos2 = parameters["posR"]
-        self.objectPosition = [self.pos1, self.pos2]#at first, objectPosition will always be pos1 and pos2 for flexible
-                                                    # object positioning, even if one instance/object is None.
-                                                    # Position change to None occurs later in super-method.
+        self.objectPosition = [self.pos1,
+                               self.pos2]  # at first, objectPosition will always be pos1 and pos2 for flexible
+        # object positioning, even if one instance/object is None.
+        # Position change to None occurs later in super-method.
 
         self.removeObj(objects)  # remove tempObj, fixes rg-gg-bug and other render-object-bugs, pass tuple
 
@@ -86,26 +137,39 @@ class Lr(Experiments):
         # if you pass only the same object twice, super will move that one object twice and not create a second object
         # after creating copy, set tempObjUse True, so removeObj() in experiments.py will remove the copy next time
         # ATTENTION! objects is a tuple, don't pass the tuple to super fct! pass the object/s
-        #todo discuss how to decode this with maraian
+        # todo discuss how to decode this with maraian
         if self.case == 0:
-            self.tempObj = copy.copy(objects[0])
             self.tempObjUse = True
+            self.tempObj = self.mirrorFlip(objects[0])
             super(Lr, self).setObjects(objects[0], self.tempObj)
 
-        elif self.case == 2:
-            super(Lr, self).setObjects(objects[0], objects[1])
-
         elif self.case == 1:
-            super(Lr, self).setObjects(objects[1], objects[0])
+            self.tempObjUse = True #to remove historical models in node tree
+            self.tempObj= self.mirrorFlip(objects[0])#mirrorflip models to make sure symmetry is maintained
+            super(Lr, self).setObjects(objects[1], self.tempObj)
+
+        elif self.case == 2:
+            self.tempObjUse = True
+            self.tempObj= self.mirrorFlip(objects[1])
+            super(Lr, self).setObjects(objects[0], self.tempObj)
 
         elif self.case == 3:
-            self.tempObj = copy.copy(objects[1])
-            super(Lr, self).setObjects(objects[1], self.tempObj)
             self.tempObjUse = True
+            self.tempObj = self.mirrorFlip(objects[1])
+            super(Lr, self).setObjects(objects[1], self.tempObj)
+
         else:
             print "something wrong in setobject of lr"
 
-# if self.case == 0:
+    def mirrorFlip(self, obj):
+        tempObj = copy.copy(obj)
+        sc = tempObj.getScale()
+        tempObj.setScale(-1 * sc[0], 1 * sc[1], 1 * sc[2])#change the scale of x axis to -1 of the prev scale
+        tempObj.setAttrib(CullFaceAttrib.makeReverse()) #reverse backface culling to make sure things are visible
+
+        return tempObj
+
+        # if self.case == 0:
 #             super(Lr, self).setObjects(objects[1], objects[0])
 #
 #         elif self.case == 1:

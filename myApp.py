@@ -1012,8 +1012,8 @@ class MyApp(ShowBase):
         """
         if (self.keyMap["accelerate"] != 0):
             self.speed += parameters["speedIncrement"]
-            if (self.speed > parameters["maxSpeed"]):
-                self.speed = parameters["maxSpeed"]
+            # if (self.speed > parameters["maxSpeed"]): #removed max pseed use f1 instead
+            #     self.speed = parameters["maxSpeed"]
         elif (self.keyMap["decelerate"] != 0):
             self.speed -= parameters["speedIncrement"]
 
