@@ -11,6 +11,8 @@ elif len(parameters["loadingString"]) == 2:
     from lr import Lr as experiment
 elif parameters["loadingString"] == "gain":
     from gain import Gain as experiment
+elif parameters["loadingString"] == "maze":
+    from maze import Maze as experiment
 
 
 
