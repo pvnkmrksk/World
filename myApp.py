@@ -3,18 +3,23 @@ from __future__ import division #odd issue. Must be on first line else it fails
 from importHelper import *  # file with just a bunch of imports
 
 
-print parameters["loadingString"]
+ls=parameters["loadingString"]
+print ls
 
-if parameters["loadingString"] == "circ":
+if ls == "circ":
     from circ import Circ as experiment
-elif len(parameters["loadingString"]) == 2:
+elif helper.isInt(ls) and len(ls) == 2 : #only if numbers and 2 digits
     from lr import Lr as experiment
-elif parameters["loadingString"] == "gain":
+    ls='lr'
+elif ls == "gain":
     from gain import Gain as experiment
-elif parameters["loadingString"] == "maze":
+elif ls == "maze":
     from maze import Maze as experiment
-
-
+elif ls == "pf":
+    from pf import Pf as experiment
+else:
+    print "experiment non coded, fix typo "
+    sys.exit()
 
 
 # print parameters
@@ -86,7 +91,7 @@ class MyApp(ShowBase):
 
         self.initHardware()
         self.initFeedback()
-        if len(parameters["loadingString"]) == 2:
+        if ls=='lr':
             self.ex.updateOdourField()
 
         # self.ex = experiment(self)
@@ -170,6 +175,10 @@ class MyApp(ShowBase):
         self.valve1Port=97
         self.valve2Port=98
         self.speed=0
+
+        self.pf=None
+        self.overRidePf=False
+        self.mesErrorPrinted=False
         # self.speed=parameters["maxSpeed"]
 
     def initInput(self):
@@ -180,8 +189,11 @@ class MyApp(ShowBase):
             None
         '''
         self.keyboardSetup()
-        self.stimList = self.stimulusListGen()
-        parameters["stimList"] = self.stimList
+        if parameters['imposeStimulus']:
+            self.stimList = self.imposeStimulusListGen()
+            parameters["stimList"] = self.stimList
+        else:
+            self.stimList =None
 
 
 
@@ -687,17 +699,17 @@ class MyApp(ShowBase):
 
         mes.impose = self.stim  # imposed heading rate
 
-        if self.ex.objectPosition[0]:
-            mes.o1Pos = self.ex.objectPosition[0]
-            # mes.o2Pos = self.ex.objectPosition[1]
         try:
-
-            if self.ex.objectPosition[1]:
-                mes.o2Pos = self.ex.objectPosition[1]
-                # mes.object2Pos = self.ex.objectPosition[1]
+            mes.o1Pos = self.ex.objectPosition[0]
+            mes.o2Pos = self.ex.objectPosition[1]
         except:
+
+            if not self.mesErrorPrinted:
+                print "obj missing"
+                self.mesErrorPrinted=True
+            else:
             # print "no 2nd object"
-            pass
+                pass
         # send what the fly's motion caused on heading, negative for ease of view in rqtPlot
         self.currentImposeResponse = -(self.player.getH() - self.prevH - self.stim)
         mes.imposeResponse = self.currentImposeResponse
@@ -724,11 +736,12 @@ class MyApp(ShowBase):
 
         return mes
 
-    #
 
 
 
-    #  frameupdate
+
+
+
     def updateTask(self, task):
         """
         calls all update functions, player, camera and bag control
@@ -747,7 +760,9 @@ class MyApp(ShowBase):
 
 
             self.updatePlayer()
-            # self.updateCamera()
+
+            #calls the experiment update task, will pass on if method not overriden
+            self.ex.frameUpdateTask()
 
 
             if parameters["loadWind"]:
@@ -758,16 +773,13 @@ class MyApp(ShowBase):
                 # self.windTunnel(parameters["windDirection"])
 
             #
-            if parameters["loadOdour"]:
-                self.valve1State=self.haw.update(self.packetDur)
-                self.valve2State=self.apple.update(self.packetDur)
-            #
-            #
+            if parameters["loadOdour"] or self.ex.loadOdour:
+                self.valve1State=self.haw.update(self.packetDur,pf=self.pf,overRidePf=self.overRidePf)
+                self.valve2State=self.apple.update(self.packetDur,pf=self.pf,overRidePf=self.overRidePf)
+
             self.valve1.move(self.valve1State)
             self.valve2.move(self.valve2State)
 
-            # self.publisher(self.message())
-            # self.reset = False
         else:
 
             """
@@ -807,96 +819,6 @@ class MyApp(ShowBase):
 
 
 
-
-
-
-
-    def keyHandler(self):
-        if self.keyMap["packetDur-down"] != 0:
-            self.packetDur -= 0.0001
-            print "packetDur is now", self.packetDur
-        if self.keyMap["packetDur-up"] != 0:
-            self.packetDur += 0.0001
-            print "packetDur is now", self.packetDur
-
-        # update user controlled valve state
-        """
-        The valve is controlled via servo code itself. The servo 99 case changes digital state of pin 13
-
-        """
-        if (self.keyMap["valve1-on"] != 0):
-            self.valve1State = 1
-        if (self.keyMap["valve1-off"] != 0):
-            self.valve1State = 0
-        if (self.keyMap["valve2-on"] != 0):
-            self.valve2State = 1
-        if (self.keyMap["valve2-off"] != 0):
-            self.valve2State = 0
-        if (self.keyMap["resetPos"] != 0):
-            self.ex.resetPosition()
-            self.keyMap["resetPos"] =0
-
-        if (self.keyMap["a-up"] != 0):
-            parameters["minWbas"] += parameters["DCoffsetIncrement"]
-            print "wbas scalers is ", parameters["minWbas"]
-
-        if (self.keyMap["a-down"] != 0):
-            parameters["minWbas"] -= parameters["DCoffsetIncrement"]
-            print "wbas scalers is ", parameters["minWbas"]
-
-        if (self.keyMap["b-up"] != 0):
-            parameters["maxWbas"] += parameters["DCoffsetIncrement"]
-            print "wbas scalers is ", parameters["maxWbas"]
-
-        if (self.keyMap["b-down"] != 0):
-            parameters["maxWbas"] -= parameters["DCoffsetIncrement"]
-            print "wbas scalers is ", parameters["maxWbas"]
-
-        if (self.keyMap["c-up"] != 0):
-            parameters["minFlightSpeed"] += parameters["DCoffsetIncrement"]
-            print "speed scalers is ", parameters["minFlightSpeed"]
-
-        if (self.keyMap["c-down"] != 0):
-            parameters["minFlightSpeed"] -= parameters["DCoffsetIncrement"]
-            print "speed scalers is ", parameters["minFlightSpeed"]
-
-        if (self.keyMap["d-up"] != 0):
-            parameters["maxFlightSpeed"] += parameters["DCoffsetIncrement"]
-            print "speed scalers is ", parameters["maxFlightSpeed"]
-
-        if (self.keyMap["d-down"] != 0):
-            parameters["maxFlightSpeed"] -= parameters["DCoffsetIncrement"]
-            print "speed scalers is ", parameters["maxFlightSpeed"]
-
-        if (self.keyMap["startEx"] != 0):
-            self.ex.runNum = np.NaN
-            self.ex.trial = np.NaN
-            self.speed=0
-            self.startBag()
-            time.sleep(3)
-            self.setFullSpeed()
-            self.ex.startExperiment()
-
-            self.keyMap['startEx'] = 0
-
-        if (self.keyMap["badFly"] != 0):
-            self.ex.badFly()
-            self.keyMap['badFly'] = 0
-
-        if (self.keyMap["goodFly"] != 0):
-            self.ex.goodFly()
-            self.keyMap['goodFly'] = 0
-
-        if (self.keyMap["fullSpeed"] !=0):
-            self.setFullSpeed()
-            self.keyMap["fullSpeed"] = 0
-
-
-    def setFullSpeed(self):
-        self.speed=parameters["maxSpeed"]
-        print "Full Speed"
-
-
     def updatePlayer(self):
             """
         tries to replay past poshpr, else updates it using wbad
@@ -924,7 +846,7 @@ class MyApp(ShowBase):
             # panda runs as fast as it can frame to frame
             # scalefactor = self.speed/parameters['fps']# * (globalClock.getDt())
             climbfactor = 0.008
-            bankfactor = 1
+            bankfactor = 2
             parameters["wbad"] = self.wbad
             parameters["wbas"] = self.wbas
 
@@ -1017,13 +939,12 @@ class MyApp(ShowBase):
 
             # throttle control
             """
-            this updates the speed until top speed
+            this updates the speed
             handbrake sets speed to zero
             """
             if (self.keyMap["accelerate"] != 0):
                 self.speed += parameters["speedIncrement"]
-                if (self.speed > parameters["maxSpeed"]):
-                    self.speed = parameters["maxSpeed"]
+
             elif (self.keyMap["decelerate"] != 0):
                 self.speed -= parameters["speedIncrement"]
 
@@ -1371,7 +1292,97 @@ class MyApp(ShowBase):
         #
         #     self.replayFrame += parameters["playbackIncrement"]
 
-    def stimulusListGen(self, ):
+
+
+
+    def keyHandler(self):
+        if self.keyMap["packetDur-down"] != 0:
+            self.packetDur -= 0.0001
+            print "packetDur is now", self.packetDur
+        if self.keyMap["packetDur-up"] != 0:
+            self.packetDur += 0.0001
+            print "packetDur is now", self.packetDur
+
+        # update user controlled valve state
+        """
+        The valve is controlled via servo code itself. The servo 99 case changes digital state of pin 13
+
+        """
+        if (self.keyMap["valve1-on"] != 0):
+            self.valve1State = 1
+        if (self.keyMap["valve1-off"] != 0):
+            self.valve1State = 0
+        if (self.keyMap["valve2-on"] != 0):
+            self.valve2State = 1
+        if (self.keyMap["valve2-off"] != 0):
+            self.valve2State = 0
+        if (self.keyMap["resetPos"] != 0):
+            self.ex.resetPosition()
+            self.keyMap["resetPos"] =0
+
+        if (self.keyMap["a-up"] != 0):
+            parameters["minWbas"] += parameters["DCoffsetIncrement"]
+            print "wbas scalers is ", parameters["minWbas"]
+
+        if (self.keyMap["a-down"] != 0):
+            parameters["minWbas"] -= parameters["DCoffsetIncrement"]
+            print "wbas scalers is ", parameters["minWbas"]
+
+        if (self.keyMap["b-up"] != 0):
+            parameters["maxWbas"] += parameters["DCoffsetIncrement"]
+            print "wbas scalers is ", parameters["maxWbas"]
+
+        if (self.keyMap["b-down"] != 0):
+            parameters["maxWbas"] -= parameters["DCoffsetIncrement"]
+            print "wbas scalers is ", parameters["maxWbas"]
+
+        if (self.keyMap["c-up"] != 0):
+            parameters["minFlightSpeed"] += parameters["DCoffsetIncrement"]
+            print "speed scalers is ", parameters["minFlightSpeed"]
+
+        if (self.keyMap["c-down"] != 0):
+            parameters["minFlightSpeed"] -= parameters["DCoffsetIncrement"]
+            print "speed scalers is ", parameters["minFlightSpeed"]
+
+        if (self.keyMap["d-up"] != 0):
+            parameters["maxFlightSpeed"] += parameters["DCoffsetIncrement"]
+            print "speed scalers is ", parameters["maxFlightSpeed"]
+
+        if (self.keyMap["d-down"] != 0):
+            parameters["maxFlightSpeed"] -= parameters["DCoffsetIncrement"]
+            print "speed scalers is ", parameters["maxFlightSpeed"]
+
+        if (self.keyMap["startEx"] != 0):
+            self.ex.runNum = np.NaN
+            self.ex.trial = np.NaN
+            self.speed=0
+            self.startBag()
+            time.sleep(3)
+            self.setFullSpeed()
+            self.ex.startExperiment()
+
+            self.keyMap['startEx'] = 0
+
+        if (self.keyMap["badFly"] != 0):
+            self.ex.badFly()
+            self.keyMap['badFly'] = 0
+
+        if (self.keyMap["goodFly"] != 0):
+            self.ex.goodFly()
+            self.keyMap['goodFly'] = 0
+
+        if (self.keyMap["fullSpeed"] !=0):
+            self.setFullSpeed()
+            self.keyMap["fullSpeed"] = 0
+
+
+    def setFullSpeed(self):
+        self.speed=parameters["maxSpeed"]
+        print "Full Speed"
+
+
+
+    def imposeStimulusListGen(self, ):
         """
         If stepMode is true, the stimulus will have than many steps
          Else it calculates, the number of steps needed to reach Start to stop in step ratio of factorDur

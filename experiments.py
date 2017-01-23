@@ -23,6 +23,9 @@ class Experiments(object):
         self.isFlying = True
         self.replay = parameters["replayWorld"]
 
+
+        self.loadOdour=False
+
     def getObjects(self, objPath, objScale):
         """
         calls getObjects from environment.py
@@ -185,7 +188,7 @@ class Experiments(object):
                 trial = 1
                 runNum += 1
                 print "runNum:", runNum
-                self.idxArr = helper.randIndexArray(4, parameters["randPos"])
+                self.idxArr = helper.randIndexArray(parameters["numObj"], parameters["randPos"])
                 print "idxArr:", self.idxArr
                 case = self.idxArr[trial - 1]
                 print "trial:", trial
@@ -207,6 +210,15 @@ class Experiments(object):
         self.trial = trial
         self.runNum = runNum
 
+
+    def frameUpdateTask(self):
+        '''
+        Does nothing at root, can be overrided if needed,
+        Will ideally be called in updateTask to run once a frame
+        Returns:
+
+        '''
+        pass
 
 
 

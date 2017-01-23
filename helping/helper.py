@@ -37,7 +37,12 @@ def paramsFromGUI():
 
     return parameters
 
-
+def isInt(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
 
 def clamp(n, minn, maxn):
     """

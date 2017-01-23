@@ -23,7 +23,7 @@ def nextStim(event):
 #
 def nextFrame(event):
     root.after_idle(do_one_iteration)
-    # print s.nextFrame()
+    # print s.nextStimFrame()
     # print "pressed", repr(event.char)
 #
 def callback(event):
@@ -41,6 +41,6 @@ frame.bind("<Button-1>", callback)
 frame.pack()
 
 def do_one_iteration():
-    s.nextFrame()
+    s.nextStimFrame()
     root.after(6,do_one_iteration)
 root.mainloop()
