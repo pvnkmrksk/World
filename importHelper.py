@@ -12,7 +12,7 @@ from classes.tunnel import WindTunnel
 from classes.stimulus import Stimulus
 # import servo
 from helping import helper
-
+import fractions
 
 from datetime import datetime
 import sys, time, subprocess, os, serial  # ROS imports

@@ -7,18 +7,23 @@ class Stimulus(object):
         self.preStim=preStim
         self.stimDur=stimDur
         self.preStimDur=preStimDur
-        self.currentIndex=0
         self.fps=fps
-        self.currentFrame = 0
         self.genTimeSeries=genTimeSeries
-        self.timeSeries=self.tsg()
+
+        self.currentIndex=0
+        self.currentFrame = 0
+        self.tsg()#timeSeriesGen and assignment
 
     def stimDfGen(self,stimList,nReps,mode,genTimeSeries,stimDur,fps):
         self.stimDf=pd.DataFrame(columns=['trial','stimList','timeSeries'])
 
     def tsg(self):
-        ts=self.timeSeriesGen(self.preStim,self.currentStim(),self.preStimDur,self.stimDur,self.fps,self.genTimeSeries)
-        return ts
+        '''
+        timeSeriesGen tsg calls the standard tsg with the standard params and assigns to object variables
+        Returns:
+
+        '''
+        self.timeSeries,self.timeSeriesState=self.timeSeriesGen(self.preStim,self.currentStim(),self.preStimDur,self.stimDur,self.fps,self.genTimeSeries)
 
     def stimListGen(self,stimList,nReps,mode):
         if mode=='randomRep':
@@ -34,19 +39,23 @@ class Stimulus(object):
     def timeSeriesGen(self,preStim,stim,preStimDur,stimDur,fps,genTimeSeries):
         if genTimeSeries:
             self.currentFrame=0
-            ts = np.append(np.tile(preStim, int(preStimDur * fps)), np.tile(stim, int((stimDur - preStimDur) * fps)))
-            return ts
+            ts = np.append(np.tile(preStim, int(preStimDur * fps)), np.tile(stim, int((stimDur) * fps)))
+
+            #timeseries state is -1 during pre stim and stimpf during stimulus
+            tsState = np.append(np.tile(-1, int(preStimDur * fps)), np.tile(stim, int((stimDur) * fps)))
+
+            return ts,tsState
         else:
-            return None
+            return None,None
 
 
     def nextStim(self):
         self.currentIndex+=1
         try:
-            self.timeSeries = self.tsg()
+            self.tsg()
         except IndexError:
             print "stim Complete"
-            return None
+            raise
         print "\n\nthe Stim right now is",self.currentStim()
         return self.currentStim()
 
@@ -54,7 +63,8 @@ class Stimulus(object):
         try:
             cs=self.stimList[self.currentIndex]
         except IndexError:
-            print 'stim Complete'
+            print 'cstim Complete'
+            raise #sends a reset event exception upostream
             self.currentIndex=0
             return self.currentStim() #recursion baby!
         return cs
@@ -62,7 +72,7 @@ class Stimulus(object):
     def previousStim(self):
         self.currentIndex-=1
         try:
-            self.timeSeries = self.tsg()
+            self.tsg()
         except IndexError:
             print "stim complete"
             return None
@@ -71,14 +81,14 @@ class Stimulus(object):
 
         # pass
     def repeatCurrentStim(self):
-        self.timeSeries=self.tsg()
+        self.tsg()
 
         return self.currentStim()
 
         # pass
     def restartStim(self):
         self.currentIndex=0
-        self.timeSeries=self.tsg()
+        self.tsg()
 
         return self.currentStim()
         # pass
@@ -88,7 +98,9 @@ class Stimulus(object):
         if self.timeSeriesGen:
             try:
                 cf=self.timeSeries[self.currentFrame]
+                self.stimState=self.timeSeriesState[self.currentFrame]
                 self.currentFrame+=1
+
             except IndexError:
                 self.nextStim()
                 cf=self.timeSeries[self.currentFrame]

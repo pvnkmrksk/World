@@ -178,6 +178,8 @@ class Experiments(object):
             try:
                 # get case from idxArr, dependent on trial number
                 case = self.idxArr[trial-1]
+                print "runNum:", runNum
+
                 print "trial: ", trial
                 print "case:", case
                 return case, trial, runNum

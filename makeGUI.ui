@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>736</width>
-    <height>772</height>
+    <width>752</width>
+    <height>767</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,14 +17,14 @@
    <layout class="QGridLayout" name="gridLayout_2">
     <item row="1" column="0">
      <layout class="QGridLayout" name="gridLayout_9">
-      <item row="2" column="0">
+      <item row="3" column="0">
        <widget class="QPushButton" name="camParamBtn">
         <property name="text">
          <string>Camera Parameters</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="1">
+      <item row="4" column="1">
        <widget class="QPushButton" name="startVRBtn">
         <property name="text">
          <string>START VR</string>
@@ -34,7 +34,7 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="0">
+      <item row="4" column="0">
        <widget class="QPushButton" name="stopVRBtn">
         <property name="text">
          <string>STOP VR</string>
@@ -48,7 +48,7 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
+      <item row="3" column="1">
        <widget class="QPushButton" name="wbadBtn">
         <property name="text">
          <string>Wing Beat Analyser</string>
@@ -58,7 +58,7 @@
       <item row="0" column="0" colspan="2">
        <widget class="QTabWidget" name="tabWidget">
         <property name="currentIndex">
-         <number>4</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="tab">
          <attribute name="title">
@@ -82,13 +82,6 @@
             </item>
             <item row="2" column="5">
              <widget class="QDoubleSpinBox" name="maxSpeed"/>
-            </item>
-            <item row="0" column="5" rowspan="2">
-             <widget class="QSpinBox" name="fps">
-              <property name="maximum">
-               <number>999</number>
-              </property>
-             </widget>
             </item>
             <item row="0" column="0">
              <widget class="QCheckBox" name="loadOdour">
@@ -154,7 +147,7 @@
                <bool>true</bool>
               </property>
               <property name="currentIndex">
-               <number>0</number>
+               <number>1</number>
               </property>
               <widget class="QWidget" name="tabWidgetPage1">
                <attribute name="title">
@@ -388,6 +381,128 @@
                 </layout>
                </widget>
               </widget>
+              <widget class="QWidget" name="tab_5">
+               <attribute name="title">
+                <string>pf</string>
+               </attribute>
+               <layout class="QGridLayout" name="gridLayout_11">
+                <item row="0" column="0">
+                 <widget class="QGroupBox" name="groupBox_11">
+                  <property name="title">
+                   <string/>
+                  </property>
+                  <layout class="QGridLayout" name="gridLayout_12">
+                   <item row="0" column="0">
+                    <widget class="QLineEdit" name="pfStimList">
+                     <property name="toolTip">
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add &lt;span style=&quot; font-weight:600;&quot;&gt;4 &lt;/span&gt;items&lt;/p&gt;&lt;p&gt;[0, 0, 0, 0]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     </property>
+                     <property name="text">
+                      <string>[16,4,1,0.25]</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QSpinBox" name="pfPreStim"/>
+                   </item>
+                   <item row="1" column="1">
+                    <widget class="QLabel" name="label_27">
+                     <property name="text">
+                      <string>pfPreStim</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="0">
+                    <widget class="QDoubleSpinBox" name="pfPreStimDur">
+                     <property name="value">
+                      <double>5.000000000000000</double>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="1">
+                    <widget class="QLabel" name="label_28">
+                     <property name="text">
+                      <string>pfPreStimDur</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="0">
+                    <widget class="QDoubleSpinBox" name="pfStimDur">
+                     <property name="maximum">
+                      <double>9999.000000000000000</double>
+                     </property>
+                     <property name="value">
+                      <double>5.000000000000000</double>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="1">
+                    <widget class="QLabel" name="pfStimDur_2">
+                     <property name="text">
+                      <string>pfStimDur</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="0">
+                    <widget class="QCheckBox" name="pfGenTimeSeries">
+                     <property name="text">
+                      <string>genTimeSeries</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="0">
+                    <widget class="QSpinBox" name="pfNReps">
+                     <property name="maximum">
+                      <number>999</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="1">
+                    <widget class="QLabel" name="label_159">
+                     <property name="text">
+                      <string>nReps</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="6" column="0">
+                    <widget class="QComboBox" name="pfMode">
+                     <item>
+                      <property name="text">
+                       <string>ordered</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>randomRep</string>
+                      </property>
+                     </item>
+                    </widget>
+                   </item>
+                   <item row="0" column="1">
+                    <widget class="QLabel" name="label_26">
+                     <property name="text">
+                      <string>pfStimList</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="6" column="1">
+                    <widget class="QLabel" name="label_160">
+                     <property name="text">
+                      <string>mode</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+               </layout>
+               <zorder>label_158</zorder>
+               <zorder>fps</zorder>
+               <zorder>groupBox_11</zorder>
+              </widget>
               <widget class="QWidget" name="tabWidgetPage2">
                <attribute name="title">
                 <string>Wind</string>
@@ -463,6 +578,13 @@
                 </item>
                </layout>
               </widget>
+             </widget>
+            </item>
+            <item row="0" column="5" rowspan="2">
+             <widget class="QSpinBox" name="fps">
+              <property name="maximum">
+               <number>999</number>
+              </property>
              </widget>
             </item>
             <item row="0" column="6" rowspan="2">
@@ -1951,6 +2073,13 @@
         </widget>
        </widget>
       </item>
+      <item row="2" column="0">
+       <widget class="QPushButton" name="rqtBtn">
+        <property name="text">
+         <string>RQT plot</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
    </layout>
@@ -1960,7 +2089,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>736</width>
+     <width>752</width>
      <height>25</height>
     </rect>
    </property>

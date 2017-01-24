@@ -9,7 +9,7 @@ import ast
 import subprocess
 import signal
 import rostopic
-
+from importHelper import *
 from PyQt4.Qwt5.Qwt import QwtCompass, QwtDial
 import pyqtgraph as pg
 from World.msg import MsgTrajectory
@@ -83,14 +83,34 @@ def saveSettings(win, path):
         text = str(text)
         try:
             if ('[' and ']') in text: #if lineEdit returns [] convert to list
-                text = ast.literal_eval(text)
+
+                #if there is a fraction representation, converts it to float
+                if '/' in text:
+
+                    #first convert the string such that, the elements are shielded by ast eval as a string
+                    #  as ast eval will cough up malformed string
+                    text=text.replace('[', "['").replace(',', "','").replace(']', "']")
+
+                    #then convert the string to a list with ast eval, with the fractions treated as strings
+                    text=ast.literal_eval(text)
+
+                    #now convert the string fractions into a fraction then to a float
+                    text=[float(fractions.Fraction(x)) for x in text]
+
+                    #Yay, now we have parsed the string of list rep into an actual list
+
+                else:#if not a fraction contatining list
+                    text = ast.literal_eval(text)
+
             elif ('(' and ')') in text:#if lineEdit returns () convert to list
                 text = ast.literal_eval(text)
+            else :
+                pass#non list tuple items
+                # print 'what have you entered here?',text
         except Exception as e:
             ui.statusbar.showMessage('Error')#todo: better message
             print "error is",e
             showError('list gone wrong')
-
         settings[str(name)] = text
 
     for item in slider: #sliders
@@ -300,6 +320,10 @@ def startVR():
     procVR=subprocess.Popen(['python', 'main.py'])
     ui.tabWidget.setCurrentIndex(5)
 
+def startRqt():
+    global procRqt
+    procRqt=subprocess.Popen(['rqt_plot'])
+
     #showError("VR is not available")
 def stopVR():
     procVR.kill()
@@ -442,6 +466,7 @@ if __name__ == '__main__':
     ui.stopVRBtn.clicked.connect(lambda: stopVR())
     ui.camParamBtn.clicked.connect(lambda: startCameraParam())
     ui.wbadBtn.clicked.connect(lambda: startWbad())
+    ui.rqtBtn.clicked.connect(lambda: startRqt())
     ui.resetView.clicked.connect(lambda :resetView())
     ui.clearPlot.clicked.connect(lambda :clearPlot())
 

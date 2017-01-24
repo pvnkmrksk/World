@@ -29,6 +29,8 @@ float64 imposeHeading
 float64 imposeResponseHeading
 float64 compensation
 
+float64 pfStimState
+
 geometry_msgs/Vector3 o1Pos
 geometry_msgs/Vector3 o2Pos
 

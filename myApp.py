@@ -179,6 +179,10 @@ class MyApp(ShowBase):
         self.pf=None
         self.overRidePf=False
         self.mesErrorPrinted=False
+
+        if ls=='pf':
+            # parameters["maxBoutDur"]=0
+            self.maxBoutDur=0
         # self.speed=parameters["maxSpeed"]
 
     def initInput(self):
@@ -690,14 +694,7 @@ class MyApp(ShowBase):
         mes.DCoffset = parameters["DCoffset"]
         mes.packetFrequency = self.apple.pf
         mes.packetDuration = self.packetDur
-        """
-        Recreate heading as though the fly did nothing
-        This is done by cumulative sum of just imposed turns
-        imposedCurrentH is the initial sum=0. As stim is imposed, it adds on
-        to make the imposeHeading
-        """
 
-        mes.impose = self.stim  # imposed heading rate
 
         try:
             mes.o1Pos = self.ex.objectPosition[0]
@@ -706,31 +703,44 @@ class MyApp(ShowBase):
 
             if not self.mesErrorPrinted:
                 print "obj missing"
-                self.mesErrorPrinted=True
+                self.mesErrorPrinted = True
             else:
-            # print "no 2nd object"
+                # print "no 2nd object"
                 pass
-        # send what the fly's motion caused on heading, negative for ease of view in rqtPlot
-        self.currentImposeResponse = -(self.player.getH() - self.prevH - self.stim)
-        mes.imposeResponse = self.currentImposeResponse
-        # self.imposeResponseArr=np.append(self.imposeResponseArr,mes.imposeResponse)
-        self.prevH = self.player.getH()
 
-        # mes.imposeResponseSmooth=np.mean(self.imposeResponseArr[-self.bin:])
+        if ls=='pf':
+            mes.pfStimState=self.ex.stimulus.stimState #-1 when preStim, stim pf during stim
+        """
+        Recreate heading as though the fly did nothing
+        This is done by cumulative sum of just imposed turns
+        imposedCurrentH is the initial sum=0. As stim is imposed, it adds on
+        to make the imposeHeading
+        """
+
+        if parameters["imposeStimulus"]:
+            mes.impose = self.stim  # imposed heading rate
+
+            # send what the fly's motion caused on heading, negative for ease of view in rqtPlot
+            self.currentImposeResponse = -(self.player.getH() - self.prevH - self.stim)
+            mes.imposeResponse = self.currentImposeResponse
+            # self.imposeResponseArr=np.append(self.imposeResponseArr,mes.imposeResponse)
+            self.prevH = self.player.getH()
+
+            # mes.imposeResponseSmooth=np.mean(self.imposeResponseArr[-self.bin:])
 
 
-        mes.imposeHeading = self.imposedCurrentH + self.stim
-        self.imposedCurrentH = mes.imposeHeading  # copy of the current value for the next frame
+            mes.imposeHeading = self.imposedCurrentH + self.stim
+            self.imposedCurrentH = mes.imposeHeading  # copy of the current value for the next frame
 
-        if self.prevStim == 0 and self.stim != 0:
-            self.prevImposeResponse = 0  # pull to zero to remove DC drift
-        mes.imposeResponseHeading = self.currentImposeResponse + self.prevImposeResponse
-        self.prevImposeResponse = mes.imposeResponseHeading
-        # mes.imposeResponse = self.currentImposeResponse  # send what the fly's motion caused on heading
-        # mes.headingMod = self.headingMod
-        # mes.headingResponseMod = self.headingResponseMod
-        mes.compensation = mes.impose - mes.imposeResponse
-        self.prevStim = self.stim
+            if self.prevStim == 0 and self.stim != 0:
+                self.prevImposeResponse = 0  # pull to zero to remove DC drift
+            mes.imposeResponseHeading = self.currentImposeResponse + self.prevImposeResponse
+            self.prevImposeResponse = mes.imposeResponseHeading
+            # mes.imposeResponse = self.currentImposeResponse  # send what the fly's motion caused on heading
+            # mes.headingMod = self.headingMod
+            # mes.headingResponseMod = self.headingResponseMod
+            mes.compensation = mes.impose - mes.imposeResponse
+            self.prevStim = self.stim
 
 
 
