@@ -1,8 +1,10 @@
-from experiments import Experiments
-from helping import helper
 import copy
-from importHelper import * # that is super dirty, please import only needed stuff
-class Maze(Experiments):
+
+from classes.experiment import Experiment
+from helping.importHelper import * # that is super dirty, please import only needed stuff
+
+
+class Maze(Experiment):
 
     def __init__(self, showbase, parameters,objPath1=parameters["object1"],
                  objScale1=parameters["obj1Scale"], loadingString=parameters["loadingString"]):

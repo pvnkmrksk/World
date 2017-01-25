@@ -1,24 +1,18 @@
-import sys, os, rospy, time
-import json_tricks as json
-from PyQt4.QtGui import QApplication, QMainWindow
-from makeGUI import Ui_RhagGUI
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtCore import QTimer
-from PyQt4.Qwt5 import Qwt
-import ast
-import subprocess
+import ast,os,sys
 import signal
-import rostopic
-from importHelper import *
-from PyQt4.Qwt5.Qwt import QwtCompass, QwtDial
+from PyQt4 import QtCore, QtGui
+from PyQt4.Qwt5 import Qwt
+
 import pyqtgraph as pg
-from World.msg import MsgTrajectory
+from GUI.makeGUI import Ui_RhagGUI
+from PyQt4.QtCore import QTimer
+from PyQt4.QtGui import QApplication, QMainWindow
 from classes.rosSubscriber import RosSubscriber
-from helping.helper import clamp
+from helping.importHelper import *
 from pathlib import Path
-import numpy as np
+
 pathRun=os.path.abspath(os.path.split(sys.argv[0])[0]) #path of the runfile
-pathJson= pathRun + '/jsonFiles/'
+pathJson= pathRun + '/GUI/jsonFiles/'
 pathModel = pathRun + '/models/'
 jsonDefault= pathJson + 'default.json' #path of 'default.json' #default .json-file
 jsonRecent= pathJson + 'recent.json'

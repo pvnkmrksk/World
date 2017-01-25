@@ -12,6 +12,7 @@ class Stimulus(object):
 
         self.currentIndex=0
         self.currentFrame = 0
+        self.prevStimState=None
         self.tsg()#timeSeriesGen and assignment
 
     def stimDfGen(self,stimList,nReps,mode,genTimeSeries,stimDur,fps):
@@ -99,17 +100,32 @@ class Stimulus(object):
             try:
                 cf=self.timeSeries[self.currentFrame]
                 self.stimState=self.timeSeriesState[self.currentFrame]
+
+                #
+                if self.prevStimState!=-1 and self.stimState==-1:
+                    self.prevStimState = self.stimState
+                    raise NextPreStimStartException
+
+                elif self.prevStimState==-1 and self.stimState!=-1:
+                    self.prevStimState = self.stimState #reset it now, else will be in endlessloop of raised exception
+                    raise NextStimStartException
+
+                self.prevStimState=self.stimState
                 self.currentFrame+=1
 
             except IndexError:
                 self.nextStim()
                 cf=self.timeSeries[self.currentFrame]
+                # raise NextStimStartException
 
             return cf
         else:
             return None
 
-
+class NextStimStartException(Exception):
+    pass
+class NextPreStimStartException(Exception):
+    pass
 
 if __name__ =='__main__':
 

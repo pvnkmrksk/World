@@ -125,8 +125,8 @@ class BagControl():
 
     def metadataGen(self):
         file = open(__file__, 'r')
-        servo = open("servo.py", 'r')
-        arduino = open("servoControl/servoControl.ino", 'r')
+        # servo = open("servo.py", 'r')
+        # arduino = open("servoControl/servoControl.ino", 'r')
         # bam = open(app.worldFilename)
 
 

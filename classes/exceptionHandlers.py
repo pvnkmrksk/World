@@ -1,17 +1,20 @@
-import pandas as pd
-import serial
-import rostopic
+import json
 import subprocess
 import time
-import json
+
+import pandas as pd
+import rostopic
+import serial
 from classes.valveHandler import ValveHandler
+
+
 class ExceptionHandlers():
 
     def __init__(self,parameters):
         self.parameters=parameters
         # self.exceptionGUI()
         # self.exceptionReplay()
-        self.exceptionArduino()
+        # self.exceptionArduino()
         self.exceptionROS()
 
     def exceptionGUI(self):
@@ -68,13 +71,13 @@ class ExceptionHandlers():
             self.parameters["playbackIncrement"] = increment
 
             return self.parameters
-    def exceptionArduino(self):
-        # check if arduino servo is connected
-        try:
-            import servo
-        except serial.serialutil.SerialException:
-            self.parameters["loadWind"] = False
-            print ("\n \n \n servo disabled \n \n \n")
+    # def exceptionArduino(self):
+    #     # check if arduino servo is connected
+    #     try:
+    #         from tbd import servo
+    #     except serial.serialutil.SerialException:
+    #         self.parameters["loadWind"] = False
+    #         print ("\n \n \n servo disabled \n \n \n")
     def exceptionROS(self):
         # Checkif rosmaster is running else run roscore
         try:

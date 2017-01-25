@@ -1,5 +1,6 @@
-import __main__ as myApp
-from importHelper import datetime, helper
+import __main__ as myApp #todo what is this
+
+from helping.importHelper import datetime, helper
 parameters = helper.paramsFromGUI()
 
 class Player():

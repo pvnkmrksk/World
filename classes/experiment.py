@@ -1,8 +1,9 @@
 from environment import *
-from playerCon import Player
-from importHelper import helper
+from helping.importHelper import helper
+from player import Player
 
-class Experiments(object):
+
+class Experiment(object):
 
     def __init__(self, showbase, parameters):
 
@@ -11,7 +12,7 @@ class Experiments(object):
         self.obj = Object(showbase)  # new object-handler from environment.py
         self.terrain = Terrain(showbase)  # new terrain-handler from environment.py
         self.sky = Sky(showbase)  # new sky- and -light-handler from environment.py
-        self.player = Player(showbase)  # new player-handler from playerCon.py
+        self.player = Player(showbase)  # new player-handler from player.py
         self.objectPosition = None  # list of positions of objects
         self.world = None  # the terrain-object, used by player-positioning etc.
         self.newPos = parameters["playerInitPos"]  # player Position
@@ -22,8 +23,6 @@ class Experiments(object):
         self.case = 0
         self.isFlying = True
         self.replay = parameters["replayWorld"]
-
-
         self.loadOdour=False
 
     def getObjects(self, objPath, objScale):
@@ -78,6 +77,7 @@ class Experiments(object):
         """
 
         if not self.replay:
+            print 'i am getting reset'
             self.player.resetPos(self.newPos)
             self.trial += 1
             return self.newPos
@@ -99,7 +99,7 @@ class Experiments(object):
 
     def reachedDestination(self):
         """
-        calls reachedDestination in playerCon.py
+        calls reachedDestination in player.py
         gets called in myApp.py
         checks every frame if player is in bbox at objPos
         :return: True in case player is at objPos, False if not
@@ -126,6 +126,8 @@ class Experiments(object):
             self.objectPosition[idx] = pos
 
     def removeObj(self, obj):
+        # todo: call this in experiments setObjects? and not in experiment classes?
+
         """
         :param: obj, object ro remove/derender
         detaches render nodes from objects
@@ -173,7 +175,22 @@ class Experiments(object):
         self.retryPosition()
         print "isFlying:", self.isFlying
 
-    def generateCase(self, trial, runNum):
+    def generateCase(self, trial, runNum, addArrNum=0):
+        """
+
+        Args:
+            trial: pass the current trial number
+            runNum: pass the current runNum
+            addArrNum: value to add to randIndexArr if number of cases has to be bigger than number of objects
+            (ie. negative control in Circ)
+        Gets the new case out of self.idxArr, depending on the current trial. If the array is finished, it sets
+        trial to 1, increases the runNum, creates a new idxArr and gets the new case out of that new array.
+        If world is in replay mode, it only prints and returns the stored values.
+
+        Returns: new case old/new trial, old/new runNum
+
+        """
+
         if not self.replay:
             try:
                 # get case from idxArr, dependent on trial number
@@ -190,7 +207,7 @@ class Experiments(object):
                 trial = 1
                 runNum += 1
                 print "runNum:", runNum
-                self.idxArr = helper.randIndexArray(parameters["numObj"], parameters["randPos"])
+                self.idxArr = helper.randIndexArray(parameters["numObj"]+addArrNum, parameters["randPos"])
                 print "idxArr:", self.idxArr
                 case = self.idxArr[trial - 1]
                 print "trial:", trial
@@ -207,10 +224,10 @@ class Experiments(object):
             return case, trial, runNum
 
 
-    def replayUpdate(self, case, trial, runNum):
-        self.case = case
-        self.trial = trial
-        self.runNum = runNum
+    # def replayUpdate(self, case, trial, runNum):
+    #     self.case = case
+    #     self.trial = trial
+    #     self.runNum = runNum
 
 
     def frameUpdateTask(self):

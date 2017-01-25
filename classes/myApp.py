@@ -1,22 +1,22 @@
 #!/usr/bin/env python
 from __future__ import division #odd issue. Must be on first line else it fails
-from importHelper import *  # file with just a bunch of imports
 
+from helping.importHelper import *  # file with just a bunch of imports
 
 ls=parameters["loadingString"]
 print ls
 
 if ls == "circ":
-    from circ import Circ as experiment
+    from exprmts.circ import Circ as experiment
 elif helper.isInt(ls) and len(ls) == 2 : #only if numbers and 2 digits
-    from lr import Lr as experiment
+    from exprmts.lr import Lr as experiment
     ls='lr'
 elif ls == "gain":
-    from gain import Gain as experiment
+    from exprmts.gain import Gain as experiment
 elif ls == "maze":
-    from maze import Maze as experiment
+    from exprmts.maze import Maze as experiment
 elif ls == "pf":
-    from pf import Pf as experiment
+    from exprmts.pf import Pf as experiment
 else:
     print "experiment non coded, fix typo "
     sys.exit()
@@ -264,7 +264,7 @@ class MyApp(ShowBase):
                                                     oq=parameters['odourQuad'], plot=parameters['plotOdourQuad'])
 
 
-        self.haw= OdourTunnel(odourField=self.odourField,player=self.player,parameters=parameters,phase=150)
+        self.haw= OdourTunnel(odourField=self.odourField,player=self.player,parameters=parameters)
         self.apple= OdourTunnel(odourField=self.odourField,player=self.player,parameters=parameters)
 
 

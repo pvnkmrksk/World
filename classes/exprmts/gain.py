@@ -1,10 +1,10 @@
-from experiments import Experiments
-from helping import helper
-from panda3d.core import Shader
 from classes import stimulus
+from classes.experiment import Experiment
+from helping import helper
+
 parameters = helper.paramsFromGUI()
 
-class Gain(Experiments):
+class Gain(Experiment):
 
     def __init__(self, showbase, objPath1=parameters["object1"], objScale1=parameters["obj1Scale"]):
 

@@ -1,11 +1,10 @@
-from experiments import Experiments
 import math
 
-from importHelper import * # that is super dirty, please import only needed stuff
+from classes.experiment import Experiment
+from helping.importHelper import * # that is super dirty, please import only needed stuff
 
 
-
-class Circ(Experiments):
+class Circ(Experiment):
 
     def __init__(self, showbase, parameters,objPath1=parameters["object1"], objScale1=parameters["obj1Scale"], loadingString=None):
 
@@ -17,12 +16,11 @@ class Circ(Experiments):
         self.createTerrain()
         self.createSky()
         self.obj1 = self.getObjects(objPath1, objScale1)
-        self.obj1.setShaderAuto()
         self.setObjects(self.obj1)
 
     def setObjects(self, *objects):
         """
-        overwrites setObjects in experiments.py
+        overwrites setObjects in experiment.py
         creates object-positions for circ-object dependent on the case
         case: number from idxArr which determines the circ-position
         calls super-method after defining the position
@@ -30,7 +28,7 @@ class Circ(Experiments):
         """
 
         # todo: there are unnecessary variable assignments, clean that
-        self.case, self.trial, self.runNum = self.generateCase(self.trial, self.runNum)
+        self.case, self.trial, self.runNum = self.generateCase(self.trial, self.runNum, addArrNum=1)
 
         if self.case == max(self.idxArr):  # negative control
             self.removeObj(objects)  # Always pass tuple to removeObj
@@ -56,7 +54,7 @@ class Circ(Experiments):
 
     def resetPosition(self):
         """
-        overwrites resetPosition() in experiments.py
+        overwrites resetPosition() in experiment.py
         determines new player position
         calls super
         calls setObjects

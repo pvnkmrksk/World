@@ -9,7 +9,7 @@ from classes.exceptionHandlers import ExceptionHandlers
 from classes.valveHandler import ValveHandler
 from classes.tunnel import OdourTunnel
 from classes.tunnel import WindTunnel
-from classes.stimulus import Stimulus
+from classes.stimulus import Stimulus, NextStimStartException, NextPreStimStartException
 # import servo
 from helping import helper
 import fractions

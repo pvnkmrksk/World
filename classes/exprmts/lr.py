@@ -1,9 +1,10 @@
-from experiments import Experiments
-from helping import helper
 import copy
-from importHelper import * # that is super dirty, please import only needed stuff
+
+from classes.experiment import Experiment
+from helping.importHelper import * # that is super dirty, please import only needed stuff
+
 print "\n\n\n\nwee have imported\n\n\n\n"
-class Lr(Experiments):
+class Lr(Experiment):
 
     def __init__(self, showbase, parameters,objPath1=parameters["object1"], objPath2=parameters["object2"],
                  objScale1=parameters["obj1Scale"], objScale2=parameters["obj2Scale"],
@@ -57,7 +58,7 @@ class Lr(Experiments):
 
     def setObjects(self, *objects):
         """
-        overwrites setObjects in experiments.py
+        overwrites setObjects in experiment.py
         creates object-positions for lr-objects dependent on the case
         case: number from idxArr which determines the lr-configuration (10,01,11,00)
         calls super-method after defining the positions
@@ -80,7 +81,7 @@ class Lr(Experiments):
         # case-dependent object-positioning (10,01,11,00)
         # if config is 11 or 00, need to create tempObj-copy of obj and pass that to super
         # if you pass only the same object twice, super will move that one object twice and not create a second object
-        # after creating copy, set tempObjUse True, so removeObj() in experiments.py will remove the copy next time
+        # after creating copy, set tempObjUse True, so removeObj() in experiment.py will remove the copy next time
         # ATTENTION! objects is a tuple, don't pass the tuple to super fct! pass the object/s
         #todo discuss how to decode this with maraian
         if self.case == 0:
@@ -128,7 +129,7 @@ class Lr(Experiments):
 
     def resetPosition(self):
         """
-        overwrites resetPosition() in experiments.py
+        overwrites resetPosition() in experiment.py
         determines new player position
         calls super
         calls setObjects

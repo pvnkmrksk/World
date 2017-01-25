@@ -1,7 +1,7 @@
 import os
 import serial
 import threading
-from classes.reader import ArduinoReader
+# from classes.reader import ArduinoReader
 from getArduino import GetArduino
 class ValveHandler(GetArduino):
     def __init__(self, casePort, baud=115200, compression=True):

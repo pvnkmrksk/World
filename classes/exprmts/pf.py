@@ -1,11 +1,10 @@
 from __future__ import division
-from experiments import Experiments
-from helping import helper
-import copy
-from importHelper import * # that is super dirty, please import only needed stuff
+
+from classes.experiment import Experiment
+from helping.importHelper import * # that is super dirty, please import only needed stuff
 
 
-class Pf(Experiments):
+class Pf(Experiment):
 
     def __init__(self, showbase, parameters,objPath1=parameters["object1"],
                  objScale1=parameters["obj1Scale"], loadingString=parameters["loadingString"]):
@@ -28,6 +27,13 @@ class Pf(Experiments):
         except IndexError:
             self.resetPosition()
             self.frameUpdateTask()
+        except NextStimStartException:
+            #update phase of tunnels to zero so that it fires at start of stim.
+            self.sb.haw.phase = 0
+            self.sb.apple.phase = 0
+        except NextPreStimStartException:
+            super(Pf,self).resetPosition()
+
         self.sb.overRidePf=True
 
     def resetPosition(self):
