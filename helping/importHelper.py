@@ -41,6 +41,12 @@ import numpy as np
 import easygui
 import pandas as pd
 from skimage.io import imread
+import zipfile
+from pathlib import Path
+
+from os import listdir
+from os.path import isfile, join
+
 i=0
 print "I have been imported",i
 i+=1

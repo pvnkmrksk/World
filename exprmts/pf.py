@@ -1,5 +1,6 @@
 from __future__ import division
 
+from helping.libsOnly import *
 from classes.experiment import Experiment
 from helping.importHelper import * # that is super dirty, please import only needed stuff
 
@@ -35,6 +36,12 @@ class Pf(Experiment):
             super(Pf,self).resetPosition()
 
         self.sb.overRidePf=True
+
+
+    def startExperiment(self):
+        print "starting now"
+        super(Pf,self).startExperiment()
+        self.resetPosition()
 
     def resetPosition(self):
         super(Pf,self).resetPosition()
