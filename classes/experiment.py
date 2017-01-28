@@ -163,6 +163,8 @@ class Experiment(object):
         self.trial = 1
         self.runNum = 1
         self.player.resetPos(self.newPos)
+        # self.sb.decayTime=-1
+
 
     def badFly(self):
         self.isFlying = False

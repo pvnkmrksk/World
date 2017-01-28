@@ -320,7 +320,11 @@ def startRqt():
 
     #showError("VR is not available")
 def stopVR():
-    procVR.kill()
+    try:
+        procVR.kill()
+    except NameError:
+        print "VR not running"
+        pass
 
 def startRoscore():
     subprocess.Popen(['roscore'])

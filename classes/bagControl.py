@@ -30,16 +30,15 @@ class BagControl():
     def startBag(self):
         self.bagger()
         self.metadata = self.metadataGen()
-        pickler(self.metadata, self.bagFilename)
+        # pickler(self.metadata, self.bagFilename)
 
         try:
+            pickler(self.metadata, self.bagFilename + '.pickle')
+
             with open(self.bagFilename + ".json", 'w') as outfile:
-                pickler(self.metadata,self.bagFilename+'.pickle')
-
                 json.dump(self.metadata, outfile, indent=4, sort_keys=True, separators=(',', ':'),ensure_ascii=False)
+
         except UnicodeDecodeError as e:
-
-
             print "error with unicode FIX IT", e
             pass
         # time.sleep(0.15)  # sleep to prevent multiple instatntiations for a single keypress
@@ -65,15 +64,33 @@ class BagControl():
 
         self.timeNow = str(datetime.now().strftime('%Y-%m-%d__%H:%M:%S'))
         mode = ""
+        state=""
         try:
             # if parameters["hcp"]:
             #     mode += "hcp_"
+            mode+= parameters["loadingString"]+'_'
+
+            if parameters["loadOdour"]:
+                mode += "odour_"
+
             if parameters["loadWind"]:
                 mode += "wind_"
+
             if parameters["imposeStimulus"]:
                 mode += "impose_"
-            if parameters["quad"]:
-                mode += "quad_"
+
+            if parameters["loadNullModels"]:
+                mode += "null_"
+
+
+
+            state+='gain:'+str(parameters["gain"])+"_"
+            state+='speed:'+str(parameters["maxSpeed"])+"_"
+            state+='bout:'+str(parameters["maxBoutDur"])+"_"
+            state+='DC:'+str(parameters["DCoffset"])+"_"
+                    # if parameters["quad"]:
+            #     mode += "quad_"
+
         except KeyError:
             print "key missing, change the code now!"
 
@@ -88,8 +105,7 @@ class BagControl():
         #
 
 
-        fileName = bagDir + "/" + self.timeNow + "_" + parameters["fly"] + "_" + parameters["loadingString"] \
-                   + "_" + self.bagType
+        fileName = bagDir + "/" + self.timeNow + "_" + parameters["fly"] + "_" + mode +state+ self.bagType
 
         print "filename:", fileName
         return fileName
@@ -101,6 +117,7 @@ class BagControl():
                 parameters['redTexPath'],parameters['treeTexPath'],parameters['greenTexPath'],
                 parameters['modelHeightMap']]
         self.appendModels(models)
+
         print "allo " + self.bagFilename
         bagName = self.bagFilename + ".bag"
         if self.bagType == 'full':
@@ -159,6 +176,7 @@ class BagControl():
         #open zip in append mode with compression
         z = zipfile.ZipFile(self.zipFilename, "a", zipfile.ZIP_DEFLATED)
 
+        texList=[]
         #iterate through model paths
         for fname in models:
             try:
@@ -170,6 +188,10 @@ class BagControl():
 
                 #make tentative tex path
                 tex = '/'.join(fname.split('/')[0:-1]) + '/tex/'
+                if tex not in texList:
+                    texList.append(tex)
+                else:
+                    continue
 
                 #if tex folder exists, list all files inside NON-Recursively
                 if os.path.exists(tex):
@@ -218,7 +240,7 @@ class BagControl():
         # arduino = open("servoControl/servoControl.ino", 'r')
         # bam = open(app.worldFilename)
 
-
+        parameters['bagFileName']=self.bagFilename
         obj=dict(parameters=parameters)
 
         # bam=bam.read().encode('utf-8').strip())

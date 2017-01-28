@@ -865,16 +865,22 @@ class MyApp(ShowBase):
 
                 self.speed = 0
                 self.keyMap["closed"] = 0
-                self.decayTime -= 1
+                # self.decayTime -= 1
 
             elif 0 < self.decayTime <= 82:
 
                 self.keyMap["closed"] = self.closedMemory
-                self.decayTime -= 1
+                # self.decayTime -= 1
 
             elif self.decayTime == 0:
                 self.speed = self.speedMemory
-                self.decayTime -= 1
+                # self.decayTime -= 1
+
+            else :
+                # print 'how did decay be negative?'
+                pass
+            #finally step down
+            self.decayTime -= 1
 
             #impose stimulus and exit once out of bounds
             if parameters["imposeStimulus"]:
@@ -1363,9 +1369,9 @@ class MyApp(ShowBase):
             print "speed scalers is ", parameters["maxFlightSpeed"]
 
         if (self.keyMap["startEx"] != 0):
-            self.ex.runNum = np.NaN
-            self.ex.trial = np.NaN
-            self.speed=0
+            self.ex.runNum = -1#np.NaN
+            self.ex.trial = -1#np.NaN
+            self.speed=0#todo.why is it here
             self.startBag()
             time.sleep(3)
             self.setFullSpeed()

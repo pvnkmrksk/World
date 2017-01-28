@@ -18,6 +18,7 @@ class Pf(Experiment):
                                fps=parameters['fps'],genTimeSeries=parameters["pfGenTimeSeries"])
         # self.stimulus=Stimulus(stimList=[0,1/4,1,4,16],nReps=1,preStimDur=5,stimDur=10,fps=parameters['fps'],genTimeSeries=True)
         self.loadOdour=True #overide parameters for odour
+        self.sb.overRidePf=True
 
         # self.obj1 = self.getObjects(objPath1, objScale1)
         # self.setObjects(self.obj1)
@@ -27,7 +28,7 @@ class Pf(Experiment):
             self.sb.pf=self.stimulus.nextStimFrame()
         except IndexError:
             self.resetPosition()
-            self.frameUpdateTask()
+            # self.frameUpdateTask()
         except NextStimStartException:
             #update phase of tunnels to zero so that it fires at start of stim.
             self.sb.haw.phase = 0
@@ -35,13 +36,29 @@ class Pf(Experiment):
         except NextPreStimStartException:
             super(Pf,self).resetPosition()
 
-        self.sb.overRidePf=True
 
 
     def startExperiment(self):
         print "starting now"
-        super(Pf,self).startExperiment()
+
+        #set it to closed loop
+        self.sb.keyMap["closed"]=1
+
+        #reset init pos and stim conditions
         self.resetPosition()
+
+        #set runum and trial to init values
+        self.runNum = 1
+        self.trial = 1
+
+        # prevent initial prestimexception
+        self.prevStimState = -1
+
+        #prevent reset from happening
+        self.sb.reset=False
+
+        #prevent initial open loop,closed loop, closed loop with speed being used
+        self.sb.decayTime=-1
 
     def resetPosition(self):
         super(Pf,self).resetPosition()
