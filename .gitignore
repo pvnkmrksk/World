@@ -1,5 +1,6 @@
 *.bam
 *.pyc
+*.orig
 .idea/
 .ipynb_checkpoints/
 venv
