@@ -1,9 +1,10 @@
 #!/usr/bin/env python
-from myApp import MyApp, e
+from classes.myApp import MyApp, e
 app = MyApp()
 
 try:
     app.run()
+
 finally:
     e.exceptionFinally()
 

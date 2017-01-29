@@ -1,18 +1,17 @@
 from __future__ import division
-from importHelper import *
-from skimage.io import imread
+from helping.importHelper import *
+
 import numpy as np
-import matplotlib.pyplot as plt
+
 class FieldGen():
     # generate odour, plumes and wind
 
     def toPlot(self, obj, plot):
         if plot:
             plt.imshow(obj, interpolation='none', cmap='Greys_r')
-            plt.colorbar()
             plt.show(block=False)
 
-    def windField(self,width=257,height=257,wq=[-1,0,180,270],plot=False):
+    def windField(self,width=1025,height=1025,wq=[-1,0,180,270],plot=False,fillMidLine=180):
         '''
 
         :param width: width of the wind field
@@ -24,13 +23,21 @@ class FieldGen():
         '''
         wind_field = np.zeros([width, height])
 
-        offset = (width - 1) / 2
+        offset = int(((width - 1) / 2))
 
         wind_field[0:offset, 0:offset] = wq[2]
-        wind_field[offset + 1:width, 0:offset] = wq[3]
-        wind_field[0:offset, offset + 1:width] = wq[1]
-        wind_field[offset + 1:width, offset + 1:width] = wq[0]
+        wind_field[offset :width, 0:offset] = wq[3]
+        wind_field[0:offset, offset :width] = wq[1]
+        wind_field[offset :width, offset :width] = wq[0]
+        #
+        # wind_field[0:offset, 0:offset] = wq[2]
+        # wind_field[offset + 1:width, 0:offset] = wq[3]
+        # wind_field[0:offset, offset + 1:width] = wq[1]
+        # wind_field[offset + 1:width, offset + 1:width] = wq[0]
 
+
+        #to fill the midline regions of the matrix which is not accessed by offsets
+        wind_field[offset:offset+1,offset:offset+1]=fillMidLine
         self.toPlot(wind_field,plot=plot)
         return wind_field
 
@@ -118,14 +125,12 @@ class FieldGen():
 
         return packet_field
 
-    def odourField(self, w=257, h=257, oq=['s', 1, 'p', 0],
-                   oqp=["models/odour/1.jpg","models/odour/2.jpg","models/odour/3.jpg","models/odour/4.jpg"],
-                   valueScale=10,plot=False):
+    def odourQuadField(self, w=257, h=257, oq=['s', 1, 'p', 0], plot=False):
         '''
         GIves an array filley with 4 arrays as quadrants with packets or strips or custom images to be used as odourfield
 
-        :param w: array width 2^n + 1
-        :param h: array height 2^n + 1
+        :param w: array width
+        :param h: array height
         :param oq: a list with 4 items,
         's' is strip,
         'p' is packet,
@@ -146,7 +151,7 @@ class FieldGen():
         for i in oq:
 
             if i == 'c':#custom image in models/odour/1,2,3,4.png
-                oq[quad] = (np.rot90(imread("models/odour/" + str(quad + 1) + ".jpg")))/valueScale
+                oq[quad] = (np.rot90(imread("models/odour/" + str(quad + 1) + ".png"),2)) != 0 #todo.fix why not = to zero, to bool?
                 # py 0 index but non zero quadrants and the image is rotated to fix plt and array axes
             elif i == 's': #strip of solid one
                 width = 15
@@ -159,19 +164,41 @@ class FieldGen():
                 oq[quad] = packet
 
             quad += 1
+        #
+        # odour_field[0:offsetW, 0:offsetH] = oq[2]
+        # odour_field[offsetW + 1:w, 0:offsetH] = oq[3]
+        # odour_field[0:offsetW, offsetH + 1:h] = oq[1]
+        # odour_field[offsetW + 1:w, offsetH + 1:h] = oq[0]
 
-        odour_field[0:offsetW, 0:offsetH] = oq[2]
-        odour_field[offsetW + 1:w, 0:offsetH] = oq[3]
-        odour_field[0:offsetW, offsetH + 1:h] = oq[1]
-        odour_field[offsetW + 1:w, offsetH + 1:h] = oq[0]
-
+        odour_field=self.gen(odour_field,oq,w,h)
         self.toPlot(np.rot90(odour_field), plot)
 
         return odour_field
 
+
+    def gen(self,field,quad,w,h):
+        offsetW = int((w - 1) / 2)
+        offsetH = int((h - 1) / 2)
+
+
+        field[0:offsetW, 0:offsetH] = quad[2]
+        field[offsetW :w, 0:offsetH] = quad[3]
+        field[0:offsetW, offsetH :h] = quad[1]
+        field[offsetW :w, offsetH :h] = quad[0]
+        return field
+
+
+    def maskField(self, mq, w=257, h=257):
+
+        mask_field = np.zeros([w, h])
+        mask_field =self.gen(mask_field,mq,w,h)
+        return mask_field
+
 if __name__=='main':
     f=FieldGen()
-    from params import parameters
+    # from tbd.params import parameters
+    parameters = helper.paramsFromGUI()
+
     odourField = f.odourPacket(width=parameters['worldSize'],
                                              height=parameters['worldSize'],
                                              scale=parameters['fieldRescale'],

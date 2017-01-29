@@ -1,17 +1,20 @@
-import pandas as pd
-import serial
-import rostopic
+import json
 import subprocess
 import time
-import json
+
+import pandas as pd
+import rostopic
+import serial
+from classes.valveHandler import ValveHandler
+
 
 class ExceptionHandlers():
 
     def __init__(self,parameters):
         self.parameters=parameters
         # self.exceptionGUI()
-        self.exceptionReplay()
-        self.exceptionArduino()
+        # self.exceptionReplay()
+        # self.exceptionArduino()
         self.exceptionROS()
 
     def exceptionGUI(self):
@@ -66,13 +69,15 @@ class ExceptionHandlers():
             self.parameters["captureScale"] = scale
             self.parameters["captureStart"] = start
             self.parameters["playbackIncrement"] = increment
-    def exceptionArduino(self):
-        # check if arduino servo is connected
-        try:
-            import servo
-        except serial.serialutil.SerialException:
-            self.parameters["loadWind"] = False
-            print ("\n \n \n servo disabled \n \n \n")
+
+            return self.parameters
+    # def exceptionArduino(self):
+    #     # check if arduino servo is connected
+    #     try:
+    #         from tbd import servo
+    #     except serial.serialutil.SerialException:
+    #         self.parameters["loadWind"] = False
+    #         print ("\n \n \n servo disabled \n \n \n")
     def exceptionROS(self):
         # Checkif rosmaster is running else run roscore
         try:
@@ -95,11 +100,20 @@ class ExceptionHandlers():
                 proc.kill()
 
         try:
-            servo.move(99, 0)  # close valve to prevent odour bleeding through
-            servo.move(1, 90)  # close valve to prevent odour bleeding through
+            s=ValveHandler(1)
+            v1=ValveHandler(97)
+            v2=ValveHandler(98)
+            v3=ValveHandler(99)
+
+            s.move(90)
+            v1.move(0)
+            v2.move(0)
+            v3.move(0)
+            # servo.move(99, 0)  # close valve to prevent odour bleeding through
+            # servo.move(1, 90)  # close valve to prevent odour bleeding through
 
         except  (serial.serialutil.SerialException, NameError):
-            print "arduino faulty"
+            print "arduino faulty finally"
             pass  # arduino disconnected or faulty, let go
 
         print "\n\n\nQuitting Now\n"

@@ -1,28 +1,26 @@
-import sys, os, rospy
-import json_tricks as json
-from PyQt4.QtGui import QApplication, QMainWindow
-from makeGUI import Ui_RhagGUI
+import ast,os,sys
+import signal
 from PyQt4 import QtCore, QtGui
-from PyQt4.QtCore import QTimer
 from PyQt4.Qwt5 import Qwt
-import ast
-import subprocess
-from PyQt4.Qwt5.Qwt import QwtCompass, QwtDial
-#import pyqtgraph as pg
-from World.msg import MsgTrajectory
-from classes.rosSubscriber import RosSubscriber
-from helping.helper import clamp
 
-import numpy as np
+import pyqtgraph as pg
+from GUI.makeGUI import Ui_RhagGUI
+from PyQt4.QtCore import QTimer
+from PyQt4.QtGui import QApplication, QMainWindow
+from classes.rosSubscriber import RosSubscriber
+from helping.importHelper import *
+from pathlib import Path
+
 pathRun=os.path.abspath(os.path.split(sys.argv[0])[0]) #path of the runfile
-pathJson= pathRun + '/jsonFiles/'
+pathJson= pathRun + '/GUI/jsonFiles/'
 pathModel = pathRun + '/models/'
 jsonDefault= pathJson + 'default.json' #path of 'default.json' #default .json-file
 jsonRecent= pathJson + 'recent.json'
 jsonCurrent=jsonRecent#pathJson+'temp.json' #modify a temp json file
 jsonVR= pathJson + 'VR.json'
 traj = 0
-
+signal.signal(signal.SIGINT, signal.SIG_DFL)
+filePath=Path(sys.path[0])
 
 
 
@@ -79,13 +77,34 @@ def saveSettings(win, path):
         text = str(text)
         try:
             if ('[' and ']') in text: #if lineEdit returns [] convert to list
-                text = ast.literal_eval(text)
+
+                #if there is a fraction representation, converts it to float
+                if '/' in text:
+
+                    #first convert the string such that, the elements are shielded by ast eval as a string
+                    #  as ast eval will cough up malformed string
+                    text=text.replace('[', "['").replace(',', "','").replace(']', "']")
+
+                    #then convert the string to a list with ast eval, with the fractions treated as strings
+                    text=ast.literal_eval(text)
+
+                    #now convert the string fractions into a fraction then to a float
+                    text=[float(fractions.Fraction(x)) for x in text]
+
+                    #Yay, now we have parsed the string of list rep into an actual list
+
+                else:#if not a fraction contatining list
+                    text = ast.literal_eval(text)
+
             elif ('(' and ')') in text:#if lineEdit returns () convert to list
                 text = ast.literal_eval(text)
-        except:
+            else :
+                pass#non list tuple items
+                # print 'what have you entered here?',text
+        except Exception as e:
             ui.statusbar.showMessage('Error')#todo: better message
-            showError()
-
+            print "error is",e
+            showError('list gone wrong')
         settings[str(name)] = text
 
     for item in slider: #sliders
@@ -220,6 +239,7 @@ def openLoad(win):
     '''
     global jsonCurrent
     path=showFileDialog(win, None, pathJson)
+    print "path is", path
     if path == '':
         ui.statusbar.showMessage('Canceled')
         pass
@@ -230,7 +250,8 @@ def openLoad(win):
 def openSave(win):
 
     global jsonCurrent
-    path = showSaveDialog(win, ui.currentLabel)
+    path = showSaveDialog(win, pathJson)
+    print "path is",path
     if path == '':
         ui.statusbar.showMessage('Canceled')
         pass
@@ -251,18 +272,25 @@ def showFileDialog(win, line, pathStart):
     '''
 
     fname = str(QtGui.QFileDialog.getOpenFileName(win, 'Open file', pathStart))
-
+    fname = Path(fname).relative_to(filePath)#local path, get path relayive to repo root directory so that bugs
+    # dues to different usernames are avoided.
+    fname = str(fname)
     if line and fname != '': #set only if given a label to setText
         line.setText(fname)
+
     return fname
+
 
 def showSaveDialog(win, line):
 
     fname = str(QtGui.QFileDialog.getSaveFileName(win, "Save file as", pathJson))
 
-    if line and fname != '': #set only if given a label to setText
-        line.setText(fname)
-    return fname
+    try:
+        if line and fname != '': #set only if given a label to setText
+            line.setText(fname)
+        return fname
+    except AttributeError:
+        return fname
 
 def caller(btn, fx, line):
     btn.clicked.connect(lambda: fx(window, line, pathModel))
@@ -286,12 +314,27 @@ def startVR():
     procVR=subprocess.Popen(['python', 'main.py'])
     ui.tabWidget.setCurrentIndex(5)
 
+def startRqt():
+    global procRqt
+    procRqt=subprocess.Popen(['rqt_plot'])
+
     #showError("VR is not available")
 def stopVR():
-    procVR.kill()
+    try:
+        procVR.kill()
+    except NameError:
+        print "VR not running"
+        pass
 
 def startRoscore():
     subprocess.Popen(['roscore'])
+
+def startCameraParam():
+    # text expansion of bash is disabled  by default for security concerns.
+    # Since this is not user input string, security isn't a issue in this case
+    # subprocess.Popen(['gedit', '~/a.txt'],shell=True)
+    # subprocess.Popen(['gedit', '~/src.git/Kinefly/launch/rhag/camera_1394.launch'])
+    subprocess.call('gedit ~/src.git/Kinefly/launch/rhag/camera_1394.launch',shell=True)
 
 def startWbad():
     subprocess.Popen(["roslaunch", "Kinefly", "main.launch"])  # start kinefly
@@ -306,22 +349,50 @@ def clbk(data):
 def tick():
     try:
         ui.compassServo.setValue(traj.servoAngle+90)
-        ui.compassHeading.setValue(traj.orientation.x)
+        ui.compassHeading.setValue(traj.pOri.x)
 
         ui.lcdServoAngle.display(traj.servoAngle)
-        ui.lcdHeadingAngle.display(traj.orientation.x%360)
+        ui.lcdHeadingAngle.display(traj.pOri.x%360)
 
+        ui.livePosition.setText(str(traj.pPos))
+
+        stateText="gain\t\t: "+str(traj.gain)+\
+                  "\nHeading Control\t: "+str(bool(traj.headingControl))+\
+                  "\nSpeed Control\t: "+str(bool(traj.speedControl))+\
+                  "\ntrial\t\t: "+str(traj.trial)+ \
+                  "\nrunNum\t\t: " + str(traj.runNum) + \
+                  "\ncase\t\t: " + str(traj.case) + \
+                  "\nservoAngle\t: "+str(traj.servoAngle)+\
+                  "\nDCoffset\t: "+str(traj.DCoffset)+ \
+                  "\nspeed\t: "+str(traj.speed)+ \
+                  "\npacketFrequency\t: "+str(traj.packetFrequency)+ \
+                  "\npacketDuration\t: "+str(traj.packetDuration)+ \
+                  "\nvalve1\t\t: " + str(bool(traj.valve1)) + \
+                  "\nvalve2\t\t: " + str(bool(traj.valve2)) + \
+                  "\nvalve3\t\t: " + str(bool(traj.valve3)) + \
+                  "\nisFlying\t\t: " + str(bool(traj.isFlying)) + \
+                  "\nreset\t\t: " + str(bool(traj.reset))
+
+                  # "\nheadingControl\t\t: " + str(bool(traj.headingControl)) + \
+                  # "trial\t\t: "+str(traj.trial)+\
+
+
+
+
+
+        ui.liveState.setText(stateText)
         if not ui.pausePlot.isChecked():
-            spots = [{'pos': np.array([traj.position.x, traj.position.y])
+            spots = [{'pos': np.array([traj.pPos.x, traj.pPos.y])
                          , 'data': 1}]
             s1.addPoints(spots)
             my_plot.addItem(s1)
 
     except AttributeError:
+        # print "something bad,no gui update"
         pass
-
 def resetView():
-    my_plot.setRange(xRange=(0,255),yRange=(0,255))
+    off=20
+    my_plot.setRange(xRange=(512-off,512+off),yRange=(512-off,512+off))
 
 
 def setHeadingLcd():
@@ -331,12 +402,18 @@ def setHeadingLcd():
 def clearPlot():
     # s1.points()
     s1.clear()
-    my_plot.clear()
+    # my_plot.clear()
 
     # my_plot.removeItem(s1)
     #todo. clear plot os not working
 if __name__ == '__main__':
 #necessary for getting the GUI running
+    try:
+        rostopic.get_topic_class('/rosout')  # is_rosmaster_running = True
+    except rostopic.ROSTopicIOException as e:
+        roscore = subprocess.Popen('roscore')  # then start roscore yourself
+        time.sleep(1)  # wait a bit to be sure the roscore is really launched
+
     app = QApplication(sys.argv)
     window = QMainWindow()
     ui = Ui_RhagGUI()
@@ -374,14 +451,20 @@ if __name__ == '__main__':
     resetBtn=ui.buttonBox.button(QtGui.QDialogButtonBox.Reset)
     resetBtn.clicked.connect(lambda: loadSettings(window, jsonCurrent))
 
+    # recordPathBtn = ui.buttonBox.button(ui.frameRecordPathBtn)
+    # file = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+    ui.frameRecordPathBtn.clicked.connect(lambda: showSaveDialog(window, ui.frameRecordPath))
+# 'frameRecordPath': [ui.frameRecordPathBtn,showSaveDialog,ui.frameRecordPath],
+
 
     #todo. open the last tab on close
 
 
     ui.startVRBtn.clicked.connect(lambda: startVR())
     ui.stopVRBtn.clicked.connect(lambda: stopVR())
-    ui.roscoreBtn.clicked.connect(lambda: startRoscore())
+    ui.camParamBtn.clicked.connect(lambda: startCameraParam())
     ui.wbadBtn.clicked.connect(lambda: startWbad())
+    ui.rqtBtn.clicked.connect(lambda: startRqt())
     ui.resetView.clicked.connect(lambda :resetView())
     ui.clearPlot.clicked.connect(lambda :clearPlot())
 
@@ -393,11 +476,11 @@ if __name__ == '__main__':
     ui.compassHeading.setNeedle(Qwt.QwtDialSimpleNeedle(Qwt.QwtDialSimpleNeedle.Arrow))
     ui.compassHeading.setOrigin(270)# to set north as north
 
-    # RosSubscriber('GUI', '/trajectory', MsgTrajectory, clbk)
-    # my_plot = pg.PlotWidget()
-    # ui.trajectoryLayout.addWidget(my_plot)
-    # s1 = pg.ScatterPlotItem(size=2, pen=pg.mkPen(None), brush=pg.mkBrush(255, 255, 255, 120))
-    # resetView()
+    RosSubscriber('GUI', '/trajectory', MsgTrajectory, clbk)
+    my_plot = pg.PlotWidget()
+    ui.trajectoryLayout.addWidget(my_plot)
+    s1 = pg.ScatterPlotItem(size=2, pen=pg.mkPen(None), brush=pg.mkBrush(255, 255, 255, 120))
+    resetView()
 
 
     timer = QTimer()
@@ -407,8 +490,8 @@ if __name__ == '__main__':
     myDict = {
         'greenTexPath': [ui.greenTexPathBtn, showFileDialog, ui.greenTexPath],
         'redTexPath': [ui.redTexPathBtn, showFileDialog, ui.redTexPath],
-        'spherePath': [ui.spherePathBtn, showFileDialog, ui.spherePath],
-        'treePath': [ui.treePathBtn, showFileDialog, ui.treePath],
+        'object1': [ui.obj1PathBtn, showFileDialog, ui.object1],
+        'object2': [ui.obj2PathBtn, showFileDialog, ui.object2],
         'treeTexPath': [ui.treeTexPathBtn, showFileDialog, ui.treeTexPath],
         'skyMapBtn': [ui.skyMapBtn, showFileDialog, ui.skyMap],
         'skyMapNullBtn': [ui.skyMapNullBtn, showFileDialog, ui.skyMapNull],
@@ -420,7 +503,13 @@ if __name__ == '__main__':
         'odour2': [ui.odourBtn2, showFileDialog, ui.odour2],
         'odour3': [ui.odourBtn3, showFileDialog, ui.odour3],
         'odour4': [ui.odourBtn4, showFileDialog, ui.odour4],
-        'beepPath': [ui.beepPathBtn,showFileDialog,ui.beepPath]
+        'odour1Mask': [ui.odour1MaskBtn, showFileDialog, ui.odour1Mask],
+        'odour2Mask': [ui.odour2MaskBtn, showFileDialog, ui.odour2Mask],
+        'odour3Mask': [ui.odour3MaskBtn, showFileDialog, ui.odour3Mask],
+        'odour4Mask': [ui.odour4MaskBtn, showFileDialog, ui.odour4Mask],
+        'beepPath': [ui.beepPathBtn,showFileDialog,ui.beepPath],
+
+
 
     }
     callLooper(myDict)
