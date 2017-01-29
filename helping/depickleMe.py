@@ -1,18 +1,39 @@
+# example3.py
+def main(fp):
+    '''
+    takes a filepath to print out the parameters in it
+    Args:
+        fp: FilePath of the pickle or json file with params
 
+    Returns:
+        None, prints parameters in the shell
 
-
-def main(p):
-    # p = '/home/rhagoletis/catkin/src/World/bags/2017_01_28/2017-01-28__03:30:35_mdom8_n_pf_gain:8_speed:1.0_bout:3_DC:0.0_traj.pickle'
-    from helper import depickler
-
+    '''
     try:
-        a = depickler(p)
-        parameters=a["parameters"]
-        print parameters
-    except:
-        print "what have you slected"
-        pass
+        from helper import depickler
+        import json_tricks as json
 
- # ...
+        #get the extension
+        ext=fp.split('.')[-1]
+
+        #depickle it if in pickle
+        if ext=='pickle':
+            a = depickler(fp)
+            parameters = a['parameters']
+
+        #json load if json
+        elif ext=='json':
+            with open(fp) as j:
+                parameters=json.load(j)['parameters']
+
+        #print it neatly using json dumps in a sorted fashion with nice indents
+        print json.dumps(parameters, indent=4, sort_keys=True)
+
+    except IOError as e:
+        print 'no such file', e
+
+
 if __name__ == '__main__':
- import plac; plac.call(main)
+    #plac handles the CLI with a simple argparser frontend
+    import plac;
+    plac.call(main)
