@@ -3,7 +3,12 @@ import json_tricks as json
 import os
 import subprocess
 import time
+import zipfile
 
+from os import listdir
+from os.path import isfile, join
+from helping.libsOnly import *
+from helping.importHelper import *
 import rosbag
 import rospy
 from std_msgs.msg import String
@@ -24,16 +29,16 @@ class BagControl():
 
     def startBag(self):
         self.bagger()
-        obj = self.metadataGen()
-        pickler(obj, self.bagFilename)
+        self.metadata = self.metadataGen()
+        # pickler(self.metadata, self.bagFilename)
 
         try:
+            pickler(self.metadata, self.bagFilename + '.pickle')
+
             with open(self.bagFilename + ".json", 'w') as outfile:
-                pickler(obj,self.bagFilename+'.pickle')
+                json.dump(self.metadata, outfile, indent=4, sort_keys=True, separators=(',', ':'),ensure_ascii=False)
 
-                json.dump(obj, outfile, indent=4, sort_keys=True, separators=(',', ':'),ensure_ascii=False)
         except UnicodeDecodeError as e:
-
             print "error with unicode FIX IT", e
             pass
         # time.sleep(0.15)  # sleep to prevent multiple instatntiations for a single keypress
@@ -59,15 +64,33 @@ class BagControl():
 
         self.timeNow = str(datetime.now().strftime('%Y-%m-%d__%H:%M:%S'))
         mode = ""
+        state=""
         try:
             # if parameters["hcp"]:
             #     mode += "hcp_"
+            mode+= parameters["loadingString"]+'_'
+
+            if parameters["loadOdour"]:
+                mode += "odour_"
+
             if parameters["loadWind"]:
                 mode += "wind_"
+
             if parameters["imposeStimulus"]:
                 mode += "impose_"
-            if parameters["quad"]:
-                mode += "quad_"
+
+            if parameters["loadNullModels"]:
+                mode += "null_"
+
+
+
+            state+='gain:'+str(parameters["gain"])+"_"
+            state+='speed:'+str(parameters["maxSpeed"])+"_"
+            state+='bout:'+str(parameters["maxBoutDur"])+"_"
+            state+='DC:'+str(parameters["DCoffset"])+"_"
+                    # if parameters["quad"]:
+            #     mode += "quad_"
+
         except KeyError:
             print "key missing, change the code now!"
 
@@ -82,23 +105,30 @@ class BagControl():
         #
 
 
-        fileName = bagDir + "/" + self.timeNow + "_" + parameters["fly"] + "_" + parameters["loadingString"] \
-                   + "_" + self.bagType
+        fileName = bagDir + "/" + self.timeNow + "_" + parameters["fly"] + "_" + mode +state+ self.bagType
 
         print "filename:", fileName
         return fileName
 
     def addMetadata(self):
+        self.zipRepo()
+        models=[parameters['object1'],parameters['object2'],parameters['modelTextureMap'],parameters['skyMap'],
+                parameters['modelTextureMapNull'],parameters['skyMapNull'],
+                parameters['redTexPath'],parameters['treeTexPath'],parameters['greenTexPath'],
+                parameters['modelHeightMap']]
+        self.appendModels(models)
+
         print "allo " + self.bagFilename
         bagName = self.bagFilename + ".bag"
         if self.bagType == 'full':
             time.sleep(5)  # so that bag file can be transfereed from memory
 
-        obj = self.metadataGen()
+        # self.metadata= self.metadataGen()
         try:
-            metadata = (json.dumps(obj,ensure_ascii=False))
+            metadata = (json.dumps(self.metadata,ensure_ascii=False))
         except UnicodeDecodeError as e:
-            print "FIX this unicode error in stop", e
+            print "FIX this" \
+                  "x unicode error in stop", e
 
             metadata = "empty"
         metadata = String(metadata)
@@ -123,17 +153,94 @@ class BagControl():
             saver()
 
 
+
+
+    def zipRepo(self):
+        #get a git hash of the current modified changes by using git stash
+        #call the popen pipe out the stdout
+        a = subprocess.Popen(['git', 'stash', 'create'], stdout=subprocess.PIPE)
+        #talk to pipe and get only the key
+        gitHash = a.communicate()[0].strip()
+
+        #if no modified changes, get the current commit hash
+        if not gitHash:
+            b = subprocess.Popen(['git', 'rev-parse', 'HEAD'], stdout=subprocess.PIPE)
+            gitHash = b.communicate()[0].strip()
+
+        self.zipFilename=self.bagFilename+'.zip'
+        #using the hash, archive the current git repo as a bagfilename zip file
+        arch=subprocess.Popen(['git', 'archive', '-o', self.zipFilename, gitHash])
+        arch.communicate()#makes sure the zip process is complete
+
+    def appendModels(self,models):
+        #open zip in append mode with compression
+        z = zipfile.ZipFile(self.zipFilename, "a", zipfile.ZIP_DEFLATED)
+
+        texList=[]
+        #iterate through model paths
+        for fname in models:
+            try:
+                # if file exists append it, else continue
+                fname = os.path.abspath(fname)
+
+                fnz=str(Path(fname).relative_to(os.getcwd()))
+                z.write(fnz)
+
+                #make tentative tex path
+                tex = '/'.join(fname.split('/')[0:-1]) + '/tex/'
+                if tex not in texList:
+                    texList.append(tex)
+                else:
+                    continue
+
+                #if tex folder exists, list all files inside NON-Recursively
+                if os.path.exists(tex):
+                    onlyfiles = [f for f in listdir(tex) if isfile(join(tex, f))]
+
+                    #for every item in tex folder, find path w.r.t current working dir so that
+                    # zip tree structure matches what is now
+                    for f in onlyfiles:
+                        # local path, get path relayive to repo root directory
+                        f = str(Path(tex + f).relative_to(os.getcwd()))  # local path, get path relayive to repo root directory so that bugs
+                        # f = str(Path(os.path.abspath(tex) + f).relative_to(os.getcwd()))
+                        z.write(f)
+
+            except OSError :
+                print "file doesn't exist",fname
+                continue
+            except ValueError:
+                print "file",fname
+                continue
+
+    # from os import listdir
+    # from os.path import isfile, join
+    # import zipfile, os
+    # from pathlib import Path
+
+    # z = zipfile.ZipFile('/home/rhagoletis/catkin/src/World/bags/2017_01_27/2017-01-27__00:33:43_mdom8_n_pf_full.zip',
+    #                     "a", zipfile.ZIP_DEFLATED)
+    # s='/home/rhagoletis/catkin/src/World/models/3D_Models/flower/Flower_lp.egg'
+    # s = 'models/3D_Models/black_column/black_column.egg'
+    # s = os.path.abspath(s)
+    # t = '/'.join(s.split('/')[0:-1]) + '/tex/'
+    # if os.path.exists(t):
+    #     mypath = t
+    #     path = t
+    #     onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+    #         onlyfiles=next(os.walk(path))[2]
+        # for fs in onlyfiles:
+        #     fs = str(Path(t + fs).relative_to(
+        #         os.getcwd()))  # local path, get path relayive to repo root directory so that bugs
+        #     z.write(fs)
+    # z.close()
+
     def metadataGen(self):
-        file = open(__file__, 'r')
-        servo = open("servo.py", 'r')
-        arduino = open("servoControl/servoControl.ino", 'r')
+        # file = open(__file__, 'r')
+        # servo = open("servo.py", 'r')
+        # arduino = open("servoControl/servoControl.ino", 'r')
         # bam = open(app.worldFilename)
 
-
-        # obj = dict(parameters=parameters, world=file.read(),
-        #            servo=servo.read(), arduino=arduino.read(), )
-        #
-
+        parameters['bagFileName']=self.bagFilename
         obj=dict(parameters=parameters)
 
         # bam=bam.read().encode('utf-8').strip())

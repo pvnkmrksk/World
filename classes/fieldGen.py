@@ -1,7 +1,8 @@
 from __future__ import division
-from importHelper import *
+from helping.importHelper import *
+
 import numpy as np
-import matplotlib.pyplot as plt
+
 class FieldGen():
     # generate odour, plumes and wind
 
@@ -195,7 +196,9 @@ class FieldGen():
 
 if __name__=='main':
     f=FieldGen()
-    from params import parameters
+    # from tbd.params import parameters
+    parameters = helper.paramsFromGUI()
+
     odourField = f.odourPacket(width=parameters['worldSize'],
                                              height=parameters['worldSize'],
                                              scale=parameters['fieldRescale'],

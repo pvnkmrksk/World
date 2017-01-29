@@ -1,6 +1,9 @@
 import cPickle as pickle
 import json
+
 import numpy as np
+
+
 # class Helper():
 
 def pickler(obj, path):
@@ -32,12 +35,17 @@ def paramsFromGUI():
                 parameters[item] = tuple(parameters[item])
 
     else:
-        from params import parameters
+        from helping.params import parameters
         print "using old parms file"
 
     return parameters
 
-
+def isInt(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
 
 def clamp(n, minn, maxn):
     """

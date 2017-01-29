@@ -31,7 +31,7 @@ class OdourTunnel():
         self.frameDur= 1.0 / self.parameters['fps'] #frame dur in seconds
         self.pf=0 #so that ros msgtrajectory doens't show error
 
-    def update(self,packetDur):
+    def update(self,packetDur,pf=None,overRidePf=False):
         '''
 
         Args:
@@ -40,17 +40,22 @@ class OdourTunnel():
         Returns:
             state of the valve object
         '''
-        x=int(self.player.getX())
-        y=int(self.player.getY())
-        self.pf = self.of[x,y]
 
-        if self.om is not None:
-            mask = self.om[x,y]
-            # print mask, self.pf
-            if not np.logical_and(mask,self.pf):
-                self.pf = 0
-            # self.pf=np.logical_and(mask,self.pf)
-            # print self.pf
+        #override pf externally independent of odor map
+        if overRidePf:
+            self.pf=pf
+        else:
+            x=int(self.player.getX())
+            y=int(self.player.getY())
+            self.pf = self.of[x,y]
+
+            if self.om is not None:
+                mask = self.om[x,y]
+                # print mask, self.pf
+                if not np.logical_and(mask,self.pf):
+                    self.pf = 0
+                # self.pf=np.logical_and(mask,self.pf)
+                # print self.pf
 
         '''calculate Tau=Time period ,
         if self.pf>0, if in the packet on time, turn on valve else off
