@@ -1,24 +1,18 @@
-import sys, os, rospy, time
-import json_tricks as json
-from PyQt4.QtGui import QApplication, QMainWindow
-from makeGUI import Ui_RhagGUI
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtCore import QTimer
-from PyQt4.Qwt5 import Qwt
-import ast
-import subprocess
+import ast,os,sys
 import signal
-import rostopic
+from PyQt4 import QtCore, QtGui
+from PyQt4.Qwt5 import Qwt
 
-from PyQt4.Qwt5.Qwt import QwtCompass, QwtDial
 import pyqtgraph as pg
-from World.msg import MsgTrajectory
+from GUI.makeGUI import Ui_RhagGUI
+from PyQt4.QtCore import QTimer
+from PyQt4.QtGui import QApplication, QMainWindow
 from classes.rosSubscriber import RosSubscriber
-from helping.helper import clamp
+from helping.importHelper import *
 from pathlib import Path
-import numpy as np
+
 pathRun=os.path.abspath(os.path.split(sys.argv[0])[0]) #path of the runfile
-pathJson= pathRun + '/jsonFiles/'
+pathJson= pathRun + '/GUI/jsonFiles/'
 pathModel = pathRun + '/models/'
 jsonDefault= pathJson + 'default.json' #path of 'default.json' #default .json-file
 jsonRecent= pathJson + 'recent.json'
@@ -83,14 +77,34 @@ def saveSettings(win, path):
         text = str(text)
         try:
             if ('[' and ']') in text: #if lineEdit returns [] convert to list
-                text = ast.literal_eval(text)
+
+                #if there is a fraction representation, converts it to float
+                if '/' in text:
+
+                    #first convert the string such that, the elements are shielded by ast eval as a string
+                    #  as ast eval will cough up malformed string
+                    text=text.replace('[', "['").replace(',', "','").replace(']', "']")
+
+                    #then convert the string to a list with ast eval, with the fractions treated as strings
+                    text=ast.literal_eval(text)
+
+                    #now convert the string fractions into a fraction then to a float
+                    text=[float(fractions.Fraction(x)) for x in text]
+
+                    #Yay, now we have parsed the string of list rep into an actual list
+
+                else:#if not a fraction contatining list
+                    text = ast.literal_eval(text)
+
             elif ('(' and ')') in text:#if lineEdit returns () convert to list
                 text = ast.literal_eval(text)
+            else :
+                pass#non list tuple items
+                # print 'what have you entered here?',text
         except Exception as e:
             ui.statusbar.showMessage('Error')#todo: better message
             print "error is",e
             showError('list gone wrong')
-
         settings[str(name)] = text
 
     for item in slider: #sliders
@@ -300,9 +314,17 @@ def startVR():
     procVR=subprocess.Popen(['python', 'main.py'])
     ui.tabWidget.setCurrentIndex(5)
 
+def startRqt():
+    global procRqt
+    procRqt=subprocess.Popen(['rqt_plot'])
+
     #showError("VR is not available")
 def stopVR():
-    procVR.kill()
+    try:
+        procVR.kill()
+    except NameError:
+        print "VR not running"
+        pass
 
 def startRoscore():
     subprocess.Popen(['roscore'])
@@ -442,6 +464,7 @@ if __name__ == '__main__':
     ui.stopVRBtn.clicked.connect(lambda: stopVR())
     ui.camParamBtn.clicked.connect(lambda: startCameraParam())
     ui.wbadBtn.clicked.connect(lambda: startWbad())
+    ui.rqtBtn.clicked.connect(lambda: startRqt())
     ui.resetView.clicked.connect(lambda :resetView())
     ui.clearPlot.clicked.connect(lambda :clearPlot())
 
