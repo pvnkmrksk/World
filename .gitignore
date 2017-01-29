@@ -1,9 +1,13 @@
 *.bam
 *.pyc
+*.orig
 .idea/
 .ipynb_checkpoints/
 venv
 *~
 datasheets/
 ipy_notebooks/
+models/
+bags/
+scratch.ipynb
 
