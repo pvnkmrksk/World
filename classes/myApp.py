@@ -715,16 +715,19 @@ class MyApp(ShowBase):
 
 
         try:
-            mes.o1Pos = self.ex.objectPosition[0]
-            mes.o2Pos = self.ex.objectPosition[1]
-        except:
-
-            if not self.mesErrorPrinted:
-                print "obj missing"
-                self.mesErrorPrinted = True
-            else:
-                # print "no 2nd object"
-                pass
+            if self.ex.objectPosition[0] is not None:
+                mes.o1Pos = self.ex.objectPosition[0]
+            if self.ex.objectPosition[1] is not None:
+                mes.o2Pos = self.ex.objectPosition[1]
+        except AttributeError as e:
+            # print e
+            pass
+            # if not self.mesErrorPrinted:
+            #     print "obj missing"
+            #     self.mesErrorPrinted = True
+            # else:
+            #     # print "no 2nd object"
+            #     pass
 
         if ls=='pf':
             mes.pfStimState=self.ex.stimulus.stimState #-1 when preStim, stim pf during stim
