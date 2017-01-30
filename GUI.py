@@ -11,6 +11,7 @@ from classes.rosSubscriber import RosSubscriber
 from helping.importHelper import *
 from pathlib import Path
 
+
 pathRun=os.path.abspath(os.path.split(sys.argv[0])[0]) #path of the runfile
 pathJson= pathRun + '/GUI/jsonFiles/'
 pathModel = pathRun + '/models/'
@@ -23,6 +24,122 @@ signal.signal(signal.SIGINT, signal.SIG_DFL)
 filePath=Path(sys.path[0])
 
 
+
+class Gui():
+    def __init__(self):
+        try:
+            rostopic.get_topic_class('/rosout')  # is_rosmaster_running = True
+        except rostopic.ROSTopicIOException as e:
+            roscore = subprocess.Popen('roscore')  # then start roscore yourself
+            time.sleep(1)  # wait a bit to be sure the roscore is really launched
+
+        app = QApplication(sys.argv)
+        window = QMainWindow()
+        ui = Ui_RhagGUI()
+        ui.setupUi(window)
+
+        # functions for several buttons
+        # applying and loading settings, closing etc.
+
+        okBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.Ok)  # todo: Ok needs a function
+        okBtn.clicked.connect(lambda: saveSettings(window, jsonVR))
+        # okBtn.clicked.connect(ui.statusbar.showMessage('Ok has no function yet'))
+
+        cancelBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.Cancel)
+        cancelBtn.clicked.connect(lambda: saveClose(window))  # save to recent and close
+        # app.aboutToQuit.connect(lambda :saveClose(window))
+        # todo: is closing the window smart?
+        # todo: is saving last known config on cancel smart?
+
+        defaultBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.RestoreDefaults)
+        defaultBtn.clicked.connect(lambda: loadSettings(window, jsonDefault))
+
+        saveBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.Save)
+        saveBtn.clicked.connect(lambda: saveSettings(window, jsonCurrent))
+
+        saveAsBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.SaveAll)
+        saveAsBtn.setText("Save as")
+        saveAsBtn.clicked.connect(lambda: openSave(window))
+
+        loadBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.Open)
+        loadBtn.setText("Load")  # because it is actually open button
+        # loadBtn.clicked.connect(lambda: loadSettings(window, filePath + jsonFile))
+        loadBtn.clicked.connect(lambda: openLoad(window))
+
+        resetBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.Reset)
+        resetBtn.clicked.connect(lambda: loadSettings(window, jsonCurrent))
+
+        # recordPathBtn = ui.buttonBox.button(ui.frameRecordPathBtn)
+        # file = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+        ui.frameRecordPathBtn.clicked.connect(lambda: showSaveDialog(window, ui.frameRecordPath))
+        # 'frameRecordPath': [ui.frameRecordPathBtn,showSaveDialog,ui.frameRecordPath],
+
+
+        # todo. open the last tab on close
+
+
+        ui.startVRBtn.clicked.connect(lambda: startVR())
+        ui.stopVRBtn.clicked.connect(lambda: stopVR())
+        ui.camParamBtn.clicked.connect(lambda: startCameraParam())
+        ui.wbadBtn.clicked.connect(lambda: startWbad())
+        ui.rqtBtn.clicked.connect(lambda: startRqt())
+        ui.resetView.clicked.connect(lambda: resetView())
+        ui.clearPlot.clicked.connect(lambda: clearPlot())
+
+        ui.compassServo.setNeedle(Qwt.QwtDialSimpleNeedle(Qwt.QwtDialSimpleNeedle.Arrow))
+        ui.compassServo.setOrigin(270)
+        # to set north as north
+        # always start rosnode inside main else imports end in loop
+
+        ui.compassHeading.setNeedle(Qwt.QwtDialSimpleNeedle(Qwt.QwtDialSimpleNeedle.Arrow))
+        ui.compassHeading.setOrigin(270)  # to set north as north
+
+        RosSubscriber('GUI', '/trajectory', MsgTrajectory, clbk)
+        my_plot = pg.PlotWidget()
+        ui.trajectoryLayout.addWidget(my_plot)
+        s1 = pg.ScatterPlotItem(size=2, pen=pg.mkPen(None), brush=pg.mkBrush(255, 255, 255, 120))
+        # resetView()
+
+        timer = QTimer()
+        timer.timeout.connect(tick)
+        timer.start(100)
+
+        myDict = {
+            'greenTexPath': [ui.greenTexPathBtn, showFileDialog, ui.greenTexPath],
+            'redTexPath': [ui.redTexPathBtn, showFileDialog, ui.redTexPath],
+            'object1': [ui.obj1PathBtn, showFileDialog, ui.object1],
+            'object2': [ui.obj2PathBtn, showFileDialog, ui.object2],
+            'treeTexPath': [ui.treeTexPathBtn, showFileDialog, ui.treeTexPath],
+            'skyMapBtn': [ui.skyMapBtn, showFileDialog, ui.skyMap],
+            'skyMapNullBtn': [ui.skyMapNullBtn, showFileDialog, ui.skyMapNull],
+            'modelHeightMap': [ui.modelHeightMapBtn, showFileDialog, ui.modelHeightMap],
+            'modelTextureMap': [ui.modelTextureMapBtn, showFileDialog, ui.modelTextureMap],
+            'modelTextureMapNull': [ui.modelTextureMapNullBtn, showFileDialog, ui.modelTextureMapNull],
+
+            'odour1': [ui.odourBtn1, showFileDialog, ui.odour1],
+            'odour2': [ui.odourBtn2, showFileDialog, ui.odour2],
+            'odour3': [ui.odourBtn3, showFileDialog, ui.odour3],
+            'odour4': [ui.odourBtn4, showFileDialog, ui.odour4],
+            'odour1Mask': [ui.odour1MaskBtn, showFileDialog, ui.odour1Mask],
+            'odour2Mask': [ui.odour2MaskBtn, showFileDialog, ui.odour2Mask],
+            'odour3Mask': [ui.odour3MaskBtn, showFileDialog, ui.odour3Mask],
+            'odour4Mask': [ui.odour4MaskBtn, showFileDialog, ui.odour4Mask],
+            'beepPath': [ui.beepPathBtn, showFileDialog, ui.beepPath],
+
+        }
+        callLooper(myDict)
+
+        try:
+            loadSettings(window, jsonCurrent)  # load the last run config
+        except ValueError:
+            pass
+
+        window.show()
+
+        try:
+            (app.exec_())
+        except KeyboardInterrupt:
+            sys.exit()
 
 
 def saveSettings(win, path):
@@ -408,124 +525,8 @@ def clearPlot():
     # my_plot.removeItem(s1)
     #todo. clear plot os not working
 if __name__ == '__main__':
+    Gui()
 #necessary for getting the GUI running
-    try:
-        rostopic.get_topic_class('/rosout')  # is_rosmaster_running = True
-    except rostopic.ROSTopicIOException as e:
-        roscore = subprocess.Popen('roscore')  # then start roscore yourself
-        time.sleep(1)  # wait a bit to be sure the roscore is really launched
-
-    app = QApplication(sys.argv)
-    window = QMainWindow()
-    ui = Ui_RhagGUI()
-    ui.setupUi(window)
-
-
-    #functions for several buttons
-    #applying and loading settings, closing etc.
-
-    okBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.Ok)#todo: Ok needs a function
-    okBtn.clicked.connect(lambda : saveSettings(window, jsonVR))
-    #okBtn.clicked.connect(ui.statusbar.showMessage('Ok has no function yet'))
-
-    cancelBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.Cancel)
-    cancelBtn.clicked.connect(lambda: saveClose(window))#save to recent and close
-    # app.aboutToQuit.connect(lambda :saveClose(window))
-    #todo: is closing the window smart?
-    #todo: is saving last known config on cancel smart?
-
-    defaultBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.RestoreDefaults)
-    defaultBtn.clicked.connect(lambda: loadSettings(window, jsonDefault))
-
-    saveBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.Save)
-    saveBtn.clicked.connect(lambda: saveSettings(window, jsonCurrent))
-
-    saveAsBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.SaveAll)
-    saveAsBtn.setText("Save as")
-    saveAsBtn.clicked.connect(lambda: openSave(window))
-
-    loadBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.Open)
-    loadBtn.setText("Load")#because it is actually open button
-    # loadBtn.clicked.connect(lambda: loadSettings(window, filePath + jsonFile))
-    loadBtn.clicked.connect(lambda: openLoad(window))
-
-    resetBtn=ui.buttonBox.button(QtGui.QDialogButtonBox.Reset)
-    resetBtn.clicked.connect(lambda: loadSettings(window, jsonCurrent))
-
-    # recordPathBtn = ui.buttonBox.button(ui.frameRecordPathBtn)
-    # file = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
-    ui.frameRecordPathBtn.clicked.connect(lambda: showSaveDialog(window, ui.frameRecordPath))
-# 'frameRecordPath': [ui.frameRecordPathBtn,showSaveDialog,ui.frameRecordPath],
-
-
-    #todo. open the last tab on close
-
-
-    ui.startVRBtn.clicked.connect(lambda: startVR())
-    ui.stopVRBtn.clicked.connect(lambda: stopVR())
-    ui.camParamBtn.clicked.connect(lambda: startCameraParam())
-    ui.wbadBtn.clicked.connect(lambda: startWbad())
-    ui.rqtBtn.clicked.connect(lambda: startRqt())
-    ui.resetView.clicked.connect(lambda :resetView())
-    ui.clearPlot.clicked.connect(lambda :clearPlot())
-
-    ui.compassServo.setNeedle(Qwt.QwtDialSimpleNeedle(Qwt.QwtDialSimpleNeedle.Arrow))
-    ui.compassServo.setOrigin(270)
-    # to set north as north
-    # always start rosnode inside main else imports end in loop
-
-    ui.compassHeading.setNeedle(Qwt.QwtDialSimpleNeedle(Qwt.QwtDialSimpleNeedle.Arrow))
-    ui.compassHeading.setOrigin(270)# to set north as north
-
-    RosSubscriber('GUI', '/trajectory', MsgTrajectory, clbk)
-    my_plot = pg.PlotWidget()
-    ui.trajectoryLayout.addWidget(my_plot)
-    s1 = pg.ScatterPlotItem(size=2, pen=pg.mkPen(None), brush=pg.mkBrush(255, 255, 255, 120))
-    resetView()
-
-
-    timer = QTimer()
-    timer.timeout.connect(tick)
-    timer.start(100)
-
-    myDict = {
-        'greenTexPath': [ui.greenTexPathBtn, showFileDialog, ui.greenTexPath],
-        'redTexPath': [ui.redTexPathBtn, showFileDialog, ui.redTexPath],
-        'object1': [ui.obj1PathBtn, showFileDialog, ui.object1],
-        'object2': [ui.obj2PathBtn, showFileDialog, ui.object2],
-        'treeTexPath': [ui.treeTexPathBtn, showFileDialog, ui.treeTexPath],
-        'skyMapBtn': [ui.skyMapBtn, showFileDialog, ui.skyMap],
-        'skyMapNullBtn': [ui.skyMapNullBtn, showFileDialog, ui.skyMapNull],
-        'modelHeightMap': [ui.modelHeightMapBtn, showFileDialog, ui.modelHeightMap],
-        'modelTextureMap': [ui.modelTextureMapBtn, showFileDialog, ui.modelTextureMap],
-        'modelTextureMapNull': [ui.modelTextureMapNullBtn, showFileDialog, ui.modelTextureMapNull],
-
-        'odour1': [ui.odourBtn1, showFileDialog, ui.odour1],
-        'odour2': [ui.odourBtn2, showFileDialog, ui.odour2],
-        'odour3': [ui.odourBtn3, showFileDialog, ui.odour3],
-        'odour4': [ui.odourBtn4, showFileDialog, ui.odour4],
-        'odour1Mask': [ui.odour1MaskBtn, showFileDialog, ui.odour1Mask],
-        'odour2Mask': [ui.odour2MaskBtn, showFileDialog, ui.odour2Mask],
-        'odour3Mask': [ui.odour3MaskBtn, showFileDialog, ui.odour3Mask],
-        'odour4Mask': [ui.odour4MaskBtn, showFileDialog, ui.odour4Mask],
-        'beepPath': [ui.beepPathBtn,showFileDialog,ui.beepPath],
-
-
-
-    }
-    callLooper(myDict)
-
-    try:
-        loadSettings(window, jsonCurrent)#load the last run config
-    except ValueError:
-        pass
-
-    window.show()
-
-    try:
-        (app.exec_())
-    except KeyboardInterrupt:
-        sys.exit()
 
 #nothing shall be behind this line!
 #don"t even dare writing somethin here!

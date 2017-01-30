@@ -15,7 +15,7 @@ class Pf(Experiment):
         self.createSky()
         self.stimulus=Stimulus(stimList=parameters["pfStimList"],nReps=parameters["pfNReps"],
                                preStimDur=parameters["pfPreStimDur"],stimDur=parameters["pfStimDur"],
-                               fps=parameters['fps'],genTimeSeries=parameters["pfGenTimeSeries"])
+                               fps=parameters['fps'],genTimeSeries=parameters["pfGenTimeSeries"],mode=parameters['pfMode'])
         # self.stimulus=Stimulus(stimList=[0,1/4,1,4,16],nReps=1,preStimDur=5,stimDur=10,fps=parameters['fps'],genTimeSeries=True)
         self.loadOdour=True #overide parameters for odour
         self.sb.overRidePf=True

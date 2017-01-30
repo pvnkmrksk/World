@@ -701,7 +701,7 @@ class MyApp(ShowBase):
                 mes.o1Pos = self.ex.objectPosition[0]
             if self.ex.objectPosition[1] is not None:
                 mes.o2Pos = self.ex.objectPosition[1]
-        except AttributeError as e:
+        except TypeError as e:
             # print e
             pass
             # if not self.mesErrorPrinted:
@@ -859,7 +859,7 @@ class MyApp(ShowBase):
             # panda runs as fast as it can frame to frame
             # scalefactor = self.speed/parameters['fps']# * (globalClock.getDt())
             climbfactor = 0.008
-            bankfactor = 2
+            bankfactor = .2
             parameters["wbad"] = self.wbad
             parameters["wbas"] = self.wbas
 
