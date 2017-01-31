@@ -346,7 +346,8 @@ class MyApp(ShowBase):
                        "human": 0,
                        "hRight": 0, "DCoffset-up": 0, "DCoffset-down": 0,
                        "valve1-on": 0, "valve1-off": 0,"valve2-on": 0, "valve2-off": 0,
-                       "startEx": 0, "fullSpeed":0,"badFly": 0, "goodFly": 0}
+                       "startEx": 0, "fullSpeed":0,"badFly": 0, "goodFly": 0,
+                       "prevStim": 0,"nextStim": 0,"currStim": 0,}
 
         self.accept("escape", self.winClose)
         self.accept("q", self.setKey, ["climb", 1])
@@ -431,6 +432,9 @@ class MyApp(ShowBase):
         self.accept("f1-up", self.setKey, ["fullSpeed", 1])
         self.accept("f5-up", self.setKey, ["badFly", 1])
         self.accept("f6-up", self.setKey, ["goodFly", 1])
+        self.accept("f9-up", self.setKey, ["prevStim", 1])
+        self.accept("f10-up", self.setKey, ["nextStim", 1])
+        self.accept("f11-up", self.setKey, ["currStim", 1])
 
         self.disableMouse()  # or updateCamera will fail!
 
@@ -1389,6 +1393,15 @@ class MyApp(ShowBase):
         if (self.keyMap["goodFly"] != 0):
             self.ex.goodFly()
             self.keyMap['goodFly'] = 0
+        if (self.keyMap["prevStim"] != 0):
+            self.ex.prevStim()
+            self.keyMap['prevStim'] = 0
+        if (self.keyMap["nextStim"] != 0):
+            self.ex.nextStim()
+            self.keyMap['nextStim'] = 0
+        if (self.keyMap["currStim"] != 0):
+            self.ex.currStim()
+            self.keyMap['currStim'] = 0
 
         if (self.keyMap["fullSpeed"] !=0):
             self.setFullSpeed()

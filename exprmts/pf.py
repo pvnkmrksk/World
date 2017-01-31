@@ -24,18 +24,22 @@ class Pf(Experiment):
         # self.setObjects(self.obj1)
 
     def frameUpdateTask(self):
-        try:
-            self.sb.pf=self.stimulus.nextStimFrame()
-        except IndexError:
-            self.resetPosition()
-            # self.frameUpdateTask()
-        except NextStimStartException:
-            #update phase of tunnels to zero so that it fires at start of stim.
-            self.sb.haw.phase = 0
-            self.sb.apple.phase = 0
-        except NextPreStimStartException:
-            super(Pf,self).resetPosition()
-
+        if self.isFlying:
+            try:
+                self.sb.pf=self.stimulus.nextStimFrame()
+            except IndexError:
+                self.resetPosition()
+                # self.frameUpdateTask()
+            except NextStimStartException:
+                #update phase of tunnels to zero so that it fires at start of stim.
+                self.sb.haw.phase = 0
+                self.sb.apple.phase = 0
+            except NextPreStimStartException:
+                super(Pf,self).resetPosition()
+        else:
+            #turn off valves if not flying
+            self.sb.pf=0
+            # print "i am not flying",self.stimulus.currentFrame
 
 
     def startExperiment(self):
@@ -66,3 +70,26 @@ class Pf(Experiment):
         self.stimulus.currentIndex=0
         self.stimulus.currentFrame=0
         self.stimulus.tsg()
+        self.case=self.stimulus.currentIndex
+
+
+    def retryPosition(self):
+        self.stimChange()
+        self.stimulus.repeatCurrentStim()
+
+    def prevStim(self):
+        self.stimChange()
+        self.stimulus.previousStim()
+
+    def nextStim(self):
+        self.stimChange()
+        self.stimulus.nextStim()
+
+    def currStim(self):
+        self.retryPosition()
+
+    def stimChange(self):
+        super(Pf,self).resetPosition()
+        self.sb.maxBoutDur = 0
+        self.case=self.stimulus.currentIndex
+

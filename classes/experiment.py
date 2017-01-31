@@ -241,7 +241,15 @@ class Experiment(object):
         '''
         pass
 
-
+    def prevStim(self):
+        '''go to previous case'''
+        pass
+    def nextStim(self):
+        '''go to next case'''
+        pass
+    def currStim(self):
+        '''repeat curr stim'''
+        pass
 
 
 

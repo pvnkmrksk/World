@@ -40,7 +40,16 @@ class Stimulus(object):
     def timeSeriesGen(self,preStim,stim,preStimDur,stimDur,fps,genTimeSeries):
         if genTimeSeries:
             self.currentFrame=0
-            ts = np.append(np.tile(preStim, int(preStimDur * fps)), np.tile(stim, int((stimDur) * fps)))
+            doubleWhammy=True
+
+            ps=np.tile(preStim, int(preStimDur * fps))
+            if doubleWhammy:
+                f=20
+                d=0.13
+                ps=np.append(ps,np.tile(f,int(fps*d)))
+
+
+            ts = np.append(ps, np.tile(stim, int((stimDur) * fps)))
 
             #timeseries state is -1 during pre stim and stimpf during stimulus
             tsState = np.append(np.tile(-1, int(preStimDur * fps)), np.tile(stim, int((stimDur) * fps)))
