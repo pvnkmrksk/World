@@ -17,6 +17,7 @@ int16 valve1
 int16 valve2
 int16 valve3
 int16 quadrant
+int16 boutFrame
 
 float64 DCoffset
 float64 packetFrequency

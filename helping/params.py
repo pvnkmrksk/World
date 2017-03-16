@@ -142,7 +142,7 @@ parameters = {u'interTrial': 3, u'spherePath': u'models/sphere.egg', u'stepMode'
               u'nReps': 20, u'windDirection': 190, u'wbas': 0, u'wbad': 0, u'stepDur': -1, u'captureScale': 1,
               u'plotOdourQuad': True, u'worldSize': 257, u'startDur': 12, u'sphereScale': 1.9, u'stopDur': 2,
               u'emergence': u'2000-01-01', u'loadOdour': True, u'imposeStimulus': False, u'treeZ': 0.0,
-              u'modelSizeSuffix': u'257', u'pausePlot': False, u'frameNum': 0, u'race': u'apple', u'windowHeight': 2560,
+              u'modelSizeSuffix': u'257', u'pausePlot': False, u'frameNum': 0, u'race': u'odour2', u'windowHeight': 2560,
               u'startHeading': 2.1, u'loadNullModels': False, u'playbackIncrement': 1, u'packetDur': 0.04,
               u'captureStart': 0, u'loadTrajectory': False, u'camHpr': [0, -10, 0],
               u'treePath': u'models/treeHighB.egg', u'nSteps': 5, u'recordDur': 10, u'resetObject': False,

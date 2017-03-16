@@ -51,9 +51,19 @@ class OdourTunnel():
 
             if self.om is not None:
                 mask = self.om[x,y]
-                # print mask, self.pf
+                # print 'mask is',mask, type(mask)
+
+                try:
+                    if (len(mask)==3 or len(mask)==4):
+                        mask=np.mean(mask)
+                except TypeError:
+                    pass#it is a unit8
+                    # print mask, self.pf
+                # print 'mask is',mask, type(mask)
                 if not np.logical_and(mask,self.pf):
                     self.pf = 0
+                else:
+                    pass
                 # self.pf=np.logical_and(mask,self.pf)
                 # print self.pf
 

@@ -147,7 +147,7 @@
                <bool>true</bool>
               </property>
               <property name="currentIndex">
-               <number>1</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="tabWidgetPage1">
                <attribute name="title">
@@ -377,6 +377,20 @@
                  </item>
                  <item row="4" column="0" colspan="3">
                   <widget class="QLineEdit" name="beepPath"/>
+                 </item>
+                 <item row="0" column="1">
+                  <widget class="QCheckBox" name="useValve1">
+                   <property name="text">
+                    <string>Use valve 1</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="2">
+                  <widget class="QCheckBox" name="useValve2">
+                   <property name="text">
+                    <string>Use valve 2</string>
+                   </property>
+                  </widget>
                  </item>
                 </layout>
                </widget>
@@ -1843,27 +1857,16 @@
             <x>0</x>
             <y>9</y>
             <width>711</width>
-            <height>431</height>
+            <height>531</height>
            </rect>
           </property>
           <property name="currentIndex">
-           <number>2</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="tab_2">
            <attribute name="title">
             <string>Tab 1</string>
            </attribute>
-           <widget class="QWidget" name="gridLayoutWidget">
-            <property name="geometry">
-             <rect>
-              <x>370</x>
-              <y>10</y>
-              <width>321</width>
-              <height>321</height>
-             </rect>
-            </property>
-            <layout class="QGridLayout" name="trajectoryLayout"/>
-           </widget>
            <widget class="QLCDNumber" name="lcdServoAngle">
             <property name="geometry">
              <rect>
@@ -1978,15 +1981,94 @@
               <height>29</height>
              </rect>
             </property>
-            <layout class="QHBoxLayout" name="horizontalLayout">
-             <item>
+            <layout class="QHBoxLayout" name="horizontalLayout"/>
+           </widget>
+          </widget>
+          <widget class="QWidget" name="tab_4">
+           <attribute name="title">
+            <string>Tab 2</string>
+           </attribute>
+           <widget class="QLabel" name="positionLabel">
+            <property name="geometry">
+             <rect>
+              <x>380</x>
+              <y>360</y>
+              <width>121</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Position</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="livePosition">
+            <property name="geometry">
+             <rect>
+              <x>450</x>
+              <y>360</y>
+              <width>121</width>
+              <height>81</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>None</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="stateLabel">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>10</y>
+              <width>121</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>State</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="liveState">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>40</y>
+              <width>281</width>
+              <height>301</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>None</string>
+            </property>
+           </widget>
+           <widget class="QWidget" name="gridLayoutWidget">
+            <property name="geometry">
+             <rect>
+              <x>380</x>
+              <y>0</y>
+              <width>321</width>
+              <height>321</height>
+             </rect>
+            </property>
+            <layout class="QGridLayout" name="trajectoryLayout"/>
+           </widget>
+           <widget class="QWidget" name="layoutWidget">
+            <property name="geometry">
+             <rect>
+              <x>410</x>
+              <y>330</y>
+              <width>265</width>
+              <height>29</height>
+             </rect>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_14">
+             <item row="0" column="0">
               <widget class="QPushButton" name="resetView">
                <property name="text">
                 <string>Reset View</string>
                </property>
               </widget>
              </item>
-             <item>
+             <item row="0" column="1">
               <widget class="QPushButton" name="clearPlot">
                <property name="text">
                 <string>Clear Plot</string>
@@ -1999,7 +2081,7 @@
                </property>
               </widget>
              </item>
-             <item>
+             <item row="0" column="2">
               <widget class="QCheckBox" name="pausePlot">
                <property name="text">
                 <string>Pause</string>
@@ -2007,63 +2089,6 @@
               </widget>
              </item>
             </layout>
-           </widget>
-          </widget>
-          <widget class="QWidget" name="tab_4">
-           <attribute name="title">
-            <string>Tab 2</string>
-           </attribute>
-           <widget class="QLabel" name="positionLabel">
-            <property name="geometry">
-             <rect>
-              <x>80</x>
-              <y>50</y>
-              <width>121</width>
-              <height>21</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Position</string>
-            </property>
-           </widget>
-           <widget class="QLabel" name="livePosition">
-            <property name="geometry">
-             <rect>
-              <x>70</x>
-              <y>70</y>
-              <width>121</width>
-              <height>81</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>None</string>
-            </property>
-           </widget>
-           <widget class="QLabel" name="stateLabel">
-            <property name="geometry">
-             <rect>
-              <x>290</x>
-              <y>50</y>
-              <width>121</width>
-              <height>21</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>State</string>
-            </property>
-           </widget>
-           <widget class="QLabel" name="liveState">
-            <property name="geometry">
-             <rect>
-              <x>250</x>
-              <y>70</y>
-              <width>281</width>
-              <height>301</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>None</string>
-            </property>
            </widget>
           </widget>
           <widget class="QWidget" name="tab_8">
@@ -2138,8 +2163,8 @@
      <y>90</y>
     </hint>
     <hint type="destinationlabel">
-     <x>164</x>
-     <y>93</y>
+     <x>121</x>
+     <y>115</y>
     </hint>
    </hints>
   </connection>
@@ -2166,8 +2191,8 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>185</x>
-     <y>89</y>
+     <x>121</x>
+     <y>115</y>
     </hint>
     <hint type="destinationlabel">
      <x>77</x>
@@ -2214,12 +2239,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>112</x>
-     <y>406</y>
+     <x>119</x>
+     <y>113</y>
     </hint>
     <hint type="destinationlabel">
-     <x>85</x>
-     <y>430</y>
+     <x>97</x>
+     <y>113</y>
     </hint>
    </hints>
   </connection>
@@ -2230,12 +2255,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>89</x>
-     <y>129</y>
+     <x>101</x>
+     <y>104</y>
     </hint>
     <hint type="destinationlabel">
-     <x>117</x>
-     <y>237</y>
+     <x>129</x>
+     <y>179</y>
     </hint>
    </hints>
   </connection>
@@ -2246,12 +2271,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>93</x>
-     <y>126</y>
+     <x>105</x>
+     <y>104</y>
     </hint>
     <hint type="destinationlabel">
-     <x>136</x>
-     <y>246</y>
+     <x>139</x>
+     <y>113</y>
     </hint>
    </hints>
   </connection>
@@ -2262,12 +2287,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>70</x>
-     <y>120</y>
+     <x>82</x>
+     <y>104</y>
     </hint>
     <hint type="destinationlabel">
-     <x>164</x>
-     <y>292</y>
+     <x>139</x>
+     <y>113</y>
     </hint>
    </hints>
   </connection>
@@ -2278,12 +2303,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>80</x>
-     <y>125</y>
+     <x>92</x>
+     <y>104</y>
     </hint>
     <hint type="destinationlabel">
-     <x>237</x>
-     <y>245</y>
+     <x>139</x>
+     <y>113</y>
     </hint>
    </hints>
   </connection>
@@ -2294,12 +2319,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>61</x>
-     <y>127</y>
+     <x>73</x>
+     <y>104</y>
     </hint>
     <hint type="destinationlabel">
-     <x>276</x>
-     <y>284</y>
+     <x>139</x>
+     <y>113</y>
     </hint>
    </hints>
   </connection>
@@ -2310,12 +2335,12 @@
    <slot>display(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>347</x>
-     <y>115</y>
+     <x>120</x>
+     <y>104</y>
     </hint>
     <hint type="destinationlabel">
-     <x>511</x>
-     <y>122</y>
+     <x>120</x>
+     <y>104</y>
     </hint>
    </hints>
   </connection>
@@ -2330,8 +2355,24 @@
      <y>92</y>
     </hint>
     <hint type="destinationlabel">
-     <x>142</x>
-     <y>409</y>
+     <x>119</x>
+     <y>113</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>stopVRBtn</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>pausePlot</receiver>
+   <slot>toggle()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>313</x>
+     <y>720</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>627</x>
+     <y>456</y>
     </hint>
    </hints>
   </connection>

@@ -19,7 +19,8 @@ class Pf(Experiment):
         # self.stimulus=Stimulus(stimList=[0,1/4,1,4,16],nReps=1,preStimDur=5,stimDur=10,fps=parameters['fps'],genTimeSeries=True)
         self.loadOdour=True #overide parameters for odour
         self.sb.overRidePf=True
-
+        if parameters['useOdourMask']:
+            self.initField()
         # self.obj1 = self.getObjects(objPath1, objScale1)
         # self.setObjects(self.obj1)
 
@@ -32,8 +33,8 @@ class Pf(Experiment):
                 # self.frameUpdateTask()
             except NextStimStartException:
                 #update phase of tunnels to zero so that it fires at start of stim.
-                self.sb.haw.phase = 0
-                self.sb.apple.phase = 0
+                self.sb.odour1.phase = 0
+                self.sb.odour2.phase = 0
             except NextPreStimStartException:
                 super(Pf,self).resetPosition()
         else:
@@ -72,6 +73,9 @@ class Pf(Experiment):
         self.stimulus.tsg()
         self.case=self.stimulus.currentIndex
 
+        if parameters['useOdourMask']:
+            self.updateOdourField()
+
 
     def retryPosition(self):
         self.stimChange()
@@ -90,6 +94,7 @@ class Pf(Experiment):
 
     def stimChange(self):
         super(Pf,self).resetPosition()
+        self.trial-=1
         self.sb.maxBoutDur = 0
         self.case=self.stimulus.currentIndex
 

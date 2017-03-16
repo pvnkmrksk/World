@@ -1,5 +1,4 @@
 from classes.valveHandler import ValveHandler
-
 increment=5
 v=ValveHandler(casePort=1,compression=False,baud=115200)
 v.move(90)

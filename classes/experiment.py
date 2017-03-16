@@ -90,7 +90,7 @@ class Experiment(object):
         :return: new player Position (necessary?)
         """
         self.player.resetPos(self.newPos)
-        self.sb.boutFrame = 0
+        self.sb.boutFrame = 0 #todo.remove redundant right?
         return self.newPos
 
     def retryRun(self, newList=False):
@@ -250,7 +250,61 @@ class Experiment(object):
     def currStim(self):
         '''repeat curr stim'''
         pass
+    def initField(self):
+        mfg= FieldGen()
+        xO = parameters['worldSize']
+        yO = parameters['worldSize']
 
+        if parameters['loadOdour']:
+            self.of = mfg.odourQuadField(parameters['worldSize']*2,parameters['worldSize']*2,
+                                         oq=parameters['odourQuad'],
+                                         plot=parameters['plotOdourQuad'])
+
+
+            self.ofCase={0:self.of[xO:xO+xO,yO:yO+yO],
+                         1:self.of[0:xO,yO:yO+yO],
+                         2:self.of[0:xO,0:yO],
+                         3:self.of[xO:xO+xO,0:yO]}
+
+
+            if parameters['useOdourMask']:
+                self.omCase = {0:np.rot90(imread(parameters['odour1Mask']),3),
+                               1:np.rot90(imread(parameters['odour2Mask']),3),
+                               2: np.rot90(imread(parameters['odour3Mask']),3),
+                               3: np.rot90(imread(parameters['odour4Mask']),3)}
+                self.sb.omCase=self.omCase
+
+        else:
+            self.of=self.omCase=self.ofCase=None
+
+        if parameters['loadWind']:
+            self.wf=mfg.windField(parameters['worldSize']*2,parameters['worldSize']*2,
+                                         wq=parameters['windQuad'],
+                                         plot=parameters['plotOdourQuad'])
+            self.wfCase={0:self.wf[xO:xO+xO,yO:yO+yO],
+                         1:self.wf[0:xO,yO:yO+yO],
+                         2:self.wf[0:xO,0:yO],
+                         3:self.wf[xO:xO+xO,0:yO]}
+
+        else:
+            self.wf=self.wfCase=None
+
+
+
+    def updateOdourField(self):
+        try:
+            if parameters['loadOdour']:
+                self.sb.odour2.of = self.ofCase[self.case]
+                self.sb.odour1.of = self.ofCase[self.case]
+
+                if parameters['useOdourMask']:
+                    self.sb.odour2.om = self.omCase[self.case]
+                    self.sb.odour1.om = self.omCase[self.case]
+        except KeyError:
+            print "only 4 odour quad given, FIX IT"
+    def updateWindField(self):
+        if parameters['loadWind']:
+            self.sb.windField=self.wfCase[self.case]
 
 
 

@@ -45,7 +45,7 @@ class Stimulus(object):
             ps=np.tile(preStim, int(preStimDur * fps))
             if doubleWhammy:
                 f=20
-                d=0.13
+                d=0.055
                 ps=np.append(ps,np.tile(f,int(fps*d)))
 
 

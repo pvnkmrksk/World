@@ -78,8 +78,8 @@ class MyApp(ShowBase):
 
         self.initParams()  # run this 1st. Loads all content and params.
 
-        # self.haw.phase = None
-        # self.apple.phase = None
+        # self.odour1.phase = None
+        # self.odour2.phase = None
         # things go wrong in replay world while using loadingString.
         # It used default values if nothing is passed and those params come from paramsFromGUI
         # which use the current params and not the rerplay bag
@@ -91,10 +91,12 @@ class MyApp(ShowBase):
 
         self.initHardware()
         self.initFeedback()
-        if ls=='lr':
-            self.ex.updateOdourField()
+        # if ls=='lr':
+        #     self.ex.updateOdourField()
+        self.ex.updateOdourField() #will do it, only matters if method overridedn
 
         # self.ex = experiment(self)
+
 
         self.taskMgr.add(self.updateTask, "update")  # A task to run every frame, some keyboard setup and our speed
 
@@ -264,8 +266,8 @@ class MyApp(ShowBase):
                                                     oq=parameters['odourQuad'], plot=parameters['plotOdourQuad'])
 
 
-        self.haw= OdourTunnel(odourField=self.odourField,player=self.player,parameters=parameters)
-        self.apple= OdourTunnel(odourField=self.odourField,player=self.player,parameters=parameters)
+        self.odour1= OdourTunnel(odourField=self.odourField, player=self.player, parameters=parameters)
+        self.odour2= OdourTunnel(odourField=self.odourField, player=self.player, parameters=parameters)
 
 
 
@@ -601,6 +603,7 @@ class MyApp(ShowBase):
 
         #lens = PerspectiveLens(120, 140)  # tuple(parameters["camFOV"]))
         lens = PerspectiveLens(parameters['camFOV'][0], parameters['camFOV'][1])  # tuple(parameters["camFOV"]))
+        print "lens is",lens.get_fov()
         lens.setNear(0.01)
 
         displayLeft = self.win.makeDisplayRegion(0, 1 / 3, 0, 1)
@@ -696,7 +699,7 @@ class MyApp(ShowBase):
         mes.isFlying = self.ex.isFlying
 
         mes.DCoffset = parameters["DCoffset"]
-        mes.packetFrequency = self.apple.pf
+        mes.packetFrequency = self.odour2.pf
         mes.packetDuration = self.packetDur
 
 
@@ -758,7 +761,20 @@ class MyApp(ShowBase):
 
 
 
+    def userOverOdour(self):
+        # update user controlled valve state
+        """
+        The valve is controlled via servo code itself. The servo 99 case changes digital state of pin 13
 
+        """
+        if (self.keyMap["valve1-on"] != 0):
+            self.valve1State = 1
+        if (self.keyMap["valve1-off"] != 0):
+            self.valve1State = 0
+        if (self.keyMap["valve2-on"] != 0):
+            self.valve2State = 1
+        if (self.keyMap["valve2-off"] != 0):
+            self.valve2State = 0
     def updateTask(self, task):
         """
         calls all update functions, player, camera and bag control
@@ -791,11 +807,14 @@ class MyApp(ShowBase):
 
             #
             if parameters["loadOdour"] or self.ex.loadOdour:
-                self.valve1State=self.haw.update(self.packetDur,pf=self.pf,overRidePf=self.overRidePf)
-                self.valve2State=self.apple.update(self.packetDur,pf=self.pf,overRidePf=self.overRidePf)
 
-            self.valve1.move(self.valve1State)
-            self.valve2.move(self.valve2State)
+                if parameters["useValve1"]:
+                    self.valve1State=self.odour1.update(self.packetDur, pf=self.pf, overRidePf=self.overRidePf)
+                if parameters["useValve2"]:
+                    self.valve2State=self.odour2.update(self.packetDur, pf=self.pf, overRidePf=self.overRidePf)
+            self.userOverOdour()
+            self.valve1.move(self.valve1State)#odour1 is now odour2 after swap
+            self.valve2.move(self.valve2State)#odour2 is now odour1/blank after swap
 
         else:
 
@@ -863,7 +882,7 @@ class MyApp(ShowBase):
             # panda runs as fast as it can frame to frame
             # scalefactor = self.speed/parameters['fps']# * (globalClock.getDt())
             climbfactor = 0.008
-            bankfactor = .2
+            bankfactor = 2
             parameters["wbad"] = self.wbad
             parameters["wbas"] = self.wbas
 
@@ -1326,19 +1345,19 @@ class MyApp(ShowBase):
             self.packetDur += 0.0001
             print "packetDur is now", self.packetDur
 
-        # update user controlled valve state
-        """
-        The valve is controlled via servo code itself. The servo 99 case changes digital state of pin 13
-
-        """
-        if (self.keyMap["valve1-on"] != 0):
-            self.valve1State = 1
-        if (self.keyMap["valve1-off"] != 0):
-            self.valve1State = 0
-        if (self.keyMap["valve2-on"] != 0):
-            self.valve2State = 1
-        if (self.keyMap["valve2-off"] != 0):
-            self.valve2State = 0
+        # # update user controlled valve state
+        # """
+        # The valve is controlled via servo code itself. The servo 99 case changes digital state of pin 13
+        #
+        # """
+        # if (self.keyMap["valve1-on"] != 0):
+        #     self.valve1State = 1
+        # if (self.keyMap["valve1-off"] != 0):
+        #     self.valve1State = 0
+        # if (self.keyMap["valve2-on"] != 0):
+        #     self.valve2State = 1
+        # if (self.keyMap["valve2-off"] != 0):
+        #     self.valve2State = 0
         if (self.keyMap["resetPos"] != 0):
             self.ex.resetPosition()
             self.keyMap["resetPos"] =0
@@ -1659,8 +1678,8 @@ class MyApp(ShowBase):
         # # #rest tunnel to zwero phase so that on quad change, the onset of packet is at predicatbale
         # # # and at the beginning after an offset of  50frames 300ms so that a keypress doesn't end up with a sustained odour
         # # # and insteadof history dependence and so may switch any time
-        # self.haw.phase=0
-        # self.apple.phase=0
+        # self.odour1.phase=0
+        # self.odour2.phase=0
         # #doens't matter anymore , using only keyup events
         # return newPos
 
@@ -1717,8 +1736,9 @@ class MyApp(ShowBase):
 
 
     def startBag(self):
-        self.trajBagger = BagControl('traj', parameters['bagTrajTopics'])
-        self.fullBagger = BagControl('full', parameters['bagFullTopics'])
+
+        self.trajBagger = BagControl(self,'traj', parameters['bagTrajTopics'],parameters=parameters)
+        self.fullBagger = BagControl(self,'full', parameters['bagFullTopics'],parameters=parameters)
 
         # self.trial = conflict with experiment class, min trial is 1
         self.frame = 0  # todo: ?
