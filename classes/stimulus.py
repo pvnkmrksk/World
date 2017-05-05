@@ -1,12 +1,15 @@
 import numpy as np
 import pandas as pd
 class Stimulus(object):
-    def __init__(self, stimList=[1,2,3,4], nReps=1, mode='ordered', genTimeSeries=False,preStim=0, preStimDur=0, stimDur=1, fps=165, ):
+    def __init__(self, stimList=[1,2,3,4], nReps=1, mode='ordered', genTimeSeries=False,
+                 preStim=0, preStimDur=0, stimDur=1, postStim=0,postStimDur=10,fps=165, ):
         # pass
         self.stimList=self.stimListGen(np.array(stimList),nReps,mode)
         self.preStim=preStim
         self.stimDur=stimDur
         self.preStimDur=preStimDur
+        self.postStim=postStim
+        self.postStimDur=postStimDur
         self.fps=fps
         self.genTimeSeries=genTimeSeries
 
@@ -24,7 +27,10 @@ class Stimulus(object):
         Returns:
 
         '''
-        self.timeSeries,self.timeSeriesState=self.timeSeriesGen(self.preStim,self.currentStim(),self.preStimDur,self.stimDur,self.fps,self.genTimeSeries)
+        self.timeSeries,self.timeSeriesState=self.timeSeriesGen(self.preStim,self.currentStim(),
+                                                                self.preStimDur,self.stimDur,
+                                                                self.postStim,self.postStimDur,
+                                                                self.fps,self.genTimeSeries)
 
     def stimListGen(self,stimList,nReps,mode):
         if mode=='randomRep':
@@ -37,7 +43,7 @@ class Stimulus(object):
         print "stimlist rep is",stimListRep
         return stimListRep
 
-    def timeSeriesGen(self,preStim,stim,preStimDur,stimDur,fps,genTimeSeries):
+    def timeSeriesGen(self,preStim,stim,preStimDur,stimDur,postStim,postStimDur,fps,genTimeSeries):
         if genTimeSeries:
             self.currentFrame=0
             doubleWhammy=True
@@ -51,8 +57,13 @@ class Stimulus(object):
 
             ts = np.append(ps, np.tile(stim, int((stimDur) * fps)))
 
+            ts = np.append(ts, np.tile(postStim, int((postStimDur) * fps)))
+
+
+
             #timeseries state is -1 during pre stim and stimpf during stimulus
-            tsState = np.append(np.tile(-1, int(preStimDur * fps)), np.tile(stim, int((stimDur) * fps)))
+            tsState = np.append(np.append(np.tile(-1, int(preStimDur * fps)), np.tile(stim, int((stimDur) * fps))),
+                                np.tile(-2, int(postStimDur * fps)))
 
             return ts,tsState
         else:

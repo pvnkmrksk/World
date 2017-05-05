@@ -143,7 +143,7 @@ class FieldGen():
 
         '''
 
-        odour_field = np.zeros([w, h])
+        odour_field = np.zeros([w+2, h+2])
         offsetW = int((w - 1) / 2)
         offsetH = int((h - 1) / 2)
 
@@ -152,7 +152,8 @@ class FieldGen():
         for i in oq:
 
             if i == 'c':#custom image in models/odour/1,2,3,4.png
-                oq[quad] = (np.rot90(imread("models/odour/" + str(quad + 1) + ".png"),2)) != 0 #todo.fix why not = to zero, to bool?
+                oq[quad] = (np.rot90(imread("models/odour/" + str(quad + 1) + ".png"),3)) #!= 0 #todo.fix why not = to zero, to bool?
+
                 # py 0 index but non zero quadrants and the image is rotated to fix plt and array axes
             elif i == 's': #strip of solid one
                 width = 15
@@ -180,12 +181,13 @@ class FieldGen():
     def gen(self,field,quad,w,h):
         offsetW = int((w - 1) / 2)
         offsetH = int((h - 1) / 2)
+        print offsetH,offsetW,w,h
 
 
         field[0:offsetW, 0:offsetH] = quad[2]
-        field[offsetW :w, 0:offsetH] = quad[3]
-        field[0:offsetW, offsetH :h] = quad[1]
-        field[offsetW :w, offsetH :h] = quad[0]
+        field[offsetW :2*offsetW , 0:offsetH] = quad[3]
+        field[0:offsetW, offsetH :2*offsetH ] = quad[1]
+        field[offsetW :2*offsetW , offsetW :2*offsetW ] = quad[0]
         return field
 
 

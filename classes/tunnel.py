@@ -44,6 +44,7 @@ class OdourTunnel():
         #override pf externally independent of odor map
         if overRidePf:
             self.pf=pf
+            # print 'hello'
         else:
             x=int(self.player.getX())
             y=int(self.player.getY())
@@ -65,8 +66,7 @@ class OdourTunnel():
                 else:
                     pass
                 # self.pf=np.logical_and(mask,self.pf)
-                # print self.pf
-
+            print self.pf
         '''calculate Tau=Time period ,
         if self.pf>0, if in the packet on time, turn on valve else off
         else turn off valve

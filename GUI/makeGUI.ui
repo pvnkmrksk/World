@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>752</width>
-    <height>767</height>
+    <width>746</width>
+    <height>876</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -58,7 +58,7 @@
       <item row="0" column="0" colspan="2">
        <widget class="QTabWidget" name="tabWidget">
         <property name="currentIndex">
-         <number>5</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="tab">
          <attribute name="title">
@@ -147,7 +147,7 @@
                <bool>true</bool>
               </property>
               <property name="currentIndex">
-               <number>0</number>
+               <number>1</number>
               </property>
               <widget class="QWidget" name="tabWidgetPage1">
                <attribute name="title">
@@ -406,37 +406,41 @@
                    <string/>
                   </property>
                   <layout class="QGridLayout" name="gridLayout_12">
-                   <item row="0" column="0">
-                    <widget class="QLineEdit" name="pfStimList">
-                     <property name="toolTip">
-                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add &lt;span style=&quot; font-weight:600;&quot;&gt;4 &lt;/span&gt;items&lt;/p&gt;&lt;p&gt;[0, 0, 0, 0]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                     </property>
+                   <item row="6" column="2">
+                    <widget class="QLabel" name="label_159">
                      <property name="text">
-                      <string>[16,4,1,0.25]</string>
+                      <string>nReps</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="1" column="0">
-                    <widget class="QSpinBox" name="pfPreStim"/>
-                   </item>
-                   <item row="1" column="1">
-                    <widget class="QLabel" name="label_27">
+                   <item row="9" column="2">
+                    <widget class="QLabel" name="label_160">
                      <property name="text">
-                      <string>pfPreStim</string>
+                      <string>mode</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="2">
+                    <widget class="QLabel" name="pfStimDur_2">
+                     <property name="text">
+                      <string>pfStimDur</string>
                      </property>
                     </widget>
                    </item>
                    <item row="2" column="0">
                     <widget class="QDoubleSpinBox" name="pfPreStimDur">
+                     <property name="maximum">
+                      <double>999.000000000000000</double>
+                     </property>
                      <property name="value">
                       <double>5.000000000000000</double>
                      </property>
                     </widget>
                    </item>
-                   <item row="2" column="1">
-                    <widget class="QLabel" name="label_28">
-                     <property name="text">
-                      <string>pfPreStimDur</string>
+                   <item row="6" column="0">
+                    <widget class="QSpinBox" name="pfNReps">
+                     <property name="maximum">
+                      <number>999</number>
                      </property>
                     </widget>
                    </item>
@@ -450,38 +454,59 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="3" column="1">
-                    <widget class="QLabel" name="pfStimDur_2">
-                     <property name="text">
-                      <string>pfStimDur</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="4" column="0">
-                    <widget class="QCheckBox" name="pfGenTimeSeries">
-                     <property name="text">
-                      <string>genTimeSeries</string>
-                     </property>
-                     <property name="checked">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
                    <item row="5" column="0">
-                    <widget class="QSpinBox" name="pfNReps">
+                    <widget class="QDoubleSpinBox" name="pfPostStimDur">
+                     <property name="maximum">
+                      <double>999.000000000000000</double>
+                     </property>
+                     <property name="value">
+                      <double>5.000000000000000</double>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="2">
+                    <widget class="QLabel" name="label_28">
+                     <property name="text">
+                      <string>pfPreStimDur</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="2">
+                    <widget class="QLabel" name="label_27">
+                     <property name="text">
+                      <string>pfPreStim</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="2">
+                    <widget class="QLabel" name="label_30">
+                     <property name="text">
+                      <string>pfPostStimDur</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="2">
+                    <widget class="QLabel" name="label_29">
+                     <property name="text">
+                      <string>pfPostStim</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="2">
+                    <widget class="QLabel" name="label_26">
+                     <property name="text">
+                      <string>pfStimList</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QSpinBox" name="pfPreStim">
                      <property name="maximum">
                       <number>999</number>
                      </property>
                     </widget>
                    </item>
-                   <item row="5" column="1">
-                    <widget class="QLabel" name="label_159">
-                     <property name="text">
-                      <string>nReps</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="6" column="0">
+                   <item row="9" column="0">
                     <widget class="QComboBox" name="pfMode">
                      <item>
                       <property name="text">
@@ -495,17 +520,30 @@
                      </item>
                     </widget>
                    </item>
-                   <item row="0" column="1">
-                    <widget class="QLabel" name="label_26">
-                     <property name="text">
-                      <string>pfStimList</string>
+                   <item row="4" column="0">
+                    <widget class="QSpinBox" name="pfPostStim">
+                     <property name="maximum">
+                      <number>999</number>
                      </property>
                     </widget>
                    </item>
-                   <item row="6" column="1">
-                    <widget class="QLabel" name="label_160">
+                   <item row="0" column="0" colspan="2">
+                    <widget class="QLineEdit" name="pfStimList">
+                     <property name="toolTip">
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add &lt;span style=&quot; font-weight:600;&quot;&gt;4 &lt;/span&gt;items&lt;/p&gt;&lt;p&gt;[0, 0, 0, 0]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     </property>
                      <property name="text">
-                      <string>mode</string>
+                      <string>[16,4,1,0.25]</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="10" column="0">
+                    <widget class="QCheckBox" name="pfGenTimeSeries">
+                     <property name="text">
+                      <string>genTimeSeries</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
                      </property>
                     </widget>
                    </item>
@@ -627,7 +665,7 @@
            </rect>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="tab_11">
            <attribute name="title">
@@ -1857,7 +1895,7 @@
             <x>0</x>
             <y>9</y>
             <width>711</width>
-            <height>531</height>
+            <height>631</height>
            </rect>
           </property>
           <property name="currentIndex">
@@ -1991,8 +2029,8 @@
            <widget class="QLabel" name="positionLabel">
             <property name="geometry">
              <rect>
-              <x>380</x>
-              <y>360</y>
+              <x>0</x>
+              <y>440</y>
               <width>121</width>
               <height>21</height>
              </rect>
@@ -2004,8 +2042,8 @@
            <widget class="QLabel" name="livePosition">
             <property name="geometry">
              <rect>
-              <x>450</x>
-              <y>360</y>
+              <x>80</x>
+              <y>400</y>
               <width>121</width>
               <height>81</height>
              </rect>
@@ -2090,21 +2128,22 @@
              </item>
             </layout>
            </widget>
+           <widget class="QWidget" name="gridLayoutWidget_2">
+            <property name="geometry">
+             <rect>
+              <x>380</x>
+              <y>370</y>
+              <width>321</width>
+              <height>211</height>
+             </rect>
+            </property>
+            <layout class="QGridLayout" name="histo"/>
+           </widget>
           </widget>
           <widget class="QWidget" name="tab_8">
            <attribute name="title">
             <string>Page</string>
            </attribute>
-           <widget class="PlotWidget" name="graphicsView">
-            <property name="geometry">
-             <rect>
-              <x>0</x>
-              <y>0</y>
-              <width>701</width>
-              <height>391</height>
-             </rect>
-            </property>
-           </widget>
           </widget>
          </widget>
         </widget>
@@ -2126,7 +2165,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>752</width>
+     <width>746</width>
      <height>25</height>
     </rect>
    </property>
@@ -2143,11 +2182,6 @@
    <class>QwtDial</class>
    <extends>QWidget</extends>
    <header>qwt_dial.h</header>
-  </customwidget>
-  <customwidget>
-   <class>PlotWidget</class>
-   <extends>QGraphicsView</extends>
-   <header>pyqtgraph</header>
   </customwidget>
  </customwidgets>
  <resources/>

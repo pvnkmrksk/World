@@ -19,7 +19,12 @@ def main(fp):
         #depickle it if in pickle
         if ext=='pickle':
             a = depickler(fp)
-            parameters = a['parameters']
+            try:
+                parameters = a['parameters']
+            except KeyError:
+                print "key error"
+                parameters = a['metadata']
+
 
         #json load if json
         elif ext=='json':

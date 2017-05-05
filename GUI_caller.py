@@ -347,6 +347,7 @@ def clbk(data):
 
 
 def tick():
+    global vals,curve
     try:
         ui.compassServo.setValue(traj.servoAngle+90)
         ui.compassHeading.setValue(traj.pOri.x)
@@ -382,15 +383,34 @@ def tick():
 
         ui.liveState.setText(stateText)
         if not ui.pausePlot.isChecked():
-            spots = [{'pos': np.array([traj.pPos.x, traj.pPos.y])
-                         , 'data': 1}]
-            s1.addPoints(spots)
+            # spots = [{'pos': np.array([traj.pPos.x, traj.pPos.y])
+            #              , 'data': 1}]
+            # spots=np.array([traj.pPos.x, traj.pPos.y])
+            s1.addPoints(pos=[(traj.pPos.x, traj.pPos.y)])
             my_plot.addItem(s1)
+
+            vals=np.append(vals,traj.wbad)
+            y, x = np.histogram(vals, bins=np.linspace(-1, 1, 60))
+
+            ## notice that len(x) == len(y)+1
+            ## We are required to use stepMode=True so that PlotCurveItem will interpret this data correctly.
+            curve = pg.PlotDataItem(x, y, stepMode=True, fillLevel=0, brush=(0, 0, 255, 80))
+
+            line=pg.InfiniteLine(pos=vals.mean())
+            my_hist.clear()
+            my_hist.addItem(curve)
+            my_hist.addItem(line)
+
+
+
+
+
 
     except AttributeError:
         # print "something bad,no gui update"
         pass
 def resetView():
+
     off=20
     my_plot.setRange(xRange=(512-off,512+off),yRange=(512-off,512+off))
 
@@ -401,6 +421,10 @@ def setHeadingLcd():
 
 
 def clearPlot():
+    global vals,curve
+    vals = np.array([])
+    # curve.clear()
+    # my_hist.clear()
     # s1.points()
     s1.clear()
     # my_plot.clear()
@@ -481,12 +505,26 @@ if __name__ == '__main__':
     my_plot = pg.PlotWidget()
     ui.trajectoryLayout.addWidget(my_plot)
     s1 = pg.ScatterPlotItem(size=2, pen=pg.mkPen(None), brush=pg.mkBrush(255, 255, 255, 120))
-    resetView()
+    import pyqtgraph as pg
+    from pyqtgraph.Qt import QtCore, QtGui
+    import numpy as np
 
+    my_hist=pg.PlotWidget()
+    ui.histo.addWidget(my_hist)
+    global vals
+    vals = np.array([0])
+
+    y, x = np.histogram(vals, bins=np.linspace(-1, 1, 40))
+
+    ## notice that len(x) == len(y)+1
+    ## We are required to use stepMode=True so that PlotCurveItem will interpret this data correctly.
+    # curve = pg.PlotItem(x, y, stepMode=True, fillLevel=0, brush=(0, 0, 255, 80))
+    #
+    # my_hist.addItem(curve)
 
     timer = QTimer()
     timer.timeout.connect(tick)
-    timer.start(100)
+    timer.start(25)
 
     myDict = {
         'greenTexPath': [ui.greenTexPathBtn, showFileDialog, ui.greenTexPath],

@@ -140,6 +140,10 @@ class MyApp(ShowBase):
 
         self.gain = parameters["gain"]
         self.servoAngle = 90  #
+        parameters["serPort"]="USB"
+        # parameters["serPort"]="/dev/ttyUSB3"
+        if len(parameters["serPort"])==0:
+            parameters["serPort"]=None
 
             # servo.move(1, self.servoAngle)
         self.quadrantIndex = 2  # starts in 3rd quadrant, index 2 based on init pos
@@ -237,16 +241,16 @@ class MyApp(ShowBase):
 
 
     def initHardware(self):
-        baud=115200
-        self.valve1=ValveHandler(casePort=97, baud=baud)
-        self.valve2=ValveHandler(casePort=98, baud=baud)
-        self.valve3=ValveHandler(casePort=99, baud=baud)
+        self.baud=115200
+        self.valve1=ValveHandler(casePort=97, baud=self.baud)
+        self.valve2=ValveHandler(casePort=98, baud=self.baud)
+        self.valve3=ValveHandler(casePort=99, baud=self.baud)
 
         myFieldGen = FieldGen()
 
         # if parameters["loadWind"]:
 
-        self.servo1=ValveHandler(casePort=1,baud=baud)
+        self.servo1=ValveHandler(casePort=1, baud=self.baud, serPort=parameters["serPort"])
         self.servo1.move(self.servoAngle)
 
         self.windField = myFieldGen.windField(width=parameters['worldSize'],
@@ -261,11 +265,11 @@ class MyApp(ShowBase):
             # self.beep.play()  # start playing the sound seamlessly
             # self.beep.setVolume(0) #mute until unmuted later once init of all items complete
 
-        self.odourField = myFieldGen.odourQuadField(parameters['worldSize'],
-                                                    parameters['worldSize'],
-                                                    oq=parameters['odourQuad'], plot=parameters['plotOdourQuad'])
-
-
+        # self.odourField = myFieldGen.odourQuadField(parameters['worldSize'],
+        #                                             parameters['worldSize'],
+        #                                             oq=parameters['odourQuad'], plot=parameters['plotOdourQuad'])
+        #
+        self.odourField = self.ex.of
         self.odour1= OdourTunnel(odourField=self.odourField, player=self.player, parameters=parameters)
         self.odour2= OdourTunnel(odourField=self.odourField, player=self.player, parameters=parameters)
 
@@ -349,7 +353,7 @@ class MyApp(ShowBase):
                        "hRight": 0, "DCoffset-up": 0, "DCoffset-down": 0,
                        "valve1-on": 0, "valve1-off": 0,"valve2-on": 0, "valve2-off": 0,
                        "startEx": 0, "fullSpeed":0,"badFly": 0, "goodFly": 0,
-                       "prevStim": 0,"nextStim": 0,"currStim": 0,}
+                       "prevStim": 0,"nextStim": 0,"currStim": 0,"resetArduino":0}
 
         self.accept("escape", self.winClose)
         self.accept("q", self.setKey, ["climb", 1])
@@ -437,6 +441,7 @@ class MyApp(ShowBase):
         self.accept("f9-up", self.setKey, ["prevStim", 1])
         self.accept("f10-up", self.setKey, ["nextStim", 1])
         self.accept("f11-up", self.setKey, ["currStim", 1])
+        self.accept("f3-up", self.setKey, ["resetArduino", 1])
 
         self.disableMouse()  # or updateCamera will fail!
 
@@ -467,10 +472,16 @@ class MyApp(ShowBase):
 
 
         try:
-            servo.move(99, 0)  # close valve to prevent odour bleeding through
+            # servo.move(99, 0)  # close valve to prevent odour bleeding through
+            self.valve1.move(0)
+            self.valve2.move(0)
+            self.valve3.move(0)
+            print "disabled valves"
         except NameError or serial.serialutil.SerialException:
             pass  # arduino disconnected or faulty, let go
+        print "I am about to exit"
         sys.exit()
+        print "I should have exited by now"
 
     # output functions
     def initPlot(self):
@@ -482,7 +493,7 @@ class MyApp(ShowBase):
         if parameters["loadTrajectory"]:
             self.plotter = subprocess.Popen(["python", "realTimePlotter.py"])
             print "\n \n \n realtime plotter started \n \n \n"
-            time.sleep(1)
+            time.sleep(0.2)
 
     # models
     def modelLoader(self):
@@ -943,7 +954,7 @@ class MyApp(ShowBase):
                 self.player.setH(self.player.getH() - parameters["wbad"] * self.gain)
 
             if (self.keyMap["thrust"] != 0):
-                self.player.setH(self.player.getH() - parameters["wbad"] * self.gain)
+                # self.player.setH(self.player.getH() - parameters["wbad"] * self.gain)
                 self.speed=((parameters["wbas"]-parameters["minWbas"])*
                                      (parameters["maxFlightSpeed"]-parameters["minFlightSpeed"])/
                                      (parameters["maxWbas"]-parameters["minWbas"]))\
@@ -1425,6 +1436,20 @@ class MyApp(ShowBase):
         if (self.keyMap["fullSpeed"] !=0):
             self.setFullSpeed()
             self.keyMap["fullSpeed"] = 0
+
+        if (self.keyMap["resetArduino"] !=0):
+            # self.servo1.move(state=0,casePort=50)
+            # self.servo1.move(1)
+            # self.servo1.serPort.reset_input_buffer()
+            # self.servo1.serPort.reset_output_buffer()
+            self.servo1.serPort.close()
+
+            time.sleep(1)
+            self.servo1 = ValveHandler(casePort=1, baud=self.baud, serPort=parameters['serPort'])
+            self.windTunnel = WindTunnel(self.servo1, self.player)
+
+            self.keyMap["resetArduino"] = 0
+            print "trying to reset arduino"
 
 
     def setFullSpeed(self):
