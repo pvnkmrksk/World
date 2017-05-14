@@ -18,6 +18,7 @@ class ValveHandler(GetArduino):
         self.compression=compression
         self.statePrev=0
         self.state=0
+        self.printFlag=True
         # self.moveT=threading.Thread(target=self.moveThread,kwargs={'valvePort':self.valvePort,'state':self.state})
     # def moveThread(self,state):
     #     try:
@@ -65,9 +66,11 @@ class ValveHandler(GetArduino):
                     # self.serPort.write(chr(self.casePort))
                     self.serPort.write((chr(int(state))))
                     # print "serial done",chr(int(state))
-
+                    self.printFlag=True
                     # print "%s is now in state %i"%(self.valvePort,state)
                 except Exception as e:
-                    print "something reallly bad in valvehandler",e
+                    if self.printFlag:
+                        print "something reallly bad in valvehandler",e
+                    self.printFlag=False
                     pass
             self.statePrev = state  # reset to new state

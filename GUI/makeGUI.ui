@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>746</width>
-    <height>876</height>
+    <width>768</width>
+    <height>993</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -55,10 +55,17 @@
         </property>
        </widget>
       </item>
+      <item row="2" column="0">
+       <widget class="QPushButton" name="rqtBtn">
+        <property name="text">
+         <string>RQT plot</string>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="0" colspan="2">
        <widget class="QTabWidget" name="tabWidget">
         <property name="currentIndex">
-         <number>0</number>
+         <number>5</number>
         </property>
         <widget class="QWidget" name="tab">
          <attribute name="title">
@@ -1672,38 +1679,37 @@
          <widget class="QGroupBox" name="groupBox_9">
           <property name="geometry">
            <rect>
-            <x>20</x>
+            <x>40</x>
             <y>10</y>
-            <width>281</width>
-            <height>291</height>
+            <width>252</width>
+            <height>261</height>
            </rect>
           </property>
           <property name="title">
            <string>GroupBox</string>
           </property>
-          <layout class="QGridLayout" name="gridLayout_17">
-           <item row="4" column="2">
-            <widget class="QLabel" name="label_12">
-             <property name="text">
-              <string>boutNum</string>
-             </property>
-            </widget>
+          <layout class="QGridLayout" name="gridLayout_16">
+           <item row="0" column="0">
+            <widget class="QLineEdit" name="bagFullTopics"/>
            </item>
-           <item row="2" column="2">
-            <widget class="QLabel" name="label_6">
-             <property name="text">
-              <string>Race</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="2">
+           <item row="0" column="1">
             <widget class="QLabel" name="label_47">
              <property name="text">
               <string>bagFullTopics</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="0" colspan="2">
+           <item row="1" column="0">
+            <widget class="QLineEdit" name="bagTrajTopics"/>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLabel" name="label_48">
+             <property name="text">
+              <string>bagTrajTopics</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
             <widget class="QComboBox" name="race">
              <item>
               <property name="text">
@@ -1722,43 +1728,54 @@
              </item>
             </widget>
            </item>
-           <item row="4" column="0" colspan="2">
-            <widget class="QSpinBox" name="boutNum">
-             <property name="value">
-              <number>1</number>
+           <item row="2" column="1">
+            <widget class="QLabel" name="label_6">
+             <property name="text">
+              <string>Race</string>
              </property>
             </widget>
            </item>
-           <item row="0" column="0" colspan="2">
-            <widget class="QLineEdit" name="bagFullTopics"/>
+           <item row="3" column="0">
+            <widget class="QDateEdit" name="emergence"/>
            </item>
-           <item row="3" column="2">
+           <item row="3" column="1">
             <widget class="QLabel" name="label_7">
              <property name="text">
               <string>Emergence</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="0" colspan="2">
-            <widget class="QDateEdit" name="emergence"/>
+           <item row="4" column="0">
+            <widget class="QSpinBox" name="boutNum">
+             <property name="value">
+              <number>1</number>
+             </property>
+            </widget>
            </item>
-           <item row="1" column="0" colspan="2">
-            <widget class="QLineEdit" name="bagTrajTopics"/>
-           </item>
-           <item row="1" column="2">
-            <widget class="QLabel" name="label_48">
+           <item row="4" column="1">
+            <widget class="QLabel" name="label_12">
              <property name="text">
-              <string>bagTrajTopics</string>
+              <string>boutNum</string>
              </property>
             </widget>
            </item>
            <item row="5" column="0">
             <widget class="QLineEdit" name="fly"/>
            </item>
-           <item row="5" column="2">
+           <item row="5" column="1">
             <widget class="QLabel" name="label_49">
              <property name="text">
               <string>fly</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="0">
+            <widget class="QLineEdit" name="metaExpData"/>
+           </item>
+           <item row="6" column="1">
+            <widget class="QLabel" name="label_50">
+             <property name="text">
+              <string>metaExpData</string>
              </property>
             </widget>
            </item>
@@ -1894,22 +1911,106 @@
            <rect>
             <x>0</x>
             <y>9</y>
-            <width>711</width>
-            <height>631</height>
+            <width>751</width>
+            <height>761</height>
            </rect>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
-          <widget class="QWidget" name="tab_2">
+          <widget class="QWidget" name="tab_4">
            <attribute name="title">
-            <string>Tab 1</string>
+            <string>Tab 2</string>
            </attribute>
+           <widget class="QLabel" name="positionLabel">
+            <property name="geometry">
+             <rect>
+              <x>350</x>
+              <y>330</y>
+              <width>121</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Position</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="livePosition">
+            <property name="geometry">
+             <rect>
+              <x>350</x>
+              <y>350</y>
+              <width>121</width>
+              <height>81</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>None</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="stateLabel">
+            <property name="geometry">
+             <rect>
+              <x>440</x>
+              <y>10</y>
+              <width>121</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>State</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="liveState">
+            <property name="geometry">
+             <rect>
+              <x>440</x>
+              <y>30</y>
+              <width>281</width>
+              <height>301</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>None</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="label_23">
+            <property name="geometry">
+             <rect>
+              <x>611</x>
+              <y>665</y>
+              <width>121</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Servo Angle</string>
+            </property>
+           </widget>
            <widget class="QLCDNumber" name="lcdServoAngle">
             <property name="geometry">
              <rect>
-              <x>80</x>
-              <y>320</y>
+              <x>491</x>
+              <y>665</y>
+              <width>111</width>
+              <height>41</height>
+             </rect>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="numDigits">
+             <number>3</number>
+            </property>
+            <property name="segmentStyle">
+             <enum>QLCDNumber::Flat</enum>
+            </property>
+           </widget>
+           <widget class="QLCDNumber" name="lcdHeadingAngle">
+            <property name="geometry">
+             <rect>
+              <x>491</x>
+              <y>355</y>
               <width>111</width>
               <height>41</height>
              </rect>
@@ -1927,8 +2028,8 @@
            <widget class="QwtCompass" name="compassServo">
             <property name="geometry">
              <rect>
-              <x>30</x>
-              <y>50</y>
+              <x>441</x>
+              <y>395</y>
               <width>251</width>
               <height>261</height>
              </rect>
@@ -1946,8 +2047,8 @@
            <widget class="QwtCompass" name="compassHeading">
             <property name="geometry">
              <rect>
-              <x>69</x>
-              <y>95</y>
+              <x>480</x>
+              <y>440</y>
               <width>171</width>
               <height>171</height>
              </rect>
@@ -1968,8 +2069,8 @@
            <widget class="QLabel" name="label_5">
             <property name="geometry">
              <rect>
-              <x>200</x>
-              <y>20</y>
+              <x>611</x>
+              <y>365</y>
               <width>121</width>
               <height>21</height>
              </rect>
@@ -1978,167 +2079,78 @@
              <string>Heading Angle</string>
             </property>
            </widget>
-           <widget class="QLabel" name="label_23">
+           <widget class="QWidget" name="gridLayoutWidget_2">
             <property name="geometry">
              <rect>
-              <x>200</x>
-              <y>320</y>
-              <width>121</width>
-              <height>21</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Servo Angle</string>
-            </property>
-           </widget>
-           <widget class="QLCDNumber" name="lcdHeadingAngle">
-            <property name="geometry">
-             <rect>
-              <x>80</x>
-              <y>10</y>
-              <width>111</width>
-              <height>41</height>
-             </rect>
-            </property>
-            <property name="frameShape">
-             <enum>QFrame::NoFrame</enum>
-            </property>
-            <property name="numDigits">
-             <number>3</number>
-            </property>
-            <property name="segmentStyle">
-             <enum>QLCDNumber::Flat</enum>
-            </property>
-           </widget>
-           <widget class="QWidget" name="layoutWidget">
-            <property name="geometry">
-             <rect>
-              <x>370</x>
-              <y>340</y>
-              <width>265</width>
-              <height>29</height>
-             </rect>
-            </property>
-            <layout class="QHBoxLayout" name="horizontalLayout"/>
-           </widget>
-          </widget>
-          <widget class="QWidget" name="tab_4">
-           <attribute name="title">
-            <string>Tab 2</string>
-           </attribute>
-           <widget class="QLabel" name="positionLabel">
-            <property name="geometry">
-             <rect>
-              <x>0</x>
-              <y>440</y>
-              <width>121</width>
-              <height>21</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Position</string>
-            </property>
-           </widget>
-           <widget class="QLabel" name="livePosition">
-            <property name="geometry">
-             <rect>
-              <x>80</x>
-              <y>400</y>
-              <width>121</width>
-              <height>81</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>None</string>
-            </property>
-           </widget>
-           <widget class="QLabel" name="stateLabel">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>10</y>
-              <width>121</width>
-              <height>21</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>State</string>
-            </property>
-           </widget>
-           <widget class="QLabel" name="liveState">
-            <property name="geometry">
-             <rect>
-              <x>0</x>
-              <y>40</y>
-              <width>281</width>
+              <x>17</x>
+              <y>387</y>
+              <width>321</width>
               <height>301</height>
              </rect>
             </property>
-            <property name="text">
-             <string>None</string>
-            </property>
+            <layout class="QGridLayout" name="histo"/>
            </widget>
            <widget class="QWidget" name="gridLayoutWidget">
             <property name="geometry">
              <rect>
-              <x>380</x>
-              <y>0</y>
+              <x>17</x>
+              <y>17</y>
               <width>321</width>
               <height>321</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="trajectoryLayout"/>
            </widget>
-           <widget class="QWidget" name="layoutWidget">
+           <widget class="QPushButton" name="resetView">
             <property name="geometry">
              <rect>
-              <x>410</x>
-              <y>330</y>
-              <width>265</width>
-              <height>29</height>
+              <x>48</x>
+              <y>348</y>
+              <width>95</width>
+              <height>27</height>
              </rect>
             </property>
-            <layout class="QGridLayout" name="gridLayout_14">
-             <item row="0" column="0">
-              <widget class="QPushButton" name="resetView">
-               <property name="text">
-                <string>Reset View</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QPushButton" name="clearPlot">
-               <property name="text">
-                <string>Clear Plot</string>
-               </property>
-               <property name="autoDefault">
-                <bool>false</bool>
-               </property>
-               <property name="default">
-                <bool>false</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="2">
-              <widget class="QCheckBox" name="pausePlot">
-               <property name="text">
-                <string>Pause</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
+            <property name="text">
+             <string>Reset View</string>
+            </property>
            </widget>
-           <widget class="QWidget" name="gridLayoutWidget_2">
+           <widget class="QPushButton" name="clearPlot">
             <property name="geometry">
              <rect>
-              <x>380</x>
-              <y>370</y>
-              <width>321</width>
-              <height>211</height>
+              <x>149</x>
+              <y>348</y>
+              <width>85</width>
+              <height>27</height>
              </rect>
             </property>
-            <layout class="QGridLayout" name="histo"/>
+            <property name="text">
+             <string>Clear Plot</string>
+            </property>
+            <property name="autoDefault">
+             <bool>false</bool>
+            </property>
+            <property name="default">
+             <bool>false</bool>
+            </property>
            </widget>
+           <widget class="QCheckBox" name="pausePlot">
+            <property name="geometry">
+             <rect>
+              <x>240</x>
+              <y>350</y>
+              <width>71</width>
+              <height>22</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Pause</string>
+            </property>
+           </widget>
+          </widget>
+          <widget class="QWidget" name="tab_2">
+           <attribute name="title">
+            <string>Tab 1</string>
+           </attribute>
           </widget>
           <widget class="QWidget" name="tab_8">
            <attribute name="title">
@@ -2147,13 +2159,6 @@
           </widget>
          </widget>
         </widget>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QPushButton" name="rqtBtn">
-        <property name="text">
-         <string>RQT plot</string>
-        </property>
        </widget>
       </item>
      </layout>
@@ -2165,7 +2170,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>746</width>
+     <width>768</width>
      <height>25</height>
     </rect>
    </property>
@@ -2391,22 +2396,6 @@
     <hint type="destinationlabel">
      <x>119</x>
      <y>113</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>stopVRBtn</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>pausePlot</receiver>
-   <slot>toggle()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>313</x>
-     <y>720</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>627</x>
-     <y>456</y>
     </hint>
    </hints>
   </connection>

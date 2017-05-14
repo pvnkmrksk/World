@@ -32,7 +32,7 @@
 
 #include <uStepper.h>
 
-uStepper stepper(1000,1000);
+uStepper stepper(500,1000);
 float scal=20.48;//11.37;//20.48;
 float rn=0;
 float cmd;
@@ -86,8 +86,8 @@ int valve3 =4;
 
 int minAngle= 0;
 int maxAngle=180;
-int minSteps=0;//18;
-int maxSteps=136;//118;
+int minSteps=28;//0;//18;
+int maxSteps=128;//136;//118;
 void setup()
 { 
   // Attach each Servo object to a digital pin
@@ -109,10 +109,10 @@ void setup()
 
 
 // stepper.setup();
- stepper.setup(PID,FULL,2,1,5,5,5);     //Initiate the stepper object to use closed loop PID control
+ stepper.setup(PID,FULL,2,1,50,50,50);     //Initiate the stepper object to use closed loop PID control
 //  stepper.setup(PID,FULL,2,1,5,0.02,0.006);     //Initiate the stepper object to use closed loop PID control
                                                         //The behaviour of the controller can be adjusted by tuning 
-  Serial.setTimeout(10);                                          //the P, I and D paramenters in this initiation (the last three parameters)
+  Serial.setTimeout(6);                                          //the P, I and D paramenters in this initiation (the last three parameters)
                                                         //Also the hysteresis and faultTolerance can be adjusted by adjusting 
                                                         //parameter 3 and 4. For more information, check out the documentation:
                                                         //http://ustepper.com/docs/html/index.html
@@ -158,7 +158,7 @@ void loop()
 //          go=map(pos,0,180,118,18);
 //          go=constrain(go,18,118);
 
-          go=map(pos,minAngle,maxAngle,minSteps,maxSteps);
+          go=map(pos,maxAngle,minAngle,minSteps,maxSteps);
           go=constrain(go,minSteps,maxSteps);
           
           if (go!=0){

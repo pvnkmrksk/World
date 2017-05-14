@@ -251,7 +251,9 @@ class MyApp(ShowBase):
         # if parameters["loadWind"]:
 
         self.servo1=ValveHandler(casePort=1, baud=self.baud, serPort=parameters["serPort"])
-        self.servo1.move(self.servoAngle)
+        time.sleep(3)#you need 3 seconds to make arduino listen Dunno why
+        self.servo1.move(90)
+        # self.servo1.move(self.servoAngle)
 
         self.windField = myFieldGen.windField(width=parameters['worldSize'],
                                               height=parameters['worldSize'],wq=parameters['windQuad'])
@@ -1438,19 +1440,24 @@ class MyApp(ShowBase):
             self.keyMap["fullSpeed"] = 0
 
         if (self.keyMap["resetArduino"] !=0):
+            self.ex.badFly()
             # self.servo1.move(state=0,casePort=50)
             # self.servo1.move(1)
             # self.servo1.serPort.reset_input_buffer()
             # self.servo1.serPort.reset_output_buffer()
-            self.servo1.serPort.close()
+            try:
+                self.servo1.serPort.close()
+            except AttributeError:
+                print "sevo was Not connected earlier"
+                pass
 
-            time.sleep(1)
+            time.sleep(3)
             self.servo1 = ValveHandler(casePort=1, baud=self.baud, serPort=parameters['serPort'])
             self.windTunnel = WindTunnel(self.servo1, self.player)
 
             self.keyMap["resetArduino"] = 0
             print "trying to reset arduino"
-
+            self.ex.goodFly()
 
     def setFullSpeed(self):
         self.speed=parameters["maxSpeed"]

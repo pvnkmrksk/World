@@ -1,7 +1,9 @@
 from classes.valveHandler import ValveHandler
+import time
 increment=5
-v=ValveHandler(casePort=1, compression=False, baud=115200, serPort='/dev/ttyUSB1')
+v=ValveHandler(casePort=1, compression=False, baud=115200, serPort='USB')
 v.move(90)
+randMode=False
 while True:
     try:
         print "Enter the servoAngle to be set, \n " \
@@ -14,9 +16,22 @@ while True:
         #     servoAngle+=increment
         # else:
         #     servoAngle=int(angleInput)
-        servoAngle=int(angleInput)
+        # servoAngle=int(angleInput)
+        servoAngle=(angleInput)
         # print "servoangle uis",servoAngle
-        v.move(servoAngle)
+        if servoAngle=='s':
+            #reset seral port to reset stepper
+            v.serPort.close()
+            time.sleep(1)
+            v = ValveHandler(casePort=1, compression=False, baud=115200, serPort='USB')
+            randMode=False
+        elif servoAngle=='r':
+            randMode=True
+            print "in randmode"
+        else:
+            servoAngle = int(angleInput)
+            v.move(servoAngle)
+            randMode=False
         # print "analog 1 value is",ord(v.serPort.read())
         print ('\n\n')
         # servo.move(1,servoAngle)
