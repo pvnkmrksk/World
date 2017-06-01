@@ -10,6 +10,9 @@ from PyQt4.QtGui import QApplication, QMainWindow
 from classes.rosSubscriber import RosSubscriber
 from helping.importHelper import *
 from pathlib import Path
+import pyqtgraph as pg
+from pyqtgraph.Qt import QtCore, QtGui
+import numpy as np
 
 pathRun=os.path.abspath(os.path.split(sys.argv[0])[0]) #path of the runfile
 pathJson= pathRun + '/GUI/jsonFiles/'
@@ -347,7 +350,7 @@ def clbk(data):
 
 
 def tick():
-    global vals,curve
+    global vals,curve,traj0s,traj1s,traj2s,traj3s
     try:
         ui.compassServo.setValue(traj.servoAngle+90)
         ui.compassHeading.setValue(traj.pOri.x)
@@ -386,10 +389,30 @@ def tick():
             # spots = [{'pos': np.array([traj.pPos.x, traj.pPos.y])
             #              , 'data': 1}]
             # spots=np.array([traj.pPos.x, traj.pPos.y])
-            s1.addPoints(pos=[(traj.pPos.x, traj.pPos.y)])
-            my_plot.addItem(s1)
 
-            vals=np.append(vals,traj.wbad)
+            # s1.addPoints(pos=[(traj.pPos.x, traj.pPos.y)])
+            # my_plot.addItem(s1)
+            def quadPlot(trajs,s):
+                trajs = np.vstack((trajs, np.array([traj.pPos.x, traj.pPos.y])))
+                s.clear()
+                s.plot(trajs[:, 0], trajs[:, 1], pen=None, symbol='o', symbolPen=None, symbolSize=2)
+                return trajs
+            if traj.case ==0:
+                traj0s=quadPlot(traj0s,s0)
+            elif traj.case ==1:
+                traj1s=quadPlot(traj1s,s1)
+            elif traj.case ==2:
+                traj2s=quadPlot(traj2s,s2)
+            elif traj.case ==3:
+                traj3s=quadPlot(traj3s,s3)
+
+            #
+            # traj1s=np.vstack((traj1s,np.array([traj.pPos.x,traj.pPos.y])))
+            # vals=np.append(vals,traj.wbad)
+            # s1.clear()
+            # s1.plot(traj1s[:,0],traj1s[:,1], pen=None, symbol='o', symbolPen=None, symbolSize=5)
+
+            vals = np.append(vals, traj.wbad)
             y, x = np.histogram(vals, bins=np.linspace(-1, 1, 60))
 
             ## notice that len(x) == len(y)+1
@@ -412,8 +435,10 @@ def tick():
 def resetView():
 
     off=20
-    my_plot.setRange(xRange=(512-off,512+off),yRange=(512-off,512+off))
-
+    s0.setRange(xRange=(512-off,512+off),yRange=(512-off,512+off))
+    s1.setRange(xRange=(512-off,512+off),yRange=(512-off,512+off))
+    s2.setRange(xRange=(512-off,512+off),yRange=(512-off,512+off))
+    s3.setRange(xRange=(512-off,512+off),yRange=(512-off,512+off))
 
 def setHeadingLcd():
     ui.lcdNumber_3.display(ui.compassHeading.value() - 90)  # offset origin to E and not North
@@ -421,8 +446,12 @@ def setHeadingLcd():
 
 
 def clearPlot():
-    global vals,curve
+    global vals,curve,traj0s,traj1s,traj2s,traj3s
     vals = np.array([])
+    traj0s = np.array([0,0])
+    traj1s = np.array([0,0])
+    traj2s = np.array([0,0])
+    traj3s = np.array([0,0])
     # curve.clear()
     # my_hist.clear()
     # s1.points()
@@ -502,18 +531,33 @@ if __name__ == '__main__':
     ui.compassHeading.setOrigin(270)# to set north as north
 
     RosSubscriber('GUI', '/trajectory', MsgTrajectory, clbk)
-    my_plot = pg.PlotWidget()
-    ui.trajectoryLayout.addWidget(my_plot)
-    s1 = pg.ScatterPlotItem(size=2, pen=pg.mkPen(None), brush=pg.mkBrush(255, 255, 255, 120))
-    import pyqtgraph as pg
-    from pyqtgraph.Qt import QtCore, QtGui
-    import numpy as np
 
+    # my_plot = pg.PlotWidget()
+    # ui.trajectoryLayout.addWidget(my_plot)
+    # s1 = pg.ScatterPlotItem(size=2, pen=pg.mkPen(None), brush=pg.mkBrush(255, 255, 255, 120))
+    my_plot = pg.GraphicsLayoutWidget()
+    ui.trajectoryLayout.addWidget(my_plot)
+
+    s1 = my_plot.addPlot(title="1")
+    s0 = my_plot.addPlot(title="0")
+    my_plot.nextRow()
+    s2 = my_plot.addPlot(title="2")
+    s3 = my_plot.addPlot(title="3")
+
+    s3.setXLink(s0)
+    s3.setYLink(s0)
+    s2.setXLink(s0)
+    s2.setYLink(s0)
+    s1.setXLink(s0)
+    s1.setYLink(s0)
     my_hist=pg.PlotWidget()
     ui.histo.addWidget(my_hist)
-    global vals
+    global vals,traj0s,traj1s,traj2s,traj3s
+    traj0s = np.array([0,0])
+    traj1s = np.array([0,0])
+    traj2s = np.array([0,0])
+    traj3s = np.array([0,0])
     vals = np.array([0])
-
     y, x = np.histogram(vals, bins=np.linspace(-1, 1, 40))
 
     ## notice that len(x) == len(y)+1

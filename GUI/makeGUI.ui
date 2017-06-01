@@ -1916,7 +1916,7 @@
            </rect>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="tab_4">
            <attribute name="title">
@@ -2090,35 +2090,29 @@
             </property>
             <layout class="QGridLayout" name="histo"/>
            </widget>
-           <widget class="QWidget" name="gridLayoutWidget">
+          </widget>
+          <widget class="QWidget" name="tab_2">
+           <attribute name="title">
+            <string>Tab 1</string>
+           </attribute>
+           <widget class="QCheckBox" name="pausePlot">
             <property name="geometry">
              <rect>
-              <x>17</x>
-              <y>17</y>
-              <width>321</width>
-              <height>321</height>
-             </rect>
-            </property>
-            <layout class="QGridLayout" name="trajectoryLayout"/>
-           </widget>
-           <widget class="QPushButton" name="resetView">
-            <property name="geometry">
-             <rect>
-              <x>48</x>
-              <y>348</y>
-              <width>95</width>
-              <height>27</height>
+              <x>192</x>
+              <y>692</y>
+              <width>71</width>
+              <height>22</height>
              </rect>
             </property>
             <property name="text">
-             <string>Reset View</string>
+             <string>Pause</string>
             </property>
            </widget>
            <widget class="QPushButton" name="clearPlot">
             <property name="geometry">
              <rect>
-              <x>149</x>
-              <y>348</y>
+              <x>101</x>
+              <y>690</y>
               <width>85</width>
               <height>27</height>
              </rect>
@@ -2133,24 +2127,30 @@
              <bool>false</bool>
             </property>
            </widget>
-           <widget class="QCheckBox" name="pausePlot">
+           <widget class="QWidget" name="gridLayoutWidget">
             <property name="geometry">
              <rect>
-              <x>240</x>
-              <y>350</y>
-              <width>71</width>
-              <height>22</height>
+              <x>-1</x>
+              <y>-1</y>
+              <width>741</width>
+              <height>681</height>
+             </rect>
+            </property>
+            <layout class="QGridLayout" name="trajectoryLayout"/>
+           </widget>
+           <widget class="QPushButton" name="resetView">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>690</y>
+              <width>95</width>
+              <height>27</height>
              </rect>
             </property>
             <property name="text">
-             <string>Pause</string>
+             <string>Reset View</string>
             </property>
            </widget>
-          </widget>
-          <widget class="QWidget" name="tab_2">
-           <attribute name="title">
-            <string>Tab 1</string>
-           </attribute>
           </widget>
           <widget class="QWidget" name="tab_8">
            <attribute name="title">

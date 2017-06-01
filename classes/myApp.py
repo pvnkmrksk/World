@@ -186,6 +186,9 @@ class MyApp(ShowBase):
         self.overRidePf=False
         self.mesErrorPrinted=False
 
+        self.patchx=self.patchy=self.patchl=self.patchw=0.5
+        self.patchIncrement=0.001
+
         if ls=='pf':
             # parameters["maxBoutDur"]=0
             self.maxBoutDur=0
@@ -1378,34 +1381,73 @@ class MyApp(ShowBase):
         if (self.keyMap["a-up"] != 0):
             parameters["minWbas"] += parameters["DCoffsetIncrement"]
             print "wbas scalers is ", parameters["minWbas"]
+            self.patchl+=self.patchIncrement
+            self.ex.patch1.setScale((self.patchl, 1, self.patchw))
+            self.ex.patch2.setScale((self.patchl, 1, self.patchw))
+            print "patch scale pos is", self.patchx,self.patchy,self.patchl,self.patchw
 
         if (self.keyMap["a-down"] != 0):
             parameters["minWbas"] -= parameters["DCoffsetIncrement"]
             print "wbas scalers is ", parameters["minWbas"]
+            self.patchl -= self.patchIncrement
+            self.ex.patch1.setScale((self.patchl, 1, self.patchw))
+            self.ex.patch2.setScale((self.patchl, 1, self.patchw))
+            print "patch scale pos is", self.patchx,self.patchy,self.patchl,self.patchw
+
 
         if (self.keyMap["b-up"] != 0):
             parameters["maxWbas"] += parameters["DCoffsetIncrement"]
             print "wbas scalers is ", parameters["maxWbas"]
+            self.patchw += self.patchIncrement
+            self.ex.patch1.setScale((self.patchl, 1, self.patchw))
+            self.ex.patch2.setScale((self.patchl, 1, self.patchw))
+            print "patch scale pos is", self.patchx,self.patchy,self.patchl,self.patchw
+
 
         if (self.keyMap["b-down"] != 0):
             parameters["maxWbas"] -= parameters["DCoffsetIncrement"]
             print "wbas scalers is ", parameters["maxWbas"]
+            self.patchw -= self.patchIncrement
+            self.ex.patch1.setScale((self.patchl, 1, self.patchw))
+            self.ex.patch2.setScale((self.patchl, 1, self.patchw))
+            print "patch scale pos is", self.patchx,self.patchy,self.patchl,self.patchw
+
 
         if (self.keyMap["c-up"] != 0):
             parameters["minFlightSpeed"] += parameters["DCoffsetIncrement"]
             print "speed scalers is ", parameters["minFlightSpeed"]
+            self.patchx += self.patchIncrement
+            self.ex.patch1.setPos((self.patchx, 1, self.patchy))
+            self.ex.patch2.setPos((-self.patchx, 1, self.patchy))
+            print "patch scale pos is", self.patchx,self.patchy,self.patchl,self.patchw
+
 
         if (self.keyMap["c-down"] != 0):
             parameters["minFlightSpeed"] -= parameters["DCoffsetIncrement"]
             print "speed scalers is ", parameters["minFlightSpeed"]
+            self.patchx -= self.patchIncrement
+            self.ex.patch1.setPos((self.patchx, 1, self.patchy))
+            self.ex.patch2.setPos((-self.patchx, 1, self.patchy))
+            print "patch scale pos is", self.patchx,self.patchy,self.patchl,self.patchw
+
 
         if (self.keyMap["d-up"] != 0):
             parameters["maxFlightSpeed"] += parameters["DCoffsetIncrement"]
             print "speed scalers is ", parameters["maxFlightSpeed"]
+            self.patchy += self.patchIncrement
+            self.ex.patch1.setPos((self.patchx, 1, self.patchy))
+            self.ex.patch2.setPos((-self.patchx, 1, self.patchy))
+            print "patch scale pos is", self.patchx,self.patchy,self.patchl,self.patchw
+
 
         if (self.keyMap["d-down"] != 0):
             parameters["maxFlightSpeed"] -= parameters["DCoffsetIncrement"]
             print "speed scalers is ", parameters["maxFlightSpeed"]
+            self.patchy -= self.patchIncrement
+            self.ex.patch1.setPos((self.patchx, 1, self.patchy))
+            self.ex.patch2.setPos((-self.patchx, 1, self.patchy))
+            print "patch scale pos is", self.patchx,self.patchy,self.patchl,self.patchw
+
 
         if (self.keyMap["startEx"] != 0):
             self.ex.runNum = -1#np.NaN
@@ -1417,6 +1459,7 @@ class MyApp(ShowBase):
             self.ex.startExperiment()
 
             self.keyMap['startEx'] = 0
+
 
         if (self.keyMap["badFly"] != 0):
             self.ex.badFly()

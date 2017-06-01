@@ -58,6 +58,10 @@ class Experiment(object):
         """
 
         self.world = self.terrain.initTerrain()
+        from direct.gui.OnscreenImage import OnscreenImage
+        #self.patch1 = OnscreenImage(image='models/patch.png', pos=(-1.23, 0, -0.113),scale=(0.479,1,0.176))
+        #self.patch2 = OnscreenImage(image='models/patch.png', pos=(1.23, 0, -0.113),scale=(0.479,1,0.176))
+
         # self.world = self.terrain.generate()#todo: is that right? or even necessary?
 
     def createSky(self):

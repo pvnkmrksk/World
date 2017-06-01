@@ -63,7 +63,7 @@ class BagControl():
     def bagFilenameGen(self):
         # todo: fix filename generate
 
-        self.timeNow = str(datetime.now().strftime('%Y-%m-%d__%H:%M:%S'))
+        self.timeNow = str(datetime.now().strftime('%Y-%m-%d__%H~%M~%S'))
         mode = ""
         state=""
         try:
@@ -85,10 +85,10 @@ class BagControl():
 
 
 
-            state+='gain:'+str(parameters["gain"])+"_"
-            state+='speed:'+str(parameters["maxSpeed"])+"_"
-            state+='bout:'+str(parameters["maxBoutDur"])+"_"
-            state+='DC:'+str(parameters["DCoffset"])+"_"
+            state+='gain~'+str(parameters["gain"])+"_"
+            state+='speed~'+str(parameters["maxSpeed"])+"_"
+            state+='bout~'+str(parameters["maxBoutDur"])+"_"
+            state+='DC~'+str(parameters["DCoffset"])+"_"
                     # if parameters["quad"]:
             #     mode += "quad_"
 
