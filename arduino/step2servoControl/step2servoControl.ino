@@ -32,7 +32,9 @@
 
 #include <uStepper.h>
 
-uStepper stepper(1000,1000);
+int micro= 16;
+
+uStepper stepper(10000*micro,1500*micro);
 float scal=20.48;//11.37;//20.48;
 float rn=0;
 float cmd;
@@ -46,7 +48,7 @@ unsigned long previousMillis = 0;        // will store last time LED was updated
 // constants won't change :
 const long interval = 6;           // interval at which to blink (milliseconds)
 
-
+float off=3;//anglefinder
 
 
 
@@ -84,18 +86,15 @@ int valve1 =7;
 int valve2 =8;
 int valve3 =4;
 
-int minAngle= 10;
-int maxAngle=170;
-int minSteps=0;//15;//28;//0;//18;
-int maxSteps=100;//115;//128;//136;//118;
+int minAngle= 0;
+int maxAngle=180;
+int minSteps=3;//15;//28;//0;//18;
+int maxSteps=103;//115;//128;//136;//118;
+
+
+
 void setup()
 { 
-  // Attach each Servo object to a digital pin
-  //servo1.attach(s1, minPulse, maxPulse);
-//servo1.attach(s1);
-  // TO ADD SERVOS:
-  //   servo5.attach(YOUR_PIN, minPulse, maxPulse);
-  //   etc...
 
   // Valve and LED on Pin 13 for digital on/off demo
   pinMode(valve1,OUTPUT);
@@ -109,7 +108,8 @@ void setup()
 
 
 // stepper.setup();
- stepper.setup(PID,FULL,2,1,5,5,5);     //Initiate the stepper object to use closed loop PID control
+stepper.setup(PID,SIXTEEN,20,10,0.1,0.1,0.1);     //Initiate the stepper object to use closed loop PID control
+ //stepper.setup(PID,FULL,2,1,50,50,50);     //Initiate the stepper object to use closed loop PID control
 //  stepper.setup(PID,FULL,2,1,5,0.02,0.006);     //Initiate the stepper object to use closed loop PID control
                                                         //The behaviour of the controller can be adjusted by tuning 
   Serial.setTimeout(6);                                          //the P, I and D paramenters in this initiation (the last three parameters)
@@ -152,41 +152,26 @@ void loop()
       // Assign new position to appropriate servo
       switch (servo) {
         case 1:
-
+          go=pos;
+          cmd=modu((modu(200-int(pos),200)-modu(int(stepper.encoder.angle/scal)-off,200)),200);
         
-//
-//          go=map(pos,0,180,118,18);
-//          go=constrain(go,18,118);
-
-          go=map(pos,maxAngle,minAngle,minSteps,maxSteps);
-          go=constrain(go,minSteps,maxSteps);
-          
-          if (go!=0){
-            got=go;
-            } 
-          if (got!=0){
-          cmd=int(got-(stepper.encoder.angle/scal))%200;
-          }
-          if (cmd!=0 && got!=0) {
-            if (cmd>0 ){
-              dir=false;
-             }
-        
-             if (cmd<0){
-              dir=true;
-              cmd=abs(cmd);
-             }
-            stepper.moveSteps(cmd,dir,HARD);
-           
-           }
-         
-        
-        
-        
-
-        
-//          servo1.write(pos);    // move servo1 to 'pos'
+          if (cmd<100){
+              dir = false;
+              cmd=cmd;
+              }
+          else if (cmd<200){
+              dir = true;
+              cmd= 200-cmd;
+              }
+          else if (cmd!=0) {
+              dir = true;
+              cmd=50;
+              }
+            if (cmd!=0){
+              stepper.moveSteps(cmd*micro,dir,HARD);
+            }
           break;
+
 
         case 50:
           Serial.println("ressetting");
@@ -250,3 +235,6 @@ void loop()
 
 }
 
+int modu(int a,int b){
+   return ((a % b) + b) % b;
+  }

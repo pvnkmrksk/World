@@ -8,6 +8,7 @@ void setup() {
   stepper.setup();
   stepper.setMaxAcceleration(2000);
   stepper.setMaxVelocity(1500);
+  stepper.hardStop(SOFT);
   Serial.begin(115200);
 }
 
@@ -24,5 +25,5 @@ void loop() {
 //   Serial.println(" Degrees Celsius");
    Serial.print("Angle: ");
    Serial.print(stepper.encoder.angle/scal);
-   Serial.println(" Degrees");
+   Serial.println(" steps");
 }

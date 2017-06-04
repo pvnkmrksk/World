@@ -3,19 +3,38 @@ from helping import helper
 import numpy as np
 
 class WindTunnel():
-    def __init__(self, servo,player):
+    def __init__(self, servo,player,stepAngle=1.8,suction=False,windowSize=1):
         self.servo=servo
         self.player=player
+        self.stepAngle=stepAngle
+        self.suction=suction
+        self.window=np.zeros(windowSize)
 
     def update(self, windDir):
-
+        self.window = np.roll(self.window,1)
+        self.window[0]=self.player.getH()
+        head=self.window.mean()
         if windDir != -1:  # -1 is open loop in wind direction
-            self.servoAngle = int((90 - (self.player.getH()) + windDir - 180) % 360)
+            if self.suction:
+                self.servoAngle = int((90 - (head) + windDir - 180) % 360)
+            else :
+                self.servoAngle = int((90 - (head) + windDir ) % 360)
+        # if windDir != -1:  # -1 is open loop in wind direction
+        #     if self.suction:
+        #         self.servoAngle = int((90 - (self.player.getH()) + windDir - 180) % 360)
+        #     else :
+        #         self.servoAngle = int((90 - (self.player.getH()) + windDir ) % 360)
+
         else:
-            self.servoAngle = 90
+            if self.suction:
+                self.servoAngle = 90
+            else:
+                self.servoAngle = 270
             # print "wind in open loop"
 
-        self.servo.move(self.servoAngle)
+        #this will make the number to be within 255 to not get char error on serial
+        #todo.fix make serial not be limited to 255, use parseInt instead
+        self.servo.move(self.servoAngle/self.stepAngle)#divide it into steps instead of angles
         return self.servoAngle
 
 
