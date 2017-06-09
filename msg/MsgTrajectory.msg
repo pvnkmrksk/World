@@ -8,6 +8,8 @@ float64 speed
 float64 gain
 int16 headingControl
 int16 speedControl
+float64 slip
+float64 groundSpeed
 
 int16 trial
 int16 runNum
@@ -18,6 +20,7 @@ int16 valve2
 int16 valve3
 int16 quadrant
 int16 boutFrame
+
 
 float64 DCoffset
 float64 packetFrequency

@@ -354,27 +354,36 @@ def tick():
     try:
         ui.compassServo.setValue(traj.servoAngle+90)
         ui.compassHeading.setValue(traj.pOri.x)
+        ui.compassSlip.setValue(traj.slip)
+        # ui.compassSlip.setValue((((traj.slip+180)%360)-180-90)%360)
 
         ui.lcdServoAngle.display(traj.servoAngle)
         ui.lcdHeadingAngle.display(traj.pOri.x%360)
+        ui.lcdSlipAngle.display((traj.slip))
 
         ui.livePosition.setText(str(traj.pPos))
 
-        stateText="gain\t\t: "+str(traj.gain)+\
-                  "\nHeading Control\t: "+str(bool(traj.headingControl))+\
-                  "\nSpeed Control\t: "+str(bool(traj.speedControl))+\
-                  "\ntrial\t\t: "+str(traj.trial)+ \
+        stateText="\ntrial\t\t: "+str(traj.trial)+ \
                   "\nrunNum\t\t: " + str(traj.runNum) + \
                   "\ncase\t\t: " + str(traj.case) + \
-                  "\nservoAngle\t: "+str(traj.servoAngle)+\
-                  "\nDCoffset\t: "+str(traj.DCoffset)+ \
-                  "\nspeed\t: "+str(traj.speed)+ \
-                  "\npacketFrequency\t: "+str(traj.packetFrequency)+ \
-                  "\npacketDuration\t: "+str(traj.packetDuration)+ \
-                  "\nvalve1\t\t: " + str(bool(traj.valve1)) + \
+                  \
+                  "\n\nDCoffset\t: " + str(traj.DCoffset) + \
+                  "\nisFlying\t\t: " + str(bool(traj.isFlying)) + \
+                  "\npacketFrequency\t: " + str(traj.packetFrequency) + \
+                  \
+                  "\n\nvalve1\t\t: " + str(bool(traj.valve1)) + \
                   "\nvalve2\t\t: " + str(bool(traj.valve2)) + \
                   "\nvalve3\t\t: " + str(bool(traj.valve3)) + \
-                  "\nisFlying\t\t: " + str(bool(traj.isFlying)) + \
+                  \
+                  "\n\nslip\t\t: " + str((traj.slip)) + \
+                  "\ngroundSpeed\t: " + str((np.round(traj.groundSpeed,2))) + \
+                  \
+                  \
+                  "\n\n\ngain\t\t: "+str(traj.gain)+\
+                  "\nHeading Control\t: "+str(bool(traj.headingControl))+\
+                  "\nSpeed Control\t: "+str(bool(traj.speedControl))+\
+                  "\nspeed\t: "+str(traj.speed)+ \
+                  "\npacketDuration\t: "+str(traj.packetDuration)+ \
                   "\nreset\t\t: " + str(bool(traj.reset))
 
                   # "\nheadingControl\t\t: " + str(bool(traj.headingControl)) + \
@@ -530,6 +539,9 @@ if __name__ == '__main__':
     ui.compassHeading.setNeedle(Qwt.QwtDialSimpleNeedle(Qwt.QwtDialSimpleNeedle.Arrow))
     ui.compassHeading.setOrigin(270)# to set north as north
 
+    ui.compassSlip.setNeedle(Qwt.QwtDialSimpleNeedle(Qwt.QwtDialSimpleNeedle.Arrow))
+    ui.compassSlip.setOrigin(270)# to set north as north
+
     RosSubscriber('GUI', '/trajectory', MsgTrajectory, clbk)
 
     # my_plot = pg.PlotWidget()
@@ -544,6 +556,7 @@ if __name__ == '__main__':
     s2 = my_plot.addPlot(title="2")
     s3 = my_plot.addPlot(title="3")
 
+
     s3.setXLink(s0)
     s3.setYLink(s0)
     s2.setXLink(s0)
@@ -551,7 +564,7 @@ if __name__ == '__main__':
     s1.setXLink(s0)
     s1.setYLink(s0)
     my_hist=pg.PlotWidget()
-    ui.histo.addWidget(my_hist)
+    ui.histog.addWidget(my_hist)
     global vals,traj0s,traj1s,traj2s,traj3s
     traj0s = np.array([0,0])
     traj1s = np.array([0,0])

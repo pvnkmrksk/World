@@ -10,11 +10,12 @@ class WindTunnel():
         self.suction=suction
         self.window=np.zeros(windowSize)
 
-    def update(self, windDir):
+    def update(self, windDir,openLoop):
         self.window = np.roll(self.window,1)
         self.window[0]=self.player.getH()
         head=self.window.mean()
-        if windDir != -1:  # -1 is open loop in wind direction
+        if not openLoop:  # -1 is open loop in wind direction
+        # if windDir != -1:  # -1 is open loop in wind direction
             if self.suction:
                 self.servoAngle = int((90 - (head) + windDir - 180) % 360)
             else :
@@ -29,7 +30,8 @@ class WindTunnel():
             if self.suction:
                 self.servoAngle = 90
             else:
-                self.servoAngle = 270
+                self.servoAngle = windDir + 90
+                # self.servoAngle = 270
             # print "wind in open loop"
 
         #this will make the number to be within 255 to not get char error on serial

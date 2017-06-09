@@ -6,7 +6,7 @@ v=ValveHandler(casePort=1, compression=False, baud=115200, serPort='USB')
 v.move(90)
 randMode=False
 servoAngle=90
-a=10
+a=20
 while True:
     try:
         print "Enter the servoAngle to be set, \n " \

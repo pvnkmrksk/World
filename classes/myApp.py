@@ -188,7 +188,9 @@ class MyApp(ShowBase):
 
         self.patchx=self.patchy=self.patchl=self.patchw=0.5
         self.patchIncrement=0.001
-
+        self.windDir=0
+        self.windSpeed=1
+        self.prevPos=parameters["playerInitPos"]
         if ls=='pf':
             # parameters["maxBoutDur"]=0
             self.maxBoutDur=0
@@ -259,7 +261,8 @@ class MyApp(ShowBase):
         # self.servo1.move(self.servoAngle)
 
         self.windField = myFieldGen.windField(width=parameters['worldSize'],
-                                              height=parameters['worldSize'],wq=parameters['windQuad'])
+                                              height=parameters['worldSize'],wq=parameters['windQuad'],wqo=parameters['windQuadOpen'])
+        print "wqo,wq is",parameters['windQuadOpen'],parameters["windQuad"]
         self.windTunnel = WindTunnel(self.servo1,self.player)
 
 
@@ -311,7 +314,8 @@ class MyApp(ShowBase):
         p   : Closed loop
         k   : open thrust
         l   : closed thrust
-        r   : reverse gear
+        r   : strafe left ---reverse gear
+        l   : strafe right ---reverse gear
         s   : handbrake
         i   : reset to init position
         u   : increase gain
@@ -344,7 +348,7 @@ class MyApp(ShowBase):
 
         '''
         self.keyMap = {"left": 0, "right": 0, "climb": 0, "fall": 0,
-                       "accelerate": 0, "decelerate": 0, "handBrake": 0, "reverse": 0,
+                       "accelerate": 0, "decelerate": 0, "accelerateWind": 0, "decelerateWind": 0, "handBrake": 0, "strafeL": 0,"strafeR": 0,
                        "closed": 0, "thrust":0,"gain-up": 0, "gain-down": 0, "lrGain-up": 0,
                        "lrGain-down": 0,
                        "init": 0, "packetDur-up": 0, "packetDur-down": 0,
@@ -373,12 +377,21 @@ class MyApp(ShowBase):
         self.accept("arrow_down-up", self.setKey, ["decelerate", 0])
         self.accept("arrow_up", self.setKey, ["accelerate", 1])
         self.accept("arrow_up-up", self.setKey, ["accelerate", 0])
+
+        self.accept("control-arrow_down", self.setKey, ["decelerateWind", 1])
+        self.accept("control-arrow_down-up", self.setKey, ["decelerateWind", 0])
+        self.accept("control-arrow_up", self.setKey, ["accelerateWind", 1])
+        self.accept("control-arrow_up-up", self.setKey, ["accelerateWind", 0])
+
         self.accept("o", self.setKey, ["closed", 0])
         self.accept("p", self.setKey, ["closed", 1])
         self.accept("k", self.setKey, ["thrust", 0])
         self.accept("l", self.setKey, ["thrust", 1])
-        self.accept("r", self.setKey, ["reverse", 1])
-        self.accept("r-up", self.setKey, ["reverse", 0])
+        self.accept("r", self.setKey, ["strafeL", 1])
+        self.accept("r-up", self.setKey, ["strafeL", 0])
+        self.accept("t", self.setKey, ["strafeR", 1])
+        self.accept("t-up", self.setKey, ["strafeR", 0])
+
         self.accept("s", self.setKey, ["handBrake", 1])
         self.accept("s-up", self.setKey, ["handBrake", 0])
         self.accept("i", self.setKey, ["init", 1])
@@ -399,8 +412,7 @@ class MyApp(ShowBase):
         self.accept("e-up", self.setKey, ["startBag", 1])
         # self.accept("d", self.setKey, ["stopBag", 1])
         self.accept("d-up", self.setKey, ["stopBag", 1])
-        self.accept("t", self.setKey, ["newTopSpeed", 1])
-        self.accept("t-up", self.setKey, ["newTopSpeed", 0])
+
         # self.accept("0", self.setKey, ["resetPos", 0])
         self.accept("0-up", self.setKey, ["resetPos", 1])
 
@@ -540,6 +552,10 @@ class MyApp(ShowBase):
         self.player = NodePath("player")
         self.player.setPos(self.ex.world, tuple(parameters["playerInitPos"]))
         self.player.setH(self.ex.world, (parameters["playerInitH"]))  # heading angle is 0
+
+        self.windNode = NodePath("wind")
+        self.windNode.setPos(self.ex.world, self.player.getPos())
+        self.windNode.setH(self.ex.world, 0)  # heading angle is 0
 
     # sky load
     def createEnvironment(self):
@@ -703,6 +719,8 @@ class MyApp(ShowBase):
         mes.wbad = parameters["wbad"]  # set wing beat amplitude difference
         mes.wbas = parameters["wbas"]  # set wing beat amplitude sum
 
+        mes.slip = self.slip
+        mes.groundSpeed = self.groundSpeed
         mes.trial = self.ex.trial  # trial number. increments after every reset
         mes.runNum = self.ex.runNum
         mes.case = self.ex.case
@@ -804,7 +822,11 @@ class MyApp(ShowBase):
             task.cont, panda internal return value to say , frame call complete,please render the frame
         """
         if not parameters["replayWorld"]:
-            self.keyHandler()
+            try:
+                self.keyHandler()
+            except AttributeError:
+                print "\nwhy are you pressing random keys?\n"
+                pass#keys for actions in wrong exp
             self.bagControl()
 
 
@@ -813,11 +835,22 @@ class MyApp(ShowBase):
             #calls the experiment update task, will pass on if method not overriden
             self.ex.frameUpdateTask()
 
+            x, y, z = self.player.getPos()
+            try:
+                self.windDir = self.windField[int(x), int(y)]
+            except IndexError:
+                print "reached the edge of the world, please reset"
+                pass
 
             if parameters["loadWind"]:
-                x, y, z = self.player.getPos()
-                windDir = self.windField[int(x), int(y)]
-                self.servoAngle=self.windTunnel.update(windDir)
+                # print parameters["windQuad"],self.ex.case
+                if (parameters["windQuad"][self.ex.case]==-1 or parameters["windQuad"][self.ex.case]==-2) :
+                    openLoop = True
+                    self.windDir = parameters["windQuadOpen"][self.ex.case]
+                    # print "winddir is",self.windDir
+                else:
+                    openLoop = False
+                self.servoAngle=self.windTunnel.update(self.windDir,openLoop=openLoop)
 
                 # self.windTunnel(parameters["windDirection"])
 
@@ -864,6 +897,15 @@ class MyApp(ShowBase):
             self.replayFrame += parameters["playbackIncrement"]
 
         self.updateCamera()
+
+        self.displacement = self.player.getPos() - self.prevPos
+        self.prevPos = self.player.getPos()
+        self.slip = np.rad2deg(np.arctan2(self.displacement[1],self.displacement[0]))
+        self.slip = (((self.slip + 180) % 360) - 180 - 90) % 360#change from -180 to 180 to 0 to 360
+        self.groundSpeed=np.linalg.norm(self.displacement)*parameters["fps"]
+        # print ("ground sped is"),self.groundSpeed
+        # print "anglke is", self.slip
+        # print self.displacement
         self.publisher(self.message())
         self.reset = False
 
@@ -898,7 +940,7 @@ class MyApp(ShowBase):
             # panda runs as fast as it can frame to frame
             # scalefactor = self.speed/parameters['fps']# * (globalClock.getDt())
             climbfactor = 0.008
-            bankfactor = 2
+            bankfactor = .3
             parameters["wbad"] = self.wbad
             parameters["wbas"] = self.wbas
 
@@ -982,6 +1024,28 @@ class MyApp(ShowBase):
             elif (self.keyMap["right"] != 0):  # and self.speed > 0.0):
                 self.player.setH(self.player.getH() - bankfactor)
 
+            #
+            # right = base.camera.getNetTransform().getMat().getRow3(0)
+            # right.setZ(0)
+            # right.normalize()
+            # if (self.controlMap["strafe-left"] != 0):
+            #     base.camera.setPos(base.camera.getPos() - right * (elapsed * speed))
+            # if (self.controlMap["strafe-right"] != 0):
+            #     base.camera.setPos(base.camera.getPos() + right * (elapsed * speed))
+
+            if (self.keyMap["strafeL"] != 0):  # and self.speed > 0.0):
+                right = self.player.getNetTransform().getMat().getRow3(0)
+                right.setZ(0)
+                right.normalize()
+                self.player.setPos(self.player.getPos() - right * (self.speed/parameters['fps']))
+
+
+            if (self.keyMap["strafeR"] != 0):  # and self.speed > 0.0):
+                right = self.player.getNetTransform().getMat().getRow3(0)
+                right.setZ(0)
+                right.normalize()
+                self.player.setPos(self.player.getPos() + right * (self.speed / parameters['fps']))
+
             # Climb and Fall
             """
             this is strictly not climb and fall. It is actually Z up and Z down.
@@ -1006,16 +1070,42 @@ class MyApp(ShowBase):
             elif (self.keyMap["decelerate"] != 0):
                 self.speed -= parameters["speedIncrement"]
 
+            if (self.keyMap["accelerateWind"] != 0):
+                self.windSpeed += parameters["speedIncrement"]
+                self.keyMap["accelerateWind"]=0
+                print "windspeed is ",self.windSpeed
+
+            elif (self.keyMap["decelerateWind"] != 0):
+                self.windSpeed -= parameters["speedIncrement"]
+                self.keyMap["decelerateWind"]=0
+
+                print "windspeed is ", self.windSpeed
+
             # handbrake
             if (self.keyMap["handBrake"] != 0):
                 self.speed = 0
+
+
+
 
             # todo.fix latency of one frame move forwards
             """
             This finally updates the position of the player, there is adelay of one frame in speed update.
 
             """
+            if parameters["loadWind"]:
+                if self.windDir != -2:
+                    self.windNode.setPos(self.player.getPos())
+                    self.windNode.setH(self.windDir)
+                    self.player.setY(self.windNode, self.windSpeed/parameters['fps'])
+
             self.player.setY(self.player, self.speed/parameters['fps'])
+
+
+
+
+
+
 
             # update gain
             """
@@ -1100,6 +1190,7 @@ class MyApp(ShowBase):
             # if imposing turns, don't change quad after too long a bout
             if not parameters["imposeStimulus"]:
                 self.tooLongBoutReset()
+
 
             self.frame += 1
         # """

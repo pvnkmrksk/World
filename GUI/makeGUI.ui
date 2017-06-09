@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>768</width>
-    <height>993</height>
+    <width>765</width>
+    <height>1052</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -154,7 +154,7 @@
                <bool>true</bool>
               </property>
               <property name="currentIndex">
-               <number>1</number>
+               <number>2</number>
               </property>
               <widget class="QWidget" name="tabWidgetPage1">
                <attribute name="title">
@@ -577,8 +577,8 @@
                     <rect>
                      <x>10</x>
                      <y>0</y>
-                     <width>256</width>
-                     <height>96</height>
+                     <width>267</width>
+                     <height>129</height>
                     </rect>
                    </property>
                    <property name="title">
@@ -625,6 +625,29 @@
                       </property>
                       <property name="text">
                        <string>windDirection</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="0">
+                     <widget class="QLineEdit" name="windQuadOpen">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="toolTip">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add &lt;span style=&quot; font-weight:600;&quot;&gt;4 &lt;/span&gt;items&lt;/p&gt;&lt;p&gt;[0, 0, 0, 0]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="text">
+                       <string>[]</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="1">
+                     <widget class="QLabel" name="label_31">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="text">
+                       <string>windQuadOpen</string>
                       </property>
                      </widget>
                     </item>
@@ -1911,186 +1934,13 @@
            <rect>
             <x>0</x>
             <y>9</y>
-            <width>751</width>
-            <height>761</height>
+            <width>881</width>
+            <height>871</height>
            </rect>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
-          <widget class="QWidget" name="tab_4">
-           <attribute name="title">
-            <string>Tab 2</string>
-           </attribute>
-           <widget class="QLabel" name="positionLabel">
-            <property name="geometry">
-             <rect>
-              <x>350</x>
-              <y>330</y>
-              <width>121</width>
-              <height>21</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Position</string>
-            </property>
-           </widget>
-           <widget class="QLabel" name="livePosition">
-            <property name="geometry">
-             <rect>
-              <x>350</x>
-              <y>350</y>
-              <width>121</width>
-              <height>81</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>None</string>
-            </property>
-           </widget>
-           <widget class="QLabel" name="stateLabel">
-            <property name="geometry">
-             <rect>
-              <x>440</x>
-              <y>10</y>
-              <width>121</width>
-              <height>21</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>State</string>
-            </property>
-           </widget>
-           <widget class="QLabel" name="liveState">
-            <property name="geometry">
-             <rect>
-              <x>440</x>
-              <y>30</y>
-              <width>281</width>
-              <height>301</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>None</string>
-            </property>
-           </widget>
-           <widget class="QLabel" name="label_23">
-            <property name="geometry">
-             <rect>
-              <x>611</x>
-              <y>665</y>
-              <width>121</width>
-              <height>21</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Servo Angle</string>
-            </property>
-           </widget>
-           <widget class="QLCDNumber" name="lcdServoAngle">
-            <property name="geometry">
-             <rect>
-              <x>491</x>
-              <y>665</y>
-              <width>111</width>
-              <height>41</height>
-             </rect>
-            </property>
-            <property name="frameShape">
-             <enum>QFrame::NoFrame</enum>
-            </property>
-            <property name="numDigits">
-             <number>3</number>
-            </property>
-            <property name="segmentStyle">
-             <enum>QLCDNumber::Flat</enum>
-            </property>
-           </widget>
-           <widget class="QLCDNumber" name="lcdHeadingAngle">
-            <property name="geometry">
-             <rect>
-              <x>491</x>
-              <y>355</y>
-              <width>111</width>
-              <height>41</height>
-             </rect>
-            </property>
-            <property name="frameShape">
-             <enum>QFrame::NoFrame</enum>
-            </property>
-            <property name="numDigits">
-             <number>3</number>
-            </property>
-            <property name="segmentStyle">
-             <enum>QLCDNumber::Flat</enum>
-            </property>
-           </widget>
-           <widget class="QwtCompass" name="compassServo">
-            <property name="geometry">
-             <rect>
-              <x>441</x>
-              <y>395</y>
-              <width>251</width>
-              <height>261</height>
-             </rect>
-            </property>
-            <property name="readOnly">
-             <bool>true</bool>
-            </property>
-            <property name="lineWidth">
-             <number>4</number>
-            </property>
-            <property name="direction">
-             <enum>QwtDial::CounterClockwise</enum>
-            </property>
-           </widget>
-           <widget class="QwtCompass" name="compassHeading">
-            <property name="geometry">
-             <rect>
-              <x>480</x>
-              <y>440</y>
-              <width>171</width>
-              <height>171</height>
-             </rect>
-            </property>
-            <property name="readOnly">
-             <bool>true</bool>
-            </property>
-            <property name="lineWidth">
-             <number>4</number>
-            </property>
-            <property name="frameShadow">
-             <enum>QwtDial::Raised</enum>
-            </property>
-            <property name="direction">
-             <enum>QwtDial::CounterClockwise</enum>
-            </property>
-           </widget>
-           <widget class="QLabel" name="label_5">
-            <property name="geometry">
-             <rect>
-              <x>611</x>
-              <y>365</y>
-              <width>121</width>
-              <height>21</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Heading Angle</string>
-            </property>
-           </widget>
-           <widget class="QWidget" name="gridLayoutWidget_2">
-            <property name="geometry">
-             <rect>
-              <x>17</x>
-              <y>387</y>
-              <width>321</width>
-              <height>301</height>
-             </rect>
-            </property>
-            <layout class="QGridLayout" name="histo"/>
-           </widget>
-          </widget>
           <widget class="QWidget" name="tab_2">
            <attribute name="title">
             <string>Tab 1</string>
@@ -2098,8 +1948,8 @@
            <widget class="QCheckBox" name="pausePlot">
             <property name="geometry">
              <rect>
-              <x>192</x>
-              <y>692</y>
+              <x>200</x>
+              <y>750</y>
               <width>71</width>
               <height>22</height>
              </rect>
@@ -2111,8 +1961,8 @@
            <widget class="QPushButton" name="clearPlot">
             <property name="geometry">
              <rect>
-              <x>101</x>
-              <y>690</y>
+              <x>109</x>
+              <y>748</y>
               <width>85</width>
               <height>27</height>
              </rect>
@@ -2130,10 +1980,10 @@
            <widget class="QWidget" name="gridLayoutWidget">
             <property name="geometry">
              <rect>
-              <x>-1</x>
-              <y>-1</y>
-              <width>741</width>
-              <height>681</height>
+              <x>0</x>
+              <y>0</y>
+              <width>531</width>
+              <height>501</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="trajectoryLayout"/>
@@ -2141,8 +1991,8 @@
            <widget class="QPushButton" name="resetView">
             <property name="geometry">
              <rect>
-              <x>0</x>
-              <y>690</y>
+              <x>8</x>
+              <y>748</y>
               <width>95</width>
               <height>27</height>
              </rect>
@@ -2151,6 +2001,243 @@
              <string>Reset View</string>
             </property>
            </widget>
+           <widget class="QLabel" name="livePosition">
+            <property name="geometry">
+             <rect>
+              <x>300</x>
+              <y>520</y>
+              <width>121</width>
+              <height>81</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>None</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="positionLabel">
+            <property name="geometry">
+             <rect>
+              <x>300</x>
+              <y>500</y>
+              <width>121</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Position</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="label_5">
+            <property name="geometry">
+             <rect>
+              <x>610</x>
+              <y>750</y>
+              <width>121</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Heading Angle</string>
+            </property>
+           </widget>
+           <widget class="QLCDNumber" name="lcdServoAngle">
+            <property name="geometry">
+             <rect>
+              <x>320</x>
+              <y>660</y>
+              <width>71</width>
+              <height>61</height>
+             </rect>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="numDigits">
+             <number>3</number>
+            </property>
+            <property name="segmentStyle">
+             <enum>QLCDNumber::Flat</enum>
+            </property>
+           </widget>
+           <widget class="QLabel" name="label_23">
+            <property name="geometry">
+             <rect>
+              <x>330</x>
+              <y>710</y>
+              <width>121</width>
+              <height>31</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Servo Angle</string>
+            </property>
+           </widget>
+           <widget class="QwtCompass" name="compassServo">
+            <property name="geometry">
+             <rect>
+              <x>357</x>
+              <y>515</y>
+              <width>340</width>
+              <height>240</height>
+             </rect>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+            <property name="lineWidth">
+             <number>4</number>
+            </property>
+            <property name="frameShadow">
+             <enum>QwtDial::Raised</enum>
+            </property>
+            <property name="direction">
+             <enum>QwtDial::CounterClockwise</enum>
+            </property>
+           </widget>
+           <widget class="QWidget" name="gridLayoutWidget_2">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>508</y>
+              <width>271</width>
+              <height>241</height>
+             </rect>
+            </property>
+            <layout class="QGridLayout" name="histog"/>
+           </widget>
+           <widget class="QLCDNumber" name="lcdHeadingAngle">
+            <property name="geometry">
+             <rect>
+              <x>620</x>
+              <y>710</y>
+              <width>111</width>
+              <height>41</height>
+             </rect>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="numDigits">
+             <number>3</number>
+            </property>
+            <property name="segmentStyle">
+             <enum>QLCDNumber::Flat</enum>
+            </property>
+           </widget>
+           <widget class="QwtCompass" name="compassHeading">
+            <property name="geometry">
+             <rect>
+              <x>446</x>
+              <y>540</y>
+              <width>160</width>
+              <height>191</height>
+             </rect>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+            <property name="lineWidth">
+             <number>4</number>
+            </property>
+            <property name="direction">
+             <enum>QwtDial::CounterClockwise</enum>
+            </property>
+           </widget>
+           <widget class="QLabel" name="stateLabel">
+            <property name="geometry">
+             <rect>
+              <x>580</x>
+              <y>0</y>
+              <width>121</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>State</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="liveState">
+            <property name="geometry">
+             <rect>
+              <x>540</x>
+              <y>30</y>
+              <width>191</width>
+              <height>461</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>None</string>
+            </property>
+           </widget>
+           <widget class="QwtCompass" name="compassSlip">
+            <property name="geometry">
+             <rect>
+              <x>480</x>
+              <y>575</y>
+              <width>91</width>
+              <height>121</height>
+             </rect>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+            <property name="lineWidth">
+             <number>4</number>
+            </property>
+            <property name="direction">
+             <enum>QwtDial::CounterClockwise</enum>
+            </property>
+           </widget>
+           <widget class="QLabel" name="label_32">
+            <property name="geometry">
+             <rect>
+              <x>640</x>
+              <y>490</y>
+              <width>121</width>
+              <height>31</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Slip Angle</string>
+            </property>
+           </widget>
+           <widget class="QLCDNumber" name="lcdSlipAngle">
+            <property name="geometry">
+             <rect>
+              <x>640</x>
+              <y>510</y>
+              <width>71</width>
+              <height>61</height>
+             </rect>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="numDigits">
+             <number>3</number>
+            </property>
+            <property name="segmentStyle">
+             <enum>QLCDNumber::Flat</enum>
+            </property>
+           </widget>
+           <zorder>livePosition</zorder>
+           <zorder>pausePlot</zorder>
+           <zorder>clearPlot</zorder>
+           <zorder>gridLayoutWidget</zorder>
+           <zorder>resetView</zorder>
+           <zorder>positionLabel</zorder>
+           <zorder>label_5</zorder>
+           <zorder>label_23</zorder>
+           <zorder>gridLayoutWidget_2</zorder>
+           <zorder>lcdHeadingAngle</zorder>
+           <zorder>lcdServoAngle</zorder>
+           <zorder>compassServo</zorder>
+           <zorder>compassHeading</zorder>
+           <zorder>stateLabel</zorder>
+           <zorder>liveState</zorder>
+           <zorder>compassSlip</zorder>
+           <zorder>label_32</zorder>
+           <zorder>lcdSlipAngle</zorder>
           </widget>
           <widget class="QWidget" name="tab_8">
            <attribute name="title">
@@ -2170,7 +2257,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>768</width>
+     <width>765</width>
      <height>25</height>
     </rect>
    </property>
@@ -2278,12 +2365,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>119</x>
-     <y>113</y>
+     <x>122</x>
+     <y>242</y>
     </hint>
     <hint type="destinationlabel">
-     <x>97</x>
-     <y>113</y>
+     <x>112</x>
+     <y>242</y>
     </hint>
    </hints>
   </connection>
@@ -2294,12 +2381,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>101</x>
-     <y>104</y>
+     <x>114</x>
+     <y>134</y>
     </hint>
     <hint type="destinationlabel">
-     <x>129</x>
-     <y>179</y>
+     <x>144</x>
+     <y>341</y>
     </hint>
    </hints>
   </connection>
@@ -2310,12 +2397,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>105</x>
-     <y>104</y>
+     <x>118</x>
+     <y>134</y>
     </hint>
     <hint type="destinationlabel">
-     <x>139</x>
-     <y>113</y>
+     <x>171</x>
+     <y>264</y>
     </hint>
    </hints>
   </connection>
@@ -2326,12 +2413,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>82</x>
-     <y>104</y>
+     <x>95</x>
+     <y>134</y>
     </hint>
     <hint type="destinationlabel">
-     <x>139</x>
-     <y>113</y>
+     <x>171</x>
+     <y>297</y>
     </hint>
    </hints>
   </connection>
@@ -2342,12 +2429,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>92</x>
-     <y>104</y>
+     <x>105</x>
+     <y>134</y>
     </hint>
     <hint type="destinationlabel">
-     <x>139</x>
-     <y>113</y>
+     <x>300</x>
+     <y>264</y>
     </hint>
    </hints>
   </connection>
@@ -2358,12 +2445,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>73</x>
-     <y>104</y>
+     <x>86</x>
+     <y>134</y>
     </hint>
     <hint type="destinationlabel">
-     <x>139</x>
-     <y>113</y>
+     <x>300</x>
+     <y>297</y>
     </hint>
    </hints>
   </connection>
@@ -2374,12 +2461,12 @@
    <slot>display(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>120</x>
-     <y>104</y>
+     <x>269</x>
+     <y>138</y>
     </hint>
     <hint type="destinationlabel">
-     <x>120</x>
-     <y>104</y>
+     <x>588</x>
+     <y>138</y>
     </hint>
    </hints>
   </connection>
@@ -2394,8 +2481,40 @@
      <y>92</y>
     </hint>
     <hint type="destinationlabel">
-     <x>119</x>
-     <y>113</y>
+     <x>122</x>
+     <y>242</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>loadWind</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>windQuadOpen</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>60</x>
+     <y>127</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>97</x>
+     <y>304</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>loadWind</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>label_31</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>56</x>
+     <y>128</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>243</x>
+     <y>317</y>
     </hint>
    </hints>
   </connection>

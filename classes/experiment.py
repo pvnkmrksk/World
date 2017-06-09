@@ -284,7 +284,8 @@ class Experiment(object):
         if parameters['loadWind']:
             self.wf=mfg.windField(parameters['worldSize']*2,parameters['worldSize']*2,
                                          wq=parameters['windQuad'],
-                                         plot=parameters['plotOdourQuad'])
+                                         plot=parameters['plotOdourQuad'],
+                                  wqo=parameters["windQuadOpen"])
             self.wfCase={0:self.wf[xO:xO+xO,yO:yO+yO],
                          1:self.wf[0:xO,yO:yO+yO],
                          2:self.wf[0:xO,0:yO],

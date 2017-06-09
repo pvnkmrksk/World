@@ -34,7 +34,7 @@
 
 int micro= 16;
 
-uStepper stepper(10000*micro,1500*micro);
+uStepper stepper(10110*micro,1300*micro);
 float scal=20.48;//11.37;//20.48;
 float rn=0;
 float cmd;
@@ -48,7 +48,7 @@ unsigned long previousMillis = 0;        // will store last time LED was updated
 // constants won't change :
 const long interval = 6;           // interval at which to blink (milliseconds)
 
-float off=3;//anglefinder
+float off=46;//(anglefinder +50)%200 in downind pos
 
 
 

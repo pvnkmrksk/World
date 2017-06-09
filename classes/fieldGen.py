@@ -12,12 +12,13 @@ class FieldGen():
             plt.imshow(obj, interpolation='none', cmap='Greys_r')
             plt.show(block=False)
 
-    def windField(self,width=1025,height=1025,wq=[-1,0,180,270],plot=False,fillMidLine=180):
+    def windField(self,width=1025,height=1025,wq=[-1,0,180,270],wqo=[180,180,180,180],plot=False,fillMidLine=180):
         '''
 
         :param width: width of the wind field
         :param height: height of the wind field
         :param wq: wind quad. A list of 4 items setting the angle of that quadrant
+        :param wqo: wind quad open loop wind, same as wq
         :param plot: whether to plot the image
         :return:
             windField: a matrix filled with 4 quads of particular windDirection
@@ -25,6 +26,20 @@ class FieldGen():
         wind_field = np.zeros([width, height])
 
         offset = int(((width - 1) / 2))
+
+        count=0
+        # print "wqo uis",wqo
+        for w in wq:
+
+            if w==-1:
+                # wq[count]=wqo[count]
+                pass
+                # print "wq is ", wq
+
+            count+=1
+
+
+
 
         wind_field[0:offset, 0:offset] = wq[2]
         wind_field[offset :width, 0:offset] = wq[3]
