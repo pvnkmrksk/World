@@ -19,7 +19,7 @@ class WindTunnel():
             if self.suction:
                 self.servoAngle = int((90 - (head) + windDir - 180) % 360)
             else :
-                self.servoAngle = int((90 - (head) + windDir ) % 360)
+                self.servoAngle = int((-180 - (head) + windDir ) % 360)
         # if windDir != -1:  # -1 is open loop in wind direction
         #     if self.suction:
         #         self.servoAngle = int((90 - (self.player.getH()) + windDir - 180) % 360)
@@ -30,7 +30,7 @@ class WindTunnel():
             if self.suction:
                 self.servoAngle = 90
             else:
-                self.servoAngle = windDir + 90
+                self.servoAngle = windDir -180
                 # self.servoAngle = 270
             # print "wind in open loop"
 

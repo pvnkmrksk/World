@@ -65,7 +65,7 @@
       <item row="0" column="0" colspan="2">
        <widget class="QTabWidget" name="tabWidget">
         <property name="currentIndex">
-         <number>5</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="tab">
          <attribute name="title">
@@ -608,23 +608,13 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="1" column="0">
-                     <widget class="QSpinBox" name="windDirection">
-                      <property name="enabled">
-                       <bool>false</bool>
-                      </property>
-                      <property name="maximum">
-                       <number>360</number>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="1" column="1">
                      <widget class="QLabel" name="label_152">
                       <property name="enabled">
                        <bool>false</bool>
                       </property>
                       <property name="text">
-                       <string>windDirection</string>
+                       <string>windSpeed</string>
                       </property>
                      </widget>
                     </item>
@@ -648,6 +638,16 @@
                       </property>
                       <property name="text">
                        <string>windQuadOpen</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="0">
+                     <widget class="QDoubleSpinBox" name="windSpeed">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.050000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -2289,8 +2289,8 @@
      <y>90</y>
     </hint>
     <hint type="destinationlabel">
-     <x>121</x>
-     <y>115</y>
+     <x>254</x>
+     <y>108</y>
     </hint>
    </hints>
   </connection>
@@ -2317,8 +2317,8 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>121</x>
-     <y>115</y>
+     <x>254</x>
+     <y>108</y>
     </hint>
     <hint type="destinationlabel">
      <x>77</x>
@@ -2365,12 +2365,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>122</x>
-     <y>242</y>
+     <x>154</x>
+     <y>419</y>
     </hint>
     <hint type="destinationlabel">
-     <x>112</x>
-     <y>242</y>
+     <x>144</x>
+     <y>622</y>
     </hint>
    </hints>
   </connection>
@@ -2403,22 +2403,6 @@
     <hint type="destinationlabel">
      <x>171</x>
      <y>264</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>loadWind</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>windDirection</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>95</x>
-     <y>134</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>171</x>
-     <y>297</y>
     </hint>
    </hints>
   </connection>
@@ -2465,7 +2449,7 @@
      <y>138</y>
     </hint>
     <hint type="destinationlabel">
-     <x>588</x>
+     <x>585</x>
      <y>138</y>
     </hint>
    </hints>
@@ -2481,8 +2465,8 @@
      <y>92</y>
     </hint>
     <hint type="destinationlabel">
-     <x>122</x>
-     <y>242</y>
+     <x>154</x>
+     <y>419</y>
     </hint>
    </hints>
   </connection>
@@ -2515,6 +2499,22 @@
     <hint type="destinationlabel">
      <x>243</x>
      <y>317</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>loadWind</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>windSpeed</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>36</x>
+     <y>122</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>103</x>
+     <y>281</y>
     </hint>
    </hints>
   </connection>

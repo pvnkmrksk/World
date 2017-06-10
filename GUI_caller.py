@@ -382,7 +382,7 @@ def tick():
                   "\n\n\ngain\t\t: "+str(traj.gain)+\
                   "\nHeading Control\t: "+str(bool(traj.headingControl))+\
                   "\nSpeed Control\t: "+str(bool(traj.speedControl))+\
-                  "\nspeed\t: "+str(traj.speed)+ \
+                  "\nspeed\t\t: "+str(traj.speed)+ \
                   "\npacketDuration\t: "+str(traj.packetDuration)+ \
                   "\nreset\t\t: " + str(bool(traj.reset))
 
@@ -572,7 +572,7 @@ if __name__ == '__main__':
     traj3s = np.array([0,0])
     vals = np.array([0])
     y, x = np.histogram(vals, bins=np.linspace(-1, 1, 40))
-
+    resetView()
     ## notice that len(x) == len(y)+1
     ## We are required to use stepMode=True so that PlotCurveItem will interpret this data correctly.
     # curve = pg.PlotItem(x, y, stepMode=True, fillLevel=0, brush=(0, 0, 255, 80))

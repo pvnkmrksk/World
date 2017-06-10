@@ -186,15 +186,19 @@ class MyApp(ShowBase):
         self.overRidePf=False
         self.mesErrorPrinted=False
 
+        self.openSlip=True
+        self.openWind=True
+
         self.patchx=self.patchy=self.patchl=self.patchw=0.5
         self.patchIncrement=0.001
         self.windDir=0
-        self.windSpeed=1
+        self.windSpeed=parameters["windSpeed"]
         self.prevPos=parameters["playerInitPos"]
         if ls=='pf':
             # parameters["maxBoutDur"]=0
             self.maxBoutDur=0
         # self.speed=parameters["maxSpeed"]
+
 
     def initInput(self):
         '''
@@ -843,17 +847,37 @@ class MyApp(ShowBase):
                 pass
 
             if parameters["loadWind"]:
+                if (parameters["windQuad"][self.ex.case]>=0) :
+                    self.openSlip = False
+                    self.openWind = False
+
+                elif (parameters["windQuad"][self.ex.case]==-1) :
+                    self.openSlip = False
+                    self.openWind = True
+
+                elif (parameters["windQuad"][self.ex.case]==-2) :
+                    self.openSlip = True
+                    self.openWind = False
+
+                elif (parameters["windQuad"][self.ex.case]==-3) :
+                    self.openSlip = True
+                    self.openWind = True
+
+
                 # print parameters["windQuad"],self.ex.case
-                if (parameters["windQuad"][self.ex.case]==-1 or parameters["windQuad"][self.ex.case]==-2) :
-                    openLoop = True
+                if (self.openWind):
                     self.windDir = parameters["windQuadOpen"][self.ex.case]
-                    # print "winddir is",self.windDir
-                else:
-                    openLoop = False
-                self.servoAngle=self.windTunnel.update(self.windDir,openLoop=openLoop)
+                    self.openServo =True
+                elif (self.openSlip):
+                    self.windDir = parameters["windQuadOpen"][self.ex.case]
+                    self.openServo =False
+                else :
+                    self.openServo =False
+
+                self.servoAngle=self.windTunnel.update(self.windDir,openLoop=self.openServo)
 
                 # self.windTunnel(parameters["windDirection"])
-
+            # print "open",self.openServo,self.openSlip,self.openWind
             #
             if parameters["loadOdour"] or self.ex.loadOdour:
 
@@ -1093,11 +1117,10 @@ class MyApp(ShowBase):
             This finally updates the position of the player, there is adelay of one frame in speed update.
 
             """
-            if parameters["loadWind"]:
-                if self.windDir != -2:
-                    self.windNode.setPos(self.player.getPos())
-                    self.windNode.setH(self.windDir)
-                    self.player.setY(self.windNode, self.windSpeed/parameters['fps'])
+            if not self.openSlip:
+                self.windNode.setPos(self.player.getPos())
+                self.windNode.setH(self.windDir+90)
+                self.player.setY(self.windNode, self.windSpeed/parameters['fps'])
 
             self.player.setY(self.player, self.speed/parameters['fps'])
 

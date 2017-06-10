@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'GUI/makeGUI.ui'
 #
-# Created: Thu Jun  8 22:36:07 2017
+# Created: Sat Jun 10 14:07:24 2017
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -291,11 +291,6 @@ class Ui_RhagGUI(object):
         self.label_8.setEnabled(False)
         self.label_8.setObjectName(_fromUtf8("label_8"))
         self.gridLayout_7.addWidget(self.label_8, 0, 1, 1, 1)
-        self.windDirection = QtGui.QSpinBox(self.groupBox_10)
-        self.windDirection.setEnabled(False)
-        self.windDirection.setMaximum(360)
-        self.windDirection.setObjectName(_fromUtf8("windDirection"))
-        self.gridLayout_7.addWidget(self.windDirection, 1, 0, 1, 1)
         self.label_152 = QtGui.QLabel(self.groupBox_10)
         self.label_152.setEnabled(False)
         self.label_152.setObjectName(_fromUtf8("label_152"))
@@ -308,6 +303,11 @@ class Ui_RhagGUI(object):
         self.label_31.setEnabled(False)
         self.label_31.setObjectName(_fromUtf8("label_31"))
         self.gridLayout_7.addWidget(self.label_31, 2, 1, 1, 1)
+        self.windSpeed = QtGui.QDoubleSpinBox(self.groupBox_10)
+        self.windSpeed.setEnabled(False)
+        self.windSpeed.setSingleStep(0.05)
+        self.windSpeed.setObjectName(_fromUtf8("windSpeed"))
+        self.gridLayout_7.addWidget(self.windSpeed, 1, 0, 1, 1)
         self.gridLayout_13.addWidget(self.groupBox_5, 0, 0, 1, 1)
         self.tabWidget1.addTab(self.tabWidgetPage2, _fromUtf8(""))
         self.gridLayout_6.addWidget(self.tabWidget1, 8, 0, 1, 7)
@@ -1006,7 +1006,7 @@ class Ui_RhagGUI(object):
         RhagGUI.setStatusBar(self.statusbar)
 
         self.retranslateUi(RhagGUI)
-        self.tabWidget.setCurrentIndex(5)
+        self.tabWidget.setCurrentIndex(0)
         self.tabWidget1.setCurrentIndex(2)
         self.tabWidget_4.setCurrentIndex(0)
         self.tabWidget_2.setCurrentIndex(0)
@@ -1018,13 +1018,13 @@ class Ui_RhagGUI(object):
         QtCore.QObject.connect(self.useOdourMask, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.groupBox_6.setEnabled)
         QtCore.QObject.connect(self.loadWind, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.groupBox_10.setEnabled)
         QtCore.QObject.connect(self.loadWind, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.windQuad.setEnabled)
-        QtCore.QObject.connect(self.loadWind, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.windDirection.setEnabled)
         QtCore.QObject.connect(self.loadWind, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.label_8.setEnabled)
         QtCore.QObject.connect(self.loadWind, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.label_152.setEnabled)
         QtCore.QObject.connect(self.gain, QtCore.SIGNAL(_fromUtf8("valueChanged(int)")), self.lcdGain.display)
         QtCore.QObject.connect(self.loadOdour, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.useOdourMask.setChecked)
         QtCore.QObject.connect(self.loadWind, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.windQuadOpen.setEnabled)
         QtCore.QObject.connect(self.loadWind, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.label_31.setEnabled)
+        QtCore.QObject.connect(self.loadWind, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.windSpeed.setEnabled)
         QtCore.QMetaObject.connectSlotsByName(RhagGUI)
 
     def retranslateUi(self, RhagGUI):
@@ -1078,7 +1078,7 @@ class Ui_RhagGUI(object):
         self.windQuad.setToolTip(_translate("RhagGUI", "<html><head/><body><p>Add <span style=\" font-weight:600;\">4 </span>items</p><p>[0, 0, 0, 0]</p></body></html>", None))
         self.windQuad.setText(_translate("RhagGUI", "[]", None))
         self.label_8.setText(_translate("RhagGUI", "windQuad", None))
-        self.label_152.setText(_translate("RhagGUI", "windDirection", None))
+        self.label_152.setText(_translate("RhagGUI", "windSpeed", None))
         self.windQuadOpen.setToolTip(_translate("RhagGUI", "<html><head/><body><p>Add <span style=\" font-weight:600;\">4 </span>items</p><p>[0, 0, 0, 0]</p></body></html>", None))
         self.windQuadOpen.setText(_translate("RhagGUI", "[]", None))
         self.label_31.setText(_translate("RhagGUI", "windQuadOpen", None))
