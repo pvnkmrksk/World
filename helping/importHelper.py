@@ -168,27 +168,33 @@ def replayLoader():
     metadata=dff['metadata']
     return df,metadata
 
-if parameters['replayWorld']:
-    print "\n \n replayFIlke is \n\n",replayFileSelected
-    if not replayFileSelected:
-        if parameters['replayBag']:
-
-            #copy the needed params from parameters
-            pc=ParamCache(parameters)
-
-            df,metadata=replayLoader()
-            dfPosHpr = df[['trajectory__pPos_x', 'trajectory__pPos_y', 'trajectory__pPos_z',
-                         'trajectory__pOri_x', 'trajectory__pOri_y','trajectory__pOri_z']]
-            dfPosHpr.columns = [['x', 'y', 'z', 'h', 'p', 'r']]
-            #reassigning the bag parameters
-            parameters=metadata['parameters']
-            for item in parameters['toTuplify']:
-                parameters[item] = tuple(parameters[item])
-            parameters['replayWorld']=True #this is because, while the actual bag never had replayworld checked.
-            # But the code needs it to be true to playback bag data
-
-            #dump the saved parameters into the current one
-            parameters=pc.paramLoad(parameters)
-        replayFileSelected=True
-    else:
-        pass
+# # try:
+# if parameters['replayWorld']:
+#     print "\n \n replayFIlke is \n\n",replayFileSelected
+#     if not replayFileSelected:
+#
+#         if 2==2:
+#         # if parameters['replayBag']:
+#
+#             #copy the needed params from parameters
+#             pc=ParamCache(parameters)
+#
+#             df,metadata=replayLoader()
+#             dfPosHpr = df[['trajectory__pPos_x', 'trajectory__pPos_y', 'trajectory__pPos_z',
+#                          'trajectory__pOri_x', 'trajectory__pOri_y','trajectory__pOri_z']]
+#             dfPosHpr.columns = [['x', 'y', 'z', 'h', 'p', 'r']]
+#             #reassigning the bag parameters
+#             parameters=metadata['parameters']
+#             for item in parameters['toTuplify']:
+#                 parameters[item] = tuple(parameters[item])
+#             parameters['replayWorld']=True #this is because, while the actual bag never had replayworld checked.
+#             # But the code needs it to be true to playback bag data
+#
+#             #dump the saved parameters into the current one
+#             parameters=pc.paramLoad(parameters)
+#             print "replaying", parameters
+#         replayFileSelected=True
+#     else:
+#         pass
+# except Exception as eee:
+#     print "idunno",eee

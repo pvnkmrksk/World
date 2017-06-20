@@ -24,6 +24,8 @@ else:
 
 # print parameters
 e=ExceptionHandlers(parameters)
+if parameters["replayWorld"]:
+    parameters=e.exceptionReplay()
 
 
 
@@ -99,6 +101,7 @@ class MyApp(ShowBase):
 
 
         self.taskMgr.add(self.updateTask, "update")  # A task to run every frame, some keyboard setup and our speed
+
 
     def initParams(self):
         '''
@@ -192,7 +195,11 @@ class MyApp(ShowBase):
         self.patchx=self.patchy=self.patchl=self.patchw=0.5
         self.patchIncrement=0.001
         self.windDir=0
-        self.windSpeed=parameters["windSpeed"]
+        try:
+            self.windSpeed=parameters["windSpeed"]
+        except KeyError:
+            print "old bag file"
+            pass
         self.prevPos=parameters["playerInitPos"]
         if ls=='pf':
             # parameters["maxBoutDur"]=0
@@ -263,11 +270,15 @@ class MyApp(ShowBase):
         time.sleep(3)#you need 3 seconds to make arduino listen Dunno why
         self.servo1.move(90)
         # self.servo1.move(self.servoAngle)
+        # print "wqo,wq is",parameters['windQuadOpen'],parameters["windQuad"]
 
-        self.windField = myFieldGen.windField(width=parameters['worldSize'],
-                                              height=parameters['worldSize'],wq=parameters['windQuad'],wqo=parameters['windQuadOpen'])
-        print "wqo,wq is",parameters['windQuadOpen'],parameters["windQuad"]
-        self.windTunnel = WindTunnel(self.servo1,self.player)
+        try:
+
+            self.windField = myFieldGen.windField(width=parameters['worldSize'],
+                                                  height=parameters['worldSize'],wq=parameters['windQuad'],wqo=parameters['windQuadOpen'])
+        except KeyError:
+            print "old bag"
+            self.windTunnel = WindTunnel(self.servo1,self.player)
 
 
         # if parameters["loadOdour"]:
@@ -281,7 +292,13 @@ class MyApp(ShowBase):
         #                                             parameters['worldSize'],
         #                                             oq=parameters['odourQuad'], plot=parameters['plotOdourQuad'])
         #
-        self.odourField = self.ex.of
+        try :
+            self.odourField = self.ex.of
+        except AttributeError:
+            self.odourField=None
+            print "not in lr exp, else domething wrong"
+
+
         self.odour1= OdourTunnel(odourField=self.odourField, player=self.player, parameters=parameters)
         self.odour2= OdourTunnel(odourField=self.odourField, player=self.player, parameters=parameters)
 

@@ -212,6 +212,7 @@ class Object():
 
         obj = self.sb.loader.loadModel(objPath)
         obj.setScale(objScale)
+
         return obj
 
     def moveObjects(self, position, obj):

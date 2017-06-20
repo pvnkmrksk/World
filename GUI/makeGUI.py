@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'GUI/makeGUI.ui'
 #
-# Created: Sat Jun 10 14:07:24 2017
+# Created: Wed Jun 14 11:40:15 2017
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -989,6 +989,15 @@ class Ui_RhagGUI(object):
         self.lcdSlipAngle.setNumDigits(3)
         self.lcdSlipAngle.setSegmentStyle(QtGui.QLCDNumber.Flat)
         self.lcdSlipAngle.setObjectName(_fromUtf8("lcdSlipAngle"))
+        self.positionLabel_2 = QtGui.QLabel(self.tab_2)
+        self.positionLabel_2.setGeometry(QtCore.QRect(450, 660, 61, 21))
+        self.positionLabel_2.setObjectName(_fromUtf8("positionLabel_2"))
+        self.positionLabel_3 = QtGui.QLabel(self.tab_2)
+        self.positionLabel_3.setGeometry(QtCore.QRect(490, 640, 61, 21))
+        self.positionLabel_3.setObjectName(_fromUtf8("positionLabel_3"))
+        self.positionLabel_4 = QtGui.QLabel(self.tab_2)
+        self.positionLabel_4.setGeometry(QtCore.QRect(420, 680, 61, 21))
+        self.positionLabel_4.setObjectName(_fromUtf8("positionLabel_4"))
         self.tabWidget_2.addTab(self.tab_2, _fromUtf8(""))
         self.tab_8 = QtGui.QWidget()
         self.tab_8.setObjectName(_fromUtf8("tab_8"))
@@ -1006,7 +1015,7 @@ class Ui_RhagGUI(object):
         RhagGUI.setStatusBar(self.statusbar)
 
         self.retranslateUi(RhagGUI)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(5)
         self.tabWidget1.setCurrentIndex(2)
         self.tabWidget_4.setCurrentIndex(0)
         self.tabWidget_2.setCurrentIndex(0)
@@ -1215,6 +1224,9 @@ class Ui_RhagGUI(object):
         self.stateLabel.setText(_translate("RhagGUI", "State", None))
         self.liveState.setText(_translate("RhagGUI", "None", None))
         self.label_32.setText(_translate("RhagGUI", "Slip Angle", None))
+        self.positionLabel_2.setText(_translate("RhagGUI", "Heading", None))
+        self.positionLabel_3.setText(_translate("RhagGUI", "Slip", None))
+        self.positionLabel_4.setText(_translate("RhagGUI", "Servo", None))
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_2), _translate("RhagGUI", "Tab 1", None))
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_8), _translate("RhagGUI", "Page", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_6), _translate("RhagGUI", "Live", None))

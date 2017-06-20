@@ -1,7 +1,7 @@
 import json
 import subprocess
 import time
-
+import easygui
 import pandas as pd
 import rostopic
 import serial
@@ -42,12 +42,15 @@ class ExceptionHandlers():
             increment = self.parameters["playbackIncrement"]
 
             # replayPath = easygui.fileopenbox(multiple=False, filetypes=["*.pickle"])
-            replayPath = "/home/behaviour/catkin/src/beginner/scripts/panda/world/bags/fly4/fly4_quad_rg_gain7.0_speed_3.5_" \
-                         "trial_1_2016-04-13__23:31:35.bag_df.pickle"
+            replayPath = "/home/rhagoletis/catkin/src/World/bags/2017_06_06/2017-06-06__19~51~30_haw09_01_gain~8_speed~1.0_bout~5_DC~-0.002_traj.bag_df.pickle"
 
             print replayPath
-            df = pd.read_pickle(replayPath)
+            pick = pd.read_pickle(replayPath)
+            df= pick["df"]
+            meta=pick["metadata"]
+            print meta
 
+            # print (df.keys())
             # slice pos and orientation and remove nans heading,pitch,roll, x,y,z and drop na which is from camera message time
             traj = df.loc[:, "trajectory__orientation_x":"trajectory__position_z"].dropna()
             cols = traj.columns.tolist()  # list of colums
@@ -61,7 +64,9 @@ class ExceptionHandlers():
                 self.parameters = json.loads(df.metadata__data.values[1])
 
             except:
-                self.parameters = json.loads(df.metadata__data.values[0])
+                # self.parameters = json.loads(df.metadata__data.values[0])
+                self.parameters = meta["parameters"]
+                print "ewo is",self.parameters
                 print "using exceprion to load params"
 
             # dump back params from vars
@@ -71,13 +76,7 @@ class ExceptionHandlers():
             self.parameters["playbackIncrement"] = increment
 
             return self.parameters
-    # def exceptionArduino(self):
-    #     # check if arduino servo is connected
-    #     try:
-    #         from tbd import servo
-    #     except serial.serialutil.SerialException:
-    #         self.parameters["loadWind"] = False
-    #         print ("\n \n \n servo disabled \n \n \n")
+
     def exceptionROS(self):
         # Checkif rosmaster is running else run roscore
         try:
