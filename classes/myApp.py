@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from __future__ import division #odd issue. Must be on first line else it fails
+from datetime import timedelta
 
 from helping.importHelper import *  # file with just a bunch of imports
 
@@ -194,7 +195,7 @@ class MyApp(ShowBase):
 
         self.patchx=self.patchy=self.patchl=self.patchw=0.5
         self.patchIncrement=0.001
-        self.windDir=0
+        self.windDir=None
         try:
             self.windSpeed=parameters["windSpeed"]
         except KeyError:
@@ -276,9 +277,11 @@ class MyApp(ShowBase):
 
             self.windField = myFieldGen.windField(width=parameters['worldSize'],
                                                   height=parameters['worldSize'],wq=parameters['windQuad'],wqo=parameters['windQuadOpen'])
+            self.windTunnel = WindTunnel(self.servo1,self.player)
+
         except KeyError:
             print "old bag"
-            self.windTunnel = WindTunnel(self.servo1,self.player)
+            # self.windTunnel = WindTunnel(self.servo1,self.player)
 
 
         # if parameters["loadOdour"]:
@@ -293,6 +296,7 @@ class MyApp(ShowBase):
         #                                             oq=parameters['odourQuad'], plot=parameters['plotOdourQuad'])
         #
         try :
+            self.ex.updateWindField()
             self.odourField = self.ex.of
         except AttributeError:
             self.odourField=None
@@ -494,6 +498,7 @@ class MyApp(ShowBase):
 
         '''
         self.keyMap[key] = value
+        print "you pressed the key ",key , value
 
     def winClose(self):
         """
@@ -859,8 +864,11 @@ class MyApp(ShowBase):
             x, y, z = self.player.getPos()
             try:
                 self.windDir = self.windField[int(x), int(y)]
+                print "windDIr is", self.windDir,int(x), int(y)
+
             except IndexError:
                 print "reached the edge of the world, please reset"
+
                 pass
 
             if parameters["loadWind"]:
@@ -890,8 +898,32 @@ class MyApp(ShowBase):
                     self.openServo =False
                 else :
                     self.openServo =False
+                # print "load wind is ",parameters["loadWind"]
+                self.servoAngle = self.windTunnel.update(self.windDir, openLoop=self.openServo)
+                # print "wind dir is",self.windDir
+                # print "open servois",self.openServo
 
-                self.servoAngle=self.windTunnel.update(self.windDir,openLoop=self.openServo)
+                # if self.reset:
+                #     print "resetting"
+                #     tnow=datetime.now()
+                #     while ((datetime.now()-tnow)<timedelta(seconds=0.01)):
+                #         self.servoAngle = self.windTunnel.update(45, openLoop=True)
+                #         # print "force starting"
+
+                    # time.sleep(1)
+                    # self.servoAngle = self.windTunnel.update(self.windDir, openLoop=self.openServo)
+
+
+                    #
+            #     #
+            # else:
+            #     self.windDir =parameters["windQuadOpen"][self.ex.case]
+            #     self.openServo=True
+            #     self.openWind=True
+            #     self.openSlip=True
+            #
+            # # print "load wind is ",parameters["loadWind"]
+            # self.servoAngle=self.windTunnel.update(self.windDir,openLoop=self.openServo)
 
                 # self.windTunnel(parameters["windDirection"])
             # print "open",self.openServo,self.openSlip,self.openWind
@@ -981,7 +1013,7 @@ class MyApp(ShowBase):
             # panda runs as fast as it can frame to frame
             # scalefactor = self.speed/parameters['fps']# * (globalClock.getDt())
             climbfactor = 0.008
-            bankfactor = .3
+            bankfactor = 1
             parameters["wbad"] = self.wbad
             parameters["wbas"] = self.wbas
 

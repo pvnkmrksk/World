@@ -43,6 +43,7 @@ class ValveHandler(GetArduino):
             casePort=self.casePort
 
         if self.serPort !=1:#error check of return to make sure arduino works
+            # if (True):# or (state!=self.statePrev)): #update only if states different or if compression is diabled
             if (not(self.compression) or (state!=self.statePrev)): #update only if states different or if compression is diabled
                 # self.moveT = threading.Thread(target=self.moveThread,
                 #                               kwargs={'state': state})
@@ -71,6 +72,6 @@ class ValveHandler(GetArduino):
                 except Exception as e:
                     if self.printFlag:
                         print "something reallly bad in valvehandler",e
-                    self.printFlag=False
+                    # self.printFlag=False
                     pass
             self.statePrev = state  # reset to new state

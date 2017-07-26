@@ -1,6 +1,7 @@
 from __future__ import division
 from helping import helper
 import numpy as np
+import time
 
 class WindTunnel():
     def __init__(self, servo,player,stepAngle=1.8,suction=False,windowSize=1):
@@ -14,6 +15,7 @@ class WindTunnel():
         self.window = np.roll(self.window,1)
         self.window[0]=self.player.getH()
         head=self.window.mean()
+        # print "window, mean is", self.window, head
         if not openLoop:  # -1 is open loop in wind direction
         # if windDir != -1:  # -1 is open loop in wind direction
             if self.suction:
@@ -36,6 +38,8 @@ class WindTunnel():
 
         #this will make the number to be within 255 to not get char error on serial
         #todo.fix make serial not be limited to 255, use parseInt instead
+        self.servoAngle=self.servoAngle%360
+        print "self.servoanfle is" ,self.servoAngle, windDir
         self.servo.move(self.servoAngle/self.stepAngle)#divide it into steps instead of angles
         return self.servoAngle
 
@@ -69,7 +73,11 @@ class OdourTunnel():
         else:
             x=int(self.player.getX())
             y=int(self.player.getY())
-            self.pf = self.of[x,y]
+            try:
+                self.pf = self.of[x,y]
+            except IndexError:
+                print "reacjed the edhe of the world"
+                pass
 
             if self.om is not None:
                 mask = self.om[x,y]
@@ -101,10 +109,16 @@ class OdourTunnel():
         if self.pf > 0:
             tau=int((1.0/self.pf)*self.parameters['fps'])
 
-            if (self.phase % tau) < (self.parameters['fps'] * packetDur):
-                state = 1
-            else:
+            try:
+                if (self.phase % tau) < (self.parameters['fps'] * packetDur):
+                    state = 1
+
+                else:
+                    state = 0
+
+            except ZeroDivisionError:
                 state = 0
+                print "zerio div errir in tunnel"
 
         else:
             state = 0

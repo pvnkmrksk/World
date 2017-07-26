@@ -404,8 +404,16 @@ def tick():
             def quadPlot(trajs,s):
                 trajs = np.vstack((trajs, np.array([traj.pPos.x, traj.pPos.y])))
                 s.clear()
-                s.plot(trajs[:, 0], trajs[:, 1], pen=None, symbol='o', symbolPen=None, symbolSize=2)
+                # if trajs.valve2==True:
+                #     sp=(255,0,0)
+                # else:
+                #     sp=(0,0,255)
+                s.plot(trajs[:, 0], trajs[:, 1], pen=None, symbol='o', symbolPen=(0,255,0), symbolSize=2)
+                # s.addPoints(trajs[-1, 0], trajs[-1, 1], pen=None, symbol='o', symbolPen=(255, 255, 0), symbolSize=2)
+
                 return trajs
+
+
             if traj.case ==0:
                 traj0s=quadPlot(traj0s,s0)
             elif traj.case ==1:

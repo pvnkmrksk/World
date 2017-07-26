@@ -5,7 +5,7 @@ import numpy as np
 @opterate
 
 
-def flowVel(voltage=None, flowRate=0.3, diameter=2, wantedVelocity=None,
+def flowVel(voltage=None, flowRate=0.3, diameter=1.4, wantedVelocity=None,
             csvPath = '/home/rhagoletis/catkin/src/helpingWorld/flowCalib/volt_flow.csv', ):
     '''
 

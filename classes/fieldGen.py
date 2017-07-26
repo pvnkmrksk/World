@@ -10,9 +10,9 @@ class FieldGen():
     def toPlot(self, obj, plot):
         if plot:
             plt.imshow(obj, interpolation='none', cmap='Greys_r')
-            plt.show(block=False)
+            plt.show(block=True)
 
-    def windField(self,width=1025,height=1025,wq=[-1,0,180,270],wqo=[180,180,180,180],plot=False,fillMidLine=180):
+    def windField(self,width=1025,height=1025,wq=[-1,0,180,270],wqo=[180,180,180,180],plot=False,fillMidLine=-99):
         '''
 
         :param width: width of the wind field
@@ -53,7 +53,7 @@ class FieldGen():
 
 
         #to fill the midline regions of the matrix which is not accessed by offsets
-        wind_field[offset:offset+1,offset:offset+1]=fillMidLine
+        # wind_field[offset:offset+1,offset:offset+1]=wq[0]
         self.toPlot(wind_field,plot=plot)
         return wind_field
 
@@ -167,7 +167,7 @@ class FieldGen():
         for i in oq:
 
             if i == 'c':#custom image in models/odour/1,2,3,4.png
-                oq[quad] = (np.rot90(imread("models/odour/" + str(quad + 1) + ".png"),3)) #!= 0 #todo.fix why not = to zero, to bool?
+                oq[quad] = (np.rot90(imread("models/odour/" + str(quad + 1) + ".png"),3))/10 #!= 0 #todo.fix why not = to zero, to bool?
 
                 # py 0 index but non zero quadrants and the image is rotated to fix plt and array axes
             elif i == 's': #strip of solid one
@@ -179,6 +179,8 @@ class FieldGen():
             elif i=='p': #packet field of
                 packet=self.odourPacket(width=127,height=127,velocity=1,packetFrequency=0.5,packetDuration=1,scale=1)
                 oq[quad] = packet
+            else:
+                pass # is an integer, let that be a uniform field of pf
 
             quad += 1
         #

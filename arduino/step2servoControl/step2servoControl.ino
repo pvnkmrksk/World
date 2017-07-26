@@ -48,7 +48,7 @@ unsigned long previousMillis = 0;        // will store last time LED was updated
 // constants won't change :
 const long interval = 6;           // interval at which to blink (milliseconds)
 
-float off=46;//(anglefinder +50)%200 in downind pos
+float off=143+50;//(anglefinder +50)%200 in downind pos
 
 
 

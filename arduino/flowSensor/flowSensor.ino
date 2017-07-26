@@ -51,9 +51,9 @@ void loop() {
   delay(1);
   output2 = sensor2 * 5.0 / 1023.0;
   //  output2=map(sensor2,0,1023,0,5);
-  //  sensor3 = analogRead(flow3);
-  //delay(1);
-  //  output3 = sensor3*5.0/1023.0;
+    sensor3 = analogRead(flow3);
+  delay(1);
+    output3 = sensor3*5.0/1023.0;
 
   //output3=map(sensor3,0,1023,0,5);
 
@@ -75,8 +75,8 @@ void loop() {
   Serial.print(output1);     //read xpin and send value over serial
   Serial.print("\t");                 //send a "tab" over serial
   Serial.print(output2);
-  //  Serial.print("\t");
-  //  Serial.print(output3);
+    Serial.print("\t");
+    Serial.print(output3);
   Serial.println();                   //ends the line of serial communication
 
   // wait 2 milliseconds before the next loop
