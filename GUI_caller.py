@@ -13,6 +13,12 @@ from pathlib import Path
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui
 import numpy as np
+import os
+import sys
+
+
+
+from qrangeslider import QRangeSlider
 
 pathRun=os.path.abspath(os.path.split(sys.argv[0])[0]) #path of the runfile
 pathJson= pathRun + '/GUI/jsonFiles/'
@@ -325,6 +331,26 @@ def startRqt():
 def stopVR():
     try:
         procVR.kill()
+        try:
+            # s=ValveHandler(1)
+            baud = 115200
+            v1= ValveHandler(casePort=97, baud=baud)
+            v2= ValveHandler(casePort=98, baud=baud)
+            v3= ValveHandler(casePort=99, baud=baud)
+
+            # s.move(90)
+            v1.move(1)
+            v2.move(1)
+            v3.move(1)
+            v1.move(0)
+            v2.move(0)
+            v3.move(0)
+            # servo.move(99, 0)  # close valve to prevent odour bleeding through
+            # servo.move(1, 90)  # close valve to prevent odour bleeding through
+            print "disabled valves in VR"
+        except  (serial.serialutil.SerialException, NameError):
+            print "arduino faulty finally GUI"
+            pass  # arduino disconnected or faulty, let go
     except NameError:
         print "VR not running"
         pass
@@ -347,6 +373,19 @@ def clbk(data):
     global traj
     traj = data
     return traj
+
+def resetView(cx=512,cy=512,off=20):
+
+    # off=20
+    s0.setRange(xRange=(cx-off,cx+off),yRange=(cy-off,cy+off))
+    s1.setRange(xRange=(cx-off,cx+off),yRange=(cy-off,cy+off))
+    s2.setRange(xRange=(cx-off,cx+off),yRange=(cy-off,cy+off))
+    s3.setRange(xRange=(cx-off,cx+off),yRange=(cy-off,cy+off))
+
+    # s0.setRange(xRange=(512-off,512+off),yRange=(512-off,512+off))
+    # s1.setRange(xRange=(512-off,512+off),yRange=(512-off,512+off))
+    # s2.setRange(xRange=(512-off,512+off),yRange=(512-off,512+off))
+    # s3.setRange(xRange=(512-off,512+off),yRange=(512-off,512+off))
 
 
 def tick():
@@ -402,14 +441,18 @@ def tick():
             # s1.addPoints(pos=[(traj.pPos.x, traj.pPos.y)])
             # my_plot.addItem(s1)
             def quadPlot(trajs,s):
-                trajs = np.vstack((trajs, np.array([traj.pPos.x, traj.pPos.y])))
+                trajs = np.vstack((trajs, np.array([traj.pPos.x, traj.pPos.y,traj.runNum,traj.trial,traj.runNum*traj.trial])))
                 s.clear()
-                # if trajs.valve2==True:
-                #     sp=(255,0,0)
-                # else:
-                #     sp=(0,0,255)
-                s.plot(trajs[:, 0], trajs[:, 1], pen=None, symbol='o', symbolPen=(0,255,0), symbolSize=2)
+                if traj.valve2==True:
+                    sp=(255,0,0)
+
+                else:
+                    sp=(0,0,255)
+                # print sp
+                # print 'a',trajs[:,3]
+                s.plot(trajs[:, 0], trajs[:, 1], pen=None, symbol='o', symbolPen=(255,0,0), symbolSize=2)
                 # s.addPoints(trajs[-1, 0], trajs[-1, 1], pen=None, symbol='o', symbolPen=(255, 255, 0), symbolSize=2)
+                s.plot([trajs[-1, 0]], [trajs[-1, 1]], pen=(3), symbolBrush=(255,0,0), symbolPen='w',symbol='o', symbolSize=8)
 
                 return trajs
 
@@ -441,6 +484,26 @@ def tick():
             my_hist.addItem(curve)
             my_hist.addItem(line)
 
+            def trackingFly(w=10):
+                resetView(cx=traj.pPos.x,cy= traj.pPos.y,off=w)#cx=trajs[-1, 0],cy= trajs[-1, 1]), off=w)
+
+            if ui.trackFly.isChecked():
+                a=2.**(0.05*(-ui.verticalSlider.value()))
+                # print "a",a
+                trackingFly(w=a)
+                # trackingFly(w=ui.trackWidth.value())
+
+                # ui.trackWidth.setValue(s0.get)
+
+            # # Example 1
+            # rs1 = QRangeSlider()
+            # rs1.show()
+            # rs1.setWindowTitle('example 1')
+            # rs1.setRange(15, 35)
+            # rs1.setBackgroundStyle('background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #222, stop:1 #333);')
+            # rs1.setSpanStyle('background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #282, stop:1 #393);')
+            #
+
 
 
 
@@ -449,13 +512,7 @@ def tick():
     except AttributeError:
         # print "something bad,no gui update"
         pass
-def resetView():
 
-    off=20
-    s0.setRange(xRange=(512-off,512+off),yRange=(512-off,512+off))
-    s1.setRange(xRange=(512-off,512+off),yRange=(512-off,512+off))
-    s2.setRange(xRange=(512-off,512+off),yRange=(512-off,512+off))
-    s3.setRange(xRange=(512-off,512+off),yRange=(512-off,512+off))
 
 def setHeadingLcd():
     ui.lcdNumber_3.display(ui.compassHeading.value() - 90)  # offset origin to E and not North
@@ -465,10 +522,15 @@ def setHeadingLcd():
 def clearPlot():
     global vals,curve,traj0s,traj1s,traj2s,traj3s
     vals = np.array([])
-    traj0s = np.array([0,0])
-    traj1s = np.array([0,0])
-    traj2s = np.array([0,0])
-    traj3s = np.array([0,0])
+    traj0s = np.array([0,0,0,0,0])
+    traj1s = np.array([0,0,0,0,0])
+    traj2s = np.array([0,0,0,0,0])
+    traj3s = np.array([0,0,0,0,0])
+
+    # traj0s = np.array([0,0])
+    # traj1s = np.array([0,0])
+    # traj2s = np.array([0,0])
+    # traj3s = np.array([0,0])
     # curve.clear()
     # my_hist.clear()
     # s1.points()
@@ -489,9 +551,24 @@ if __name__ == '__main__':
     window = QMainWindow()
     ui = Ui_RhagGUI()
     ui.setupUi(window)
+# # Example 1
+# rs1 = QRangeSlider()
+# rs1.show()
+# rs1.setWindowTitle('example 1')
+# rs1.setRange(15, 35)
+# rs1.setBackgroundStyle('background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #222, stop:1 #333);')
+# rs1.setSpanStyle('background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #282, stop:1 #393);')
 
+    # rs1 = QRangeSlider()
+    ui.trajRange=QRangeSlider(ui.tab_2)
+    # ui.trackFly = QtGui.QCheckBox(ui.tab_2)
+    # ui.trajRange.setGeometry(QtCore.QRect(540, 47, 111, 22))  #functions for several buttons
 
-    #functions for several buttons
+    ui.trajRange.show()
+    # rs1.setWindowTitle('example 1')
+    ui.trajRange.setRange(15, 35)
+    ui.trajRange.setBackgroundStyle('background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #222, stop:1 #333);')
+    ui.trajRange.setSpanStyle('background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #282, stop:1 #393);')
     #applying and loading settings, closing etc.
 
     okBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.Ok)#todo: Ok needs a function
@@ -550,6 +627,10 @@ if __name__ == '__main__':
     ui.compassSlip.setNeedle(Qwt.QwtDialSimpleNeedle(Qwt.QwtDialSimpleNeedle.Arrow))
     ui.compassSlip.setOrigin(270)# to set north as north
 
+
+
+
+
     RosSubscriber('GUI', '/trajectory', MsgTrajectory, clbk)
 
     # my_plot = pg.PlotWidget()
@@ -574,12 +655,16 @@ if __name__ == '__main__':
     my_hist=pg.PlotWidget()
     ui.histog.addWidget(my_hist)
     global vals,traj0s,traj1s,traj2s,traj3s
-    traj0s = np.array([0,0])
-    traj1s = np.array([0,0])
-    traj2s = np.array([0,0])
-    traj3s = np.array([0,0])
+    traj0s = np.array([0, 0, 0, 0, 0])
+    traj1s = np.array([0, 0, 0, 0, 0])
+    traj2s = np.array([0, 0, 0, 0, 0])
+    traj3s = np.array([0, 0, 0, 0, 0])
+    # traj0s = np.array([0,0])
+    # traj1s = np.array([0,0])
+    # traj2s = np.array([0,0])
+    # traj3s = np.array([0,0])
     vals = np.array([0])
-    y, x = np.histogram(vals, bins=np.linspace(-1, 1, 40))
+    y, x = np.histogram(vals, bins=np.linspace(-0.5, 0.5, 80))
     resetView()
     ## notice that len(x) == len(y)+1
     ## We are required to use stepMode=True so that PlotCurveItem will interpret this data correctly.
@@ -589,7 +674,7 @@ if __name__ == '__main__':
 
     timer = QTimer()
     timer.timeout.connect(tick)
-    timer.start(25)
+    timer.start(1000/60.)
 
     myDict = {
         'greenTexPath': [ui.greenTexPathBtn, showFileDialog, ui.greenTexPath],

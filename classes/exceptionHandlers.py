@@ -100,11 +100,15 @@ class ExceptionHandlers():
 
         try:
             # s=ValveHandler(1)
-            v1=ValveHandler(97)
-            v2=ValveHandler(98)
-            v3=ValveHandler(99)
+            self.baud = 115200
+            v1= ValveHandler(casePort=97, baud=self.baud)
+            v2= ValveHandler(casePort=98, baud=self.baud)
+            v3= ValveHandler(casePort=99, baud=self.baud)
 
             # s.move(90)
+            v1.move(1)
+            v2.move(1)
+            v3.move(1)
             v1.move(0)
             v2.move(0)
             v3.move(0)

@@ -864,7 +864,7 @@ class MyApp(ShowBase):
             x, y, z = self.player.getPos()
             try:
                 self.windDir = self.windField[int(x), int(y)]
-                print "windDIr is", self.windDir,int(x), int(y)
+                # print "windDIr is", self.windDir,int(x), int(y)
 
             except IndexError:
                 print "reached the edge of the world, please reset"
@@ -916,14 +916,14 @@ class MyApp(ShowBase):
 
                     #
             #     #
-            # else:
-            #     self.windDir =parameters["windQuadOpen"][self.ex.case]
-            #     self.openServo=True
-            #     self.openWind=True
-            #     self.openSlip=True
-            #
-            # # print "load wind is ",parameters["loadWind"]
-            # self.servoAngle=self.windTunnel.update(self.windDir,openLoop=self.openServo)
+            else:
+                self.windDir =parameters["windQuadOpen"][self.ex.case]
+                self.openServo=True
+                self.openWind=True
+                self.openSlip=True
+
+            # print "load wind is ",parameters["loadWind"]
+            self.servoAngle=self.windTunnel.update(self.windDir,openLoop=self.openServo)
 
                 # self.windTunnel(parameters["windDirection"])
             # print "open",self.openServo,self.openSlip,self.openWind

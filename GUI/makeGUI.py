@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'GUI/makeGUI.ui'
 #
-# Created: Wed Jun 14 11:40:15 2017
+# Created: Sat Aug 26 00:24:45 2017
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_RhagGUI(object):
     def setupUi(self, RhagGUI):
         RhagGUI.setObjectName(_fromUtf8("RhagGUI"))
-        RhagGUI.resize(765, 1052)
+        RhagGUI.resize(741, 1052)
         self.centralwidget = QtGui.QWidget(RhagGUI)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.gridLayout_2 = QtGui.QGridLayout(self.centralwidget)
@@ -972,7 +972,7 @@ class Ui_RhagGUI(object):
         self.stateLabel.setGeometry(QtCore.QRect(580, 0, 121, 21))
         self.stateLabel.setObjectName(_fromUtf8("stateLabel"))
         self.liveState = QtGui.QLabel(self.tab_2)
-        self.liveState.setGeometry(QtCore.QRect(540, 30, 191, 461))
+        self.liveState.setGeometry(QtCore.QRect(550, 0, 171, 461))
         self.liveState.setObjectName(_fromUtf8("liveState"))
         self.compassSlip = QwtCompass(self.tab_2)
         self.compassSlip.setGeometry(QtCore.QRect(480, 575, 91, 121))
@@ -998,6 +998,23 @@ class Ui_RhagGUI(object):
         self.positionLabel_4 = QtGui.QLabel(self.tab_2)
         self.positionLabel_4.setGeometry(QtCore.QRect(420, 680, 61, 21))
         self.positionLabel_4.setObjectName(_fromUtf8("positionLabel_4"))
+        self.trackFly = QtGui.QCheckBox(self.tab_2)
+        self.trackFly.setGeometry(QtCore.QRect(540, 470, 111, 22))
+        self.trackFly.setObjectName(_fromUtf8("trackFly"))
+        self.label_33 = QtGui.QLabel(self.tab_2)
+        self.label_33.setGeometry(QtCore.QRect(540, 440, 81, 29))
+        self.label_33.setObjectName(_fromUtf8("label_33"))
+        self.verticalSlider = QtGui.QSlider(self.tab_2)
+        self.verticalSlider.setGeometry(QtCore.QRect(500, 30, 61, 421))
+        self.verticalSlider.setFocusPolicy(QtCore.Qt.WheelFocus)
+        self.verticalSlider.setMinimum(-60)
+        self.verticalSlider.setMaximum(40)
+        self.verticalSlider.setSingleStep(2)
+        self.verticalSlider.setOrientation(QtCore.Qt.Vertical)
+        self.verticalSlider.setInvertedAppearance(False)
+        self.verticalSlider.setInvertedControls(False)
+        self.verticalSlider.setTickPosition(QtGui.QSlider.NoTicks)
+        self.verticalSlider.setObjectName(_fromUtf8("verticalSlider"))
         self.tabWidget_2.addTab(self.tab_2, _fromUtf8(""))
         self.tab_8 = QtGui.QWidget()
         self.tab_8.setObjectName(_fromUtf8("tab_8"))
@@ -1007,7 +1024,7 @@ class Ui_RhagGUI(object):
         self.gridLayout_2.addLayout(self.gridLayout_9, 1, 0, 1, 1)
         RhagGUI.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(RhagGUI)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 765, 25))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 741, 25))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         RhagGUI.setMenuBar(self.menubar)
         self.statusbar = QtGui.QStatusBar(RhagGUI)
@@ -1227,6 +1244,8 @@ class Ui_RhagGUI(object):
         self.positionLabel_2.setText(_translate("RhagGUI", "Heading", None))
         self.positionLabel_3.setText(_translate("RhagGUI", "Slip", None))
         self.positionLabel_4.setText(_translate("RhagGUI", "Servo", None))
+        self.trackFly.setText(_translate("RhagGUI", "Track Fly", None))
+        self.label_33.setText(_translate("RhagGUI", "Track Width", None))
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_2), _translate("RhagGUI", "Tab 1", None))
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_8), _translate("RhagGUI", "Page", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_6), _translate("RhagGUI", "Live", None))

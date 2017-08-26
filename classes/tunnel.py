@@ -39,7 +39,7 @@ class WindTunnel():
         #this will make the number to be within 255 to not get char error on serial
         #todo.fix make serial not be limited to 255, use parseInt instead
         self.servoAngle=self.servoAngle%360
-        print "self.servoanfle is" ,self.servoAngle, windDir
+        # print "self.servoanfle is" ,self.servoAngle, windDir
         self.servo.move(self.servoAngle/self.stepAngle)#divide it into steps instead of angles
         return self.servoAngle
 
