@@ -79,9 +79,17 @@ class BagControl():
 
             if parameters["imposeStimulus"]:
                 mode += "impose_"
+            #
+            # if parameters["loadNullModels"]:
+            #     mode += "null_"
+            #
+            if parameters["loadNullSky"]:
+                mode += "nullSky_"
 
-            if parameters["loadNullModels"]:
-                mode += "null_"
+            if parameters["loadNullGrass"]:
+                mode += "nullGrass_"
+
+
 
 
 

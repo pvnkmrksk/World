@@ -65,7 +65,7 @@
       <item row="0" column="0" colspan="2">
        <widget class="QTabWidget" name="tabWidget">
         <property name="currentIndex">
-         <number>5</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="tab">
          <attribute name="title">
@@ -154,7 +154,7 @@
                <bool>true</bool>
               </property>
               <property name="currentIndex">
-               <number>2</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="tabWidgetPage1">
                <attribute name="title">
@@ -618,6 +618,16 @@
                       </property>
                      </widget>
                     </item>
+                    <item row="1" column="0">
+                     <widget class="QDoubleSpinBox" name="windSpeed">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.050000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="2" column="0">
                      <widget class="QLineEdit" name="windQuadOpen">
                       <property name="enabled">
@@ -638,16 +648,6 @@
                       </property>
                       <property name="text">
                        <string>windQuadOpen</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="0">
-                     <widget class="QDoubleSpinBox" name="windSpeed">
-                      <property name="enabled">
-                       <bool>false</bool>
-                      </property>
-                      <property name="singleStep">
-                       <double>0.050000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -689,7 +689,7 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>40</y>
+            <y>90</y>
             <width>691</width>
             <height>431</height>
            </rect>
@@ -1379,55 +1379,69 @@
            </widget>
           </widget>
          </widget>
-         <widget class="QWidget" name="layoutWidget">
+         <widget class="QWidget" name="">
           <property name="geometry">
            <rect>
-            <x>11</x>
-            <y>10</y>
-            <width>657</width>
-            <height>24</height>
+            <x>0</x>
+            <y>20</y>
+            <width>704</width>
+            <height>71</height>
            </rect>
           </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_2">
-           <item>
+          <layout class="QGridLayout" name="gridLayout_14">
+           <item row="0" column="0">
             <widget class="QCheckBox" name="loadWorld">
              <property name="text">
               <string>load world</string>
              </property>
             </widget>
            </item>
-           <item>
+           <item row="0" column="1">
             <widget class="QCheckBox" name="generateWorld">
              <property name="text">
               <string>generate world</string>
              </property>
             </widget>
            </item>
-           <item>
+           <item row="0" column="2">
             <widget class="QCheckBox" name="quad">
              <property name="text">
               <string>quad</string>
              </property>
             </widget>
            </item>
-           <item>
+           <item row="0" column="3">
             <widget class="QCheckBox" name="lockFps">
              <property name="text">
               <string>lockFps</string>
              </property>
             </widget>
            </item>
-           <item>
+           <item row="0" column="4">
+            <widget class="QCheckBox" name="resetObject">
+             <property name="text">
+              <string>resetObject</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
             <widget class="QCheckBox" name="loadNullModels">
              <property name="text">
               <string>loadNullModels</string>
              </property>
             </widget>
            </item>
-           <item>
-            <widget class="QCheckBox" name="resetObject">
+           <item row="1" column="2">
+            <widget class="QCheckBox" name="loadNullSky">
              <property name="text">
-              <string>resetObject</string>
+              <string>loadNullSky</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QCheckBox" name="loadNullGrass">
+             <property name="text">
+              <string>loadNullGrass</string>
              </property>
             </widget>
            </item>
@@ -2438,28 +2452,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>59</x>
-     <y>90</y>
+     <x>29</x>
+     <y>75</y>
     </hint>
     <hint type="destinationlabel">
      <x>105</x>
      <y>224</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>loadWorld</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>groupBox_7</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>77</x>
-     <y>92</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>123</x>
-     <y>181</y>
     </hint>
    </hints>
   </connection>
@@ -2470,8 +2468,8 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>139</x>
-     <y>419</y>
+     <x>169</x>
+     <y>304</y>
     </hint>
     <hint type="destinationlabel">
      <x>139</x>
@@ -2486,12 +2484,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>114</x>
-     <y>134</y>
+     <x>29</x>
+     <y>85</y>
     </hint>
     <hint type="destinationlabel">
-     <x>144</x>
-     <y>341</y>
+     <x>157</x>
+     <y>226</y>
     </hint>
    </hints>
   </connection>
@@ -2502,12 +2500,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>118</x>
-     <y>134</y>
+     <x>29</x>
+     <y>85</y>
     </hint>
     <hint type="destinationlabel">
-     <x>171</x>
-     <y>264</y>
+     <x>186</x>
+     <y>149</y>
     </hint>
    </hints>
   </connection>
@@ -2518,12 +2516,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>105</x>
-     <y>134</y>
+     <x>29</x>
+     <y>85</y>
     </hint>
     <hint type="destinationlabel">
-     <x>300</x>
-     <y>264</y>
+     <x>298</x>
+     <y>149</y>
     </hint>
    </hints>
   </connection>
@@ -2534,12 +2532,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>86</x>
-     <y>134</y>
+     <x>29</x>
+     <y>85</y>
     </hint>
     <hint type="destinationlabel">
-     <x>300</x>
-     <y>297</y>
+     <x>298</x>
+     <y>182</y>
     </hint>
    </hints>
   </connection>
@@ -2550,12 +2548,12 @@
    <slot>display(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>269</x>
-     <y>138</y>
+     <x>42</x>
+     <y>85</y>
     </hint>
     <hint type="destinationlabel">
-     <x>561</x>
-     <y>138</y>
+     <x>69</x>
+     <y>85</y>
     </hint>
    </hints>
   </connection>
@@ -2566,44 +2564,12 @@
    <slot>setChecked(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>76</x>
-     <y>92</y>
+     <x>29</x>
+     <y>75</y>
     </hint>
     <hint type="destinationlabel">
-     <x>139</x>
-     <y>419</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>loadWind</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>windQuadOpen</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>60</x>
-     <y>127</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>97</x>
+     <x>169</x>
      <y>304</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>loadWind</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>label_31</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>56</x>
-     <y>128</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>243</x>
-     <y>317</y>
     </hint>
    </hints>
   </connection>
@@ -2614,12 +2580,92 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>36</x>
-     <y>122</y>
+     <x>29</x>
+     <y>85</y>
     </hint>
     <hint type="destinationlabel">
-     <x>103</x>
-     <y>281</y>
+     <x>133</x>
+     <y>182</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>loadWorld</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>groupBox_7</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>79</x>
+     <y>114</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>137</x>
+     <y>328</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>loadNullModels</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>loadNullGrass</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>87</x>
+     <y>135</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>206</x>
+     <y>140</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>loadNullModels</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>loadNullSky</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>85</x>
+     <y>138</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>376</x>
+     <y>144</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>loadWind</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>windQuadOpen</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>29</x>
+     <y>85</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>127</x>
+     <y>215</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>loadWind</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>label_31</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>29</x>
+     <y>85</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>298</x>
+     <y>215</y>
     </hint>
    </hints>
   </connection>

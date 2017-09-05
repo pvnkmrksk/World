@@ -5,7 +5,7 @@ class Sky():
     def __init__(self, showbase):
         self.sb = showbase
 
-    def createSky(self, loadNullModels=parameters["loadNullModels"], skyMapNull=parameters["skyMapNull"],skyMap=parameters["skyMap"],
+    def createSky(self, loadNullModels=parameters["loadNullModels"],loadNullSky=parameters["loadNullSky"],loadNullGrass=parameters["loadNullGrass"], skyMapNull=parameters["skyMapNull"],skyMap=parameters["skyMap"],
                  maxDistance=parameters["maxDistance"],humanDisplay=parameters["humanDisplay"]):
         """
         load fog
@@ -24,10 +24,14 @@ class Sky():
         self.sb.setBackgroundColor(*colour)
 
         # Our sky
-        if loadNullModels:  # if null, then create uniform back and sky
+
+        if loadNullSky:  # if null, then create uniform back and sky
+
+            # pass #todo. buttonify
             self.skysphere = self.sb.loader.loadModel(skyMapNull)
         else:
             self.skysphere = self.sb.loader.loadModel(skyMap)
+            # self.skysphere = self.sb.loader.loadModel(skyMapNull)
 
         self.skysphere.setEffect(CompassEffect.make(self.sb.render))
         self.skysphere.setScale(maxDistance)  # bit less than "far"
@@ -119,7 +123,7 @@ class Terrain():
         # self.sb.render.setLight(self.sb.render.attachNewNode(directionalLight4))
 
     def initTerrain(self, modelHeightMap = parameters["modelHeightMap"], modelTextureMapNull = parameters["modelTextureMapNull"],
-                    modelTextureMap = parameters["modelTextureMap"], loadNullModels = parameters["loadNullModels"], worldSize = parameters["worldSize"]):
+                    modelTextureMap = parameters["modelTextureMap"], loadNullModels = parameters["loadNullModels"],loadNullGrass=parameters["loadNullGrass"], worldSize = parameters["worldSize"]):
         """
         loads terrain-model, translates it and dumps it into bam-file
         :param modelHeightMap:
@@ -166,7 +170,8 @@ class Terrain():
         shift = ((worldSize-1)/2)+1
         print "shift:", shift
 
-        if parameters["loadNullModels"] :
+        if parameters["loadNullGrass"] :
+            # todo. buttonify
             tempTerrain = self.sb.loader.loadModel(modelTextureMapNull)
         else:
             tempTerrain = self.sb.loader.loadModel(modelTextureMap)

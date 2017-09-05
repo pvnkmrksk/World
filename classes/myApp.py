@@ -759,7 +759,8 @@ class MyApp(ShowBase):
         mes.isFlying = self.ex.isFlying
 
         mes.DCoffset = parameters["DCoffset"]
-        mes.packetFrequency = self.odour2.pf
+        mes.packetFrequency = self.odour1.pf
+
         mes.packetDuration = self.packetDur
 
 
