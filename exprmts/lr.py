@@ -19,22 +19,29 @@ class Lr(Experiment):
         self.createTerrain()
         self.createSky()
         print "loadingString:", loadingString
-
+        self.loadingString=loadingString
         # loads objects dependent on the loading string
         # 11 loads obj1, obj2, 10 loads obj1, None, 01 loads None, obj2, 00 loads None, None
 
-        if loadingString[0] == "1":
+        if loadingString == 'ang':
             self.obj1 = self.getObjects(objPath1, objScale1)
-            print "obj1 loaded"
-        else:
-            self.obj1 = None
-            print "obj1 None"
-        if loadingString[1] == "1":
             self.obj2 = self.getObjects(objPath2, objScale2)
-            print "obj2 loaded"
+
         else:
-            self.obj2 = None
-            print "obj2 None"
+
+            if loadingString[0] == "1":
+                self.obj1 = self.getObjects(objPath1, objScale1)
+                print "obj1 loaded"
+            else:
+                self.obj1 = None
+                print "obj1 None"
+
+            if loadingString[1] == "1":
+                self.obj2 = self.getObjects(objPath2, objScale2)
+                print "obj2 loaded"
+            else:
+                self.obj2 = None
+                print "obj2 None"
 
         self.initField()
         # self.sb.initHardware()
@@ -139,51 +146,118 @@ class Lr(Experiment):
         :param objects: objects to set/move
         """
 
-        # todo: there are unnecessary variable assignments, clean that
-        self.case, self.trial, self.runNum = self.generateCase(self.trial, self.runNum)
+        if self.loadingString !='ang':
 
-        self.pos1 = parameters["posL"]
-        self.pos2 = parameters["posR"]
-        self.objectPosition = [self.pos1,
-                               self.pos2]  # at first, objectPosition will always be pos1 and pos2 for flexible
-        # object positioning, even if one instance/object is None.
-        # Position change to None occurs later in super-method.
 
-        self.removeObj(objects)  # remove tempObj, fixes rg-gg-bug and other render-object-bugs, pass tuple
+            # todo: there are unnecessary variable assignments, clean that
+            self.case, self.trial, self.runNum = self.generateCase(self.trial, self.runNum)
 
-        # case-dependent object-positioning (10,01,11,00)
-        # if config is 11 or 00, need to create tempObj-copy of obj and pass that to super
-        # if you pass only the same object twice, super will move that one object twice and not create a second object
-        # after creating copy, set tempObjUse True, so removeObj() in experiments.py will remove the copy next time
-        # ATTENTION! objects is a tuple, don't pass the tuple to super fct! pass the object/s
-        # todo discuss how to decode this with maraian
-        if self.case == 0:
-            self.tempObjUse = True
-            self.tempObj = self.mirrorFlip(objects[0])
-            super(Lr, self).setObjects(objects[0], self.tempObj)
 
-        elif self.case == 1:
-            self.tempObjUse = True #to remove historical models in node tree
-            self.tempObj= self.mirrorFlip(objects[0])#mirrorflip models to make sure symmetry is maintained
-            super(Lr, self).setObjects(objects[1], self.tempObj)
+            self.pos1 = parameters["posL"]
+            self.pos2 = parameters["posR"]
+            self.objectPosition = [self.pos1,
+                                   self.pos2]  # at first, objectPosition will always be pos1 and pos2 for flexible
+            # object positioning, even if one instance/object is None.
+            # Position change to None occurs later in super-method.
 
-        elif self.case == 2:
-            self.tempObjUse = True
-            self.tempObj= self.mirrorFlip(objects[1])
-            super(Lr, self).setObjects(objects[0], self.tempObj)
+            self.removeObj(objects)  # remove tempObj, fixes rg-gg-bug and other render-object-bugs, pass tuple
 
-        elif self.case == 3:
-            self.tempObjUse = True
-            self.tempObj = self.mirrorFlip(objects[1])
-            super(Lr, self).setObjects(objects[1], self.tempObj)
+            # case-dependent object-positioning (10,01,11,00)
+            # if config is 11 or 00, need to create tempObj-copy of obj and pass that to super
+            # if you pass only the same object twice, super will move that one object twice and not create a second object
+            # after creating copy, set tempObjUse True, so removeObj() in experiments.py will remove the copy next time
+            # ATTENTION! objects is a tuple, don't pass the tuple to super fct! pass the object/s
+            # todo discuss how to decode this with maraian
+            # print self.angPosFlip(self.pos1, parameters['playerInitPos'])
+            if self.case == 0:
+                self.tempObjUse = True
+                self.tempObj = self.mirrorFlip(objects[0])
+                super(Lr, self).setObjects(objects[0], self.tempObj)
+
+
+            elif self.case == 1:
+                self.tempObjUse = True #to remove historical models in node tree
+                self.tempObj= self.mirrorFlip(objects[0])#mirrorflip models to make sure symmetry is maintained
+                super(Lr, self).setObjects(objects[1], self.tempObj)
+
+            elif self.case == 2:
+                self.tempObjUse = True
+                self.tempObj= self.mirrorFlip(objects[1])
+                super(Lr, self).setObjects(objects[0], self.tempObj)
+
+            elif self.case == 3:
+                self.tempObjUse = True
+                self.tempObj = self.mirrorFlip(objects[1])
+                super(Lr, self).setObjects(objects[1], self.tempObj)
+
+            else:
+                print "something wrong in setobject of lr"
+                print "fix this, patch it with junk place"
+                # self.tempObjUse = True
+                # self.tempObj = self.mirrorFlip(objects[1])
+                # super(Lr, self).setObjects(objects[1], self.tempObj)
 
         else:
-            print "something wrong in setobject of lr"
-            print "fix this, patch it with junk place"
-            # self.tempObjUse = True
-            # self.tempObj = self.mirrorFlip(objects[1])
-            # super(Lr, self).setObjects(objects[1], self.tempObj)
 
+            # todo: there are unnecessary variable assignments, clean that
+            self.case, self.trial, self.runNum = self.generateCase(self.trial, self.runNum)
+
+            self.pos1 = parameters["posL"]
+            self.pos2 = parameters["posR"]
+            self.pos1Flip=self.angPosFlip(self.pos1, parameters['playerInitPos'])
+            self.pos2Flip=self.angPosFlip(self.pos2, parameters['playerInitPos'])
+
+            self.objectPosition = [self.pos1,
+                                   self.pos2]  # at first, objectPosition will always be pos1 and pos2 for flexible
+
+
+            # object positioning, even if one instance/object is None.
+            # Position change to None occurs later in super-method.
+
+            self.removeObj(objects)  # remove tempObj, fixes rg-gg-bug and other render-object-bugs, pass tuple
+
+            # case-dependent object-positioning (10,01,11,00)
+            # if config is 11 or 00, need to create tempObj-copy of obj and pass that to super
+            # if you pass only the same object twice, super will move that one object twice and not create a second object
+            # after creating copy, set tempObjUse True, so removeObj() in experiments.py will remove the copy next time
+            # ATTENTION! objects is a tuple, don't pass the tuple to super fct! pass the object/s
+            # todo discuss how to decode this with maraian
+
+            self.tempObjUse = True
+
+            if self.case == 0:
+                self.objectPosition = [self.pos1,self.pos1Flip]
+                self.tempObj = self.mirrorFlip(objects[0])
+                super(Lr, self).setObjects(objects[0], self.tempObj)
+
+
+            elif self.case == 1:
+                self.objectPosition = [self.pos2Flip,self.pos1Flip]
+                self.tempObj = self.mirrorFlip(objects[0])  # mirrorflip models to make sure symmetry is maintained
+                super(Lr, self).setObjects(objects[1], self.tempObj)
+
+            elif self.case == 2:
+                self.objectPosition = [self.pos1,self.pos2]
+                self.tempObj = self.mirrorFlip(objects[1])
+                super(Lr, self).setObjects(objects[0], self.tempObj)
+
+            elif self.case == 3:
+                self.objectPosition = [self.pos2Flip,self.pos2]
+                self.tempObj = self.mirrorFlip(objects[1])
+                super(Lr, self).setObjects(objects[1], self.tempObj)
+
+            else:
+                print "something wrong in setobject of lr"
+                print "fix this, patch it with junk place"
+                # self.tempObjUse = True
+                # self.tempObj = self.mirrorFlip(objects[1])
+                # super(Lr, self).setObjects(objects[1], self.tempObj)
+
+
+    def angPosFlip(self,pos,start):
+        xoff=pos[0]-start[0]
+
+        return (pos[0]-2*xoff,pos[1],pos[2])
 
     def mirrorFlip(self, obj):
         tempObj = copy.copy(obj)

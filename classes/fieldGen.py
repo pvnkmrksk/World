@@ -141,7 +141,7 @@ class FieldGen():
 
         return packet_field
 
-    def odourQuadField(self, w=257, h=257, oq=['s', 1, 'p', 0], plot=False):
+    def odourQuadField(self, w=257, h=257, oq=['s', 1, 'p', 0], plot=False,parameters=None):
         '''
         GIves an array filley with 4 arrays as quadrants with packets or strips or custom images to be used as odourfield
 
@@ -167,7 +167,8 @@ class FieldGen():
         for i in oq:
 
             if i == 'c':#custom image in models/odour/1,2,3,4.png
-                oq[quad] = (np.rot90(imread("models/odour/" + str(quad + 1) + ".png"),3))/10 #!= 0 #todo.fix why not = to zero, to bool?
+                oq[quad] = (np.rot90(imread(parameters['odour'+str(quad+1)]),3))/10
+                # oq[quad] = (np.rot90(imread("models/odour/" + str(quad + 1) + ".png"),3))/10 #!= 0 #todo.fix why not = to zero, to bool?
 
                 # py 0 index but non zero quadrants and the image is rotated to fix plt and array axes
             elif i == 's': #strip of solid one

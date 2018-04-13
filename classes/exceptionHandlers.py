@@ -42,7 +42,12 @@ class ExceptionHandlers():
             increment = self.parameters["playbackIncrement"]
 
             # replayPath = easygui.fileopenbox(multiple=False, filetypes=["*.pickle"])
-            replayPath = "/home/rhagoletis/catkin/src/World/bags/2017_06_06/2017-06-06__19~51~30_haw09_01_gain~8_speed~1.0_bout~5_DC~-0.002_traj.bag_df.pickle"
+            # replayPath = "/home/rhagoletis/catkin/src/World/bags/2017_06_06/2017-06-06__19~51~30_haw09_01_gain~8_speed~1.0_bout~5_DC~-0.002_traj.bag_df.pickle"
+            replayPath = self.parameters["replayPath"]
+            fr=self.parameters['frameRecord']
+            frp=self.parameters['frameRecordPath']
+            rd=self.parameters['recordDur']
+            rfps=self.parameters['recordFps']
 
             print replayPath
             pick = pd.read_pickle(replayPath)
@@ -50,12 +55,15 @@ class ExceptionHandlers():
             meta=pick["metadata"]
             print meta
 
-            # print (df.keys())
-            # slice pos and orientation and remove nans heading,pitch,roll, x,y,z and drop na which is from camera message time
-            traj = df.loc[:, "trajectory__orientation_x":"trajectory__position_z"].dropna()
-            cols = traj.columns.tolist()  # list of colums
-            cols = cols[-3:] + cols[:-3]  # reorder colums. hprpos to poshpr by python splicing
-            traj = traj[cols]  # reassign with this order
+            # # print (df.keys())
+            # # slice pos and orientation and remove nans heading,pitch,roll, x,y,z and drop na which is from camera message time
+            # traj = df.loc[:, "trajectory__orientation_x":"trajectory__position_z"].dropna()
+            # cols = traj.columns.tolist()  # list of colums
+            # cols = cols[-3:] + cols[:-3]  # reorder colums. hprpos to poshpr by python splicing
+            # traj = traj[cols]  # reassign with this order
+            dfPosHpr=df.loc[:,['trajectory__pPos_x', 'trajectory__pPos_y',
+            'trajectory__pPos_z','trajectory__pOri_x', 'trajectory__pOri_y',
+            'trajectory__pOri_z' ]]
 
             # //todo change current self.parameters to self.parameters saved in dataframe
             self.parameters = None
@@ -74,8 +82,15 @@ class ExceptionHandlers():
             self.parameters["captureScale"] = scale
             self.parameters["captureStart"] = start
             self.parameters["playbackIncrement"] = increment
+            self.parameters["replayPath"] = replayPath
+            self.parameters['frameRecord']=fr
+            self.parameters['frameRecordPath']=frp
+            self.parameters['recordDur']=rd
+            self.parameters['recordFps']=rfps
 
-            return self.parameters
+
+
+            return self.parameters, df ,dfPosHpr
 
     def exceptionROS(self):
         # Checkif rosmaster is running else run roscore

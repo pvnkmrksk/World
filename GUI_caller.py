@@ -269,7 +269,7 @@ def openSave(win):
         jsonCurrent=path
 
 
-def showFileDialog(win, line, pathStart):
+def showFileDialog(win, line, pathStart,local=True):
     '''
     opens file dialog, returns selected file as string
     if selected file is .json, changes jsonFile
@@ -281,7 +281,8 @@ def showFileDialog(win, line, pathStart):
     '''
 
     fname = str(QtGui.QFileDialog.getOpenFileName(win, 'Open file', pathStart))
-    fname = Path(fname).relative_to(filePath)#local path, get path relayive to repo root directory so that bugs
+    if local:
+        fname = Path(fname).relative_to(filePath)#local path, get path relayive to repo root directory so that bugs
     # dues to different usernames are avoided.
     fname = str(fname)
     if line and fname != '': #set only if given a label to setText
@@ -381,6 +382,7 @@ def resetView(cx=512,cy=512,off=20):
     s1.setRange(xRange=(cx-off,cx+off),yRange=(cy-off,cy+off))
     s2.setRange(xRange=(cx-off,cx+off),yRange=(cy-off,cy+off))
     s3.setRange(xRange=(cx-off,cx+off),yRange=(cy-off,cy+off))
+    r0.setRange(xRange=(cx-off,cx+off),yRange=(cy-off,cy+off))
 
     # s0.setRange(xRange=(512-off,512+off),yRange=(512-off,512+off))
     # s1.setRange(xRange=(512-off,512+off),yRange=(512-off,512+off))
@@ -389,9 +391,10 @@ def resetView(cx=512,cy=512,off=20):
 
 
 def tick():
-    global vals,curve,traj0s,traj1s,traj2s,traj3s
+    global vals,curve,traj0s,traj1s,traj2s,traj3s,traj0r
     try:
         ui.compassServo.setValue(traj.servoAngle+90)
+        ui.compassServo_2.setValue(traj.servoAngle+90)
         ui.compassHeading.setValue(traj.pOri.x)
         ui.compassSlip.setValue(traj.slip)
         # ui.compassSlip.setValue((((traj.slip+180)%360)-180-90)%360)
@@ -401,6 +404,12 @@ def tick():
         ui.lcdSlipAngle.display((traj.slip))
 
         ui.livePosition.setText(str(traj.pPos))
+        if bool(traj.valve1):
+            ui.odourLed.on()
+            ui.replayOdourLed.on()
+        else:
+            ui.odourLed.off()
+            ui.replayOdourLed.off()
 
         stateText="\ntrial\t\t: "+str(traj.trial)+ \
                   "\nrunNum\t\t: " + str(traj.runNum) + \
@@ -441,7 +450,12 @@ def tick():
             # s1.addPoints(pos=[(traj.pPos.x, traj.pPos.y)])
             # my_plot.addItem(s1)
             def quadPlot(trajs,s):
-                trajs = np.vstack((trajs, np.array([traj.pPos.x, traj.pPos.y,traj.runNum,traj.trial,traj.runNum*traj.trial])))
+                trajs = np.vstack((trajs,
+                               np.array([traj.pPos.x,
+                                         traj.pPos.y,
+                                         traj.runNum,
+                                         traj.trial,
+                                         traj.runNum*traj.trial])))
                 s.clear()
                 if traj.valve2==True:
                     sp=(255,0,0)
@@ -450,9 +464,13 @@ def tick():
                     sp=(0,0,255)
                 # print sp
                 # print 'a',trajs[:,3]
-                s.plot(trajs[:, 0], trajs[:, 1], pen=None, symbol='o', symbolPen=(255,0,0), symbolSize=2)
+                s.plot(trajs[:, 0], trajs[:, 1], pen=None,
+                       symbol='o', symbolPen=(255,0,0),
+                       symbolBrush=(255,0,0),symbolSize=2)
                 # s.addPoints(trajs[-1, 0], trajs[-1, 1], pen=None, symbol='o', symbolPen=(255, 255, 0), symbolSize=2)
-                s.plot([trajs[-1, 0]], [trajs[-1, 1]], pen=(3), symbolBrush=(255,0,0), symbolPen='w',symbol='o', symbolSize=8)
+                s.plot([trajs[-1, 0]], [trajs[-1, 1]], pen=(3),
+                       symbolBrush=(0,0,255), symbolPen='w',
+                       symbol='o', symbolSize=4)
 
                 return trajs
 
@@ -465,6 +483,7 @@ def tick():
                 traj2s=quadPlot(traj2s,s2)
             elif traj.case ==3:
                 traj3s=quadPlot(traj3s,s3)
+                traj0r=quadPlot(traj0r,r0)
 
             #
             # traj1s=np.vstack((traj1s,np.array([traj.pPos.x,traj.pPos.y])))
@@ -520,12 +539,13 @@ def setHeadingLcd():
 
 
 def clearPlot():
-    global vals,curve,traj0s,traj1s,traj2s,traj3s
+    global vals,curve,traj0s,traj1s,traj2s,traj3s,traj0r
     vals = np.array([])
     traj0s = np.array([0,0,0,0,0])
     traj1s = np.array([0,0,0,0,0])
     traj2s = np.array([0,0,0,0,0])
     traj3s = np.array([0,0,0,0,0])
+    traj0r = np.array([0,0,0,0,0])
 
     # traj0s = np.array([0,0])
     # traj1s = np.array([0,0])
@@ -615,9 +635,14 @@ if __name__ == '__main__':
     ui.rqtBtn.clicked.connect(lambda: startRqt())
     ui.resetView.clicked.connect(lambda :resetView())
     ui.clearPlot.clicked.connect(lambda :clearPlot())
+    ui.replayPathBtn.clicked.connect(lambda :showFileDialog(window, ui.replayPath, pathModel,local=False))
+
+# ui.greenTexPathBtn, showFileDialog, ui.greenTexPath
 
     ui.compassServo.setNeedle(Qwt.QwtDialSimpleNeedle(Qwt.QwtDialSimpleNeedle.Arrow))
     ui.compassServo.setOrigin(270)
+    ui.compassServo_2.setNeedle(Qwt.QwtDialSimpleNeedle(Qwt.QwtDialSimpleNeedle.Arrow))
+    ui.compassServo_2.setOrigin(270)
     # to set north as north
     # always start rosnode inside main else imports end in loop
 
@@ -632,6 +657,15 @@ if __name__ == '__main__':
 
 
     RosSubscriber('GUI', '/trajectory', MsgTrajectory, clbk)
+
+
+    '''
+    replay plot
+    '''
+    replay_plot= pg.GraphicsLayoutWidget()
+    ui.replayTrajectoryLayout.addWidget(replay_plot)
+    r0 = replay_plot.addPlot(title="1")
+
 
     # my_plot = pg.PlotWidget()
     # ui.trajectoryLayout.addWidget(my_plot)
@@ -654,11 +688,12 @@ if __name__ == '__main__':
     s1.setYLink(s0)
     my_hist=pg.PlotWidget()
     ui.histog.addWidget(my_hist)
-    global vals,traj0s,traj1s,traj2s,traj3s
+    global vals,traj0s,traj1s,traj2s,traj3s,replay
     traj0s = np.array([0, 0, 0, 0, 0])
     traj1s = np.array([0, 0, 0, 0, 0])
     traj2s = np.array([0, 0, 0, 0, 0])
     traj3s = np.array([0, 0, 0, 0, 0])
+    traj0r = np.array([0, 0, 0, 0, 0])
     # traj0s = np.array([0,0])
     # traj1s = np.array([0,0])
     # traj2s = np.array([0,0])
@@ -697,7 +732,6 @@ if __name__ == '__main__':
         'odour3Mask': [ui.odour3MaskBtn, showFileDialog, ui.odour3Mask],
         'odour4Mask': [ui.odour4MaskBtn, showFileDialog, ui.odour4Mask],
         'beepPath': [ui.beepPathBtn,showFileDialog,ui.beepPath],
-
 
 
     }

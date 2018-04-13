@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>741</width>
-    <height>1052</height>
+    <width>1020</width>
+    <height>1060</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -77,7 +77,7 @@
             <item row="2" column="1">
              <widget class="QSlider" name="gain">
               <property name="maximum">
-               <number>25</number>
+               <number>32</number>
               </property>
               <property name="value">
                <number>7</number>
@@ -145,6 +145,20 @@
              <widget class="QLabel" name="label_13">
               <property name="text">
                <string>max speed</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="5" rowspan="2">
+             <widget class="QSpinBox" name="fps">
+              <property name="maximum">
+               <number>999</number>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="6" rowspan="2">
+             <widget class="QLabel" name="label_158">
+              <property name="text">
+               <string>fps</string>
               </property>
              </widget>
             </item>
@@ -657,20 +671,6 @@
                 </item>
                </layout>
               </widget>
-             </widget>
-            </item>
-            <item row="0" column="5" rowspan="2">
-             <widget class="QSpinBox" name="fps">
-              <property name="maximum">
-               <number>999</number>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="6" rowspan="2">
-             <widget class="QLabel" name="label_158">
-              <property name="text">
-               <string>fps</string>
-              </property>
              </widget>
             </item>
            </layout>
@@ -1379,7 +1379,7 @@
            </widget>
           </widget>
          </widget>
-         <widget class="QWidget" name="">
+         <widget class="QWidget" name="layoutWidget">
           <property name="geometry">
            <rect>
             <x>0</x>
@@ -1857,7 +1857,11 @@
             </widget>
            </item>
            <item row="1" column="0">
-            <widget class="QSpinBox" name="captureStart"/>
+            <widget class="QSpinBox" name="captureStart">
+             <property name="maximum">
+              <number>999999999</number>
+             </property>
+            </widget>
            </item>
            <item row="1" column="1">
             <widget class="QLabel" name="label_15">
@@ -1891,7 +1895,14 @@
             <widget class="QDoubleSpinBox" name="captureScale"/>
            </item>
            <item row="1" column="2" colspan="2">
-            <widget class="QDoubleSpinBox" name="recordDur"/>
+            <widget class="QDoubleSpinBox" name="recordDur">
+             <property name="decimals">
+              <number>3</number>
+             </property>
+             <property name="maximum">
+              <double>9999999.000000000000000</double>
+             </property>
+            </widget>
            </item>
            <item row="3" column="3">
             <widget class="QSpinBox" name="recordFps">
@@ -1912,10 +1923,10 @@
          <widget class="QWidget" name="layoutWidget">
           <property name="geometry">
            <rect>
-            <x>10</x>
-            <y>20</y>
-            <width>239</width>
-            <height>24</height>
+            <x>11</x>
+            <y>21</y>
+            <width>495</width>
+            <height>29</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_15">
@@ -1936,6 +1947,16 @@
              </property>
             </widget>
            </item>
+           <item row="0" column="2">
+            <widget class="QLineEdit" name="replayPath"/>
+           </item>
+           <item row="0" column="3">
+            <widget class="QPushButton" name="replayPathBtn">
+             <property name="text">
+              <string>Select replay bag</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
         </widget>
@@ -1948,12 +1969,12 @@
            <rect>
             <x>0</x>
             <y>9</y>
-            <width>881</width>
+            <width>1051</width>
             <height>871</height>
            </rect>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="tab_2">
            <attribute name="title">
@@ -1991,17 +2012,6 @@
              <bool>false</bool>
             </property>
            </widget>
-           <widget class="QWidget" name="gridLayoutWidget">
-            <property name="geometry">
-             <rect>
-              <x>0</x>
-              <y>0</y>
-              <width>531</width>
-              <height>501</height>
-             </rect>
-            </property>
-            <layout class="QGridLayout" name="trajectoryLayout"/>
-           </widget>
            <widget class="QPushButton" name="resetView">
             <property name="geometry">
              <rect>
@@ -2018,8 +2028,8 @@
            <widget class="QLabel" name="livePosition">
             <property name="geometry">
              <rect>
-              <x>300</x>
-              <y>520</y>
+              <x>290</x>
+              <y>540</y>
               <width>121</width>
               <height>81</height>
              </rect>
@@ -2031,8 +2041,8 @@
            <widget class="QLabel" name="positionLabel">
             <property name="geometry">
              <rect>
-              <x>300</x>
-              <y>500</y>
+              <x>280</x>
+              <y>520</y>
               <width>121</width>
               <height>21</height>
              </rect>
@@ -2333,10 +2343,36 @@
              <enum>QSlider::NoTicks</enum>
             </property>
            </widget>
+           <widget class="KLed" name="odourLed">
+            <property name="geometry">
+             <rect>
+              <x>280</x>
+              <y>490</y>
+              <width>231</width>
+              <height>31</height>
+             </rect>
+            </property>
+            <property name="shape">
+             <enum>KLed::Rectangular</enum>
+            </property>
+            <property name="darkFactor">
+             <number>307</number>
+            </property>
+           </widget>
+           <widget class="QWidget" name="gridLayoutWidget">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>511</width>
+              <height>491</height>
+             </rect>
+            </property>
+            <layout class="QGridLayout" name="trajectoryLayout"/>
+           </widget>
            <zorder>livePosition</zorder>
            <zorder>pausePlot</zorder>
            <zorder>clearPlot</zorder>
-           <zorder>gridLayoutWidget</zorder>
            <zorder>resetView</zorder>
            <zorder>positionLabel</zorder>
            <zorder>label_5</zorder>
@@ -2357,11 +2393,62 @@
            <zorder>trackFly</zorder>
            <zorder>label_33</zorder>
            <zorder>verticalSlider</zorder>
+           <zorder>gridLayoutWidget</zorder>
+           <zorder>odourLed</zorder>
           </widget>
           <widget class="QWidget" name="tab_8">
            <attribute name="title">
             <string>Page</string>
            </attribute>
+           <widget class="QWidget" name="gridLayoutWidget_3">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>50</y>
+              <width>701</width>
+              <height>651</height>
+             </rect>
+            </property>
+            <layout class="QGridLayout" name="replayTrajectoryLayout"/>
+           </widget>
+           <widget class="KLed" name="replayOdourLed">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>701</width>
+              <height>16</height>
+             </rect>
+            </property>
+            <property name="shape">
+             <enum>KLed::Rectangular</enum>
+            </property>
+            <property name="darkFactor">
+             <number>307</number>
+            </property>
+           </widget>
+           <widget class="QwtCompass" name="compassServo_2">
+            <property name="geometry">
+             <rect>
+              <x>690</x>
+              <y>460</y>
+              <width>340</width>
+              <height>240</height>
+             </rect>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+            <property name="lineWidth">
+             <number>4</number>
+            </property>
+            <property name="frameShadow">
+             <enum>QwtDial::Raised</enum>
+            </property>
+            <property name="direction">
+             <enum>QwtDial::CounterClockwise</enum>
+            </property>
+           </widget>
           </widget>
          </widget>
         </widget>
@@ -2376,7 +2463,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>741</width>
+     <width>1020</width>
      <height>25</height>
     </rect>
    </property>
@@ -2393,6 +2480,11 @@
    <class>QwtDial</class>
    <extends>QWidget</extends>
    <header>qwt_dial.h</header>
+  </customwidget>
+  <customwidget>
+   <class>KLed</class>
+   <extends>QWidget</extends>
+   <header>kled.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
@@ -2452,8 +2544,8 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>29</x>
-     <y>75</y>
+     <x>42</x>
+     <y>97</y>
     </hint>
     <hint type="destinationlabel">
      <x>105</x>
@@ -2468,8 +2560,8 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>169</x>
-     <y>304</y>
+     <x>201</x>
+     <y>419</y>
     </hint>
     <hint type="destinationlabel">
      <x>139</x>
@@ -2484,8 +2576,8 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>29</x>
-     <y>85</y>
+     <x>42</x>
+     <y>134</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -2500,12 +2592,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>29</x>
-     <y>85</y>
+     <x>42</x>
+     <y>134</y>
     </hint>
     <hint type="destinationlabel">
-     <x>186</x>
-     <y>149</y>
+     <x>188</x>
+     <y>264</y>
     </hint>
    </hints>
   </connection>
@@ -2516,12 +2608,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>29</x>
-     <y>85</y>
+     <x>42</x>
+     <y>134</y>
     </hint>
     <hint type="destinationlabel">
-     <x>298</x>
-     <y>149</y>
+     <x>300</x>
+     <y>264</y>
     </hint>
    </hints>
   </connection>
@@ -2532,12 +2624,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>29</x>
-     <y>85</y>
+     <x>42</x>
+     <y>134</y>
     </hint>
     <hint type="destinationlabel">
-     <x>298</x>
-     <y>182</y>
+     <x>300</x>
+     <y>297</y>
     </hint>
    </hints>
   </connection>
@@ -2548,12 +2640,12 @@
    <slot>display(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>42</x>
-     <y>85</y>
+     <x>191</x>
+     <y>138</y>
     </hint>
     <hint type="destinationlabel">
-     <x>69</x>
-     <y>85</y>
+     <x>533</x>
+     <y>138</y>
     </hint>
    </hints>
   </connection>
@@ -2564,12 +2656,12 @@
    <slot>setChecked(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>29</x>
-     <y>75</y>
+     <x>42</x>
+     <y>97</y>
     </hint>
     <hint type="destinationlabel">
-     <x>169</x>
-     <y>304</y>
+     <x>201</x>
+     <y>419</y>
     </hint>
    </hints>
   </connection>
@@ -2580,12 +2672,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>29</x>
-     <y>85</y>
+     <x>42</x>
+     <y>134</y>
     </hint>
     <hint type="destinationlabel">
-     <x>133</x>
-     <y>182</y>
+     <x>165</x>
+     <y>297</y>
     </hint>
    </hints>
   </connection>
@@ -2644,12 +2736,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>29</x>
-     <y>85</y>
+     <x>42</x>
+     <y>134</y>
     </hint>
     <hint type="destinationlabel">
-     <x>127</x>
-     <y>215</y>
+     <x>159</x>
+     <y>330</y>
     </hint>
    </hints>
   </connection>
@@ -2660,12 +2752,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>29</x>
-     <y>85</y>
+     <x>42</x>
+     <y>134</y>
     </hint>
     <hint type="destinationlabel">
-     <x>298</x>
-     <y>215</y>
+     <x>300</x>
+     <y>330</y>
     </hint>
    </hints>
   </connection>

@@ -256,13 +256,14 @@ class Experiment(object):
         pass
     def initField(self):
         mfg= FieldGen()
-        xO = parameters['worldSize']
-        yO = parameters['worldSize']
+        xO = parameters['worldSize']-1
+        yO = parameters['worldSize']-1
 
         if parameters['loadOdour']:
             self.of = mfg.odourQuadField(parameters['worldSize']*2,parameters['worldSize']*2,
                                          oq=parameters['odourQuad'],
-                                         plot=parameters['plotOdourQuad'])
+                                         plot=parameters['plotOdourQuad'],
+                                         parameters=parameters)
 
 
             self.ofCase={0:self.of[xO:xO+xO,yO:yO+yO],
