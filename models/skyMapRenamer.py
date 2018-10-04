@@ -1,0 +1,21 @@
+import PIL.Image
+import easygui
+import glob
+
+
+
+trans=dict(ft=[0,90],bk=[1,-90],rt=[2,0],lf=[3,180],up=[4,0],dn=[5,180])
+
+def renamer(dirPath=None,trans=dict(ft=[0,90],bk=[1,-90],rt=[2,0],lf=[3,180],up=[4,0],dn=[5,180])):
+    if dirPath is None:
+        dirPath=easygui.diropenbox()
+        
+    fileList=glob.glob(dirPath+'/*.tga')
+    for fn in fileList:
+        ori=fn.split('/')[-1].split('.tga')[0].split('_')[-1]
+        fn.split('.tga')
+        PIL.Image.open(fn).rotate(trans[ori][1]).save(fn.split('.tga')[0][:-2]+str(trans[ori][0])+'.tga')
+
+    return fn.split('.tga')[0][:-2]++'#.tga'
+if __name__ =='__main__':
+    renamer()

@@ -13,7 +13,7 @@ import os
 nrows = 6
 ncols = 16
 uvscale = 2.8
-texture = 'models/clouds_null.png'
+texture = 'clouds.png'
 
 sqrt2 = math.sqrt( 2.0 )
 
@@ -94,7 +94,7 @@ while n:
     n = data.getNextChild( )
 
 # save
-data.writeEgg( Filename( 'sky_null.egg' ) )
+data.writeEgg( Filename( 'sky_mount.egg' ) )
 
 # egg2bam
 os.system( 'egg2bam sky_null.egg -o sky.bam' )

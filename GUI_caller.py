@@ -282,7 +282,11 @@ def showFileDialog(win, line, pathStart,local=True):
 
     fname = str(QtGui.QFileDialog.getOpenFileName(win, 'Open file', pathStart))
     if local:
-        fname = Path(fname).relative_to(filePath)#local path, get path relayive to repo root directory so that bugs
+        try:
+            fname = Path(fname).relative_to(filePath)#local path, get path relayive to repo root directory so that bugs
+        except ValueError:
+            print "SOmething off with fnames"
+
     # dues to different usernames are avoided.
     fname = str(fname)
     if line and fname != '': #set only if given a label to setText

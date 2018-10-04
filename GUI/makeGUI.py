@@ -351,7 +351,7 @@ class Ui_RhagGUI(object):
         self.label_22.setObjectName(_fromUtf8("label_22"))
         self.gridLayout_3.addWidget(self.label_22, 1, 1, 1, 1)
         self.maxDistance = QtGui.QSpinBox(self.groupBox_4)
-        self.maxDistance.setMaximum(9999)
+        self.maxDistance.setMaximum(99999)
         self.maxDistance.setObjectName(_fromUtf8("maxDistance"))
         self.gridLayout_3.addWidget(self.maxDistance, 2, 0, 1, 1)
         self.label_111 = QtGui.QLabel(self.groupBox_4)

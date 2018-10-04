@@ -70,6 +70,8 @@ class Experiment(object):
         """
 
         self.sky.createSky()
+        # self.sky.createSky_()
+        # pass
 
     def resetPosition(self):
         """

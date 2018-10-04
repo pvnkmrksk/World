@@ -1,5 +1,8 @@
 from helping.importHelper import *
 
+
+from panda3d.core import TextureStage
+
 class Sky():
 
     def __init__(self, showbase):
@@ -30,14 +33,58 @@ class Sky():
             # pass #todo. buttonify
             self.skysphere = self.sb.loader.loadModel(skyMapNull)
         else:
-            self.skysphere = self.sb.loader.loadModel(skyMap)
+            # self.skysphere = self.sb.loader.loadModel(skyMap)
+            self.skysphere = self.sb.loader.loadModel('models/sky.egg')
+
             # self.skysphere = self.sb.loader.loadModel(skyMapNull)
 
         self.skysphere.setEffect(CompassEffect.make(self.sb.render))
-        self.skysphere.setScale(maxDistance)  # bit less than "far"
+        self.skysphere.setScale(100)  # bit less than "far"
         self.skysphere.setZ(-3)
+        print 'using sky\n\n\n'
+        # self.skysphere.setH(45)
+
         self.skysphere.reparentTo(self.sb.render)
         # NOT render - you'll fly through the sky!:
+
+    def  createSky_(self,maxDistance=parameters["maxDistance"],loadNullSky=parameters["loadNullSky"],skyMapNull=parameters["skyMapNull"]):
+        # self.skysphere = self.sb.loader.loadModel("models/solar_sky_sphere")
+        # self.sky_tex = self.sb.loader.loadTexture("models/stars_1k_tex.jpg")
+        # self.skysphere.setTexture(self.sky_tex, 1)
+        #
+        # self.skysphere.setEffect(CompassEffect.make(self.sb.render))
+        # self.skysphere.setScale(maxDistance)  # bit less than "far"
+        # self.skysphere.setZ(-3)
+        # self.skysphere.reparentTo(self.sb.render)
+
+        if loadNullSky:  # if null, then create uniform back and sky
+
+            # pass #todo. buttonify
+            self.skysphere = self.sb.loader.loadModel(skyMapNull)
+            self.skysphere.setEffect(CompassEffect.make(self.sb.render))
+            self.skysphere.setScale(maxDistance)  # bit less than "far"
+            self.skysphere.setZ(-3)
+
+            # self.skysphere.setH(45)
+
+            self.skysphere.reparentTo(self.sb.render)
+
+        else:
+            self.skysphere = self.sb.loader.loadModel(parameters['skyMap'])
+            self.skysphere.setBin('background', 1)
+            self.skysphere.setDepthWrite(0)
+            self.skysphere.setPos(0,0,0)
+
+
+            self.skysphere.setPos((513,513,0))
+            self.skysphere.setTexPos(TextureStage.getDefault(),(-513,-513,1000))
+
+            #don't change it here, do it in bam generator
+            # self.skysphere.setTexHpr(TextureStage.getDefault(),(-513,-513,0))
+
+            self.skysphere.setScale(9000)  # bit less than "far"
+            self.skysphere.setEffect(CompassEffect.make(self.sb.render))
+            self.skysphere.reparentTo(self.sb.render)
 
 
 

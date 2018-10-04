@@ -48,7 +48,7 @@ unsigned long previousMillis = 0;        // will store last time LED was updated
 // constants won't change :
 const long interval = 6;           // interval at which to blink (milliseconds)
 
-float off=22;//78;//32;//42;//192//3+50;//37;//187//79+50;//117+50;//127+50;//90+50;//102+50;//85+50;//73+50;//136+50;//124+50;//132+50;//200-(143+50+43);//100+50;//143+50;//(anglefinder +50)%200 in downind pos
+float off=41;//6;//15;//177;//7;//78;//32;//42;//192//3+50;//37;//187//79+50;//117+50;//127+50;//90+50;//102+50;//85+50;//73+50;//136+50;//124+50;//132+50;//200-(143+50+43);//100+50;//143+50;//(anglefinder +50)%200 in downind pos
 
 
 
@@ -118,9 +118,7 @@ stepper.setup(PID,SIXTEEN,20,10,0.1,0.1,0.1);     //Initiate the stepper object 
                                                         //http://ustepper.com/docs/html/index.html
 
 //  stepper.moveSteps(200,CCW,HARD);                //turn shaft 3200 steps, counterClockWise (equal to one revolution)
-  Serial.print(stepper.encoder.angle);    //print out the current angle of the motor shaft.
-
-
+//  Serial.print(stepper.encoder.angle);    //print out the current angle of the motor shaft.
 
 
 

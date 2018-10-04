@@ -50,10 +50,18 @@ class ExceptionHandlers():
             rfps=self.parameters['recordFps']
 
             print replayPath
-            pick = pd.read_pickle(replayPath)
-            df= pick["df"]
-            meta=pick["metadata"]
-            print meta
+            repExt = replayPath.split('.')[-1]
+            from analyseWorld.ipy_notebooks import ipyimports
+            if repExt == 'bag':
+                df, meta, p = ipyimports.bag2pickle([replayPath])
+                print "hello"
+
+            elif repExt == 'h5':
+                df,meta=ipyimports.h5load(replayPath)
+            # pick = pd.read_pickle(replayPath)
+            # df= pick["df"]
+            # meta=pick["metadata"]
+            # print meta
 
             # # print (df.keys())
             # # slice pos and orientation and remove nans heading,pitch,roll, x,y,z and drop na which is from camera message time
@@ -72,10 +80,14 @@ class ExceptionHandlers():
                 self.parameters = json.loads(df.metadata__data.values[1])
 
             except:
-                # self.parameters = json.loads(df.metadata__data.values[0])
-                self.parameters = meta["parameters"]
-                print "ewo is",self.parameters
-                print "using exceprion to load params"
+                try:
+                    # self.parameters = json.loads(df.metadata__data.values[0])
+                    self.parameters = meta["parameters"]
+                    print "ewo is",self.parameters
+                    print "using exceprion to load params"
+
+                except KeyError:
+                    self.parameters=meta
 
             # dump back params from vars
             self.parameters["replayWorld"] = replay

@@ -27,7 +27,7 @@ from direct.task import Task
 from panda3d.core import AmbientLight, DirectionalLight, Vec4, Vec3, Fog, Camera, PerspectiveLens
 from panda3d.core import loadPrcFileData, NodePath, TextNode
 from panda3d.core import CompassEffect, ClockObject
-from panda3d.core import Shader
+from panda3d.core import Shader, TextureStage
 from panda3d.core import loadPrcFileData
 from direct.gui.OnscreenText import OnscreenText
 from panda3d.core import WindowProperties
@@ -71,12 +71,16 @@ def exceptionReplay(parameters):
         start = parameters["captureStart"]
         increment = parameters["playbackIncrement"]
 
-        # replayPath = easygui.fileopenbox(multiple=False, filetypes=["*.pickle"])
-        replayPath = "/home/behaviour/catkin/src/beginner/scripts/panda/world/bags/fly4/fly4_quad_rg_gain7.0_speed_3.5_" \
-                     "trial_1_2016-04-13__23:31:35.bag_df.pickle"
+        # # replayPath = easygui.fileopenbox(multiple=False, filetypes=["*.pickle"])
+        # replayPath = "/home/behaviour/catkin/src/beginner/scripts/panda/world/bags/fly4/fly4_quad_rg_gain7.0_speed_3.5_" \
+        #              "trial_1_2016-04-13__23:31:35.bag_df.pickle"
 
-        print replayPath
-        df = pd.read_pickle(replayPath)
+        print parameters["replayPath"]
+        # repExt=parameters["replayPath"].split('.')[-1]
+        # if repExt=='.bag':
+        #     from analyseWorld.ipy_notebooks import ipyimports
+        #     df,parameters,p=bag2pickle(parameters["replayPath"])
+        df = pd.read_pickle(parameters["replayPath"])
 
         # slice pos and orientation and remove nans heading,pitch,roll, x,y,z and drop na which is from camera message time
         traj = df.loc[:, "trajectory__orientation_x":"trajectory__position_z"].dropna()

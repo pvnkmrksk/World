@@ -106,6 +106,7 @@ class MyApp(ShowBase):
 
 
         self.taskMgr.add(self.updateTask, "update")  # A task to run every frame, some keyboard setup and our speed
+        # base.oobe()
 
     def initParams(self):
         '''
@@ -118,6 +119,7 @@ class MyApp(ShowBase):
         Returns:
             None
         '''
+
 
         if parameters["lockFps"]:
             # print "\nfps of panda window is locked to ",parameters["fps"]
@@ -256,8 +258,10 @@ class MyApp(ShowBase):
     def initSky(self):
         if not parameters['humanDisplay']:
             self.initDisplayRegion()
+
             self.ex.sky.skysphere.reparentTo(
                 self.cameraCenter)  # dont do this in environment.py, needs self.cameraCenter
+
         else:
             self.ex.sky.skysphere.reparentTo(
                 self.camera)  # todo: is this right? looks like it will cause bugs if human display is true
@@ -644,66 +648,66 @@ class MyApp(ShowBase):
         self.windNode.setH(self.ex.world, 0)  # heading angle is 0
 
     # sky load
-    def createEnvironment(self):
-        """
-        load fog
-        load sky
-        setup lights
-        Returns:
-
-        """
-        # Fog to hide a performance tweak:
-        colour = (0.0, 0.0, 0.0)
-        expfog = Fog("scene-wide-fog")
-        expfog.setColor(*colour)
-        expfog.setExpDensity(0.004)
-        render.setFog(expfog)
-        self.setBackgroundColor(*colour)
-
-        # Our sky
-        if parameters["loadNullModels"]:  # if null, then create uniform back and sky
-            skysphere = loader.loadModel(parameters["skyMapNull"])
-        else:
-            skysphere = loader.loadModel(parameters["skyMap"])
-
-        skysphere.setEffect(CompassEffect.make(self.render))
-        skysphere.setScale(parameters["maxDistance"])  # bit less than "far"
-        skysphere.setZ(-3)
-        # NOT render - you'll fly through the sky!:
-        if parameters["humanDisplay"]:
-            skysphere.reparentTo(self.camera)
-        else:
-            skysphere.reparentTo(self.cameraCenter)
-
-        # Our lighting
-        # ambientLight = AmbientLight("ambientLight")
-        # ambientLight.setColor(Vec4(.6, .6, .6, 1))
-        directionalLight = DirectionalLight("directionalLight")
-        directionalLight.setDirection(Vec3(-1, -1, -1))
-        directionalLight.setColor(Vec4(1, 1, 1, 1))
-        directionalLight.setSpecularColor(Vec4(1, 1, 1, 1))
-
-        directionalLight2 = DirectionalLight("directionalLight")
-        directionalLight2.setDirection(Vec3(-1, 1, -1))
-        directionalLight2.setColor(Vec4(1, 1, 1, 1))
-        directionalLight2.setSpecularColor(Vec4(1, 1, 1, 1))
-        directionalLight3 = DirectionalLight("directionalLight")
-        directionalLight3.setDirection(Vec3(1, -1, -1))
-        directionalLight3.setColor(Vec4(1, 1, 1, 1))
-        directionalLight3.setSpecularColor(Vec4(1, 1, 1, 1))
-
-        directionalLight4 = DirectionalLight("directionalLight")
-        directionalLight4.setDirection(Vec3(1, 1, -1))
-        directionalLight4.setColor(Vec4(1, 1, 1, 1))
-        directionalLight4.setSpecularColor(Vec4(1, 1, 1, 1))
-
-        # render.setLight(render.attachNewNode(ambientLight))
-        render.setLight(render.attachNewNode(directionalLight))
-        render.setLight(render.attachNewNode(directionalLight2))
-        render.setLight(render.attachNewNode(directionalLight3))
-        render.setLight(render.attachNewNode(directionalLight4))
-        # directionalLight.setShadowCaster(True, 512, 512)
-        # render.setShaderAuto()
+    # def createEnvironment(self):
+    #     """
+    #     load fog
+    #     load sky
+    #     setup lights
+    #     Returns:
+    #
+    #     """
+    #     # Fog to hide a performance tweak:
+    #     colour = (0.0, 0.0, 0.0)
+    #     expfog = Fog("scene-wide-fog")
+    #     expfog.setColor(*colour)
+    #     expfog.setExpDensity(0.004)
+    #     render.setFog(expfog)
+    #     self.setBackgroundColor(*colour)
+    #
+    #     # Our sky
+    #     if parameters["loadNullModels"]:  # if null, then create uniform back and sky
+    #         skysphere = loader.loadModel(parameters["skyMapNull"])
+    #     else:
+    #         skysphere = loader.loadModel(parameters["skyMap"])
+    #
+    #     skysphere.setEffect(CompassEffect.make(self.render))
+    #     skysphere.setScale(parameters["maxDistance"])  # bit less than "far"
+    #     skysphere.setZ(-3)
+    #     # NOT render - you'll fly through the sky!:
+    #     if parameters["humanDisplay"]:
+    #         skysphere.reparentTo(self.camera)
+    #     else:
+    #         skysphere.reparentTo(self.cameraCenter)
+    #
+    #     # Our lighting
+    #     # ambientLight = AmbientLight("ambientLight")
+    #     # ambientLight.setColor(Vec4(.6, .6, .6, 1))
+    #     directionalLight = DirectionalLight("directionalLight")
+    #     directionalLight.setDirection(Vec3(-1, -1, -1))
+    #     directionalLight.setColor(Vec4(1, 1, 1, 1))
+    #     directionalLight.setSpecularColor(Vec4(1, 1, 1, 1))
+    #
+    #     directionalLight2 = DirectionalLight("directionalLight")
+    #     directionalLight2.setDirection(Vec3(-1, 1, -1))
+    #     directionalLight2.setColor(Vec4(1, 1, 1, 1))
+    #     directionalLight2.setSpecularColor(Vec4(1, 1, 1, 1))
+    #     directionalLight3 = DirectionalLight("directionalLight")
+    #     directionalLight3.setDirection(Vec3(1, -1, -1))
+    #     directionalLight3.setColor(Vec4(1, 1, 1, 1))
+    #     directionalLight3.setSpecularColor(Vec4(1, 1, 1, 1))
+    #
+    #     directionalLight4 = DirectionalLight("directionalLight")
+    #     directionalLight4.setDirection(Vec3(1, 1, -1))
+    #     directionalLight4.setColor(Vec4(1, 1, 1, 1))
+    #     directionalLight4.setSpecularColor(Vec4(1, 1, 1, 1))
+    #
+    #     # render.setLight(render.attachNewNode(ambientLight))
+    #     render.setLight(render.attachNewNode(directionalLight))
+    #     render.setLight(render.attachNewNode(directionalLight2))
+    #     render.setLight(render.attachNewNode(directionalLight3))
+    #     render.setLight(render.attachNewNode(directionalLight4))
+    #     # directionalLight.setShadowCaster(True, 512, 512)
+    #     # render.setShaderAuto()
 
     # display regions
     def initDisplayRegion(self):
@@ -723,6 +727,7 @@ class MyApp(ShowBase):
         lens = PerspectiveLens(parameters['camFOV'][0], parameters['camFOV'][1])  # tuple(parameters["camFOV"]))
         print "lens is", lens.get_fov()
         lens.setNear(0.01)
+        # lens.setFar(parameters['maxDistance'])
 
         displayLeft = self.win.makeDisplayRegion(0, 1 / 3, 0, 1)
         camL = Camera('Lcam')
@@ -883,6 +888,9 @@ class MyApp(ShowBase):
         """
         if (self.keyMap["valve1-on"] != 0):
             self.valve1State = 1
+            # base.disableMouse()
+            # base.oobe()
+
         if (self.keyMap["valve1-off"] != 0):
             self.valve1State = 0
         if (self.keyMap["valve2-on"] != 0):
@@ -912,6 +920,7 @@ class MyApp(ShowBase):
 
             self.updatePlayer()
 
+            # print self.ex.sky.skysphere.getHpr()
             # calls the experiment update task, will pass on if method not overriden
             self.ex.frameUpdateTask()
 
@@ -1173,7 +1182,6 @@ class MyApp(ShowBase):
 
         if (self.keyMap["closed"] != 0):
             self.player.setH(self.player.getH() - parameters["wbad"] * self.gain)
-
         if (self.keyMap["thrust"] != 0):
             # self.player.setH(self.player.getH() - parameters["wbad"] * self.gain)
             self.speed = ((parameters["wbas"] - parameters["minWbas"]) *
@@ -1693,10 +1701,10 @@ class MyApp(ShowBase):
         if (self.keyMap["a-up"] != 0):
             parameters["minWbas"] += parameters["DCoffsetIncrement"]
             print "wbas scalers is ", parameters["minWbas"]
-            self.patchl += self.patchIncrement
-            self.ex.patch1.setScale((self.patchl, 1, self.patchw))
-            self.ex.patch2.setScale((self.patchl, 1, self.patchw))
-            print "patch scale pos is", self.patchx, self.patchy, self.patchl, self.patchw
+            # self.patchl += self.patchIncrement
+            # self.ex.patch1.setScale((self.patchl, 1, self.patchw))
+            # self.ex.patch2.setScale((self.patchl, 1, self.patchw))
+            # print "patch scale pos is", self.patchx, self.patchy, self.patchl, self.patchw
 
         if (self.keyMap["a-down"] != 0):
             parameters["minWbas"] -= parameters["DCoffsetIncrement"]
@@ -2101,6 +2109,29 @@ class MyApp(ShowBase):
         self.cameraRight.setPos(self.player, 0, 0, 0)
         self.cameraRight.setHpr(self.player, (-parameters['camFOV'][0], parameters["camHpr"][1],
                                               parameters["camHpr"][2]))  # self.world, self.player.getH())#-120)
+
+        # self.skysphere.setTexHpr(TextureStage.getDefault(),(0,0,0))
+        #
+        #
+        # self.ex.sky.skysphere.setHpr((parameters['DCoffset']*100,0,0))
+        # self.ex.sky.skysphere.setPos((513,513,0))
+        #
+        #
+        # self.ex.sky.skysphere.setTexHpr(TextureStage.getDefault(),
+        #                                 (parameters['minFlightSpeed']*1000,parameters['minFlightSpeed']*1000,0))
+        #
+        # print 'hpr',self.ex.sky.skysphere.getTexHpr(TextureStage.getDefault())
+
+        #use this to use alpha key pad to adjust coordinate of tex
+        # self.ex.sky.skysphere.setPos((parameters['minWbas'] * 1000, parameters['maxWbas'] * 1000, 0))
+        # self.ex.sky.skysphere.setTexPos(TextureStage.getDefault(),
+        #                                 (parameters['minFlightSpeed'] * 1000, parameters['maxFlightSpeed'] * 1000, 0))
+        #
+        # print 'pos',self.ex.sky.skysphere.getPos()
+        # print 'hpr',self.ex.sky.skysphere.getTexPos(TextureStage.getDefault())
+
+
+
 
     # recording functions
     def bagControl(self):
