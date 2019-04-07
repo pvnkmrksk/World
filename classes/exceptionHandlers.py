@@ -87,7 +87,7 @@ class ExceptionHandlers():
                     print "using exceprion to load params"
 
                 except KeyError:
-                    self.parameters=meta
+                    self.parameters=meta['metadata']
 
             # dump back params from vars
             self.parameters["replayWorld"] = replay

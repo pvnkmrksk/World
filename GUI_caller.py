@@ -483,11 +483,13 @@ def tick():
                 traj0s=quadPlot(traj0s,s0)
             elif traj.case ==1:
                 traj1s=quadPlot(traj1s,s1)
+                traj0r=quadPlot(traj0r,r0)
+
             elif traj.case ==2:
                 traj2s=quadPlot(traj2s,s2)
+
             elif traj.case ==3:
                 traj3s=quadPlot(traj3s,s3)
-                traj0r=quadPlot(traj0r,r0)
 
             #
             # traj1s=np.vstack((traj1s,np.array([traj.pPos.x,traj.pPos.y])))

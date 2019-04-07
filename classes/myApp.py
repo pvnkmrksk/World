@@ -27,7 +27,7 @@ else:
 e = ExceptionHandlers(parameters)
 if parameters["replayWorld"]:
     parameters, df, dfPosHpr = e.exceptionReplay()
-
+    print parameters.keys()
 
 class MyApp(ShowBase):
     """
@@ -724,9 +724,13 @@ class MyApp(ShowBase):
         dr.setActive(0)
 
         # lens = PerspectiveLens(120, 140)  # tuple(parameters["camFOV"]))
-        lens = PerspectiveLens(parameters['camFOV'][0], parameters['camFOV'][1])  # tuple(parameters["camFOV"]))
-        print "lens is", lens.get_fov()
+        lens = PerspectiveLens(120, 140)  # tuple(parameters["camFOV"]))
+        # lens = PerspectiveLens(parameters['camFOV'][0], parameters['camFOV'][1])  # tuple(parameters["camFOV"]))
+        lens.set_fov(120,140)
         lens.setNear(0.01)
+
+        print "lens is", lens.get_fov()
+        # lens.set_aspect_ratio(2)
         # lens.setFar(parameters['maxDistance'])
 
         displayLeft = self.win.makeDisplayRegion(0, 1 / 3, 0, 1)
@@ -1001,7 +1005,10 @@ class MyApp(ShowBase):
             self.valve1.move(self.valve1State)  # odour1 is now odour2 after swap
             self.valve2.move(self.valve2State)  # odour2 is now odour1/blank after swap
 
-            self.beep.setVolume(self.valve1State*1)
+
+            # self.beep.setVolume(self.valve1State*1)
+            self.beep.setVolume(self.valve2State*1)
+
         else:
             try:
                 self.replayKeyHandler()
@@ -1050,8 +1057,8 @@ class MyApp(ShowBase):
             self.quadrantIndex = dfnow["trajectory__quadrant"] - 1  # 0 indexing of python +1 to real qorld quadrant naming
             self.ex.isFlying = dfnow["trajectory__isFlying"]
 
-            self.beep.setVolume(self.valve1State*1)
             # self.beep.setVolume(self.valve1State*1)
+            self.beep.setVolume(self.valve2State*1)
 
 
             parameters["DCoffset"] = dfnow["trajectory__DCoffset"]

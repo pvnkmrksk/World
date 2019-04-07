@@ -19,12 +19,12 @@ class Sky():
         """
         # Fog to hide a performance tweak:
         # What is happening?
-        colour = (0.0, 0.0, 0.0)
-        expfog = Fog("scene-wide-fog")
-        expfog.setColor(*colour)
-        expfog.setExpDensity(0.004)
-        self.sb.render.setFog(expfog)
-        self.sb.setBackgroundColor(*colour)
+        # colour = (0.0, 0.0, 0.0)
+        # expfog = Fog("scene-wide-fog")
+        # expfog.setColor(*colour)
+        # expfog.setExpDensity(0.004)
+        # self.sb.render.setFog(expfog)
+        # self.sb.setBackgroundColor(*colour)
 
         # Our sky
 
@@ -35,11 +35,11 @@ class Sky():
         else:
             # self.skysphere = self.sb.loader.loadModel(skyMap)
             self.skysphere = self.sb.loader.loadModel('models/sky.egg')
-
+            #
             # self.skysphere = self.sb.loader.loadModel(skyMapNull)
 
         self.skysphere.setEffect(CompassEffect.make(self.sb.render))
-        self.skysphere.setScale(100)  # bit less than "far"
+        self.skysphere.setScale(parameters["maxDistance"])  # bit less than "far"
         self.skysphere.setZ(-3)
         print 'using sky\n\n\n'
         # self.skysphere.setH(45)
