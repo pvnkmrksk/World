@@ -1,6 +1,6 @@
 #include <AccelStepper.h>
 
-AccelStepper stepper(1, 9, 8);
+AccelStepper stepper(1, STEP, DIR);
 
 int spd = 1000;    // The current speed in steps/second
 int sign = 1;      // Either 1, 0 or -1
@@ -54,47 +54,7 @@ void loop()
         Serial.write(analogRead(A0)/4);
           break;
       }}}
-    
 
-//
-//
-//
-//
-//  
-//  char c;
-//  if(Serial.available()) {
-//    c = Serial.read();
-//    if (c == 'f') {  // forward
-//      sign = 1;
-//    }
-//    if (c == 'r') {  // reverse
-//      sign = -1;
-//    }
-//    if (c == 's') {  // stop
-//      sign = 0;
-//    }
-//    if (c == '1') {  // super slow
-//      spd = 1;
-//      stepper.moveTo(spd);
-//      stepper.setSpeed(900);
-//      
-//    }
-//    if (c == '2') {  // medium 
-//      spd = 100;
-//      stepper.moveTo(spd);
-//      stepper.setSpeed(900);
-//      
-//    }
-//    if (c == '3') {  // fast
-//      spd = 200;
-//      stepper.moveTo(spd);
-//      stepper.setSpeed(900);
-//      
-//  
-//    }
-//    stepper.setSpeed(sign * spd);
-    
-  
   stepper.runSpeedToPosition();
 //  stepper.runSpeed();
 //    

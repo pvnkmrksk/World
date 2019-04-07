@@ -1,4 +1,5 @@
 from __future__ import division
+from helping.libsOnly import *
 from helping.importHelper import *
 
 import numpy as np
@@ -9,14 +10,15 @@ class FieldGen():
     def toPlot(self, obj, plot):
         if plot:
             plt.imshow(obj, interpolation='none', cmap='Greys_r')
-            plt.show(block=False)
+            plt.show(block=True)
 
-    def windField(self,width=1025,height=1025,wq=[-1,0,180,270],plot=False,fillMidLine=180):
+    def windField(self,width=1025,height=1025,wq=[-1,0,180,270],wqo=[180,180,180,180],plot=False,fillMidLine=-99):
         '''
 
         :param width: width of the wind field
         :param height: height of the wind field
         :param wq: wind quad. A list of 4 items setting the angle of that quadrant
+        :param wqo: wind quad open loop wind, same as wq
         :param plot: whether to plot the image
         :return:
             windField: a matrix filled with 4 quads of particular windDirection
@@ -24,6 +26,20 @@ class FieldGen():
         wind_field = np.zeros([width, height])
 
         offset = int(((width - 1) / 2))
+
+        count=0
+        # print "wqo uis",wqo
+        for w in wq:
+
+            if w==-1:
+                # wq[count]=wqo[count]
+                pass
+                # print "wq is ", wq
+
+            count+=1
+
+
+
 
         wind_field[0:offset, 0:offset] = wq[2]
         wind_field[offset :width, 0:offset] = wq[3]
@@ -37,7 +53,7 @@ class FieldGen():
 
 
         #to fill the midline regions of the matrix which is not accessed by offsets
-        wind_field[offset:offset+1,offset:offset+1]=fillMidLine
+        # wind_field[offset:offset+1,offset:offset+1]=wq[0]
         self.toPlot(wind_field,plot=plot)
         return wind_field
 
@@ -125,7 +141,7 @@ class FieldGen():
 
         return packet_field
 
-    def odourQuadField(self, w=257, h=257, oq=['s', 1, 'p', 0], plot=False):
+    def odourQuadField(self, w=257, h=257, oq=['s', 1, 'p', 0], plot=False,parameters=None):
         '''
         GIves an array filley with 4 arrays as quadrants with packets or strips or custom images to be used as odourfield
 
@@ -142,7 +158,7 @@ class FieldGen():
 
         '''
 
-        odour_field = np.zeros([w, h])
+        odour_field = np.zeros([w+2, h+2])
         offsetW = int((w - 1) / 2)
         offsetH = int((h - 1) / 2)
 
@@ -151,7 +167,9 @@ class FieldGen():
         for i in oq:
 
             if i == 'c':#custom image in models/odour/1,2,3,4.png
-                oq[quad] = (np.rot90(imread("models/odour/" + str(quad + 1) + ".png"),2)) != 0 #todo.fix why not = to zero, to bool?
+                oq[quad] = (np.rot90(imread(parameters['odour'+str(quad+1)]),3))/10
+                # oq[quad] = (np.rot90(imread("models/odour/" + str(quad + 1) + ".png"),3))/10 #!= 0 #todo.fix why not = to zero, to bool?
+
                 # py 0 index but non zero quadrants and the image is rotated to fix plt and array axes
             elif i == 's': #strip of solid one
                 width = 15
@@ -162,6 +180,8 @@ class FieldGen():
             elif i=='p': #packet field of
                 packet=self.odourPacket(width=127,height=127,velocity=1,packetFrequency=0.5,packetDuration=1,scale=1)
                 oq[quad] = packet
+            else:
+                pass # is an integer, let that be a uniform field of pf
 
             quad += 1
         #
@@ -179,12 +199,13 @@ class FieldGen():
     def gen(self,field,quad,w,h):
         offsetW = int((w - 1) / 2)
         offsetH = int((h - 1) / 2)
+        print offsetH,offsetW,w,h
 
 
         field[0:offsetW, 0:offsetH] = quad[2]
-        field[offsetW :w, 0:offsetH] = quad[3]
-        field[0:offsetW, offsetH :h] = quad[1]
-        field[offsetW :w, offsetH :h] = quad[0]
+        field[offsetW :2*offsetW , 0:offsetH] = quad[3]
+        field[0:offsetW, offsetH :2*offsetH ] = quad[1]
+        field[offsetW :2*offsetW , offsetW :2*offsetW ] = quad[0]
         return field
 
 

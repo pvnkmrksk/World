@@ -1,41 +1,37 @@
 std_msgs/Header    header
 geometry_msgs/Vector3 pPos
 geometry_msgs/Vector3 pOri
-
 float64 wbad
 float64 wbas
 float64 speed
 float64 gain
 int16 headingControl
 int16 speedControl
-
+float64 slip
+float64 groundSpeed
 int16 trial
 int16 runNum
 int16 case
+int16 caseU
 int16 servoAngle
 int16 valve1
 int16 valve2
 int16 valve3
 int16 quadrant
-
+int16 boutFrame
 float64 DCoffset
 float64 packetFrequency
 float64 packetDuration
 float64 impose
 float64 imposeResponse
-
 float64 imposeResponseSmooth
 float64 imposeHeading
 float64 imposeResponseHeading
 float64 compensation
-
 float64 pfStimState
-
 geometry_msgs/Vector3 o1Pos
 geometry_msgs/Vector3 o2Pos
-
 int16 reset
 int16 isFlying
-
 string key
 

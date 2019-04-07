@@ -1,11 +1,14 @@
 from helping.importHelper import *
 
+
+from panda3d.core import TextureStage
+
 class Sky():
 
     def __init__(self, showbase):
         self.sb = showbase
 
-    def createSky(self, loadNullModels=parameters["loadNullModels"], skyMapNull=parameters["skyMapNull"],skyMap=parameters["skyMap"],
+    def createSky(self, loadNullModels=parameters["loadNullModels"],loadNullSky=parameters["loadNullSky"],loadNullGrass=parameters["loadNullGrass"], skyMapNull=parameters["skyMapNull"],skyMap=parameters["skyMap"],
                  maxDistance=parameters["maxDistance"],humanDisplay=parameters["humanDisplay"]):
         """
         load fog
@@ -16,24 +19,72 @@ class Sky():
         """
         # Fog to hide a performance tweak:
         # What is happening?
-        colour = (0.0, 0.0, 0.0)
-        expfog = Fog("scene-wide-fog")
-        expfog.setColor(*colour)
-        expfog.setExpDensity(0.004)
-        self.sb.render.setFog(expfog)
-        self.sb.setBackgroundColor(*colour)
+        # colour = (0.0, 0.0, 0.0)
+        # expfog = Fog("scene-wide-fog")
+        # expfog.setColor(*colour)
+        # expfog.setExpDensity(0.004)
+        # self.sb.render.setFog(expfog)
+        # self.sb.setBackgroundColor(*colour)
 
         # Our sky
-        if loadNullModels:  # if null, then create uniform back and sky
+
+        if loadNullSky:  # if null, then create uniform back and sky
+
+            # pass #todo. buttonify
             self.skysphere = self.sb.loader.loadModel(skyMapNull)
         else:
-            self.skysphere = self.sb.loader.loadModel(skyMap)
+            # self.skysphere = self.sb.loader.loadModel(skyMap)
+            self.skysphere = self.sb.loader.loadModel('models/sky.egg')
+            #
+            # self.skysphere = self.sb.loader.loadModel(skyMapNull)
 
         self.skysphere.setEffect(CompassEffect.make(self.sb.render))
-        self.skysphere.setScale(maxDistance)  # bit less than "far"
+        self.skysphere.setScale(parameters["maxDistance"])  # bit less than "far"
         self.skysphere.setZ(-3)
+        print 'using sky\n\n\n'
+        # self.skysphere.setH(45)
+
         self.skysphere.reparentTo(self.sb.render)
         # NOT render - you'll fly through the sky!:
+
+    def  createSky_(self,maxDistance=parameters["maxDistance"],loadNullSky=parameters["loadNullSky"],skyMapNull=parameters["skyMapNull"]):
+        # self.skysphere = self.sb.loader.loadModel("models/solar_sky_sphere")
+        # self.sky_tex = self.sb.loader.loadTexture("models/stars_1k_tex.jpg")
+        # self.skysphere.setTexture(self.sky_tex, 1)
+        #
+        # self.skysphere.setEffect(CompassEffect.make(self.sb.render))
+        # self.skysphere.setScale(maxDistance)  # bit less than "far"
+        # self.skysphere.setZ(-3)
+        # self.skysphere.reparentTo(self.sb.render)
+
+        if loadNullSky:  # if null, then create uniform back and sky
+
+            # pass #todo. buttonify
+            self.skysphere = self.sb.loader.loadModel(skyMapNull)
+            self.skysphere.setEffect(CompassEffect.make(self.sb.render))
+            self.skysphere.setScale(maxDistance)  # bit less than "far"
+            self.skysphere.setZ(-3)
+
+            # self.skysphere.setH(45)
+
+            self.skysphere.reparentTo(self.sb.render)
+
+        else:
+            self.skysphere = self.sb.loader.loadModel(parameters['skyMap'])
+            self.skysphere.setBin('background', 1)
+            self.skysphere.setDepthWrite(0)
+            self.skysphere.setPos(0,0,0)
+
+
+            self.skysphere.setPos((513,513,0))
+            self.skysphere.setTexPos(TextureStage.getDefault(),(-513,-513,1000))
+
+            #don't change it here, do it in bam generator
+            # self.skysphere.setTexHpr(TextureStage.getDefault(),(-513,-513,0))
+
+            self.skysphere.setScale(9000)  # bit less than "far"
+            self.skysphere.setEffect(CompassEffect.make(self.sb.render))
+            self.skysphere.reparentTo(self.sb.render)
 
 
 
@@ -43,8 +94,46 @@ class Terrain():
     handles the terrain
     """
 
+    # def __init__(self, showbase):
+    #     #todo we have to make the lighting symetrical the
+    #     # shadows make one region darker htan the other
+    #     self.sb = showbase
+    #     # Our lighting
+    #     self.ambientLight = AmbientLight("ambientLight")
+    #     self.ambientLight.setColor(Vec4(0.3, 0.3, 0.3, 1))
+    #     self.ambientNode = self.sb.render.attachNewNode(self.ambientLight)
+    #     #
+    #     # self.directionalLight = DirectionalLight("directionalLight")
+    #     # self.directionalLight.setDirection(Vec3(-1, 1, -1))
+    #     # self.directionalLight.setColor(Vec4(1, 1, 1, 1))
+    #     # self.directionalLight.setSpecularColor(Vec4(1, 1, 1, 1))
+    #     # self.directNode = self.sb.render.attachNewNode(self.directionalLight)
+    #     #
+    #     directionalLight2 = DirectionalLight("directionalLight2")
+    #     directionalLight2.setDirection(Vec3(-1, 1, -1))
+    #     directionalLight2.setColor(Vec4(1, 1, 1, 1))
+    #     directionalLight2.setSpecularColor(Vec4(1, 1, 1, 1))
+    #
+    #     # #
+    #     directionalLight3 = DirectionalLight("directionalLight3")
+    #     directionalLight3.setDirection(Vec3(1, 1, -1))
+    #     directionalLight3.setColor(Vec4(1, 1, 1, 1))
+    #     directionalLight3.setSpecularColor(Vec4(1, 1, 1, 1))
+    #
+    #     # directionalLight4 = DirectionalLight("directionalLight4")
+    #     # directionalLight4.setDirection(Vec3(1, 1, -1))
+    #     # directionalLight4.setColor(Vec4(1, 1, 1, 1))
+    #     # directionalLight4.setSpecularColor(Vec4(1, 1, 1, 1))
+    #     #
+    #     self.sb.render.setLight(self.ambientNode)
+    #     # self.sb.render.setLight(self.directNode)
+    #     self.sb.render.setLight(self.sb.render.attachNewNode(directionalLight2))
+    #     self.sb.render.setLight(self.sb.render.attachNewNode(directionalLight3))
+    #     # self.sb.render.setLight(self.sb.render.attachNewNode(directionalLight4))
+
+
     def __init__(self, showbase):
-        #todo we have to make the lighting symetrical the
+        # todo we have to make the lighting symetrical the
         # shadows make one region darker htan the other
         self.sb = showbase
         # Our lighting
@@ -81,7 +170,7 @@ class Terrain():
         # self.sb.render.setLight(self.sb.render.attachNewNode(directionalLight4))
 
     def initTerrain(self, modelHeightMap = parameters["modelHeightMap"], modelTextureMapNull = parameters["modelTextureMapNull"],
-                    modelTextureMap = parameters["modelTextureMap"], loadNullModels = parameters["loadNullModels"], worldSize = parameters["worldSize"]):
+                    modelTextureMap = parameters["modelTextureMap"], loadNullModels = parameters["loadNullModels"],loadNullGrass=parameters["loadNullGrass"], worldSize = parameters["worldSize"]):
         """
         loads terrain-model, translates it and dumps it into bam-file
         :param modelHeightMap:
@@ -128,7 +217,8 @@ class Terrain():
         shift = ((worldSize-1)/2)+1
         print "shift:", shift
 
-        if parameters["loadNullModels"] :
+        if parameters["loadNullGrass"] :
+            # todo. buttonify
             tempTerrain = self.sb.loader.loadModel(modelTextureMapNull)
         else:
             tempTerrain = self.sb.loader.loadModel(modelTextureMap)
@@ -174,6 +264,7 @@ class Object():
 
         obj = self.sb.loader.loadModel(objPath)
         obj.setScale(objScale)
+
         return obj
 
     def moveObjects(self, position, obj):

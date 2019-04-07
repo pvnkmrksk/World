@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>752</width>
-    <height>767</height>
+    <width>1020</width>
+    <height>1060</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -55,6 +55,13 @@
         </property>
        </widget>
       </item>
+      <item row="2" column="0">
+       <widget class="QPushButton" name="rqtBtn">
+        <property name="text">
+         <string>RQT plot</string>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="0" colspan="2">
        <widget class="QTabWidget" name="tabWidget">
         <property name="currentIndex">
@@ -70,7 +77,7 @@
             <item row="2" column="1">
              <widget class="QSlider" name="gain">
               <property name="maximum">
-               <number>25</number>
+               <number>32</number>
               </property>
               <property name="value">
                <number>7</number>
@@ -141,13 +148,27 @@
               </property>
              </widget>
             </item>
+            <item row="0" column="5" rowspan="2">
+             <widget class="QSpinBox" name="fps">
+              <property name="maximum">
+               <number>999</number>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="6" rowspan="2">
+             <widget class="QLabel" name="label_158">
+              <property name="text">
+               <string>fps</string>
+              </property>
+             </widget>
+            </item>
             <item row="8" column="0" colspan="7">
              <widget class="QTabWidget" name="tabWidget">
               <property name="enabled">
                <bool>true</bool>
               </property>
               <property name="currentIndex">
-               <number>1</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="tabWidgetPage1">
                <attribute name="title">
@@ -378,6 +399,20 @@
                  <item row="4" column="0" colspan="3">
                   <widget class="QLineEdit" name="beepPath"/>
                  </item>
+                 <item row="0" column="1">
+                  <widget class="QCheckBox" name="useValve1">
+                   <property name="text">
+                    <string>Use valve 1</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="2">
+                  <widget class="QCheckBox" name="useValve2">
+                   <property name="text">
+                    <string>Use valve 2</string>
+                   </property>
+                  </widget>
+                 </item>
                 </layout>
                </widget>
               </widget>
@@ -392,37 +427,41 @@
                    <string/>
                   </property>
                   <layout class="QGridLayout" name="gridLayout_12">
-                   <item row="0" column="0">
-                    <widget class="QLineEdit" name="pfStimList">
-                     <property name="toolTip">
-                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add &lt;span style=&quot; font-weight:600;&quot;&gt;4 &lt;/span&gt;items&lt;/p&gt;&lt;p&gt;[0, 0, 0, 0]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                     </property>
+                   <item row="6" column="2">
+                    <widget class="QLabel" name="label_159">
                      <property name="text">
-                      <string>[16,4,1,0.25]</string>
+                      <string>nReps</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="1" column="0">
-                    <widget class="QSpinBox" name="pfPreStim"/>
-                   </item>
-                   <item row="1" column="1">
-                    <widget class="QLabel" name="label_27">
+                   <item row="9" column="2">
+                    <widget class="QLabel" name="label_160">
                      <property name="text">
-                      <string>pfPreStim</string>
+                      <string>mode</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="2">
+                    <widget class="QLabel" name="pfStimDur_2">
+                     <property name="text">
+                      <string>pfStimDur</string>
                      </property>
                     </widget>
                    </item>
                    <item row="2" column="0">
                     <widget class="QDoubleSpinBox" name="pfPreStimDur">
+                     <property name="maximum">
+                      <double>999.000000000000000</double>
+                     </property>
                      <property name="value">
                       <double>5.000000000000000</double>
                      </property>
                     </widget>
                    </item>
-                   <item row="2" column="1">
-                    <widget class="QLabel" name="label_28">
-                     <property name="text">
-                      <string>pfPreStimDur</string>
+                   <item row="6" column="0">
+                    <widget class="QSpinBox" name="pfNReps">
+                     <property name="maximum">
+                      <number>999</number>
                      </property>
                     </widget>
                    </item>
@@ -436,38 +475,59 @@
                      </property>
                     </widget>
                    </item>
-                   <item row="3" column="1">
-                    <widget class="QLabel" name="pfStimDur_2">
-                     <property name="text">
-                      <string>pfStimDur</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="4" column="0">
-                    <widget class="QCheckBox" name="pfGenTimeSeries">
-                     <property name="text">
-                      <string>genTimeSeries</string>
-                     </property>
-                     <property name="checked">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
                    <item row="5" column="0">
-                    <widget class="QSpinBox" name="pfNReps">
+                    <widget class="QDoubleSpinBox" name="pfPostStimDur">
+                     <property name="maximum">
+                      <double>999.000000000000000</double>
+                     </property>
+                     <property name="value">
+                      <double>5.000000000000000</double>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="2">
+                    <widget class="QLabel" name="label_28">
+                     <property name="text">
+                      <string>pfPreStimDur</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="2">
+                    <widget class="QLabel" name="label_27">
+                     <property name="text">
+                      <string>pfPreStim</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="2">
+                    <widget class="QLabel" name="label_30">
+                     <property name="text">
+                      <string>pfPostStimDur</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="2">
+                    <widget class="QLabel" name="label_29">
+                     <property name="text">
+                      <string>pfPostStim</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="2">
+                    <widget class="QLabel" name="label_26">
+                     <property name="text">
+                      <string>pfStimList</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="0">
+                    <widget class="QSpinBox" name="pfPreStim">
                      <property name="maximum">
                       <number>999</number>
                      </property>
                     </widget>
                    </item>
-                   <item row="5" column="1">
-                    <widget class="QLabel" name="label_159">
-                     <property name="text">
-                      <string>nReps</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="6" column="0">
+                   <item row="9" column="0">
                     <widget class="QComboBox" name="pfMode">
                      <item>
                       <property name="text">
@@ -481,17 +541,30 @@
                      </item>
                     </widget>
                    </item>
-                   <item row="0" column="1">
-                    <widget class="QLabel" name="label_26">
-                     <property name="text">
-                      <string>pfStimList</string>
+                   <item row="4" column="0">
+                    <widget class="QSpinBox" name="pfPostStim">
+                     <property name="maximum">
+                      <number>999</number>
                      </property>
                     </widget>
                    </item>
-                   <item row="6" column="1">
-                    <widget class="QLabel" name="label_160">
+                   <item row="0" column="0" colspan="2">
+                    <widget class="QLineEdit" name="pfStimList">
+                     <property name="toolTip">
+                      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add &lt;span style=&quot; font-weight:600;&quot;&gt;4 &lt;/span&gt;items&lt;/p&gt;&lt;p&gt;[0, 0, 0, 0]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                     </property>
                      <property name="text">
-                      <string>mode</string>
+                      <string>[16,4,1,0.25]</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="10" column="0">
+                    <widget class="QCheckBox" name="pfGenTimeSeries">
+                     <property name="text">
+                      <string>genTimeSeries</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
                      </property>
                     </widget>
                    </item>
@@ -499,9 +572,6 @@
                  </widget>
                 </item>
                </layout>
-               <zorder>label_158</zorder>
-               <zorder>fps</zorder>
-               <zorder>groupBox_11</zorder>
               </widget>
               <widget class="QWidget" name="tabWidgetPage2">
                <attribute name="title">
@@ -521,8 +591,8 @@
                     <rect>
                      <x>10</x>
                      <y>0</y>
-                     <width>256</width>
-                     <height>96</height>
+                     <width>267</width>
+                     <height>129</height>
                     </rect>
                    </property>
                    <property name="title">
@@ -552,23 +622,46 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="1" column="0">
-                     <widget class="QSpinBox" name="windDirection">
-                      <property name="enabled">
-                       <bool>false</bool>
-                      </property>
-                      <property name="maximum">
-                       <number>360</number>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="1" column="1">
                      <widget class="QLabel" name="label_152">
                       <property name="enabled">
                        <bool>false</bool>
                       </property>
                       <property name="text">
-                       <string>windDirection</string>
+                       <string>windSpeed</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="0">
+                     <widget class="QDoubleSpinBox" name="windSpeed">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="singleStep">
+                       <double>0.050000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="0">
+                     <widget class="QLineEdit" name="windQuadOpen">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="toolTip">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Add &lt;span style=&quot; font-weight:600;&quot;&gt;4 &lt;/span&gt;items&lt;/p&gt;&lt;p&gt;[0, 0, 0, 0]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="text">
+                       <string>[]</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="1">
+                     <widget class="QLabel" name="label_31">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="text">
+                       <string>windQuadOpen</string>
                       </property>
                      </widget>
                     </item>
@@ -578,20 +671,6 @@
                 </item>
                </layout>
               </widget>
-             </widget>
-            </item>
-            <item row="0" column="5" rowspan="2">
-             <widget class="QSpinBox" name="fps">
-              <property name="maximum">
-               <number>999</number>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="6" rowspan="2">
-             <widget class="QLabel" name="label_158">
-              <property name="text">
-               <string>fps</string>
-              </property>
              </widget>
             </item>
            </layout>
@@ -610,13 +689,13 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>40</y>
+            <y>90</y>
             <width>691</width>
             <height>431</height>
            </rect>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="tab_11">
            <attribute name="title">
@@ -1303,52 +1382,66 @@
          <widget class="QWidget" name="layoutWidget">
           <property name="geometry">
            <rect>
-            <x>11</x>
-            <y>10</y>
-            <width>657</width>
-            <height>24</height>
+            <x>0</x>
+            <y>20</y>
+            <width>704</width>
+            <height>71</height>
            </rect>
           </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_2">
-           <item>
+          <layout class="QGridLayout" name="gridLayout_14">
+           <item row="0" column="0">
             <widget class="QCheckBox" name="loadWorld">
              <property name="text">
               <string>load world</string>
              </property>
             </widget>
            </item>
-           <item>
+           <item row="0" column="1">
             <widget class="QCheckBox" name="generateWorld">
              <property name="text">
               <string>generate world</string>
              </property>
             </widget>
            </item>
-           <item>
+           <item row="0" column="2">
             <widget class="QCheckBox" name="quad">
              <property name="text">
               <string>quad</string>
              </property>
             </widget>
            </item>
-           <item>
+           <item row="0" column="3">
             <widget class="QCheckBox" name="lockFps">
              <property name="text">
               <string>lockFps</string>
              </property>
             </widget>
            </item>
-           <item>
+           <item row="0" column="4">
+            <widget class="QCheckBox" name="resetObject">
+             <property name="text">
+              <string>resetObject</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
             <widget class="QCheckBox" name="loadNullModels">
              <property name="text">
               <string>loadNullModels</string>
              </property>
             </widget>
            </item>
-           <item>
-            <widget class="QCheckBox" name="resetObject">
+           <item row="1" column="2">
+            <widget class="QCheckBox" name="loadNullSky">
              <property name="text">
-              <string>resetObject</string>
+              <string>loadNullSky</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QCheckBox" name="loadNullGrass">
+             <property name="text">
+              <string>loadNullGrass</string>
              </property>
             </widget>
            </item>
@@ -1623,38 +1716,37 @@
          <widget class="QGroupBox" name="groupBox_9">
           <property name="geometry">
            <rect>
-            <x>20</x>
+            <x>40</x>
             <y>10</y>
-            <width>281</width>
-            <height>291</height>
+            <width>252</width>
+            <height>261</height>
            </rect>
           </property>
           <property name="title">
            <string>GroupBox</string>
           </property>
-          <layout class="QGridLayout" name="gridLayout_17">
-           <item row="4" column="2">
-            <widget class="QLabel" name="label_12">
-             <property name="text">
-              <string>boutNum</string>
-             </property>
-            </widget>
+          <layout class="QGridLayout" name="gridLayout_16">
+           <item row="0" column="0">
+            <widget class="QLineEdit" name="bagFullTopics"/>
            </item>
-           <item row="2" column="2">
-            <widget class="QLabel" name="label_6">
-             <property name="text">
-              <string>Race</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="2">
+           <item row="0" column="1">
             <widget class="QLabel" name="label_47">
              <property name="text">
               <string>bagFullTopics</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="0" colspan="2">
+           <item row="1" column="0">
+            <widget class="QLineEdit" name="bagTrajTopics"/>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLabel" name="label_48">
+             <property name="text">
+              <string>bagTrajTopics</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
             <widget class="QComboBox" name="race">
              <item>
               <property name="text">
@@ -1673,43 +1765,54 @@
              </item>
             </widget>
            </item>
-           <item row="4" column="0" colspan="2">
-            <widget class="QSpinBox" name="boutNum">
-             <property name="value">
-              <number>1</number>
+           <item row="2" column="1">
+            <widget class="QLabel" name="label_6">
+             <property name="text">
+              <string>Race</string>
              </property>
             </widget>
            </item>
-           <item row="0" column="0" colspan="2">
-            <widget class="QLineEdit" name="bagFullTopics"/>
+           <item row="3" column="0">
+            <widget class="QDateEdit" name="emergence"/>
            </item>
-           <item row="3" column="2">
+           <item row="3" column="1">
             <widget class="QLabel" name="label_7">
              <property name="text">
               <string>Emergence</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="0" colspan="2">
-            <widget class="QDateEdit" name="emergence"/>
+           <item row="4" column="0">
+            <widget class="QSpinBox" name="boutNum">
+             <property name="value">
+              <number>1</number>
+             </property>
+            </widget>
            </item>
-           <item row="1" column="0" colspan="2">
-            <widget class="QLineEdit" name="bagTrajTopics"/>
-           </item>
-           <item row="1" column="2">
-            <widget class="QLabel" name="label_48">
+           <item row="4" column="1">
+            <widget class="QLabel" name="label_12">
              <property name="text">
-              <string>bagTrajTopics</string>
+              <string>boutNum</string>
              </property>
             </widget>
            </item>
            <item row="5" column="0">
             <widget class="QLineEdit" name="fly"/>
            </item>
-           <item row="5" column="2">
+           <item row="5" column="1">
             <widget class="QLabel" name="label_49">
              <property name="text">
               <string>fly</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="0">
+            <widget class="QLineEdit" name="metaExpData"/>
+           </item>
+           <item row="6" column="1">
+            <widget class="QLabel" name="label_50">
+             <property name="text">
+              <string>metaExpData</string>
              </property>
             </widget>
            </item>
@@ -1754,7 +1857,11 @@
             </widget>
            </item>
            <item row="1" column="0">
-            <widget class="QSpinBox" name="captureStart"/>
+            <widget class="QSpinBox" name="captureStart">
+             <property name="maximum">
+              <number>999999999</number>
+             </property>
+            </widget>
            </item>
            <item row="1" column="1">
             <widget class="QLabel" name="label_15">
@@ -1788,7 +1895,14 @@
             <widget class="QDoubleSpinBox" name="captureScale"/>
            </item>
            <item row="1" column="2" colspan="2">
-            <widget class="QDoubleSpinBox" name="recordDur"/>
+            <widget class="QDoubleSpinBox" name="recordDur">
+             <property name="decimals">
+              <number>3</number>
+             </property>
+             <property name="maximum">
+              <double>9999999.000000000000000</double>
+             </property>
+            </widget>
            </item>
            <item row="3" column="3">
             <widget class="QSpinBox" name="recordFps">
@@ -1809,10 +1923,10 @@
          <widget class="QWidget" name="layoutWidget">
           <property name="geometry">
            <rect>
-            <x>10</x>
-            <y>20</y>
-            <width>239</width>
-            <height>24</height>
+            <x>11</x>
+            <y>21</y>
+            <width>495</width>
+            <height>29</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_15">
@@ -1833,6 +1947,16 @@
              </property>
             </widget>
            </item>
+           <item row="0" column="2">
+            <widget class="QLineEdit" name="replayPath"/>
+           </item>
+           <item row="0" column="3">
+            <widget class="QPushButton" name="replayPathBtn">
+             <property name="text">
+              <string>Select replay bag</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
         </widget>
@@ -1845,8 +1969,8 @@
            <rect>
             <x>0</x>
             <y>9</y>
-            <width>711</width>
-            <height>431</height>
+            <width>1051</width>
+            <height>871</height>
            </rect>
           </property>
           <property name="currentIndex">
@@ -1856,24 +1980,97 @@
            <attribute name="title">
             <string>Tab 1</string>
            </attribute>
-           <widget class="QWidget" name="gridLayoutWidget">
+           <widget class="QCheckBox" name="pausePlot">
             <property name="geometry">
              <rect>
-              <x>370</x>
-              <y>10</y>
-              <width>321</width>
-              <height>321</height>
+              <x>200</x>
+              <y>750</y>
+              <width>71</width>
+              <height>22</height>
              </rect>
             </property>
-            <layout class="QGridLayout" name="trajectoryLayout"/>
+            <property name="text">
+             <string>Pause</string>
+            </property>
+           </widget>
+           <widget class="QPushButton" name="clearPlot">
+            <property name="geometry">
+             <rect>
+              <x>109</x>
+              <y>748</y>
+              <width>85</width>
+              <height>27</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Clear Plot</string>
+            </property>
+            <property name="autoDefault">
+             <bool>false</bool>
+            </property>
+            <property name="default">
+             <bool>false</bool>
+            </property>
+           </widget>
+           <widget class="QPushButton" name="resetView">
+            <property name="geometry">
+             <rect>
+              <x>8</x>
+              <y>748</y>
+              <width>95</width>
+              <height>27</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Reset View</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="livePosition">
+            <property name="geometry">
+             <rect>
+              <x>290</x>
+              <y>540</y>
+              <width>121</width>
+              <height>81</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>None</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="positionLabel">
+            <property name="geometry">
+             <rect>
+              <x>280</x>
+              <y>520</y>
+              <width>121</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Position</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="label_5">
+            <property name="geometry">
+             <rect>
+              <x>610</x>
+              <y>750</y>
+              <width>121</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Heading Angle</string>
+            </property>
            </widget>
            <widget class="QLCDNumber" name="lcdServoAngle">
             <property name="geometry">
              <rect>
-              <x>80</x>
-              <y>320</y>
-              <width>111</width>
-              <height>41</height>
+              <x>320</x>
+              <y>660</y>
+              <width>71</width>
+              <height>61</height>
              </rect>
             </property>
             <property name="frameShape">
@@ -1886,32 +2083,26 @@
              <enum>QLCDNumber::Flat</enum>
             </property>
            </widget>
+           <widget class="QLabel" name="label_23">
+            <property name="geometry">
+             <rect>
+              <x>330</x>
+              <y>710</y>
+              <width>121</width>
+              <height>31</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Servo Angle</string>
+            </property>
+           </widget>
            <widget class="QwtCompass" name="compassServo">
             <property name="geometry">
              <rect>
-              <x>30</x>
-              <y>50</y>
-              <width>251</width>
-              <height>261</height>
-             </rect>
-            </property>
-            <property name="readOnly">
-             <bool>true</bool>
-            </property>
-            <property name="lineWidth">
-             <number>4</number>
-            </property>
-            <property name="direction">
-             <enum>QwtDial::CounterClockwise</enum>
-            </property>
-           </widget>
-           <widget class="QwtCompass" name="compassHeading">
-            <property name="geometry">
-             <rect>
-              <x>69</x>
-              <y>95</y>
-              <width>171</width>
-              <height>171</height>
+              <x>357</x>
+              <y>515</y>
+              <width>340</width>
+              <height>240</height>
              </rect>
             </property>
             <property name="readOnly">
@@ -1927,37 +2118,22 @@
              <enum>QwtDial::CounterClockwise</enum>
             </property>
            </widget>
-           <widget class="QLabel" name="label_5">
+           <widget class="QWidget" name="gridLayoutWidget_2">
             <property name="geometry">
              <rect>
-              <x>200</x>
-              <y>20</y>
-              <width>121</width>
-              <height>21</height>
+              <x>10</x>
+              <y>508</y>
+              <width>271</width>
+              <height>241</height>
              </rect>
             </property>
-            <property name="text">
-             <string>Heading Angle</string>
-            </property>
-           </widget>
-           <widget class="QLabel" name="label_23">
-            <property name="geometry">
-             <rect>
-              <x>200</x>
-              <y>320</y>
-              <width>121</width>
-              <height>21</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Servo Angle</string>
-            </property>
+            <layout class="QGridLayout" name="histog"/>
            </widget>
            <widget class="QLCDNumber" name="lcdHeadingAngle">
             <property name="geometry">
              <rect>
-              <x>80</x>
-              <y>10</y>
+              <x>620</x>
+              <y>710</y>
               <width>111</width>
               <height>41</height>
              </rect>
@@ -1972,81 +2148,30 @@
              <enum>QLCDNumber::Flat</enum>
             </property>
            </widget>
-           <widget class="QWidget" name="layoutWidget">
+           <widget class="QwtCompass" name="compassHeading">
             <property name="geometry">
              <rect>
-              <x>370</x>
-              <y>340</y>
-              <width>265</width>
-              <height>29</height>
+              <x>446</x>
+              <y>540</y>
+              <width>160</width>
+              <height>191</height>
              </rect>
             </property>
-            <layout class="QHBoxLayout" name="horizontalLayout">
-             <item>
-              <widget class="QPushButton" name="resetView">
-               <property name="text">
-                <string>Reset View</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="clearPlot">
-               <property name="text">
-                <string>Clear Plot</string>
-               </property>
-               <property name="autoDefault">
-                <bool>false</bool>
-               </property>
-               <property name="default">
-                <bool>false</bool>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="pausePlot">
-               <property name="text">
-                <string>Pause</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </widget>
-          <widget class="QWidget" name="tab_4">
-           <attribute name="title">
-            <string>Tab 2</string>
-           </attribute>
-           <widget class="QLabel" name="positionLabel">
-            <property name="geometry">
-             <rect>
-              <x>80</x>
-              <y>50</y>
-              <width>121</width>
-              <height>21</height>
-             </rect>
+            <property name="readOnly">
+             <bool>true</bool>
             </property>
-            <property name="text">
-             <string>Position</string>
+            <property name="lineWidth">
+             <number>4</number>
             </property>
-           </widget>
-           <widget class="QLabel" name="livePosition">
-            <property name="geometry">
-             <rect>
-              <x>70</x>
-              <y>70</y>
-              <width>121</width>
-              <height>81</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>None</string>
+            <property name="direction">
+             <enum>QwtDial::CounterClockwise</enum>
             </property>
            </widget>
            <widget class="QLabel" name="stateLabel">
             <property name="geometry">
              <rect>
-              <x>290</x>
-              <y>50</y>
+              <x>580</x>
+              <y>0</y>
               <width>121</width>
               <height>21</height>
              </rect>
@@ -2058,26 +2183,275 @@
            <widget class="QLabel" name="liveState">
             <property name="geometry">
              <rect>
-              <x>250</x>
-              <y>70</y>
-              <width>281</width>
-              <height>301</height>
+              <x>550</x>
+              <y>0</y>
+              <width>171</width>
+              <height>461</height>
              </rect>
             </property>
             <property name="text">
              <string>None</string>
             </property>
            </widget>
+           <widget class="QwtCompass" name="compassSlip">
+            <property name="geometry">
+             <rect>
+              <x>480</x>
+              <y>575</y>
+              <width>91</width>
+              <height>121</height>
+             </rect>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+            <property name="lineWidth">
+             <number>4</number>
+            </property>
+            <property name="direction">
+             <enum>QwtDial::CounterClockwise</enum>
+            </property>
+           </widget>
+           <widget class="QLabel" name="label_32">
+            <property name="geometry">
+             <rect>
+              <x>640</x>
+              <y>490</y>
+              <width>121</width>
+              <height>31</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Slip Angle</string>
+            </property>
+           </widget>
+           <widget class="QLCDNumber" name="lcdSlipAngle">
+            <property name="geometry">
+             <rect>
+              <x>640</x>
+              <y>510</y>
+              <width>71</width>
+              <height>61</height>
+             </rect>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="numDigits">
+             <number>3</number>
+            </property>
+            <property name="segmentStyle">
+             <enum>QLCDNumber::Flat</enum>
+            </property>
+           </widget>
+           <widget class="QLabel" name="positionLabel_2">
+            <property name="geometry">
+             <rect>
+              <x>450</x>
+              <y>660</y>
+              <width>61</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Heading</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="positionLabel_3">
+            <property name="geometry">
+             <rect>
+              <x>490</x>
+              <y>640</y>
+              <width>61</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Slip</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="positionLabel_4">
+            <property name="geometry">
+             <rect>
+              <x>420</x>
+              <y>680</y>
+              <width>61</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Servo</string>
+            </property>
+           </widget>
+           <widget class="QCheckBox" name="trackFly">
+            <property name="geometry">
+             <rect>
+              <x>540</x>
+              <y>470</y>
+              <width>111</width>
+              <height>22</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Track Fly</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="label_33">
+            <property name="geometry">
+             <rect>
+              <x>540</x>
+              <y>440</y>
+              <width>81</width>
+              <height>29</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Track Width</string>
+            </property>
+           </widget>
+           <widget class="QSlider" name="verticalSlider">
+            <property name="geometry">
+             <rect>
+              <x>500</x>
+              <y>30</y>
+              <width>61</width>
+              <height>421</height>
+             </rect>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::WheelFocus</enum>
+            </property>
+            <property name="minimum">
+             <number>-60</number>
+            </property>
+            <property name="maximum">
+             <number>40</number>
+            </property>
+            <property name="singleStep">
+             <number>2</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="invertedAppearance">
+             <bool>false</bool>
+            </property>
+            <property name="invertedControls">
+             <bool>false</bool>
+            </property>
+            <property name="tickPosition">
+             <enum>QSlider::NoTicks</enum>
+            </property>
+           </widget>
+           <widget class="KLed" name="odourLed">
+            <property name="geometry">
+             <rect>
+              <x>280</x>
+              <y>490</y>
+              <width>231</width>
+              <height>31</height>
+             </rect>
+            </property>
+            <property name="shape">
+             <enum>KLed::Rectangular</enum>
+            </property>
+            <property name="darkFactor">
+             <number>307</number>
+            </property>
+           </widget>
+           <widget class="QWidget" name="gridLayoutWidget">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>511</width>
+              <height>491</height>
+             </rect>
+            </property>
+            <layout class="QGridLayout" name="trajectoryLayout"/>
+           </widget>
+           <zorder>livePosition</zorder>
+           <zorder>pausePlot</zorder>
+           <zorder>clearPlot</zorder>
+           <zorder>resetView</zorder>
+           <zorder>positionLabel</zorder>
+           <zorder>label_5</zorder>
+           <zorder>label_23</zorder>
+           <zorder>gridLayoutWidget_2</zorder>
+           <zorder>lcdHeadingAngle</zorder>
+           <zorder>lcdServoAngle</zorder>
+           <zorder>compassServo</zorder>
+           <zorder>compassHeading</zorder>
+           <zorder>stateLabel</zorder>
+           <zorder>liveState</zorder>
+           <zorder>compassSlip</zorder>
+           <zorder>label_32</zorder>
+           <zorder>lcdSlipAngle</zorder>
+           <zorder>positionLabel_2</zorder>
+           <zorder>positionLabel_3</zorder>
+           <zorder>positionLabel_4</zorder>
+           <zorder>trackFly</zorder>
+           <zorder>label_33</zorder>
+           <zorder>verticalSlider</zorder>
+           <zorder>gridLayoutWidget</zorder>
+           <zorder>odourLed</zorder>
+          </widget>
+          <widget class="QWidget" name="tab_8">
+           <attribute name="title">
+            <string>Page</string>
+           </attribute>
+           <widget class="QWidget" name="gridLayoutWidget_3">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>50</y>
+              <width>701</width>
+              <height>651</height>
+             </rect>
+            </property>
+            <layout class="QGridLayout" name="replayTrajectoryLayout"/>
+           </widget>
+           <widget class="KLed" name="replayOdourLed">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>701</width>
+              <height>16</height>
+             </rect>
+            </property>
+            <property name="shape">
+             <enum>KLed::Rectangular</enum>
+            </property>
+            <property name="darkFactor">
+             <number>307</number>
+            </property>
+           </widget>
+           <widget class="QwtCompass" name="compassServo_2">
+            <property name="geometry">
+             <rect>
+              <x>690</x>
+              <y>460</y>
+              <width>340</width>
+              <height>240</height>
+             </rect>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+            <property name="lineWidth">
+             <number>4</number>
+            </property>
+            <property name="frameShadow">
+             <enum>QwtDial::Raised</enum>
+            </property>
+            <property name="direction">
+             <enum>QwtDial::CounterClockwise</enum>
+            </property>
+           </widget>
           </widget>
          </widget>
         </widget>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QPushButton" name="rqtBtn">
-        <property name="text">
-         <string>RQT plot</string>
-        </property>
        </widget>
       </item>
      </layout>
@@ -2089,7 +2463,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>752</width>
+     <width>1020</width>
      <height>25</height>
     </rect>
    </property>
@@ -2107,6 +2481,11 @@
    <extends>QWidget</extends>
    <header>qwt_dial.h</header>
   </customwidget>
+  <customwidget>
+   <class>KLed</class>
+   <extends>QWidget</extends>
+   <header>kled.h</header>
+  </customwidget>
  </customwidgets>
  <resources/>
  <connections>
@@ -2121,8 +2500,8 @@
      <y>90</y>
     </hint>
     <hint type="destinationlabel">
-     <x>164</x>
-     <y>93</y>
+     <x>254</x>
+     <y>108</y>
     </hint>
    </hints>
   </connection>
@@ -2149,8 +2528,8 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>185</x>
-     <y>89</y>
+     <x>254</x>
+     <y>108</y>
     </hint>
     <hint type="destinationlabel">
      <x>77</x>
@@ -2165,28 +2544,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>59</x>
-     <y>90</y>
+     <x>42</x>
+     <y>97</y>
     </hint>
     <hint type="destinationlabel">
      <x>105</x>
      <y>224</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>loadWorld</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>groupBox_7</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>77</x>
-     <y>92</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>123</x>
-     <y>181</y>
     </hint>
    </hints>
   </connection>
@@ -2197,12 +2560,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>112</x>
-     <y>406</y>
+     <x>201</x>
+     <y>419</y>
     </hint>
     <hint type="destinationlabel">
-     <x>85</x>
-     <y>430</y>
+     <x>139</x>
+     <y>455</y>
     </hint>
    </hints>
   </connection>
@@ -2213,12 +2576,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>89</x>
-     <y>129</y>
+     <x>42</x>
+     <y>134</y>
     </hint>
     <hint type="destinationlabel">
-     <x>117</x>
-     <y>237</y>
+     <x>157</x>
+     <y>226</y>
     </hint>
    </hints>
   </connection>
@@ -2229,28 +2592,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>93</x>
-     <y>126</y>
+     <x>42</x>
+     <y>134</y>
     </hint>
     <hint type="destinationlabel">
-     <x>136</x>
-     <y>246</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>loadWind</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>windDirection</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>70</x>
-     <y>120</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>164</x>
-     <y>292</y>
+     <x>188</x>
+     <y>264</y>
     </hint>
    </hints>
   </connection>
@@ -2261,12 +2608,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>80</x>
-     <y>125</y>
+     <x>42</x>
+     <y>134</y>
     </hint>
     <hint type="destinationlabel">
-     <x>237</x>
-     <y>245</y>
+     <x>300</x>
+     <y>264</y>
     </hint>
    </hints>
   </connection>
@@ -2277,12 +2624,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>61</x>
-     <y>127</y>
+     <x>42</x>
+     <y>134</y>
     </hint>
     <hint type="destinationlabel">
-     <x>276</x>
-     <y>284</y>
+     <x>300</x>
+     <y>297</y>
     </hint>
    </hints>
   </connection>
@@ -2293,12 +2640,12 @@
    <slot>display(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>347</x>
-     <y>115</y>
+     <x>191</x>
+     <y>138</y>
     </hint>
     <hint type="destinationlabel">
-     <x>511</x>
-     <y>122</y>
+     <x>533</x>
+     <y>138</y>
     </hint>
    </hints>
   </connection>
@@ -2309,12 +2656,108 @@
    <slot>setChecked(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>76</x>
-     <y>92</y>
+     <x>42</x>
+     <y>97</y>
     </hint>
     <hint type="destinationlabel">
-     <x>142</x>
-     <y>409</y>
+     <x>201</x>
+     <y>419</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>loadWind</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>windSpeed</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>42</x>
+     <y>134</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>165</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>loadWorld</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>groupBox_7</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>79</x>
+     <y>114</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>137</x>
+     <y>328</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>loadNullModels</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>loadNullGrass</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>87</x>
+     <y>135</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>206</x>
+     <y>140</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>loadNullModels</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>loadNullSky</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>85</x>
+     <y>138</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>376</x>
+     <y>144</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>loadWind</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>windQuadOpen</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>42</x>
+     <y>134</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>159</x>
+     <y>330</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>loadWind</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>label_31</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>42</x>
+     <y>134</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>300</x>
+     <y>330</y>
     </hint>
    </hints>
   </connection>

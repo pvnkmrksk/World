@@ -10,6 +10,15 @@ from PyQt4.QtGui import QApplication, QMainWindow
 from classes.rosSubscriber import RosSubscriber
 from helping.importHelper import *
 from pathlib import Path
+import pyqtgraph as pg
+from pyqtgraph.Qt import QtCore, QtGui
+import numpy as np
+import os
+import sys
+
+
+
+from qrangeslider import QRangeSlider
 
 pathRun=os.path.abspath(os.path.split(sys.argv[0])[0]) #path of the runfile
 pathJson= pathRun + '/GUI/jsonFiles/'
@@ -260,7 +269,7 @@ def openSave(win):
         jsonCurrent=path
 
 
-def showFileDialog(win, line, pathStart):
+def showFileDialog(win, line, pathStart,local=True):
     '''
     opens file dialog, returns selected file as string
     if selected file is .json, changes jsonFile
@@ -272,7 +281,12 @@ def showFileDialog(win, line, pathStart):
     '''
 
     fname = str(QtGui.QFileDialog.getOpenFileName(win, 'Open file', pathStart))
-    fname = Path(fname).relative_to(filePath)#local path, get path relayive to repo root directory so that bugs
+    if local:
+        try:
+            fname = Path(fname).relative_to(filePath)#local path, get path relayive to repo root directory so that bugs
+        except ValueError:
+            print "SOmething off with fnames"
+
     # dues to different usernames are avoided.
     fname = str(fname)
     if line and fname != '': #set only if given a label to setText
@@ -322,6 +336,26 @@ def startRqt():
 def stopVR():
     try:
         procVR.kill()
+        try:
+            # s=ValveHandler(1)
+            baud = 115200
+            v1= ValveHandler(casePort=97, baud=baud)
+            v2= ValveHandler(casePort=98, baud=baud)
+            v3= ValveHandler(casePort=99, baud=baud)
+
+            # s.move(90)
+            v1.move(1)
+            v2.move(1)
+            v3.move(1)
+            v1.move(0)
+            v2.move(0)
+            v3.move(0)
+            # servo.move(99, 0)  # close valve to prevent odour bleeding through
+            # servo.move(1, 90)  # close valve to prevent odour bleeding through
+            print "disabled valves in VR"
+        except  (serial.serialutil.SerialException, NameError):
+            print "arduino faulty finally GUI"
+            pass  # arduino disconnected or faulty, let go
     except NameError:
         print "VR not running"
         pass
@@ -345,32 +379,63 @@ def clbk(data):
     traj = data
     return traj
 
+def resetView(cx=512,cy=512,off=20):
+
+    # off=20
+    s0.setRange(xRange=(cx-off,cx+off),yRange=(cy-off,cy+off))
+    s1.setRange(xRange=(cx-off,cx+off),yRange=(cy-off,cy+off))
+    s2.setRange(xRange=(cx-off,cx+off),yRange=(cy-off,cy+off))
+    s3.setRange(xRange=(cx-off,cx+off),yRange=(cy-off,cy+off))
+    r0.setRange(xRange=(cx-off,cx+off),yRange=(cy-off,cy+off))
+
+    # s0.setRange(xRange=(512-off,512+off),yRange=(512-off,512+off))
+    # s1.setRange(xRange=(512-off,512+off),yRange=(512-off,512+off))
+    # s2.setRange(xRange=(512-off,512+off),yRange=(512-off,512+off))
+    # s3.setRange(xRange=(512-off,512+off),yRange=(512-off,512+off))
+
 
 def tick():
+    global vals,curve,traj0s,traj1s,traj2s,traj3s,traj0r
     try:
         ui.compassServo.setValue(traj.servoAngle+90)
+        ui.compassServo_2.setValue(traj.servoAngle+90)
         ui.compassHeading.setValue(traj.pOri.x)
+        ui.compassSlip.setValue(traj.slip)
+        # ui.compassSlip.setValue((((traj.slip+180)%360)-180-90)%360)
 
         ui.lcdServoAngle.display(traj.servoAngle)
         ui.lcdHeadingAngle.display(traj.pOri.x%360)
+        ui.lcdSlipAngle.display((traj.slip))
 
         ui.livePosition.setText(str(traj.pPos))
+        if bool(traj.valve1):
+            ui.odourLed.on()
+            ui.replayOdourLed.on()
+        else:
+            ui.odourLed.off()
+            ui.replayOdourLed.off()
 
-        stateText="gain\t\t: "+str(traj.gain)+\
-                  "\nHeading Control\t: "+str(bool(traj.headingControl))+\
-                  "\nSpeed Control\t: "+str(bool(traj.speedControl))+\
-                  "\ntrial\t\t: "+str(traj.trial)+ \
+        stateText="\ntrial\t\t: "+str(traj.trial)+ \
                   "\nrunNum\t\t: " + str(traj.runNum) + \
                   "\ncase\t\t: " + str(traj.case) + \
-                  "\nservoAngle\t: "+str(traj.servoAngle)+\
-                  "\nDCoffset\t: "+str(traj.DCoffset)+ \
-                  "\nspeed\t: "+str(traj.speed)+ \
-                  "\npacketFrequency\t: "+str(traj.packetFrequency)+ \
-                  "\npacketDuration\t: "+str(traj.packetDuration)+ \
-                  "\nvalve1\t\t: " + str(bool(traj.valve1)) + \
+                  \
+                  "\n\nDCoffset\t: " + str(traj.DCoffset) + \
+                  "\nisFlying\t\t: " + str(bool(traj.isFlying)) + \
+                  "\npacketFrequency\t: " + str(traj.packetFrequency) + \
+                  \
+                  "\n\nvalve1\t\t: " + str(bool(traj.valve1)) + \
                   "\nvalve2\t\t: " + str(bool(traj.valve2)) + \
                   "\nvalve3\t\t: " + str(bool(traj.valve3)) + \
-                  "\nisFlying\t\t: " + str(bool(traj.isFlying)) + \
+                  \
+                  "\n\nslip\t\t: " + str((traj.slip)) + \
+                  "\ngroundSpeed\t: " + str((np.round(traj.groundSpeed,2))) + \
+                  \
+                  \
+                  "\n\n\ngain\t\t: "+str(traj.gain)+\
+                  "\nHeading Control\t: "+str(bool(traj.headingControl))+\
+                  "\nSpeed Control\t: "+str(bool(traj.speedControl))+\
+                  "\nspeed\t\t: "+str(traj.speed)+ \
+                  "\npacketDuration\t: "+str(traj.packetDuration)+ \
                   "\nreset\t\t: " + str(bool(traj.reset))
 
                   # "\nheadingControl\t\t: " + str(bool(traj.headingControl)) + \
@@ -382,24 +447,118 @@ def tick():
 
         ui.liveState.setText(stateText)
         if not ui.pausePlot.isChecked():
-            spots = [{'pos': np.array([traj.pPos.x, traj.pPos.y])
-                         , 'data': 1}]
-            s1.addPoints(spots)
-            my_plot.addItem(s1)
+            # spots = [{'pos': np.array([traj.pPos.x, traj.pPos.y])
+            #              , 'data': 1}]
+            # spots=np.array([traj.pPos.x, traj.pPos.y])
+
+            # s1.addPoints(pos=[(traj.pPos.x, traj.pPos.y)])
+            # my_plot.addItem(s1)
+            def quadPlot(trajs,s):
+                trajs = np.vstack((trajs,
+                               np.array([traj.pPos.x,
+                                         traj.pPos.y,
+                                         traj.runNum,
+                                         traj.trial,
+                                         traj.runNum*traj.trial])))
+                s.clear()
+                if traj.valve2==True:
+                    sp=(255,0,0)
+
+                else:
+                    sp=(0,0,255)
+                # print sp
+                # print 'a',trajs[:,3]
+                s.plot(trajs[:, 0], trajs[:, 1], pen=None,
+                       symbol='o', symbolPen=(255,0,0),
+                       symbolBrush=(255,0,0),symbolSize=2)
+                # s.addPoints(trajs[-1, 0], trajs[-1, 1], pen=None, symbol='o', symbolPen=(255, 255, 0), symbolSize=2)
+                s.plot([trajs[-1, 0]], [trajs[-1, 1]], pen=(3),
+                       symbolBrush=(0,0,255), symbolPen='w',
+                       symbol='o', symbolSize=4)
+
+                return trajs
+
+
+            if traj.case ==0:
+                traj0s=quadPlot(traj0s,s0)
+            elif traj.case ==1:
+                traj1s=quadPlot(traj1s,s1)
+                traj0r=quadPlot(traj0r,r0)
+
+            elif traj.case ==2:
+                traj2s=quadPlot(traj2s,s2)
+
+            elif traj.case ==3:
+                traj3s=quadPlot(traj3s,s3)
+
+            #
+            # traj1s=np.vstack((traj1s,np.array([traj.pPos.x,traj.pPos.y])))
+            # vals=np.append(vals,traj.wbad)
+            # s1.clear()
+            # s1.plot(traj1s[:,0],traj1s[:,1], pen=None, symbol='o', symbolPen=None, symbolSize=5)
+
+            vals = np.append(vals, traj.wbad)
+            y, x = np.histogram(vals, bins=np.linspace(-1, 1, 60))
+
+            ## notice that len(x) == len(y)+1
+            ## We are required to use stepMode=True so that PlotCurveItem will interpret this data correctly.
+            curve = pg.PlotDataItem(x, y, stepMode=True, fillLevel=0, brush=(0, 0, 255, 80))
+
+            line=pg.InfiniteLine(pos=vals.mean())
+            my_hist.clear()
+            my_hist.addItem(curve)
+            my_hist.addItem(line)
+
+            def trackingFly(w=10):
+                resetView(cx=traj.pPos.x,cy= traj.pPos.y,off=w)#cx=trajs[-1, 0],cy= trajs[-1, 1]), off=w)
+
+            if ui.trackFly.isChecked():
+                a=2.**(0.05*(-ui.verticalSlider.value()))
+                # print "a",a
+                trackingFly(w=a)
+                # trackingFly(w=ui.trackWidth.value())
+
+                # ui.trackWidth.setValue(s0.get)
+
+            # # Example 1
+            # rs1 = QRangeSlider()
+            # rs1.show()
+            # rs1.setWindowTitle('example 1')
+            # rs1.setRange(15, 35)
+            # rs1.setBackgroundStyle('background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #222, stop:1 #333);')
+            # rs1.setSpanStyle('background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #282, stop:1 #393);')
+            #
+
+
+
+
+
 
     except AttributeError:
         # print "something bad,no gui update"
         pass
-def resetView():
-    off=20
-    my_plot.setRange(xRange=(512-off,512+off),yRange=(512-off,512+off))
 
 
 def setHeadingLcd():
     ui.lcdNumber_3.display(ui.compassHeading.value() - 90)  # offset origin to E and not North
 
 
+
 def clearPlot():
+    global vals,curve,traj0s,traj1s,traj2s,traj3s,traj0r
+    vals = np.array([])
+    traj0s = np.array([0,0,0,0,0])
+    traj1s = np.array([0,0,0,0,0])
+    traj2s = np.array([0,0,0,0,0])
+    traj3s = np.array([0,0,0,0,0])
+    traj0r = np.array([0,0,0,0,0])
+
+    # traj0s = np.array([0,0])
+    # traj1s = np.array([0,0])
+    # traj2s = np.array([0,0])
+    # traj3s = np.array([0,0])
+    # curve.clear()
+    # my_hist.clear()
     # s1.points()
     s1.clear()
     # my_plot.clear()
@@ -418,9 +577,24 @@ if __name__ == '__main__':
     window = QMainWindow()
     ui = Ui_RhagGUI()
     ui.setupUi(window)
+# # Example 1
+# rs1 = QRangeSlider()
+# rs1.show()
+# rs1.setWindowTitle('example 1')
+# rs1.setRange(15, 35)
+# rs1.setBackgroundStyle('background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #222, stop:1 #333);')
+# rs1.setSpanStyle('background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #282, stop:1 #393);')
 
+    # rs1 = QRangeSlider()
+    ui.trajRange=QRangeSlider(ui.tab_2)
+    # ui.trackFly = QtGui.QCheckBox(ui.tab_2)
+    # ui.trajRange.setGeometry(QtCore.QRect(540, 47, 111, 22))  #functions for several buttons
 
-    #functions for several buttons
+    ui.trajRange.show()
+    # rs1.setWindowTitle('example 1')
+    ui.trajRange.setRange(15, 35)
+    ui.trajRange.setBackgroundStyle('background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #222, stop:1 #333);')
+    ui.trajRange.setSpanStyle('background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #282, stop:1 #393);')
     #applying and loading settings, closing etc.
 
     okBtn = ui.buttonBox.button(QtGui.QDialogButtonBox.Ok)#todo: Ok needs a function
@@ -467,25 +641,81 @@ if __name__ == '__main__':
     ui.rqtBtn.clicked.connect(lambda: startRqt())
     ui.resetView.clicked.connect(lambda :resetView())
     ui.clearPlot.clicked.connect(lambda :clearPlot())
+    ui.replayPathBtn.clicked.connect(lambda :showFileDialog(window, ui.replayPath, pathModel,local=False))
+
+# ui.greenTexPathBtn, showFileDialog, ui.greenTexPath
 
     ui.compassServo.setNeedle(Qwt.QwtDialSimpleNeedle(Qwt.QwtDialSimpleNeedle.Arrow))
     ui.compassServo.setOrigin(270)
+    ui.compassServo_2.setNeedle(Qwt.QwtDialSimpleNeedle(Qwt.QwtDialSimpleNeedle.Arrow))
+    ui.compassServo_2.setOrigin(270)
     # to set north as north
     # always start rosnode inside main else imports end in loop
 
     ui.compassHeading.setNeedle(Qwt.QwtDialSimpleNeedle(Qwt.QwtDialSimpleNeedle.Arrow))
     ui.compassHeading.setOrigin(270)# to set north as north
 
-    RosSubscriber('GUI', '/trajectory', MsgTrajectory, clbk)
-    my_plot = pg.PlotWidget()
-    ui.trajectoryLayout.addWidget(my_plot)
-    s1 = pg.ScatterPlotItem(size=2, pen=pg.mkPen(None), brush=pg.mkBrush(255, 255, 255, 120))
-    resetView()
+    ui.compassSlip.setNeedle(Qwt.QwtDialSimpleNeedle(Qwt.QwtDialSimpleNeedle.Arrow))
+    ui.compassSlip.setOrigin(270)# to set north as north
 
+
+
+
+
+    RosSubscriber('GUI', '/trajectory', MsgTrajectory, clbk)
+
+
+    '''
+    replay plot
+    '''
+    replay_plot= pg.GraphicsLayoutWidget()
+    ui.replayTrajectoryLayout.addWidget(replay_plot)
+    r0 = replay_plot.addPlot(title="1")
+
+
+    # my_plot = pg.PlotWidget()
+    # ui.trajectoryLayout.addWidget(my_plot)
+    # s1 = pg.ScatterPlotItem(size=2, pen=pg.mkPen(None), brush=pg.mkBrush(255, 255, 255, 120))
+    my_plot = pg.GraphicsLayoutWidget()
+    ui.trajectoryLayout.addWidget(my_plot)
+
+    s1 = my_plot.addPlot(title="1")
+    s0 = my_plot.addPlot(title="0")
+    my_plot.nextRow()
+    s2 = my_plot.addPlot(title="2")
+    s3 = my_plot.addPlot(title="3")
+
+
+    s3.setXLink(s0)
+    s3.setYLink(s0)
+    s2.setXLink(s0)
+    s2.setYLink(s0)
+    s1.setXLink(s0)
+    s1.setYLink(s0)
+    my_hist=pg.PlotWidget()
+    ui.histog.addWidget(my_hist)
+    global vals,traj0s,traj1s,traj2s,traj3s,replay
+    traj0s = np.array([0, 0, 0, 0, 0])
+    traj1s = np.array([0, 0, 0, 0, 0])
+    traj2s = np.array([0, 0, 0, 0, 0])
+    traj3s = np.array([0, 0, 0, 0, 0])
+    traj0r = np.array([0, 0, 0, 0, 0])
+    # traj0s = np.array([0,0])
+    # traj1s = np.array([0,0])
+    # traj2s = np.array([0,0])
+    # traj3s = np.array([0,0])
+    vals = np.array([0])
+    y, x = np.histogram(vals, bins=np.linspace(-0.5, 0.5, 80))
+    resetView()
+    ## notice that len(x) == len(y)+1
+    ## We are required to use stepMode=True so that PlotCurveItem will interpret this data correctly.
+    # curve = pg.PlotItem(x, y, stepMode=True, fillLevel=0, brush=(0, 0, 255, 80))
+    #
+    # my_hist.addItem(curve)
 
     timer = QTimer()
     timer.timeout.connect(tick)
-    timer.start(100)
+    timer.start(1000/60.)
 
     myDict = {
         'greenTexPath': [ui.greenTexPathBtn, showFileDialog, ui.greenTexPath],
@@ -508,7 +738,6 @@ if __name__ == '__main__':
         'odour3Mask': [ui.odour3MaskBtn, showFileDialog, ui.odour3Mask],
         'odour4Mask': [ui.odour4MaskBtn, showFileDialog, ui.odour4Mask],
         'beepPath': [ui.beepPathBtn,showFileDialog,ui.beepPath],
-
 
 
     }

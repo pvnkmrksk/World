@@ -41,8 +41,8 @@ class Player():
         #rest tunnel to zwero phase so that on quad change, the onset of packet is at predicatbale
         # and at the beginning after an offset of  50frames 300ms so that a keypress doesn't end up with a sustained odour
         # and insteadof history dependence and so may switch any time
-        # self.sb.haw.phase = 0
-        # self.sb.apple.phase = 0
+        # self.sb.odour1.phase = 0
+        # self.sb.odour2.phase = 0
 
     def reachedDestination(self, target,distance=parameters["bboxDist"]):
         """

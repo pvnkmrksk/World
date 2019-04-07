@@ -27,7 +27,7 @@ from direct.task import Task
 from panda3d.core import AmbientLight, DirectionalLight, Vec4, Vec3, Fog, Camera, PerspectiveLens
 from panda3d.core import loadPrcFileData, NodePath, TextNode
 from panda3d.core import CompassEffect, ClockObject
-from panda3d.core import Shader
+from panda3d.core import Shader, TextureStage
 from panda3d.core import loadPrcFileData
 from direct.gui.OnscreenText import OnscreenText
 from panda3d.core import WindowProperties
@@ -71,12 +71,16 @@ def exceptionReplay(parameters):
         start = parameters["captureStart"]
         increment = parameters["playbackIncrement"]
 
-        # replayPath = easygui.fileopenbox(multiple=False, filetypes=["*.pickle"])
-        replayPath = "/home/behaviour/catkin/src/beginner/scripts/panda/world/bags/fly4/fly4_quad_rg_gain7.0_speed_3.5_" \
-                     "trial_1_2016-04-13__23:31:35.bag_df.pickle"
+        # # replayPath = easygui.fileopenbox(multiple=False, filetypes=["*.pickle"])
+        # replayPath = "/home/behaviour/catkin/src/beginner/scripts/panda/world/bags/fly4/fly4_quad_rg_gain7.0_speed_3.5_" \
+        #              "trial_1_2016-04-13__23:31:35.bag_df.pickle"
 
-        print replayPath
-        df = pd.read_pickle(replayPath)
+        print parameters["replayPath"]
+        # repExt=parameters["replayPath"].split('.')[-1]
+        # if repExt=='.bag':
+        #     from analyseWorld.ipy_notebooks import ipyimports
+        #     df,parameters,p=bag2pickle(parameters["replayPath"])
+        df = pd.read_pickle(parameters["replayPath"])
 
         # slice pos and orientation and remove nans heading,pitch,roll, x,y,z and drop na which is from camera message time
         traj = df.loc[:, "trajectory__orientation_x":"trajectory__position_z"].dropna()
@@ -168,27 +172,33 @@ def replayLoader():
     metadata=dff['metadata']
     return df,metadata
 
-if parameters['replayWorld']:
-    print "\n \n replayFIlke is \n\n",replayFileSelected
-    if not replayFileSelected:
-        if parameters['replayBag']:
-
-            #copy the needed params from parameters
-            pc=ParamCache(parameters)
-
-            df,metadata=replayLoader()
-            dfPosHpr = df[['trajectory__pPos_x', 'trajectory__pPos_y', 'trajectory__pPos_z',
-                         'trajectory__pOri_x', 'trajectory__pOri_y','trajectory__pOri_z']]
-            dfPosHpr.columns = [['x', 'y', 'z', 'h', 'p', 'r']]
-            #reassigning the bag parameters
-            parameters=metadata['parameters']
-            for item in parameters['toTuplify']:
-                parameters[item] = tuple(parameters[item])
-            parameters['replayWorld']=True #this is because, while the actual bag never had replayworld checked.
-            # But the code needs it to be true to playback bag data
-
-            #dump the saved parameters into the current one
-            parameters=pc.paramLoad(parameters)
-        replayFileSelected=True
-    else:
-        pass
+# # try:
+# if parameters['replayWorld']:
+#     print "\n \n replayFIlke is \n\n",replayFileSelected
+#     if not replayFileSelected:
+#
+#         if 2==2:
+#         # if parameters['replayBag']:
+#
+#             #copy the needed params from parameters
+#             pc=ParamCache(parameters)
+#
+#             df,metadata=replayLoader()
+#             dfPosHpr = df[['trajectory__pPos_x', 'trajectory__pPos_y', 'trajectory__pPos_z',
+#                          'trajectory__pOri_x', 'trajectory__pOri_y','trajectory__pOri_z']]
+#             dfPosHpr.columns = [['x', 'y', 'z', 'h', 'p', 'r']]
+#             #reassigning the bag parameters
+#             parameters=metadata['parameters']
+#             for item in parameters['toTuplify']:
+#                 parameters[item] = tuple(parameters[item])
+#             parameters['replayWorld']=True #this is because, while the actual bag never had replayworld checked.
+#             # But the code needs it to be true to playback bag data
+#
+#             #dump the saved parameters into the current one
+#             parameters=pc.paramLoad(parameters)
+#             print "replaying", parameters
+#         replayFileSelected=True
+#     else:
+#         pass
+# except Exception as eee:
+#     print "idunno",eee

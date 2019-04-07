@@ -20,7 +20,8 @@ parameters= paramsFromGUI()
 
 
 class BagControl():
-    def __init__(self, bagType, topics, parameters=parameters):
+    def __init__(self,showBase, bagType, topics, parameters):
+        self.sb=showBase
         self.bagType = bagType
         self.topics = topics
         self.startBag()
@@ -62,7 +63,7 @@ class BagControl():
     def bagFilenameGen(self):
         # todo: fix filename generate
 
-        self.timeNow = str(datetime.now().strftime('%Y-%m-%d__%H:%M:%S'))
+        self.timeNow = str(datetime.now().strftime('%Y-%m-%d__%H~%M~%S'))
         mode = ""
         state=""
         try:
@@ -78,16 +79,24 @@ class BagControl():
 
             if parameters["imposeStimulus"]:
                 mode += "impose_"
+            #
+            # if parameters["loadNullModels"]:
+            #     mode += "null_"
+            #
+            if parameters["loadNullSky"]:
+                mode += "nullSky_"
 
-            if parameters["loadNullModels"]:
-                mode += "null_"
+            if parameters["loadNullGrass"]:
+                mode += "nullGrass_"
 
 
 
-            state+='gain:'+str(parameters["gain"])+"_"
-            state+='speed:'+str(parameters["maxSpeed"])+"_"
-            state+='bout:'+str(parameters["maxBoutDur"])+"_"
-            state+='DC:'+str(parameters["DCoffset"])+"_"
+
+
+            state+='gain~'+str(parameters["gain"])+"_"
+            state+='speed~'+str(parameters["maxSpeed"])+"_"
+            state+='bout~'+str(parameters["maxBoutDur"])+"_"
+            state+='DC~'+str(parameters["DCoffset"])+"_"
                     # if parameters["quad"]:
             #     mode += "quad_"
 
@@ -167,7 +176,6 @@ class BagControl():
             b = subprocess.Popen(['git', 'rev-parse', 'HEAD'], stdout=subprocess.PIPE)
             gitHash = b.communicate()[0].strip()
 
-        self.zipFilename=self.bagFilename+'.zip'
         #using the hash, archive the current git repo as a bagfilename zip file
         arch=subprocess.Popen(['git', 'archive', '-o', self.zipFilename, gitHash])
         arch.communicate()#makes sure the zip process is complete
@@ -212,35 +220,16 @@ class BagControl():
                 print "file",fname
                 continue
 
-    # from os import listdir
-    # from os.path import isfile, join
-    # import zipfile, os
-    # from pathlib import Path
-
-    # z = zipfile.ZipFile('/home/rhagoletis/catkin/src/World/bags/2017_01_27/2017-01-27__00:33:43_mdom8_n_pf_full.zip',
-    #                     "a", zipfile.ZIP_DEFLATED)
-    # s='/home/rhagoletis/catkin/src/World/models/3D_Models/flower/Flower_lp.egg'
-    # s = 'models/3D_Models/black_column/black_column.egg'
-    # s = os.path.abspath(s)
-    # t = '/'.join(s.split('/')[0:-1]) + '/tex/'
-    # if os.path.exists(t):
-    #     mypath = t
-    #     path = t
-    #     onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
-    #         onlyfiles=next(os.walk(path))[2]
-        # for fs in onlyfiles:
-        #     fs = str(Path(t + fs).relative_to(
-        #         os.getcwd()))  # local path, get path relayive to repo root directory so that bugs
-        #     z.write(fs)
-    # z.close()
 
     def metadataGen(self):
-        # file = open(__file__, 'r')
-        # servo = open("servo.py", 'r')
-        # arduino = open("servoControl/servoControl.ino", 'r')
-        # bam = open(app.worldFilename)
+
+        self.zipFilename=self.bagFilename+'.zip'
+        parameters['zipFileName']=self.zipFilename
 
         parameters['bagFileName']=self.bagFilename
+        # parameters['omCase'] = self.sb.omCase
+        # print "\n\n\n\n\nnomcase is ",parameters['omCase']
+
         obj=dict(parameters=parameters)
 
         # bam=bam.read().encode('utf-8').strip())

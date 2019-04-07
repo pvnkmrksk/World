@@ -1,7 +1,7 @@
 import json
 import subprocess
 import time
-
+import easygui
 import pandas as pd
 import rostopic
 import serial
@@ -42,17 +42,36 @@ class ExceptionHandlers():
             increment = self.parameters["playbackIncrement"]
 
             # replayPath = easygui.fileopenbox(multiple=False, filetypes=["*.pickle"])
-            replayPath = "/home/behaviour/catkin/src/beginner/scripts/panda/world/bags/fly4/fly4_quad_rg_gain7.0_speed_3.5_" \
-                         "trial_1_2016-04-13__23:31:35.bag_df.pickle"
+            # replayPath = "/home/rhagoletis/catkin/src/World/bags/2017_06_06/2017-06-06__19~51~30_haw09_01_gain~8_speed~1.0_bout~5_DC~-0.002_traj.bag_df.pickle"
+            replayPath = self.parameters["replayPath"]
+            fr=self.parameters['frameRecord']
+            frp=self.parameters['frameRecordPath']
+            rd=self.parameters['recordDur']
+            rfps=self.parameters['recordFps']
 
             print replayPath
-            df = pd.read_pickle(replayPath)
+            repExt = replayPath.split('.')[-1]
+            from analyseWorld.ipy_notebooks import ipyimports
+            if repExt == 'bag':
+                df, meta, p = ipyimports.bag2pickle([replayPath])
+                print "hello"
 
-            # slice pos and orientation and remove nans heading,pitch,roll, x,y,z and drop na which is from camera message time
-            traj = df.loc[:, "trajectory__orientation_x":"trajectory__position_z"].dropna()
-            cols = traj.columns.tolist()  # list of colums
-            cols = cols[-3:] + cols[:-3]  # reorder colums. hprpos to poshpr by python splicing
-            traj = traj[cols]  # reassign with this order
+            elif repExt == 'h5':
+                df,meta=ipyimports.h5load(replayPath)
+            # pick = pd.read_pickle(replayPath)
+            # df= pick["df"]
+            # meta=pick["metadata"]
+            # print meta
+
+            # # print (df.keys())
+            # # slice pos and orientation and remove nans heading,pitch,roll, x,y,z and drop na which is from camera message time
+            # traj = df.loc[:, "trajectory__orientation_x":"trajectory__position_z"].dropna()
+            # cols = traj.columns.tolist()  # list of colums
+            # cols = cols[-3:] + cols[:-3]  # reorder colums. hprpos to poshpr by python splicing
+            # traj = traj[cols]  # reassign with this order
+            dfPosHpr=df.loc[:,['trajectory__pPos_x', 'trajectory__pPos_y',
+            'trajectory__pPos_z','trajectory__pOri_x', 'trajectory__pOri_y',
+            'trajectory__pOri_z' ]]
 
             # //todo change current self.parameters to self.parameters saved in dataframe
             self.parameters = None
@@ -61,23 +80,30 @@ class ExceptionHandlers():
                 self.parameters = json.loads(df.metadata__data.values[1])
 
             except:
-                self.parameters = json.loads(df.metadata__data.values[0])
-                print "using exceprion to load params"
+                try:
+                    # self.parameters = json.loads(df.metadata__data.values[0])
+                    self.parameters = meta["parameters"]
+                    print "ewo is",self.parameters
+                    print "using exceprion to load params"
+
+                except KeyError:
+                    self.parameters=meta['metadata']
 
             # dump back params from vars
             self.parameters["replayWorld"] = replay
             self.parameters["captureScale"] = scale
             self.parameters["captureStart"] = start
             self.parameters["playbackIncrement"] = increment
+            self.parameters["replayPath"] = replayPath
+            self.parameters['frameRecord']=fr
+            self.parameters['frameRecordPath']=frp
+            self.parameters['recordDur']=rd
+            self.parameters['recordFps']=rfps
 
-            return self.parameters
-    # def exceptionArduino(self):
-    #     # check if arduino servo is connected
-    #     try:
-    #         from tbd import servo
-    #     except serial.serialutil.SerialException:
-    #         self.parameters["loadWind"] = False
-    #         print ("\n \n \n servo disabled \n \n \n")
+
+
+            return self.parameters, df ,dfPosHpr
+
     def exceptionROS(self):
         # Checkif rosmaster is running else run roscore
         try:
@@ -100,12 +126,16 @@ class ExceptionHandlers():
                 proc.kill()
 
         try:
-            s=ValveHandler(1)
-            v1=ValveHandler(97)
-            v2=ValveHandler(98)
-            v3=ValveHandler(99)
+            # s=ValveHandler(1)
+            self.baud = 115200
+            v1= ValveHandler(casePort=97, baud=self.baud)
+            v2= ValveHandler(casePort=98, baud=self.baud)
+            v3= ValveHandler(casePort=99, baud=self.baud)
 
-            s.move(90)
+            # s.move(90)
+            v1.move(1)
+            v2.move(1)
+            v3.move(1)
             v1.move(0)
             v2.move(0)
             v3.move(0)
