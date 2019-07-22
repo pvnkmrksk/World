@@ -188,7 +188,10 @@ class Lr(Experiment):
             elif self.case == 3:
                 self.tempObjUse = True
                 self.tempObj = self.mirrorFlip(objects[1])
+
                 super(Lr, self).setObjects(objects[1], self.tempObj)
+                # self.tempObj = objects[1]
+                # super(Lr, self).setObjects(objects[0], objects[1]) #Prevent mirror flip
 
             else:
                 print "something wrong in setobject of lr"
@@ -244,6 +247,7 @@ class Lr(Experiment):
             elif self.case == 3:
                 self.objectPosition = [self.pos2Flip,self.pos2]
                 self.tempObj = self.mirrorFlip(objects[1])
+
                 super(Lr, self).setObjects(objects[1], self.tempObj)
 
             else:

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'GUI/makeGUI.ui'
 #
-# Created: Sat Dec 16 16:00:38 2017
+# Created: Fri Apr 26 19:01:59 2019
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -351,7 +351,7 @@ class Ui_RhagGUI(object):
         self.label_22.setObjectName(_fromUtf8("label_22"))
         self.gridLayout_3.addWidget(self.label_22, 1, 1, 1, 1)
         self.maxDistance = QtGui.QSpinBox(self.groupBox_4)
-        self.maxDistance.setMaximum(99999)
+        self.maxDistance.setMaximum(9999)
         self.maxDistance.setObjectName(_fromUtf8("maxDistance"))
         self.gridLayout_3.addWidget(self.maxDistance, 2, 0, 1, 1)
         self.label_111 = QtGui.QLabel(self.groupBox_4)
@@ -1056,6 +1056,11 @@ class Ui_RhagGUI(object):
         self.compassServo_2.setFrameShadow(QwtDial.Raised)
         self.compassServo_2.setDirection(QwtDial.CounterClockwise)
         self.compassServo_2.setObjectName(_fromUtf8("compassServo_2"))
+        self.clearPlot_2 = QtGui.QPushButton(self.tab_8)
+        self.clearPlot_2.setGeometry(QtCore.QRect(90, 700, 85, 27))
+        self.clearPlot_2.setAutoDefault(False)
+        self.clearPlot_2.setDefault(False)
+        self.clearPlot_2.setObjectName(_fromUtf8("clearPlot_2"))
         self.tabWidget_2.addTab(self.tab_8, _fromUtf8(""))
         self.tabWidget.addTab(self.tab_6, _fromUtf8(""))
         self.gridLayout_9.addWidget(self.tabWidget, 0, 0, 1, 2)
@@ -1070,7 +1075,7 @@ class Ui_RhagGUI(object):
         RhagGUI.setStatusBar(self.statusbar)
 
         self.retranslateUi(RhagGUI)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(5)
         self.tabWidget1.setCurrentIndex(0)
         self.tabWidget_4.setCurrentIndex(0)
         self.tabWidget_2.setCurrentIndex(1)
@@ -1290,6 +1295,7 @@ class Ui_RhagGUI(object):
         self.trackFly.setText(_translate("RhagGUI", "Track Fly", None))
         self.label_33.setText(_translate("RhagGUI", "Track Width", None))
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_2), _translate("RhagGUI", "Tab 1", None))
+        self.clearPlot_2.setText(_translate("RhagGUI", "Clear Plot", None))
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_8), _translate("RhagGUI", "Page", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_6), _translate("RhagGUI", "Live", None))
 

@@ -470,9 +470,9 @@ def tick():
                 # print 'a',trajs[:,3]
                 s.plot(trajs[:, 0], trajs[:, 1], pen=None,
                        symbol='o', symbolPen=(255,0,0),
-                       symbolBrush=(255,0,0),symbolSize=2)
+                       symbolBrush=(255,0,0),symbolSize=4)
                 # s.addPoints(trajs[-1, 0], trajs[-1, 1], pen=None, symbol='o', symbolPen=(255, 255, 0), symbolSize=2)
-                s.plot([trajs[-1, 0]], [trajs[-1, 1]], pen=(3),
+                s.plot([trajs[-1, 0]], [trajs[-1, 1]], pen=(6),
                        symbolBrush=(0,0,255), symbolPen='w',
                        symbol='o', symbolSize=4)
 
@@ -487,6 +487,8 @@ def tick():
 
             elif traj.case ==2:
                 traj2s=quadPlot(traj2s,s2)
+                traj0r=quadPlot(traj0r,r0)
+
 
             elif traj.case ==3:
                 traj3s=quadPlot(traj3s,s3)
@@ -641,6 +643,8 @@ if __name__ == '__main__':
     ui.rqtBtn.clicked.connect(lambda: startRqt())
     ui.resetView.clicked.connect(lambda :resetView())
     ui.clearPlot.clicked.connect(lambda :clearPlot())
+    ui.clearPlot_2.clicked.connect(lambda :clearPlot())
+
     ui.replayPathBtn.clicked.connect(lambda :showFileDialog(window, ui.replayPath, pathModel,local=False))
 
 # ui.greenTexPathBtn, showFileDialog, ui.greenTexPath
