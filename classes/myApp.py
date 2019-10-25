@@ -863,10 +863,10 @@ class MyApp(ShowBase):
             # send what the fly's motion caused on heading, negative for ease of view in rqtPlot
             self.currentImposeResponse = -(self.player.getH() - self.prevH - self.stim)
             mes.imposeResponse = self.currentImposeResponse
-            # self.imposeResponseArr=np.append(self.imposeResponseArr,mes.imposeResponse)
+            self.imposeResponseArr=np.append(self.imposeResponseArr,mes.imposeResponse)
             self.prevH = self.player.getH()
 
-            # mes.imposeResponseSmooth=np.mean(self.imposeResponseArr[-self.bin:])
+            mes.imposeResponseSmooth=np.mean(self.imposeResponseArr[-self.bin:])
 
 
             mes.imposeHeading = self.imposedCurrentH + self.stim
