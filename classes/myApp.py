@@ -1,17 +1,18 @@
 #!/usr/bin/env python
 from __future__ import division  # odd issue. Must be on first line else it fails
 from datetime import timedelta
+from environment import *
 
+beadMode= True
 from helping.importHelper import *  # file with just a bunch of imports
 
 ls = parameters["loadingString"]
 print ls
-
+beadMode=False
 if ls == "circ":
     from exprmts.circ import Circ as experiment
 elif (helper.isInt(ls) and len(ls) == 2) or ls=='ang' :  # only if numbers and 2 digits
     from exprmts.lr import Lr as experiment
-
     ls = 'lr'
 elif ls == "gain":
     from exprmts.gain import Gain as experiment
@@ -254,6 +255,37 @@ class MyApp(ShowBase):
 
         # self.initPlot()  # load the plot 1st so that the active window is panda
         self.modelLoader()
+        self.bead = self.loadBead()
+
+        from direct.interval.IntervalGlobal import *
+        int1 = self.bead.posInterval(4, Vec3(500, 513, 3), startPos=Vec3(526,513, 3))
+        int1r = self.bead.posInterval(4, Vec3(526,513, 3), startPos=Vec3(500, 513, 3))
+        int2 = self.bead.posInterval(2, Vec3(500, 513, 3), startPos=Vec3(526,513, 3))
+        int2r = self.bead.posInterval(2, Vec3(526,513, 3), startPos=Vec3(500, 513, 3))
+        int3 = self.bead.posInterval(1, Vec3(500, 513, 3), startPos=Vec3(526,513, 3))
+        int3r = self.bead.posInterval(1, Vec3(526,513, 3), startPos=Vec3(500, 513, 3))
+        int4 = self.bead.posInterval(0.5, Vec3(500, 513, 3), startPos=Vec3(526,513, 3))
+        int4r = self.bead.posInterval(0.5, Vec3(526,513, 3), startPos=Vec3(500, 513, 3))
+        slide = Sequence(int1, int1r,int2, int2r,int3, int3r,int4, int4r, name="Sequence Name")
+
+        int1 = self.bead.posInterval(4, Vec3(513, 507, 3), startPos=Vec3(513,513, 3))
+        int2 = self.bead.posInterval(2, Vec3(513, 507, 3), startPos=Vec3(513,513, 3))
+        int3 = self.bead.posInterval(1, Vec3(513, 507, 3), startPos=Vec3(513,513, 3))
+        int4 = self.bead.posInterval(0.5, Vec3(513, 507, 3), startPos=Vec3(513,513, 3))
+        loom = Sequence(int1,int2, int3, int4,  name="Sequence Name")
+
+
+        # slide.start()
+        loom.loop()
+
+    def loadBead(self):
+        m = loader.loadModel(parameters["object1"])
+        m.reparentTo(render)
+        m.setPos(parameters["posL"])
+        m.setScale(parameters["obj1Scale"])
+        return m
+
+
 
     def initSky(self):
         if not parameters['humanDisplay']:
@@ -1080,7 +1112,7 @@ class MyApp(ShowBase):
                 self.replayFrame += parameters["playbackIncrement"]
 
         self.updateCamera()
-
+        self.updateBead()
         self.displacement = self.player.getPos() - (self.prevPos)
         self.prevPos = self.player.getPos()
         self.slip = np.rad2deg(np.arctan2(self.displacement[1], self.displacement[0]))
@@ -1092,7 +1124,13 @@ class MyApp(ShowBase):
         self.publisher(self.message())
         self.reset = False
 
+
         return Task.cont
+
+    def updateBead(self):
+        # print"helldo"
+        pass
+        # self.ex.obj1.setPos([1,1,1])
 
     def replayReset(self):
         self.ex.case = df.trajectory__case[self.replayFrame]
