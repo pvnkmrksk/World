@@ -69,8 +69,8 @@ class Experiment(object):
         calls createSky in environment.py
         """
 
-        self.sky.createSky()
-        # self.sky.createSky_()
+        # self.sky.createSky()
+        self.sky.createSky_()
         # pass
 
     def resetPosition(self):
