@@ -11,7 +11,7 @@ float64 slip
 float64 groundSpeed
 int16 trial
 int16 runNum
-int16 case
+int16 case_
 int16 caseU
 int16 servoAngle
 int16 valve1

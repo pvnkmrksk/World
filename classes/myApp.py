@@ -818,7 +818,7 @@ class MyApp(ShowBase):
         mes.groundSpeed = self.groundSpeed
         mes.trial = self.ex.trial  # trial number. increments after every reset
         mes.runNum = self.ex.runNum
-        mes.case = self.ex.case
+        mes.case_ = self.ex.case
         mes.servoAngle = self.servoAngle  # servo angle command, may not complete if out of bounds
         mes.valve1 = self.valve1State  # odour valve state
         mes.valve2 = self.valve2State  # odour valve state
@@ -1739,7 +1739,7 @@ class MyApp(ShowBase):
 
         if (self.keyMap["c-up"] != 0):
             parameters["minFlightSpeed"] += parameters["DCoffsetIncrement"]
-            print "speed scalers is ", parameters["minFlightSpeed"]
+            print ("speed scalers is ", parameters["minFlightSpeed"])
             self.patchx += self.patchIncrement
             self.ex.patch1.setPos((self.patchx, 1, self.patchy))
             self.ex.patch2.setPos((-self.patchx, 1, self.patchy))

@@ -395,29 +395,30 @@ def resetView(cx=512,cy=512,off=20):
 
 
 def tick():
-    global vals,curve,traj0s,traj1s,traj2s,traj3s,traj0r
+
+    global traj, vals,curve,traj0s,traj1s,traj2s,traj3s,traj0r
     try:
-        ui.compassServo.setValue(traj.servoAngle+90)
-        ui.compassServo_2.setValue(traj.servoAngle+90)
-        ui.compassHeading.setValue(traj.pOri.x)
+        ui.compassServo.setValue(-traj.servoAngle)
+        ui.compassServo_2.setValue(-traj.servoAngle)
+        ui.compassHeading.setValue(-traj.pOri.y)
         ui.compassSlip.setValue(traj.slip)
         # ui.compassSlip.setValue((((traj.slip+180)%360)-180-90)%360)
 
         ui.lcdServoAngle.display(traj.servoAngle)
         ui.lcdHeadingAngle.display(traj.pOri.x%360)
-        ui.lcdSlipAngle.display((traj.slip))
+        ui.lcdSlipAngle.display(traj.slip)
 
         ui.livePosition.setText(str(traj.pPos))
-        if bool(traj.valve1):
-            ui.odourLed.on()
-            ui.replayOdourLed.on()
-        else:
-            ui.odourLed.off()
-            ui.replayOdourLed.off()
+        # if bool(traj.valve1):
+        #     ui.odourLed.on()
+        #     ui.replayOdourLed.on()
+        # else:
+        #     ui.odourLed.off()
+        #     ui.replayOdourLed.off()
 
         stateText="\ntrial\t\t: "+str(traj.trial)+ \
                   "\nrunNum\t\t: " + str(traj.runNum) + \
-                  "\ncase\t\t: " + str(traj.case) + \
+                  "\ncase\t\t: " + str(traj.case_) + \
                   \
                   "\n\nDCoffset\t: " + str(traj.DCoffset) + \
                   "\nisFlying\t\t: " + str(bool(traj.isFlying)) + \
@@ -479,18 +480,18 @@ def tick():
                 return trajs
 
 
-            if traj.case ==0:
+            if traj.case_ ==0:
                 traj0s=quadPlot(traj0s,s0)
-            elif traj.case ==1:
+            elif traj.case_ ==1:
                 traj1s=quadPlot(traj1s,s1)
                 traj0r=quadPlot(traj0r,r0)
 
-            elif traj.case ==2:
+            elif traj.case_ ==2:
                 traj2s=quadPlot(traj2s,s2)
                 traj0r=quadPlot(traj0r,r0)
 
 
-            elif traj.case ==3:
+            elif traj.case_ ==3:
                 traj3s=quadPlot(traj3s,s3)
 
             #
@@ -536,8 +537,8 @@ def tick():
 
 
 
-    except AttributeError:
-        # print "something bad,no gui update"
+    except AttributeError as e:
+        print "something bad,no gui update",e
         pass
 
 
@@ -649,18 +650,20 @@ if __name__ == '__main__':
 
 # ui.greenTexPathBtn, showFileDialog, ui.greenTexPath
 
+    origin =270 #unity/panda3d
+
     ui.compassServo.setNeedle(Qwt.QwtDialSimpleNeedle(Qwt.QwtDialSimpleNeedle.Arrow))
-    ui.compassServo.setOrigin(270)
+    ui.compassServo.setOrigin(origin)
     ui.compassServo_2.setNeedle(Qwt.QwtDialSimpleNeedle(Qwt.QwtDialSimpleNeedle.Arrow))
-    ui.compassServo_2.setOrigin(270)
+    ui.compassServo_2.setOrigin(origin)
     # to set north as north
     # always start rosnode inside main else imports end in loop
 
     ui.compassHeading.setNeedle(Qwt.QwtDialSimpleNeedle(Qwt.QwtDialSimpleNeedle.Arrow))
-    ui.compassHeading.setOrigin(270)# to set north as north
+    ui.compassHeading.setOrigin(origin)# to set north as north
 
     ui.compassSlip.setNeedle(Qwt.QwtDialSimpleNeedle(Qwt.QwtDialSimpleNeedle.Arrow))
-    ui.compassSlip.setOrigin(270)# to set north as north
+    ui.compassSlip.setOrigin(origin)# to set north as north
 
 
 
