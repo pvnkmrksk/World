@@ -32,6 +32,6 @@ float64 pfStimState
 geometry_msgs/Vector3 o1Pos
 geometry_msgs/Vector3 o2Pos
 int16 reset
-int16 isFlying
+bool isFlying
 string key
 

@@ -325,7 +325,9 @@ def saveClose(win):
 
 def startVR():
     global procVR
-    procVR=subprocess.Popen(['python', 'main.py'])
+    # procVR=subprocess.Popen([sys.executable,'~/Desktop/Test4/Impose.x86_64 '])
+    procVR=subprocess.call('~/Desktop/Test4/Impose.x86_64 ')
+    # procVR=subprocess.Popen(['python', 'main.py'])
     ui.tabWidget.setCurrentIndex(5)
 
 def startRqt():
@@ -538,7 +540,7 @@ def tick():
 
 
     except AttributeError as e:
-        print "something bad,no gui update",e
+        # print "something bad,no gui update",e
         pass
 
 
@@ -630,7 +632,7 @@ if __name__ == '__main__':
 
     # recordPathBtn = ui.buttonBox.button(ui.frameRecordPathBtn)
     # file = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
-    ui.frameRecordPathBtn.clicked.connect(lambda: showSaveDialog(window, ui.frameRecordPath))
+    # ui.frameRecordPathBtn.clicked.connect(lambda: showSaveDialog(window, ui.frameRecordPath))
 # 'frameRecordPath': [ui.frameRecordPathBtn,showSaveDialog,ui.frameRecordPath],
 
 
@@ -725,26 +727,26 @@ if __name__ == '__main__':
     timer.start(1000/60.)
 
     myDict = {
-        'greenTexPath': [ui.greenTexPathBtn, showFileDialog, ui.greenTexPath],
-        'redTexPath': [ui.redTexPathBtn, showFileDialog, ui.redTexPath],
-        'object1': [ui.obj1PathBtn, showFileDialog, ui.object1],
-        'object2': [ui.obj2PathBtn, showFileDialog, ui.object2],
-        'treeTexPath': [ui.treeTexPathBtn, showFileDialog, ui.treeTexPath],
-        'skyMapBtn': [ui.skyMapBtn, showFileDialog, ui.skyMap],
-        'skyMapNullBtn': [ui.skyMapNullBtn, showFileDialog, ui.skyMapNull],
-        'modelHeightMap': [ui.modelHeightMapBtn, showFileDialog, ui.modelHeightMap],
-        'modelTextureMap': [ui.modelTextureMapBtn, showFileDialog, ui.modelTextureMap],
-        'modelTextureMapNull': [ui.modelTextureMapNullBtn, showFileDialog, ui.modelTextureMapNull],
+        # 'greenTexPath': [ui.greenTexPathBtn, showFileDialog, ui.greenTexPath],
+        # 'redTexPath': [ui.redTexPathBtn, showFileDialog, ui.redTexPath],
+        # 'object1': [ui.obj1PathBtn, showFileDialog, ui.object1],
+        # 'object2': [ui.obj2PathBtn, showFileDialog, ui.object2],
+        # 'treeTexPath': [ui.treeTexPathBtn, showFileDialog, ui.treeTexPath],
+        # 'skyMapBtn': [ui.skyMapBtn, showFileDialog, ui.skyMap],
+        # 'skyMapNullBtn': [ui.skyMapNullBtn, showFileDialog, ui.skyMapNull],
+        # 'modelHeightMap': [ui.modelHeightMapBtn, showFileDialog, ui.modelHeightMap],
+        # 'modelTextureMap': [ui.modelTextureMapBtn, showFileDialog, ui.modelTextureMap],
+        # 'modelTextureMapNull': [ui.modelTextureMapNullBtn, showFileDialog, ui.modelTextureMapNull],
 
-        'odour1': [ui.odourBtn1, showFileDialog, ui.odour1],
-        'odour2': [ui.odourBtn2, showFileDialog, ui.odour2],
-        'odour3': [ui.odourBtn3, showFileDialog, ui.odour3],
-        'odour4': [ui.odourBtn4, showFileDialog, ui.odour4],
-        'odour1Mask': [ui.odour1MaskBtn, showFileDialog, ui.odour1Mask],
-        'odour2Mask': [ui.odour2MaskBtn, showFileDialog, ui.odour2Mask],
-        'odour3Mask': [ui.odour3MaskBtn, showFileDialog, ui.odour3Mask],
-        'odour4Mask': [ui.odour4MaskBtn, showFileDialog, ui.odour4Mask],
-        'beepPath': [ui.beepPathBtn,showFileDialog,ui.beepPath],
+        # 'odour1': [ui.odourBtn1, showFileDialog, ui.odour1],
+        # 'odour2': [ui.odourBtn2, showFileDialog, ui.odour2],
+        # 'odour3': [ui.odourBtn3, showFileDialog, ui.odour3],
+        # 'odour4': [ui.odourBtn4, showFileDialog, ui.odour4],
+        # 'odour1Mask': [ui.odour1MaskBtn, showFileDialog, ui.odour1Mask],
+        # 'odour2Mask': [ui.odour2MaskBtn, showFileDialog, ui.odour2Mask],
+        # 'odour3Mask': [ui.odour3MaskBtn, showFileDialog, ui.odour3Mask],
+        # 'odour4Mask': [ui.odour4MaskBtn, showFileDialog, ui.odour4Mask],
+        # 'beepPath': [ui.beepPathBtn,showFileDialog,ui.beepPath],
 
 
     }

@@ -65,7 +65,7 @@
       <item row="0" column="0" colspan="2">
        <widget class="QTabWidget" name="tabWidget">
         <property name="currentIndex">
-         <number>5</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="tab">
          <attribute name="title">
@@ -695,7 +695,7 @@
            </rect>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="tab_11">
            <attribute name="title">
@@ -1974,7 +1974,7 @@
            </rect>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="tab_2">
            <attribute name="title">
@@ -2096,7 +2096,7 @@
              <string>Servo Angle</string>
             </property>
            </widget>
-           <widget class="QwtCompass" name="compassServo">
+           <widget class="QwtCompass" name="compassServo" native="true">
             <property name="geometry">
              <rect>
               <x>357</x>
@@ -2105,17 +2105,11 @@
               <height>240</height>
              </rect>
             </property>
-            <property name="readOnly">
+            <property name="readOnly" stdset="0">
              <bool>true</bool>
             </property>
-            <property name="lineWidth">
+            <property name="lineWidth" stdset="0">
              <number>4</number>
-            </property>
-            <property name="frameShadow">
-             <enum>QwtDial::Raised</enum>
-            </property>
-            <property name="direction">
-             <enum>QwtDial::CounterClockwise</enum>
             </property>
            </widget>
            <widget class="QWidget" name="gridLayoutWidget_2">
@@ -2148,7 +2142,7 @@
              <enum>QLCDNumber::Flat</enum>
             </property>
            </widget>
-           <widget class="QwtCompass" name="compassHeading">
+           <widget class="QwtCompass" name="compassHeading" native="true">
             <property name="geometry">
              <rect>
               <x>446</x>
@@ -2157,14 +2151,11 @@
               <height>191</height>
              </rect>
             </property>
-            <property name="readOnly">
+            <property name="readOnly" stdset="0">
              <bool>true</bool>
             </property>
-            <property name="lineWidth">
+            <property name="lineWidth" stdset="0">
              <number>4</number>
-            </property>
-            <property name="direction">
-             <enum>QwtDial::CounterClockwise</enum>
             </property>
            </widget>
            <widget class="QLabel" name="stateLabel">
@@ -2193,7 +2184,7 @@
              <string>None</string>
             </property>
            </widget>
-           <widget class="QwtCompass" name="compassSlip">
+           <widget class="QwtCompass" name="compassSlip" native="true">
             <property name="geometry">
              <rect>
               <x>480</x>
@@ -2202,14 +2193,11 @@
               <height>121</height>
              </rect>
             </property>
-            <property name="readOnly">
+            <property name="readOnly" stdset="0">
              <bool>true</bool>
             </property>
-            <property name="lineWidth">
+            <property name="lineWidth" stdset="0">
              <number>4</number>
-            </property>
-            <property name="direction">
-             <enum>QwtDial::CounterClockwise</enum>
             </property>
            </widget>
            <widget class="QLabel" name="label_32">
@@ -2343,7 +2331,7 @@
              <enum>QSlider::NoTicks</enum>
             </property>
            </widget>
-           <widget class="KLed" name="odourLed">
+           <widget class="KLed" name="odourLed" native="true">
             <property name="geometry">
              <rect>
               <x>280</x>
@@ -2352,10 +2340,7 @@
               <height>31</height>
              </rect>
             </property>
-            <property name="shape">
-             <enum>KLed::Rectangular</enum>
-            </property>
-            <property name="darkFactor">
+            <property name="darkFactor" stdset="0">
              <number>307</number>
             </property>
            </widget>
@@ -2411,7 +2396,7 @@
             </property>
             <layout class="QGridLayout" name="replayTrajectoryLayout"/>
            </widget>
-           <widget class="KLed" name="replayOdourLed">
+           <widget class="KLed" name="replayOdourLed" native="true">
             <property name="geometry">
              <rect>
               <x>0</x>
@@ -2420,14 +2405,11 @@
               <height>16</height>
              </rect>
             </property>
-            <property name="shape">
-             <enum>KLed::Rectangular</enum>
-            </property>
-            <property name="darkFactor">
+            <property name="darkFactor" stdset="0">
              <number>307</number>
             </property>
            </widget>
-           <widget class="QwtCompass" name="compassServo_2">
+           <widget class="QwtCompass" name="compassServo_2" native="true">
             <property name="geometry">
              <rect>
               <x>690</x>
@@ -2436,17 +2418,11 @@
               <height>240</height>
              </rect>
             </property>
-            <property name="readOnly">
+            <property name="readOnly" stdset="0">
              <bool>true</bool>
             </property>
-            <property name="lineWidth">
+            <property name="lineWidth" stdset="0">
              <number>4</number>
-            </property>
-            <property name="frameShadow">
-             <enum>QwtDial::Raised</enum>
-            </property>
-            <property name="direction">
-             <enum>QwtDial::CounterClockwise</enum>
             </property>
            </widget>
            <widget class="QPushButton" name="clearPlot_2">
@@ -2491,11 +2467,6 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QwtCompass</class>
-   <extends>QwtDial</extends>
-   <header>qwt_compass.h</header>
-  </customwidget>
-  <customwidget>
    <class>QwtDial</class>
    <extends>QWidget</extends>
    <header>qwt_dial.h</header>
@@ -2504,6 +2475,11 @@
    <class>KLed</class>
    <extends>QWidget</extends>
    <header>kled.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QwtCompass</class>
+   <extends>QwtDial</extends>
+   <header>qwt_compass.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
